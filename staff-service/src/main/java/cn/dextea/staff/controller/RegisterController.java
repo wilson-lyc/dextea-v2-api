@@ -1,8 +1,9 @@
 package cn.dextea.staff.controller;
 
+import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.common.dto.ResponseDTO;
 import cn.dextea.staff.dto.RegisterDTO;
-import cn.dextea.staff.service.StaffInfoService;
+import cn.dextea.staff.service.RegisterService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -14,10 +15,10 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class RegisterController {
     @Autowired
-    StaffInfoService staffInfoService;
+    private RegisterService registerService;
 
     @PostMapping("/staff")
-    public ResponseDTO register(@Valid @RequestBody RegisterDTO data) {
-        return staffInfoService.register(data.getName(),data.getRole(),data.getPhone());
+    public ApiResponse register(@Valid @RequestBody RegisterDTO data) {
+        return registerService.register(data.getName(),data.getRole(),data.getPhone());
     }
 }
