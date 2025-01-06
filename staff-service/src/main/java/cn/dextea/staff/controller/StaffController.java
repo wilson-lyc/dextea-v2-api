@@ -24,12 +24,12 @@ public class StaffController {
      * @param id 员工id
      * @return 员工信息
      */
-    @GetMapping("/staff/{id}")
+    @GetMapping("/staff/info/{id}")
     public ApiResponse getStaffById(@Valid @PathVariable("id") int id){
         return staffService.getStaffById(id);
     }
     @GetMapping("/staff/list")
-    public ApiResponse getStaffList(@RequestParam int currentPage,@RequestParam int pageSize){
-        return staffService.getStaffList(currentPage,pageSize);
+    public ApiResponse getStaffList(@RequestParam int current,@RequestParam int size){
+        return staffService.getStaffList(current,size);
     }
 }

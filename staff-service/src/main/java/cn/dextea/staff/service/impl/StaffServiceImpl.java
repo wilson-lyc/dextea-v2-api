@@ -5,6 +5,7 @@ import cn.dextea.common.exception.MySQLException;
 import cn.dextea.staff.mapper.StaffMapper;
 import cn.dextea.staff.pojo.Staff;
 import cn.dextea.staff.service.StaffService;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,10 +44,10 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public ApiResponse getStaffList(int currentPage, int pageSize) {
+    public ApiResponse getStaffList(int current, int size) {
         QueryWrapper<Staff> wrapper=new QueryWrapper<>();
         wrapper.eq("is_deleted",false);
-        Page<Staff> page=new Page<>(currentPage,pageSize);
+        Page<Staff> page=new Page<>(current,size);
         page.setRecords(staffMapper.selectPage(page, wrapper).getRecords());
         return ApiResponse.success(page);
     }

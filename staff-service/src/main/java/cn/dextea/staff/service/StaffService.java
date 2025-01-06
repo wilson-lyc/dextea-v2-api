@@ -10,5 +10,5 @@ import jakarta.validation.constraints.NotNull;
  */
 public interface StaffService {
     ApiResponse getStaffById(int id);
-    ApiResponse getStaffList(int currentPage,int pageSize);
+    ApiResponse getStaffList(int current,int size);
 }
