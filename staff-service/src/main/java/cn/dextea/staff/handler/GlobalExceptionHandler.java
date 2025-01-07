@@ -23,27 +23,27 @@ public class GlobalExceptionHandler {
         e.getBindingResult().getFieldErrors().forEach(error ->
                 errors.put(error.getField(), error.getDefaultMessage())
         );
-        log.error("Invalid parameter: {}", errors);
-        return ApiResponse.badRequest("Invalid parameter");
+        log.error("参数错误: {}", errors);
+        return ApiResponse.badRequest("参数错误");
     }
     @ExceptionHandler(ConstraintViolationException.class)
     public ApiResponse handleValidationException(ConstraintViolationException e) {
-        log.error("Internal parameter error: {}", e.getMessage());
-        return ApiResponse.serverError("Internal parameter error");
+        log.error("内部参数异常: {}", e.getMessage());
+        return ApiResponse.serverError("服务器内部参数异常");
     }
     @ExceptionHandler(MySQLException.class)
     public ApiResponse handleMySQLException(MySQLException e) {
-        log.error("MySQL error: {}", e.getMessage(),e);
-        return ApiResponse.serverError("Internal database error");
+        log.error("MySQL异常: {}", e.getMessage(),e);
+        return ApiResponse.serverError("数据库异常");
     }
     @ExceptionHandler(TypeMismatchException.class)
     public ApiResponse handleTypeMismatchException(TypeMismatchException e) {
-        log.error("Type mismatch error: {}", e.getMessage());
-        return ApiResponse.badRequest("Type mismatch error");
+        log.error("参数类型异常: {}", e.getMessage());
+        return ApiResponse.badRequest("参数类型异常");
     }
     @ExceptionHandler(Exception.class)
     public ApiResponse handleException(Exception e) {
-        log.error("Internal server error: {}",e.getMessage());
-        return ApiResponse.serverError("Internal server error");
+        log.error("服务器内部异常: {}",e.getMessage());
+        return ApiResponse.serverError("服务器内部异常");
     }
 }

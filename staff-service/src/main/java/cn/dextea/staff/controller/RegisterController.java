@@ -17,7 +17,7 @@ public class RegisterController {
     @Autowired
     private RegisterService registerService;
 
-    @PostMapping("/staff")
+    @PostMapping("/staff/register")
     public ApiResponse register(@Valid @RequestBody RegisterDTO data) {
         return registerService.register(data.getName(),data.getRole(),data.getPhone());
     }
