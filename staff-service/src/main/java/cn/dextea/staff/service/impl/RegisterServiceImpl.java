@@ -36,6 +36,7 @@ public class RegisterServiceImpl implements RegisterService {
         staff.setName(name);
         staff.setRole(role);
         staff.setAccount(account);
+        staff.setPhone(phone);
         staff.setPassword(passwordUtil.encrypt(password));
         // 更新员工信息
         try{

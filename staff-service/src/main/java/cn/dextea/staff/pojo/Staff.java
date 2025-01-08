@@ -19,6 +19,5 @@ public class Staff {
     String gender;//性别
     String createTime;//创建时间
     String updateTime;
-    @TableField("is_deleted")
-    boolean isDeleted;//删除标记
+    boolean state=true;//删除标记
 }

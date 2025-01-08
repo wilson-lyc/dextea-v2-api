@@ -29,7 +29,6 @@ public class StaffServiceImpl implements StaffService {
     public ApiResponse getStaffById(int id) {
         QueryWrapper<Staff> wrapper=new QueryWrapper<>();
         wrapper.eq("id",id);
-        wrapper.eq("is_deleted",false);
         try{
             Staff staff=staffMapper.selectOne(wrapper);
             if(staff==null){
@@ -45,10 +44,8 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public ApiResponse getStaffList(int current, int size) {
-        QueryWrapper<Staff> wrapper=new QueryWrapper<>();
-        wrapper.eq("is_deleted",false);
         Page<Staff> page=new Page<>(current,size);
-        page.setRecords(staffMapper.selectPage(page, wrapper).getRecords());
+        page.setRecords(staffMapper.selectPage(page, null).getRecords());
         return ApiResponse.success(page);
     }
 }
