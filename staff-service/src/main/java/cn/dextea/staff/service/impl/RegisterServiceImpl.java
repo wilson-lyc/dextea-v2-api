@@ -1,7 +1,6 @@
 package cn.dextea.staff.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.common.dto.ResponseDTO;
 import cn.dextea.common.exception.MySQLException;
 import cn.dextea.staff.mapper.StaffMapper;
 import cn.dextea.staff.pojo.Staff;

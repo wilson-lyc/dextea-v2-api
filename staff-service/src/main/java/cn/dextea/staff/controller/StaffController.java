@@ -1,8 +1,6 @@
 package cn.dextea.staff.controller;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.common.dto.ResponseDTO;
-import cn.dextea.staff.dto.GetStaffListDTO;
 import cn.dextea.staff.service.StaffService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,8 +26,30 @@ public class StaffController {
     public ApiResponse getStaffById(@Valid @PathVariable("id") int id){
         return staffService.getStaffById(id);
     }
+
+    /**
+     * 查询员工列表
+     * @param current 当前页码 默认=1
+     * @param size 分页大小 默认=10
+     * @param id 员工ID 可选
+     * @param role 角色 可选
+     * @param phone 手机号 可选
+     * @param state 状态 可选
+     * @return 员工列表
+     */
     @GetMapping("/staff/list")
-    public ApiResponse getStaffList(@RequestParam int current,@RequestParam int size){
-        return staffService.getStaffList(current,size);
+    public ApiResponse getStaffList(
+            @RequestParam(defaultValue = "1") int current,
+            @RequestParam(defaultValue = "10") int size,
+            @RequestParam(defaultValue = "-1") int id,
+            @RequestParam(defaultValue = "") String role,
+            @RequestParam(defaultValue = "") String phone,
+            @RequestParam(defaultValue = "-1")int state){
+        return staffService.getStaffList(current,size,id,role,phone,state);
+    }
+
+    @GetMapping("/staff/resetPwd")
+    public ApiResponse resetPwd(@RequestParam("id") int id){
+        return staffService.resetPwd(id);
     }
 }
