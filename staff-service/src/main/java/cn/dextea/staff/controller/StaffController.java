@@ -1,13 +1,13 @@
 package cn.dextea.staff.controller;
 
 import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.staff.dto.RegisterDTO;
+import cn.dextea.staff.dto.SearchStaffDTO;
+import cn.dextea.staff.dto.UpdateStaffDTO;
 import cn.dextea.staff.service.StaffService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Lai Yongchao
@@ -18,38 +18,53 @@ public class StaffController {
     private StaffService staffService;
 
     /**
-     * 根据id查询员工信息
+     * 创建员工
+     * @param data {name,phone,role}
+     * @return 账号和密码
+     */
+    @PostMapping("/staff")
+    public ApiResponse create(@Valid @RequestBody RegisterDTO data) {
+        return staffService.create(data);
+    }
+
+    /**
+     * 根据id查询员工
      * @param id 员工id
      * @return 员工信息
      */
-    @GetMapping("/staff/info/{id}")
-    public ApiResponse getStaffById(@Valid @PathVariable("id") int id){
+    @GetMapping("/staff/{id:\\d+}")
+    public ApiResponse getStaffById(@Valid @PathVariable("id") Long id){
         return staffService.getStaffById(id);
     }
 
     /**
      * 查询员工列表
-     * @param current 当前页码 默认=1
-     * @param size 分页大小 默认=10
-     * @param id 员工ID 可选
-     * @param role 角色 可选
-     * @param phone 手机号 可选
-     * @param state 状态 可选
+     * @param data {current,size,name,account,phone,role,storeId,state}
      * @return 员工列表
      */
-    @GetMapping("/staff/list")
-    public ApiResponse getStaffList(
-            @RequestParam(defaultValue = "1") int current,
-            @RequestParam(defaultValue = "10") int size,
-            @RequestParam(defaultValue = "-1") int id,
-            @RequestParam(defaultValue = "") String role,
-            @RequestParam(defaultValue = "") String phone,
-            @RequestParam(defaultValue = "-1")int state){
-        return staffService.getStaffList(current,size,id,role,phone,state);
+    @PostMapping("/staff/search")
+    public ApiResponse getStaffList(@Valid @RequestBody SearchStaffDTO data){
+        return staffService.search(data);
     }
 
-    @GetMapping("/staff/resetPwd")
-    public ApiResponse resetPwd(@RequestParam("id") int id){
+    /**
+     * 重置密码
+     * @param id 员工id
+     * @return 新密码
+     */
+    @PutMapping("/staff/resetPwd")
+    public ApiResponse resetPwd(@RequestParam("id") Long id){
         return staffService.resetPwd(id);
+    }
+
+    /**
+     * 更新员工信息
+     * @param id 员工id
+     * @param data {phone,role,storeId,state}
+     * @return
+     */
+    @PutMapping("/staff/{id:\\d+}")
+    public ApiResponse updateStaff(@PathVariable("id") Long id,@Valid @RequestBody UpdateStaffDTO data){
+        return staffService.update(id,data);
     }
 }

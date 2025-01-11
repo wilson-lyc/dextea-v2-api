@@ -42,12 +42,7 @@ public class AccountUtil {
             staff.setName(name);
             staff.setNamePinyin(namePinyin);
             staff.setAccount(account);
-            try{
-                staffMapper.insert(staff);
-            } catch (Exception e){
-                String errorMsg=String.format("Failed to insert staff, name=%s, account=%s", name,account);
-                throw new MySQLException(errorMsg, e);
-            }
+            staffMapper.insert(staff);
             return account;
         } finally {
             lock.unlock();

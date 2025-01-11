@@ -7,6 +7,8 @@ import com.alibaba.fastjson2.JSONObject;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.TypeMismatchException;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
@@ -43,7 +45,7 @@ public class GlobalExceptionHandler {
     }
     @ExceptionHandler(Exception.class)
     public ApiResponse handleException(Exception e) {
-        log.error("服务器内部异常: {}",e.getMessage());
-        return ApiResponse.serverError("服务器内部异常");
+        log.error("服务器内部异常",e);
+        return ApiResponse.serverError("服务器内部错误，请稍后重试");
     }
 }
