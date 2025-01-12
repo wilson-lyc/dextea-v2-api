@@ -15,6 +15,5 @@ public class UpdateStaffDTO {
     private String phone;
     private String role;
     private Long storeId;
-    @NotNull(message = "缺少账号状态")
-    private Integer  state;
+    private Boolean state;
 }

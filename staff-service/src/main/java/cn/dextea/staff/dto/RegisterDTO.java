@@ -10,9 +10,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class RegisterDTO {
     @NotBlank(message = "用户名不能为空")
-    String name;
+    private String name;
     @NotBlank(message = "手机号不能为空")
-    String phone;
+    private String phone;
     @NotBlank(message = "角色不能为空")
-    String role;
+    private String role;
 }

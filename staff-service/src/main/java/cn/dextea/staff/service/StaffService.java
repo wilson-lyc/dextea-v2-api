@@ -4,6 +4,9 @@ import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.staff.dto.UpdateStaffDTO;
 import cn.dextea.staff.dto.RegisterDTO;
 import cn.dextea.staff.dto.SearchStaffDTO;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 /**
  * @author Lai Yongchao
@@ -11,7 +14,7 @@ import cn.dextea.staff.dto.SearchStaffDTO;
 public interface StaffService {
     ApiResponse create(RegisterDTO data);
     ApiResponse getStaffById(Long id);
-    ApiResponse search(SearchStaffDTO data);
+    ApiResponse search(int current,int size, SearchStaffDTO data);
     ApiResponse resetPwd(Long id);
     ApiResponse update(Long id, UpdateStaffDTO data);
 }

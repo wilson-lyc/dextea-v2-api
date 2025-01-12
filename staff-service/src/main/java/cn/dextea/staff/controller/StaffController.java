@@ -6,6 +6,7 @@ import cn.dextea.staff.dto.SearchStaffDTO;
 import cn.dextea.staff.dto.UpdateStaffDTO;
 import cn.dextea.staff.service.StaffService;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -39,12 +40,17 @@ public class StaffController {
 
     /**
      * 查询员工列表
-     * @param data {current,size,name,account,phone,role,storeId,state}
+     * @param current 当前页
+     * @param size 每页大小
+     * @param condition {name,phone,role,storeId,state}
      * @return 员工列表
      */
     @PostMapping("/staff/search")
-    public ApiResponse getStaffList(@Valid @RequestBody SearchStaffDTO data){
-        return staffService.search(data);
+    public ApiResponse getStaffList(
+            @Valid @Min(value = 1,message = "current不能小于1") @RequestParam(defaultValue = "1") int current,
+            @Valid @Min(value = 1,message = "size不能小于1") @RequestParam(defaultValue = "10") int size,
+            @Valid @RequestBody SearchStaffDTO condition){
+        return staffService.search(current,size,condition);
     }
 
     /**
@@ -61,7 +67,6 @@ public class StaffController {
      * 更新员工信息
      * @param id 员工id
      * @param data {phone,role,storeId,state}
-     * @return
      */
     @PutMapping("/staff/{id:\\d+}")
     public ApiResponse updateStaff(@PathVariable("id") Long id,@Valid @RequestBody UpdateStaffDTO data){

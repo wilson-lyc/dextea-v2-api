@@ -13,6 +13,9 @@ import cn.dextea.staff.util.PasswordUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -42,6 +45,7 @@ public class StaffServiceImpl implements StaffService {
         staff.setAccount(account);
         staff.setPhone(data.getPhone());
         staff.setPassword(passwordUtil.encrypt(password));// 加密密码
+        staff.setState(true);
         // 更新员工信息
         staffMapper.update(staff,new QueryWrapper<Staff>().eq("account",account));
         return ApiResponse.success("注册成功",new RegisterResDTO(account,password));
@@ -60,9 +64,31 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public ApiResponse search(SearchStaffDTO data) {
-        Page<Staff> page=new Page<>(data.getCurrent(),data.getSize());
-        page=staffMapper.selectPage(page,null);
+    public ApiResponse search(int current,int size, SearchStaffDTO condition) {
+        QueryWrapper<Staff> wrapper=new QueryWrapper<>();
+        if(condition.getId()!=null){
+            wrapper.eq("id",condition.getId());
+        }
+        if(condition.getName()!=null){
+            wrapper.eq("name",condition.getName());
+        }
+        if(condition.getAccount()!=null){
+            wrapper.eq("account",condition.getAccount());
+        }
+        if(condition.getRole()!=null){
+            wrapper.eq("role",condition.getRole());
+        }
+        if(condition.getStoreId()!=null){
+            wrapper.eq("store_id",condition.getStoreId());
+        }
+        if(condition.getPhone()!=null){
+            wrapper.eq("phone",condition.getPhone());
+        }
+        if(condition.getState()!=null){
+            wrapper.eq("state",condition.getState());
+        }
+        Page<Staff> page=new Page<>(current,size);
+        page=staffMapper.selectPage(page,wrapper);
         return ApiResponse.success(page);
     }
 
@@ -83,6 +109,7 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public ApiResponse update(Long id, UpdateStaffDTO data) {
+        System.out.println(data);
         Staff staff=new Staff();
         staff.setId(id);
         staff.setRole(data.getRole());
@@ -94,6 +121,6 @@ public class StaffServiceImpl implements StaffService {
             String msg=String.format("未找到该员工，id=%d",id);
             return ApiResponse.notFound(msg);
         }
-        return ApiResponse.success("信息已更新");
+        return ApiResponse.success("信息已更新",null);
     }
 }
