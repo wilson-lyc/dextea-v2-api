@@ -13,6 +13,7 @@
         <module>staff-service</module>
         <module>gateway</module>
         <module>common</module>
+        <module>store-service</module>
     </modules>
     <!-- 全局变量 -->
     <properties>

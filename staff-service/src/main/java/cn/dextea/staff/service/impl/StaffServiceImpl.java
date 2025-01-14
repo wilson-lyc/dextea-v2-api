@@ -64,24 +64,24 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public ApiResponse search(int current,int size, SearchStaffDTO condition) {
+    public ApiResponse getStaffList(int current,int size, SearchStaffDTO condition) {
         QueryWrapper<Staff> wrapper=new QueryWrapper<>();
         if(condition.getId()!=null){
             wrapper.eq("id",condition.getId());
         }
-        if(condition.getName()!=null){
+        if(condition.getName()!=null&&!condition.getName().isBlank()){
             wrapper.eq("name",condition.getName());
         }
-        if(condition.getAccount()!=null){
+        if(condition.getAccount()!=null&&!condition.getAccount().isBlank()){
             wrapper.eq("account",condition.getAccount());
         }
-        if(condition.getRole()!=null){
+        if(condition.getRole()!=null&&!condition.getRole().isBlank()){
             wrapper.eq("role",condition.getRole());
         }
         if(condition.getStoreId()!=null){
             wrapper.eq("store_id",condition.getStoreId());
         }
-        if(condition.getPhone()!=null){
+        if(condition.getPhone()!=null&&!condition.getPhone().isBlank()){
             wrapper.eq("phone",condition.getPhone());
         }
         if(condition.getState()!=null){
@@ -89,6 +89,11 @@ public class StaffServiceImpl implements StaffService {
         }
         Page<Staff> page=new Page<>(current,size);
         page=staffMapper.selectPage(page,wrapper);
+        // 如果当前页码大于总页数，返回最后一页
+        if(page.getCurrent()>page.getPages()){
+            page.setCurrent(page.getPages());
+            page=staffMapper.selectPage(page,wrapper);
+        }
         return ApiResponse.success(page);
     }
 

@@ -14,7 +14,7 @@ import jakarta.validation.constraints.NotNull;
 public interface StaffService {
     ApiResponse create(RegisterDTO data);
     ApiResponse getStaffById(Long id);
-    ApiResponse search(int current,int size, SearchStaffDTO data);
+    ApiResponse getStaffList(int current,int size, SearchStaffDTO data);
     ApiResponse resetPwd(Long id);
     ApiResponse update(Long id, UpdateStaffDTO data);
 }

@@ -50,7 +50,7 @@ public class StaffController {
             @Valid @Min(value = 1,message = "current不能小于1") @RequestParam(defaultValue = "1") int current,
             @Valid @Min(value = 1,message = "size不能小于1") @RequestParam(defaultValue = "10") int size,
             @Valid @RequestBody SearchStaffDTO condition){
-        return staffService.search(current,size,condition);
+        return staffService.getStaffList(current,size,condition);
     }
 
     /**
