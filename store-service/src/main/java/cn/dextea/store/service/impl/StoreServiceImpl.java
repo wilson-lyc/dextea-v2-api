@@ -22,7 +22,7 @@ public class StoreServiceImpl implements StoreService {
     @Override
     public ApiResponse create(CreateStoreDTO data) {
         Store store=data.toStore();
-        store.setState("open");
+        store.setState(0);// 新注册门店状态为未激活（0）
         storeMapper.insert(store);
         return ApiResponse.success("门店新增成功",null);
     }
@@ -47,7 +47,7 @@ public class StoreServiceImpl implements StoreService {
         if (filter.getName()!=null&&!filter.getName().isBlank()){
             wrapper.like("name",filter.getName());
         }
-        if (filter.getState()!=null&&!filter.getState().isBlank()){
+        if (filter.getState()!=null){
             wrapper.eq("state",filter.getState());
         }
         if (filter.getProvince()!=null&&!filter.getProvince().isBlank()){

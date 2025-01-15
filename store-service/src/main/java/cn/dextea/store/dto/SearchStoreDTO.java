@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class SearchStoreDTO {
     private Long id;
     private String name;
-    private String state;
+    private Integer state;
     private String province;
     private String city;
     private String district;

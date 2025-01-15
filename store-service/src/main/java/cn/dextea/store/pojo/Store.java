@@ -16,7 +16,7 @@ public class Store {
     @TableId(type = IdType.AUTO)
     private Long id;// 门店ID
     private String name;// 门店名称
-    private String state;// 门店状态
+    private Integer state;// 门店状态
     private String province;// 省
     private String city;// 市
     private String district;// 区
