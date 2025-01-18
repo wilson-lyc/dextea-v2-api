@@ -1,4 +1,4 @@
-package cn.dextea.staff.pojo;
+package cn.dextea.auth.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -9,21 +9,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * @author Lai Yongchao
+ */
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("s_staff")
-public class Staff {
+@TableName("s_role")
+public class Role {
     @TableId(type = IdType.AUTO)
-    Long id;// 员工id
-    String name;// 姓名
-    String namePinyin;// 姓名拼音
-    String account;// 账号
-    @TableField(select = false)
-    String password;// 密码
-    String phone;// 电话
-    String createTime;//创建时间
-    String updateTime;// 更新时间
-    Boolean status;// 状态
+    private Long id;
+    private String label;
+    private String description;
+    private String createTime;
 }

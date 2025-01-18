@@ -2,7 +2,9 @@ package cn.dextea.store.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -10,13 +12,15 @@ import lombok.NoArgsConstructor;
  * @author Lai Yongchao
  */
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@TableName("s_store")
 public class Store {
     @TableId(type = IdType.AUTO)
     private Long id;// 门店ID
     private String name;// 门店名称
-    private Integer state;// 门店状态
+    private StoreStatus status;// 门店状态
     private String province;// 省
     private String city;// 市
     private String district;// 区

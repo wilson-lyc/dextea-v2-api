@@ -1,20 +1,15 @@
 package cn.dextea.staff.service;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.staff.dto.UpdateStaffDTO;
-import cn.dextea.staff.dto.RegisterDTO;
-import cn.dextea.staff.dto.SearchStaffDTO;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
+import cn.dextea.staff.dto.*;
 
 /**
  * @author Lai Yongchao
  */
 public interface StaffService {
-    ApiResponse create(RegisterDTO data);
+    ApiResponse create(CreateStaffDTO data);
     ApiResponse getStaffById(Long id);
-    ApiResponse getStaffList(int current,int size, SearchStaffDTO data);
+    ApiResponse getStaffList(int current, int size, SearchStaffDTO data);
     ApiResponse resetPwd(Long id);
     ApiResponse update(Long id, UpdateStaffDTO data);
 }

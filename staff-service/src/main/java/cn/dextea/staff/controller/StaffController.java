@@ -1,10 +1,10 @@
 package cn.dextea.staff.controller;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.staff.dto.RegisterDTO;
-import cn.dextea.staff.dto.SearchStaffDTO;
-import cn.dextea.staff.dto.UpdateStaffDTO;
+import cn.dextea.staff.dto.*;
+import cn.dextea.staff.pojo.Staff;
 import cn.dextea.staff.service.StaffService;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,11 +20,11 @@ public class StaffController {
 
     /**
      * 创建员工
-     * @param data {name,phone,role}
+     * @param data {name,phone}
      * @return 账号和密码
      */
     @PostMapping("/staff")
-    public ApiResponse create(@Valid @RequestBody RegisterDTO data) {
+    public ApiResponse create(@Valid @RequestBody CreateStaffDTO data) {
         return staffService.create(data);
     }
 

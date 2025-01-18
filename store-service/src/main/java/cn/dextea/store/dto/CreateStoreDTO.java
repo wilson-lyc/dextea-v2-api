@@ -30,15 +30,15 @@ public class CreateStoreDTO {
     @NotBlank(message = "营业时间不能为空")
     private String openTime;
     public Store toStore(){
-        Store store=new Store();
-        store.setName(name);
-        store.setProvince(province);
-        store.setCity(city);
-        store.setDistrict(district);
-        store.setAddress(address);
-        store.setLinkman(linkman);
-        store.setPhone(phone);
-        store.setOpenTime(openTime);
-        return store;
+        return Store.builder()
+                .name(name)
+                .province(province)
+                .city(city)
+                .district(district)
+                .address(address)
+                .linkman(linkman)
+                .phone(phone)
+                .openTime(openTime)
+                .build();
     }
 }

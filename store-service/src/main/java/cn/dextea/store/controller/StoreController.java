@@ -3,7 +3,9 @@ package cn.dextea.store.controller;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.store.dto.CreateStoreDTO;
 import cn.dextea.store.dto.SearchStoreDTO;
+import cn.dextea.store.pojo.Store;
 import cn.dextea.store.service.StoreService;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +21,7 @@ public class StoreController {
 
     /**
      * 创建门店
+     * @param data {name,province,city,district,address,linkman,phone,openTime}
      */
     @PostMapping("/store")
     public ApiResponse create(@Valid @RequestBody CreateStoreDTO data) {

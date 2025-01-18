@@ -1,4 +1,4 @@
-package cn.dextea.store.handler;
+package cn.dextea.auth.handler;
 
 import cn.dextea.common.dto.ApiResponse;
 import com.alibaba.fastjson2.JSONObject;

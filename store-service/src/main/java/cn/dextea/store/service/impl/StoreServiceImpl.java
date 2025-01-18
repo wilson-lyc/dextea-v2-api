@@ -5,7 +5,9 @@ import cn.dextea.store.dto.CreateStoreDTO;
 import cn.dextea.store.dto.SearchStoreDTO;
 import cn.dextea.store.mapper.StoreMapper;
 import cn.dextea.store.pojo.Store;
+import cn.dextea.store.pojo.StoreStatus;
 import cn.dextea.store.service.StoreService;
+import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,9 +24,9 @@ public class StoreServiceImpl implements StoreService {
     @Override
     public ApiResponse create(CreateStoreDTO data) {
         Store store=data.toStore();
-        store.setState(0);// 新注册门店状态为未激活（0）
+        store.setStatus(StoreStatus.NOT_ACTIVE);// 新注册门店状态为未激活
         storeMapper.insert(store);
-        return ApiResponse.success("门店新增成功",null);
+        return ApiResponse.success();
     }
 
     @Override
@@ -33,9 +35,10 @@ public class StoreServiceImpl implements StoreService {
         wrapper.eq("id",id);
         Store store=storeMapper.selectOne(wrapper);
         if (store==null){
-            return ApiResponse.notFound("门店不存在，id："+id);
+            String mgs=String.format("门店不存在，ID=%d",id);
+            return ApiResponse.notFound(mgs);
         }
-        return ApiResponse.success(store);
+        return ApiResponse.success(JSONObject.of("store",store));
     }
 
     @Override
@@ -72,6 +75,6 @@ public class StoreServiceImpl implements StoreService {
             page.setCurrent(page.getPages());
             page=storeMapper.selectPage(page,wrapper);
         }
-        return ApiResponse.success(page);
+        return ApiResponse.success(JSONObject.from(page));
     }
 }

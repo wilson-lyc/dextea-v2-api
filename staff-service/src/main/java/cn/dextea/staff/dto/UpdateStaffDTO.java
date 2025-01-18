@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UpdateStaffDTO {
     private String phone;
-    private String role;
+    private Integer type;
     private Long storeId;
-    private Boolean state;
+    private Boolean status;
 }

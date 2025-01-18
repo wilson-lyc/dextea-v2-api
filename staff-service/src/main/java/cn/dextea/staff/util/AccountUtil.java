@@ -1,11 +1,9 @@
 package cn.dextea.staff.util;
 
-import cn.dextea.common.exception.MySQLException;
 import cn.dextea.staff.mapper.StaffMapper;
 import cn.dextea.staff.pojo.Staff;
 import cn.hutool.extra.pinyin.PinyinUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +36,12 @@ public class AccountUtil {
             lock.lock();
             Long samePinYinCount = staffMapper.selectCount(wrapper);
             String account = samePinYinCount > 0 ? namePinyin + (samePinYinCount + 1) : namePinyin;
-            Staff staff = new Staff();
-            staff.setName(name);
-            staff.setNamePinyin(namePinyin);
-            staff.setAccount(account);
+            Staff staff =Staff.builder()
+                    .name(name)
+                    .namePinyin(namePinyin)
+                    .account(account)
+                    .status(false)
+                    .build();
             staffMapper.insert(staff);
             return account;
         } finally {

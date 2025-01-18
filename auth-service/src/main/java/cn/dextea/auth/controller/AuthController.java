@@ -1,4 +1,4 @@
-package cn.dextea.staff.controller;
+package cn.dextea.auth.controller;
 
 import com.alibaba.fastjson2.JSONObject;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -32,10 +32,6 @@ public class AuthController {
                 "          {\n" +
                 "            \"key\":\"/admin/store/list\",\n" +
                 "            \"name\":\"所有门店\"\n" +
-                "          },\n" +
-                "          {\n" +
-                "            \"key\":\"/admin/store/operate\",\n" +
-                "            \"name\":\"运营状态\"\n" +
                 "          }\n" +
                 "        ]\n" +
                 "      },\n" +
