@@ -1,21 +1,23 @@
 package cn.dextea.common.dto;
 
 import com.alibaba.fastjson2.JSONObject;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
-import java.util.Map;
 
 /**
  * @author Lai Yongchao
  */
 @Data
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 public class ApiResponse {
-    private final int code;
-    private final String msg;
-    private final JSONObject data;
+    private int code;
+    private String msg;
+    private JSONObject data;
     // 200 - SUCCESS
     public static ApiResponse success(){
         return ApiResponse.builder()
@@ -39,7 +41,7 @@ public class ApiResponse {
     public static ApiResponse success(String msg,JSONObject data){
         return ApiResponse.builder()
                 .code(ResultCode.SUCCESS.getCode())
-                .msg(ResultCode.SUCCESS.getMsg())
+                .msg(msg)
                 .data(data)
                 .build();
     }

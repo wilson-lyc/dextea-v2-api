@@ -10,6 +10,12 @@
     </parent>
     <artifactId>gateway</artifactId>
     <dependencies>
+        <!-- common -->
+        <dependency>
+            <groupId>cn.dextea</groupId>
+            <artifactId>common</artifactId>
+            <version>2.0</version>
+        </dependency>
         <!-- spring cloud gateway -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
@@ -25,10 +31,19 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
         </dependency>
-        <!-- nacos服务发现 -->
+        <!-- Nacos 服务发现 -->
         <dependency>
             <groupId>com.alibaba.cloud</groupId>
             <artifactId>spring-cloud-starter-alibaba-nacos-discovery</artifactId>
+        </dependency>
+        <!-- Sa-Token -->
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-reactor-spring-boot3-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>cn.dev33</groupId>
+            <artifactId>sa-token-redis-jackson</artifactId>
         </dependency>
     </dependencies>
 </project>

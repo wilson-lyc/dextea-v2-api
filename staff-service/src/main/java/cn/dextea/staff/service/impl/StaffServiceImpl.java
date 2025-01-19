@@ -1,6 +1,7 @@
 package cn.dextea.staff.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.dto.StaffLoginResDTO;
 import cn.dextea.staff.dto.*;
 import cn.dextea.staff.mapper.StaffMapper;
 import cn.dextea.staff.pojo.Staff;
@@ -87,8 +88,9 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public ApiResponse resetPwd(Long id) {
         String password=passwordUtil.create();
-        Staff staff=new Staff();
-        staff.setPassword(passwordUtil.encrypt(passwordUtil.create()));
+        Staff staff=Staff.builder()
+                .password(passwordUtil.encrypt(password))
+                .build();
         int num=staffMapper.update(staff,new QueryWrapper<Staff>().eq("id",id));
         if(num==0){
             String msg=String.format("员工不存在，id=%d",id);
@@ -111,5 +113,27 @@ public class StaffServiceImpl implements StaffService {
             return ApiResponse.notFound(msg);
         }
         return ApiResponse.success();
+    }
+
+    @Override
+    public ApiResponse login(CheckPwdDTO data) {
+        QueryWrapper<Staff> wrapper=new QueryWrapper<>();
+        wrapper.eq("account",data.getAccount());
+        wrapper.eq("password",passwordUtil.encrypt(data.getPassword()));
+        Staff staff=staffMapper.selectOne(wrapper);
+        // 账号或密码错误
+        if(staff==null){
+            return ApiResponse.badRequest("账号或密码错误");
+        }
+        // 账号被禁用
+        if(!staff.getStatus()){
+            return ApiResponse.badRequest("账号已被禁用");
+        }
+        StaffLoginResDTO res=StaffLoginResDTO.builder()
+                .id(staff.getId())
+                .name(staff.getName())
+                .account(staff.getAccount())
+                .build();
+        return ApiResponse.success("密码正确",JSONObject.of("staff",res));
     }
 }

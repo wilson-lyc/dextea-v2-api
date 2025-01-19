@@ -6,13 +6,9 @@ spring:
     name: staff-service
   cloud:
     nacos:
+      server-addr: ${NACOS_URL}
       discovery:
-        server-addr: ${NACOS_URL}
         namespace: dextea
-        group: admin
       config:
-        server-addr: ${NACOS_URL}
         namespace: dextea
-        group: admin
-        prefix: ${spring.application.name}
         file-extension: yaml

@@ -12,4 +12,5 @@ public interface StaffService {
     ApiResponse getStaffList(int current, int size, SearchStaffDTO data);
     ApiResponse resetPwd(Long id);
     ApiResponse update(Long id, UpdateStaffDTO data);
+    ApiResponse login(CheckPwdDTO data);
 }

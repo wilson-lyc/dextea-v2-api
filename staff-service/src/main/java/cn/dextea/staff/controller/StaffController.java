@@ -1,10 +1,9 @@
 package cn.dextea.staff.controller;
 
 import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.staff.dto.CheckPwdDTO;
 import cn.dextea.staff.dto.*;
-import cn.dextea.staff.pojo.Staff;
 import cn.dextea.staff.service.StaffService;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -71,5 +70,13 @@ public class StaffController {
     @PutMapping("/staff/{id:\\d+}")
     public ApiResponse updateStaff(@PathVariable("id") Long id,@Valid @RequestBody UpdateStaffDTO data){
         return staffService.update(id,data);
+    }
+    /**
+     * 检查密码
+     * @param data {account,password}
+     */
+    @PostMapping("/staff/login")
+    public ApiResponse login(@Valid @RequestBody CheckPwdDTO data){
+        return staffService.login(data);
     }
 }
