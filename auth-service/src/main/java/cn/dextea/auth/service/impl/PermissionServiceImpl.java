@@ -44,7 +44,7 @@ public class PermissionServiceImpl implements PermissionService {
                 .innerJoin(RolePermission.class, RolePermission::getPermissionId, Permission::getId)
                 .innerJoin(StaffRole.class, StaffRole::getRoleId, RolePermission::getRoleId)
                 .eq(StaffRole::getStaffId, uid);
-        List<String> permissionKeys = permissionMapper.selectObjs(wrapper);
-        return ApiResponse.success(JSONObject.of("permissionKeys",permissionKeys));
+        List<String> keys = permissionMapper.selectObjs(wrapper);
+        return ApiResponse.success(JSONObject.of("keys",keys));
     }
 }

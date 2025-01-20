@@ -7,5 +7,4 @@ import cn.dextea.common.dto.ApiResponse;
  */
 public interface RouterService {
     ApiResponse getRouterList();
-    ApiResponse getStaffRouter(Long uid);
 }

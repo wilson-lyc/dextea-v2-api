@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.*;
  * @author Lai Yongchao
  */
 @RestController
+@RequestMapping("/role")
 public class RoleController {
     @Autowired
     RoleService roleService;
@@ -21,7 +22,7 @@ public class RoleController {
      * 创建角色
      * @param data {key,description}
      */
-    @PostMapping("/role")
+    @PostMapping("")
     public ApiResponse create(@Valid @RequestBody RoleDTO data) {
         return roleService.create(data);
     }
@@ -31,16 +32,16 @@ public class RoleController {
      * @param current 当前页
      * @param size 每页大小
      */
-    @GetMapping("/role")
+    @GetMapping("")
     public ApiResponse getRoleList(@RequestParam(defaultValue = "1") int current, @RequestParam(defaultValue = "10") int size) {
         return roleService.getRoleList(current,size);
     }
 
     /**
-     * 获取角色详情
+     * 根据id获取角色详情
      * @param id 角色ID
      */
-    @GetMapping("/role/{id:\\d+}")
+    @GetMapping("/{id:\\d+}")
     public ApiResponse getRoleById(@PathVariable Long id) {
         return roleService.getRoleById(id);
     }
@@ -50,17 +51,31 @@ public class RoleController {
      * @param id 角色ID
      * @param data {key,label,description}
      */
-    @PutMapping("/role/{id:\\d+}")
+    @PutMapping("/{id:\\d+}")
     public ApiResponse update(@PathVariable Long id, @Valid @RequestBody RoleDTO data) {
         return roleService.update(id, data);
     }
 
     /**
-     * 获取员工角色
+     * 获取员工所有角色
      * @param uid 员工ID
      */
-    @GetMapping("/role/getStaffRole")
-    public ApiResponse getRoleByStaffId(@RequestParam Long uid) {
-        return roleService.getRoleByStaffId(uid);
+    @GetMapping("/getStaffRole")
+    public ApiResponse getStaffRoleByUid(@RequestParam Long uid) {
+        return roleService.getStaffRoleByUid(uid);
+    }
+
+    /**
+     * 获取员工所有角色Key
+     * @param uid 员工ID
+     */
+    @GetMapping("/getStaffRoleKey")
+    public ApiResponse getStaffRoleKeyByUid(@RequestParam Long uid) {
+        return roleService.getStaffRoleKeyByUid(uid);
+    }
+
+    @GetMapping("/getStaffRouter")
+    public ApiResponse getStaffRouterByUid(@RequestParam Long uid) {
+        return roleService.getStaffRouterByUid(uid);
     }
 }

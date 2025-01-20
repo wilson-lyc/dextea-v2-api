@@ -23,9 +23,4 @@ public class RouterController {
     public ApiResponse getRouterList() {
         return routerService.getRouterList();
     }
-
-    @GetMapping("/router/getStaffRouter")
-    public ApiResponse getStaffRouter(@RequestParam Long uid) {
-        return routerService.getStaffRouter(uid);
-    }
 }

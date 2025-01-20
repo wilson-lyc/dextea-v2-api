@@ -7,14 +7,14 @@ import cn.dextea.auth.pojo.StaffRole;
 import cn.dextea.auth.service.RoleService;
 import cn.dextea.common.dto.ApiResponse;
 import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
-import com.google.protobuf.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 /**
  * @author Lai Yongchao
@@ -54,11 +54,8 @@ public class RoleServiceImpl implements RoleService {
 
     @Override
     public ApiResponse update(Long id, RoleDTO data) {
-        Role role=Role.builder()
-                .id(id)
-                .key(data.getKey())
-                .description(data.getDescription())
-                .build();
+        Role role=data.toRole();
+        role.setId(id);
         int num=roleMapper.updateById(role);
         if (num==0){
             String msg=String.format("角色不存在，ID=%d",id);
@@ -68,12 +65,35 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @Override
-    public ApiResponse getRoleByStaffId(Long uid) {
+    public ApiResponse getStaffRoleByUid(Long uid) {
         MPJLambdaWrapper<Role> wrapper = new MPJLambdaWrapper<Role>()
                 .selectAll(Role.class)
                 .innerJoin(StaffRole.class, StaffRole::getRoleId, Role::getId)
                 .eq(StaffRole::getStaffId, uid);
         List<Role> roles = roleMapper.selectList(wrapper);
         return ApiResponse.success(JSONObject.of("roles", roles));
+    }
+
+    @Override
+    public ApiResponse getStaffRoleKeyByUid(Long uid) {
+        MPJLambdaWrapper<Role> wrapper = new MPJLambdaWrapper<Role>()
+                .select(Role::getKey)
+                .innerJoin(StaffRole.class, StaffRole::getRoleId, Role::getId)
+                .eq(StaffRole::getStaffId, uid);
+        List<String> keys = roleMapper.selectObjs(wrapper);
+        return ApiResponse.success(JSONObject.of("keys", keys));
+    }
+
+    @Override
+    public ApiResponse getStaffRouterByUid(Long uid) {
+        MPJLambdaWrapper<Role> wrapper = new MPJLambdaWrapper<Role>()
+                .select(Role::getRouters)
+                .innerJoin(StaffRole.class, StaffRole::getRoleId, Role::getId)
+                .eq(StaffRole::getStaffId, uid);
+        List<Role> routersList = roleMapper.selectList(wrapper);
+        Set<Integer> mergedRouters = routersList.stream()
+                .flatMap(role -> role.getRouters().stream())
+                .collect(Collectors.toSet());
+        return ApiResponse.success(JSONObject.of("routers", mergedRouters));
     }
 }
