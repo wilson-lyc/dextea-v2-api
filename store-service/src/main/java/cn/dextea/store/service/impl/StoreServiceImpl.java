@@ -24,7 +24,7 @@ public class StoreServiceImpl implements StoreService {
     @Override
     public ApiResponse create(CreateStoreDTO data) {
         Store store=data.toStore();
-        store.setStatus(StoreStatus.NOT_ACTIVE);// 新注册门店状态为未激活
+        store.setStatus(StoreStatus.NOT_ACTIVE.getCode());// 新注册门店状态为未激活
         storeMapper.insert(store);
         return ApiResponse.success();
     }
@@ -50,8 +50,8 @@ public class StoreServiceImpl implements StoreService {
         if (filter.getName()!=null&&!filter.getName().isBlank()){
             wrapper.like("name",filter.getName());
         }
-        if (filter.getState()!=null){
-            wrapper.eq("state",filter.getState());
+        if (filter.getStatus()!=null){
+            wrapper.eq("status",filter.getStatus());
         }
         if (filter.getProvince()!=null&&!filter.getProvince().isBlank()){
             wrapper.eq("province",filter.getProvince());
@@ -76,5 +76,18 @@ public class StoreServiceImpl implements StoreService {
             page=storeMapper.selectPage(page,wrapper);
         }
         return ApiResponse.success(JSONObject.from(page));
+    }
+
+    @Override
+    public ApiResponse updateStatus(Long id, Integer status) {
+        Store store=Store.builder()
+                .status(status)
+                .build();
+        int num=storeMapper.update(store,new QueryWrapper<Store>().eq("id",id));
+        if (num==0){
+            String msg=String.format("门店不存在，ID=%d",id);
+            return ApiResponse.notFound(msg);
+        }
+        return ApiResponse.success();
     }
 }

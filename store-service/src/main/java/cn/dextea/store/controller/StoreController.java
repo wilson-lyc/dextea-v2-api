@@ -48,4 +48,8 @@ public class StoreController {
             @Valid @RequestBody SearchStoreDTO filter) {
         return storeService.getStoreList(current, size,filter);
     }
+    @PutMapping("/store/status")
+    public ApiResponse updateStatus(@RequestParam Long id, @RequestParam Integer status) {
+        return storeService.updateStatus(id, status);
+    }
 }

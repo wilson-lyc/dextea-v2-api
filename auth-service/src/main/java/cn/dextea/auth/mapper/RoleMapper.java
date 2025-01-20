@@ -1,12 +1,12 @@
 package cn.dextea.auth.mapper;
 
 import cn.dextea.auth.pojo.Role;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.github.yulichang.base.MPJBaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
 /**
  * @author Lai Yongchao
  */
 @Mapper
-public interface RoleMapper extends BaseMapper<Role> {
+public interface RoleMapper extends MPJBaseMapper<Role> {
 }

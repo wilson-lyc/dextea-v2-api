@@ -40,7 +40,7 @@ public class AccountUtil {
                     .name(name)
                     .namePinyin(namePinyin)
                     .account(account)
-                    .status(false)
+                    .status(false) // 默认禁用
                     .build();
             staffMapper.insert(staff);
             return account;

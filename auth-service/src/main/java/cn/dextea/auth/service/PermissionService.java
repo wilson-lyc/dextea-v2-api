@@ -10,4 +10,6 @@ import java.util.List;
  */
 public interface PermissionService {
     ApiResponse getPermissionList();
+    ApiResponse getPermissionByStaffId(Long uid);
+    ApiResponse getPermissionKeyByStaffId(Long uid);
 }

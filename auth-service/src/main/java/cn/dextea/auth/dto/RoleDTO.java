@@ -13,12 +13,12 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class RoleDTO {
-    @NotBlank(message = "label不能为空")
-    private String label;
+    @NotBlank
+    private String key;
     private String description;
     public Role toRole() {
         return Role.builder()
-                .label(label)
+                .key(key)
                 .description(description)
                 .build();
     }

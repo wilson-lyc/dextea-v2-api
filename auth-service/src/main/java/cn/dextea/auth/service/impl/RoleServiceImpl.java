@@ -3,12 +3,18 @@ package cn.dextea.auth.service.impl;
 import cn.dextea.auth.dto.RoleDTO;
 import cn.dextea.auth.mapper.RoleMapper;
 import cn.dextea.auth.pojo.Role;
+import cn.dextea.auth.pojo.StaffRole;
 import cn.dextea.auth.service.RoleService;
 import cn.dextea.common.dto.ApiResponse;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.yulichang.wrapper.MPJLambdaWrapper;
+import com.google.protobuf.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 /**
  * @author Lai Yongchao
@@ -50,7 +56,7 @@ public class RoleServiceImpl implements RoleService {
     public ApiResponse update(Long id, RoleDTO data) {
         Role role=Role.builder()
                 .id(id)
-                .label(data.getLabel())
+                .key(data.getKey())
                 .description(data.getDescription())
                 .build();
         int num=roleMapper.updateById(role);
@@ -59,5 +65,15 @@ public class RoleServiceImpl implements RoleService {
             return ApiResponse.notFound(msg);
         }
         return ApiResponse.success();
+    }
+
+    @Override
+    public ApiResponse getRoleByStaffId(Long uid) {
+        MPJLambdaWrapper<Role> wrapper = new MPJLambdaWrapper<Role>()
+                .selectAll(Role.class)
+                .innerJoin(StaffRole.class, StaffRole::getRoleId, Role::getId)
+                .eq(StaffRole::getStaffId, uid);
+        List<Role> roles = roleMapper.selectList(wrapper);
+        return ApiResponse.success(JSONObject.of("roles", roles));
     }
 }

@@ -19,9 +19,9 @@ public class RoleController {
 
     /**
      * 创建角色
-     * @param data {key,label,description}
+     * @param data {key,description}
      */
-    @PostMapping("/auth/role")
+    @PostMapping("/role")
     public ApiResponse create(@Valid @RequestBody RoleDTO data) {
         return roleService.create(data);
     }
@@ -31,7 +31,7 @@ public class RoleController {
      * @param current 当前页
      * @param size 每页大小
      */
-    @GetMapping("/auth/role")
+    @GetMapping("/role")
     public ApiResponse getRoleList(@RequestParam(defaultValue = "1") int current, @RequestParam(defaultValue = "10") int size) {
         return roleService.getRoleList(current,size);
     }
@@ -40,13 +40,27 @@ public class RoleController {
      * 获取角色详情
      * @param id 角色ID
      */
-    @GetMapping("/auth/role/{id:\\d+}")
+    @GetMapping("/role/{id:\\d+}")
     public ApiResponse getRoleById(@PathVariable Long id) {
         return roleService.getRoleById(id);
     }
 
-    @PutMapping("/auth/role/{id:\\d+}")
+    /**
+     * 更新角色
+     * @param id 角色ID
+     * @param data {key,label,description}
+     */
+    @PutMapping("/role/{id:\\d+}")
     public ApiResponse update(@PathVariable Long id, @Valid @RequestBody RoleDTO data) {
         return roleService.update(id, data);
+    }
+
+    /**
+     * 获取员工角色
+     * @param uid 员工ID
+     */
+    @GetMapping("/role/getStaffRole")
+    public ApiResponse getRoleByStaffId(@RequestParam Long uid) {
+        return roleService.getRoleByStaffId(uid);
     }
 }

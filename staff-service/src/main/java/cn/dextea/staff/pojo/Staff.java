@@ -26,4 +26,6 @@ public class Staff {
     String createTime;//创建时间
     String updateTime;// 更新时间
     Boolean status;// 状态
+    Integer side;// 端侧 1-company 2-store
+    Integer storeId;// 门店id
 }

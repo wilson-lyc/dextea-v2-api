@@ -41,15 +41,15 @@ public class StaffController {
      * 查询员工列表
      * @param current 当前页
      * @param size 每页大小
-     * @param condition {name,phone,role,storeId,state}
+     * @param filter {name,phone,role,storeId,status,side}
      * @return 员工列表
      */
     @PostMapping("/staff/search")
     public ApiResponse getStaffList(
             @Valid @Min(value = 1,message = "current不能小于1") @RequestParam(defaultValue = "1") int current,
             @Valid @Min(value = 1,message = "size不能小于1") @RequestParam(defaultValue = "10") int size,
-            @Valid @RequestBody SearchStaffDTO condition){
-        return staffService.getStaffList(current,size,condition);
+            @Valid @RequestBody SearchStaffDTO filter){
+        return staffService.getStaffList(current,size,filter);
     }
 
     /**
@@ -78,5 +78,14 @@ public class StaffController {
     @PostMapping("/staff/login")
     public ApiResponse login(@Valid @RequestBody CheckPwdDTO data){
         return staffService.login(data);
+    }
+
+    @PutMapping("/staff/active")
+    public ApiResponse active(@RequestParam("id") Long id){
+        return staffService.active(id);
+    }
+    @DeleteMapping("/staff/ban")
+    public ApiResponse ban(@RequestParam("id") Long id){
+        return staffService.ban(id);
     }
 }

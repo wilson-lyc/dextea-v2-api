@@ -13,4 +13,5 @@ public interface StoreService {
     ApiResponse getStoreList(int current, int size, SearchStoreDTO filter);
     ApiResponse create(CreateStoreDTO data);
     ApiResponse getStoreById(Long id);
+    ApiResponse updateStatus(Long id, Integer status);
 }

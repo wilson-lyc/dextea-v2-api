@@ -13,4 +13,6 @@ public interface StaffService {
     ApiResponse resetPwd(Long id);
     ApiResponse update(Long id, UpdateStaffDTO data);
     ApiResponse login(CheckPwdDTO data);
+    ApiResponse active(Long id);
+    ApiResponse ban(Long id);
 }

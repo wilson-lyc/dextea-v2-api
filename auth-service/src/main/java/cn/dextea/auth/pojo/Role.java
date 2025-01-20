@@ -20,7 +20,8 @@ import lombok.NoArgsConstructor;
 public class Role {
     @TableId(type = IdType.AUTO)
     private Long id;
-    private String label;
+    @TableField("`key`")
+    private String key;
     private String description;
     private String createTime;
 }

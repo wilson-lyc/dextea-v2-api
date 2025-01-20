@@ -11,13 +11,9 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("d_router")
-public class Router {
-    private Integer id;
-    private Integer type;
-    private String path;
-    private String label;
-    private String icon;
-    private Integer parentId;
-    private Integer side;
+@TableName("r_role_permission")
+public class RolePermission {
+    private Long roleId;
+    private Long permissionId;
+    private String createTime;
 }

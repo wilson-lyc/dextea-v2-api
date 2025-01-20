@@ -16,8 +16,16 @@ public class RouterController {
     @Autowired
     RouterService routerService;
 
-    @GetMapping("/auth/router")
+    /**
+     * 获取路由列表`
+     */
+    @GetMapping("/router")
     public ApiResponse getRouterList() {
         return routerService.getRouterList();
+    }
+
+    @GetMapping("/router/getStaffRouter")
+    public ApiResponse getStaffRouter(@RequestParam Long uid) {
+        return routerService.getStaffRouter(uid);
     }
 }

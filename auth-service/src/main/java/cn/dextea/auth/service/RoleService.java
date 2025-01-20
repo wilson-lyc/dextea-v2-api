@@ -11,5 +11,6 @@ public interface RoleService {
     ApiResponse create(RoleDTO data);
     ApiResponse getRoleList(int current, int size);
     ApiResponse getRoleById(Long id);
-    ApiResponse update(Long id, @Valid RoleDTO data);
+    ApiResponse update(Long id, RoleDTO data);
+    ApiResponse getRoleByStaffId(Long uid);
 }

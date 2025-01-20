@@ -1,7 +1,8 @@
 package cn.dextea.staff.service.impl;
 
+import cn.dev33.satoken.stp.SaTokenInfo;
+import cn.dev33.satoken.stp.StpUtil;
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.common.dto.StaffLoginResDTO;
 import cn.dextea.staff.dto.*;
 import cn.dextea.staff.mapper.StaffMapper;
 import cn.dextea.staff.pojo.Staff;
@@ -34,12 +35,9 @@ public class StaffServiceImpl implements StaffService {
         String account = accountUtil.create(data.getName());
         // 生成密码
         String password = passwordUtil.create();
-        Staff staff =Staff.builder()
-                .name(data.getName())
-                .account(account)
-                .phone(data.getPhone())
-                .password(passwordUtil.encrypt(password))
-                .build();
+        Staff staff =data.toStaff();
+        staff.setAccount(account);
+        staff.setPassword(passwordUtil.encrypt(password));
         // 更新员工信息
         staffMapper.update(staff,new QueryWrapper<Staff>().eq("account",account));
         return ApiResponse.success("员工已创建",JSONObject.of("account",account,"password",password));
@@ -73,7 +71,13 @@ public class StaffServiceImpl implements StaffService {
             wrapper.eq("phone",condition.getPhone());
         }
         if(condition.getStatus()!=null){
-            wrapper.eq("state",condition.getStatus());
+            wrapper.eq("status",condition.getStatus());
+        }
+        if(condition.getSide()!=null){
+            wrapper.eq("side",condition.getSide());
+        }
+        if(condition.getStoreId()!=null){
+            wrapper.eq("store_id",condition.getStoreId());
         }
         Page<Staff> page=new Page<>(current,size);
         page=staffMapper.selectPage(page,wrapper);
@@ -102,11 +106,7 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public ApiResponse update(Long id, UpdateStaffDTO data) {
         System.out.println(data);
-        Staff staff=Staff.builder()
-                .id(id)
-                .phone(data.getPhone())
-                .status(data.getStatus())
-                .build();
+        Staff staff=data.toStaff();
         int num=staffMapper.update(staff,new QueryWrapper<Staff>().eq("id",id));
         if (num==0){
             String msg=String.format("未找到该员工，id=%d",id);
@@ -129,11 +129,35 @@ public class StaffServiceImpl implements StaffService {
         if(!staff.getStatus()){
             return ApiResponse.badRequest("账号已被禁用");
         }
-        StaffLoginResDTO res=StaffLoginResDTO.builder()
-                .id(staff.getId())
-                .name(staff.getName())
-                .account(staff.getAccount())
+        // 创建token
+        StpUtil.login(staff.getId());
+        SaTokenInfo token=StpUtil.getTokenInfo();
+        return ApiResponse.success("登录成功",JSONObject.of("staff",staff,"token",token.getTokenValue()));
+    }
+
+    @Override
+    public ApiResponse active(Long id) {
+        Staff staff=Staff.builder()
+                .status(true)
                 .build();
-        return ApiResponse.success("密码正确",JSONObject.of("staff",res));
+        int num=staffMapper.update(staff,new QueryWrapper<Staff>().eq("id",id));
+        if(num==0){
+            String msg=String.format("员工不存在，id=%d",id);
+            return ApiResponse.notFound(msg);
+        }
+        return ApiResponse.success("账号已激活");
+    }
+
+    @Override
+    public ApiResponse ban(Long id) {
+        Staff staff=Staff.builder()
+                .status(false)
+                .build();
+        int num=staffMapper.update(staff,new QueryWrapper<Staff>().eq("id",id));
+        if(num==0){
+            String msg=String.format("员工不存在，id=%d",id);
+            return ApiResponse.notFound(msg);
+        }
+        return ApiResponse.success("账号已禁用");
     }
 }
