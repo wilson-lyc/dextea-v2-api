@@ -15,8 +15,8 @@ public class SearchStaffDTO {
     private Long id;
     private String name;
     private String account;
-    private Integer storeId;
     private String phone;
     private Boolean status;
     private Integer side;
+    private Integer storeId;
 }
