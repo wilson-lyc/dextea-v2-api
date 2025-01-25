@@ -15,6 +15,7 @@
         <module>common</module>
         <module>store-service</module>
         <module>auth-service</module>
+        <module>tos-service</module>
     </modules>
     <!-- 全局变量 -->
     <properties>
