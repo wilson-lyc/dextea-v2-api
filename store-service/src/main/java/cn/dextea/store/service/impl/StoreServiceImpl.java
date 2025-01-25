@@ -3,6 +3,7 @@ package cn.dextea.store.service.impl;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.store.dto.CreateStoreDTO;
 import cn.dextea.store.dto.SearchStoreDTO;
+import cn.dextea.store.dto.UpdateStoreDTO;
 import cn.dextea.store.mapper.StoreMapper;
 import cn.dextea.store.pojo.Store;
 import cn.dextea.store.pojo.StoreStatus;
@@ -84,6 +85,18 @@ public class StoreServiceImpl implements StoreService {
                 .status(status)
                 .build();
         int num=storeMapper.update(store,new QueryWrapper<Store>().eq("id",id));
+        if (num==0){
+            String msg=String.format("门店不存在，ID=%d",id);
+            return ApiResponse.notFound(msg);
+        }
+        return ApiResponse.success();
+    }
+
+    @Override
+    public ApiResponse update(Long id, UpdateStoreDTO data) {
+        Store store=data.toStore();
+        store.setId(id);
+        int num=storeMapper.updateById(store);
         if (num==0){
             String msg=String.format("门店不存在，ID=%d",id);
             return ApiResponse.notFound(msg);
