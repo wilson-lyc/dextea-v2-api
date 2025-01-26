@@ -5,4 +5,5 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface TosService {
     ApiResponse uploadFile(String folder, MultipartFile file);
+    ApiResponse uploadFile(String folder, String filename, MultipartFile file);
 }

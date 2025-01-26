@@ -21,4 +21,13 @@ public class TosServiceImpl implements TosService {
         }
         return ApiResponse.badRequest("文件上传失败");
     }
+
+    @Override
+    public ApiResponse uploadFile(String folder, String filename, MultipartFile file) {
+        String url = tosUtil.uploadMultipartFile(folder,filename,file);
+        if (url != null) {
+            return ApiResponse.success(JSONObject.of("url",url));
+        }
+        return ApiResponse.badRequest("文件上传失败");
+    }
 }

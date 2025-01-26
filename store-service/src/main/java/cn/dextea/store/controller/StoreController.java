@@ -9,11 +9,13 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author Lai Yongchao
  */
 @RestController
+@RequestMapping("/store")
 public class StoreController {
     @Autowired
     StoreService storeService;
@@ -22,7 +24,7 @@ public class StoreController {
      * 创建门店
      * @param data {name,province,city,district,address,linkman,phone,openTime}
      */
-    @PostMapping("/store")
+    @PostMapping("")
     public ApiResponse create(@Valid @RequestBody CreateStoreDTO data) {
         return storeService.create(data);
     }
@@ -31,7 +33,7 @@ public class StoreController {
      * 获取门店详情
      * @param id 门店id
      */
-    @GetMapping("/store/{id:\\d+}")
+    @GetMapping("/{id:\\d+}")
     public ApiResponse getStoreById(@PathVariable Long id) {
         return storeService.getStoreById(id);
     }
@@ -41,7 +43,7 @@ public class StoreController {
      * @param current 页码
      * @param size 分页大小
      */
-    @PostMapping("/store/search")
+    @PostMapping("/search")
     public ApiResponse getStoreList(
             @Valid @Min(value = 1,message = "current不能小于1") @RequestParam(defaultValue = "1") int current,
             @Valid @Min(value = 1,message = "size不能小于1") @RequestParam(defaultValue = "10") int size,
@@ -54,13 +56,38 @@ public class StoreController {
      * @param id 门店id
      * @param status 运营状态
      */
-    @PutMapping("/store/status")
+    @PutMapping("/status")
     public ApiResponse updateStatus(@RequestParam Long id, @RequestParam Integer status) {
         return storeService.updateStatus(id, status);
     }
 
-    @PutMapping("/store/{id:\\d+}")
+    /**
+     * 更新门店基本信息
+     * @param id 门店id
+     * @param data {name,province,city,district,address,linkman,phone,openTime}
+     */
+    @PutMapping("/{id:\\d+}/base")
     public ApiResponse update(@PathVariable Long id, @RequestBody UpdateStoreDTO data) {
         return storeService.update(id, data);
+    }
+
+    /**
+     * 上传营业执照
+     * @param id 门店id
+     * @param file 营业执照文件
+     */
+    @PostMapping(value = "/{id:\\d+}/license/business", consumes = "multipart/form-data")
+    public ApiResponse uploadBusinessLicense(@PathVariable Long id, @RequestPart MultipartFile file) {
+        return storeService.uploadBusinessLicense(id, file);
+    }
+
+    /**
+     * 上传食品经营许可证
+     * @param id 门店id
+     * @param file 文件
+     */
+    @PostMapping(value = "/{id:\\d+}/license/food", consumes = "multipart/form-data")
+    public ApiResponse uploadFoodLicense(@PathVariable Long id, @RequestPart MultipartFile file) {
+        return storeService.uploadFoodLicense(id, file);
     }
 }

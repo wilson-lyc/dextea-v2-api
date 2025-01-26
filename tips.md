@@ -4,3 +4,16 @@
 3. 在Nacos中添加数据库、端口等配置
 4. 如果要分页，记得在config中添加分页配置
 5. handler中封装了统一异常处理，业务代码中可以直接抛出异常，不用try-catch
+
+# Nacos启动指令
+路径
+
+cd Public/environment/nacos/bin
+
+启动
+
+sh startup.sh -m standalone
+
+关闭
+
+sh shutdown.sh

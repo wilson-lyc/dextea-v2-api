@@ -4,6 +4,7 @@ import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.store.dto.CreateStoreDTO;
 import cn.dextea.store.dto.SearchStoreDTO;
 import cn.dextea.store.dto.UpdateStoreDTO;
+import cn.dextea.store.feign.TosFeign;
 import cn.dextea.store.mapper.StoreMapper;
 import cn.dextea.store.pojo.Store;
 import cn.dextea.store.pojo.StoreStatus;
@@ -11,8 +12,10 @@ import cn.dextea.store.service.StoreService;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.google.protobuf.Api;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author Lai Yongchao
@@ -21,6 +24,8 @@ import org.springframework.stereotype.Service;
 public class StoreServiceImpl implements StoreService {
     @Autowired
     StoreMapper storeMapper;
+    @Autowired
+    TosFeign tosFeign;
 
     @Override
     public ApiResponse create(CreateStoreDTO data) {
@@ -102,5 +107,39 @@ public class StoreServiceImpl implements StoreService {
             return ApiResponse.notFound(msg);
         }
         return ApiResponse.success();
+    }
+
+    @Override
+    public ApiResponse uploadBusinessLicense(Long id, MultipartFile file) {
+        String folder="store/license";
+        String filename=String.format("%d_business",id);
+        ApiResponse response=tosFeign.uploadFileWithCustomName(folder,filename,file);
+        if (response.getCode()==200){
+            String url=response.getData().getString("url");
+            Store store=Store.builder()
+                    .id(id)
+                    .businessLicense(url)
+                    .build();
+            storeMapper.updateById(store);
+            return response;
+        }
+        return ApiResponse.badRequest("上传失败");
+    }
+
+    @Override
+    public ApiResponse uploadFoodLicense(Long id, MultipartFile file) {
+        String folder="store/license";
+        String filename=String.format("%d_food",id);
+        ApiResponse response=tosFeign.uploadFileWithCustomName(folder,filename,file);
+        if (response.getCode()==200){
+            String url=response.getData().getString("url");
+            Store store=Store.builder()
+                    .id(id)
+                    .foodBusinessLicense(url)
+                    .build();
+            storeMapper.updateById(store);
+            return response;
+        }
+        return ApiResponse.badRequest("上传失败");
     }
 }
