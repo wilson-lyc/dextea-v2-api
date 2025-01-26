@@ -30,4 +30,13 @@ public class TosServiceImpl implements TosService {
         }
         return ApiResponse.badRequest("文件上传失败");
     }
+
+    @Override
+    public ApiResponse delete(String url) {
+        Boolean result = tosUtil.delete(url);
+        if (result) {
+            return ApiResponse.success();
+        }
+        return ApiResponse.badRequest("文件删除失败");
+    }
 }

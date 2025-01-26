@@ -8,6 +8,8 @@ import cn.dextea.store.service.StoreService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.client.loadbalancer.Response;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -76,8 +78,8 @@ public class StoreController {
      * @param id 门店id
      * @param file 营业执照文件
      */
-    @PostMapping(value = "/{id:\\d+}/license/business", consumes = "multipart/form-data")
-    public ApiResponse uploadBusinessLicense(@PathVariable Long id, @RequestPart MultipartFile file) {
+    @PostMapping(value = "/license/business", consumes = "multipart/form-data")
+    public ResponseEntity<ApiResponse> uploadBusinessLicense(@RequestParam Long id, @RequestPart MultipartFile file) {
         return storeService.uploadBusinessLicense(id, file);
     }
 
@@ -86,8 +88,17 @@ public class StoreController {
      * @param id 门店id
      * @param file 文件
      */
-    @PostMapping(value = "/{id:\\d+}/license/food", consumes = "multipart/form-data")
-    public ApiResponse uploadFoodLicense(@PathVariable Long id, @RequestPart MultipartFile file) {
+    @PostMapping(value = "/license/food", consumes = "multipart/form-data")
+    public ResponseEntity<ApiResponse> uploadFoodLicense(@RequestParam Long id, @RequestPart MultipartFile file) {
         return storeService.uploadFoodLicense(id, file);
+    }
+
+    /**
+     * 获取许可证
+     * @param id 门店id
+     */
+    @GetMapping("/{id:\\d+}/license")
+    public ApiResponse getLicense(@PathVariable Long id) {
+        return storeService.getLicenseById(id);
     }
 }

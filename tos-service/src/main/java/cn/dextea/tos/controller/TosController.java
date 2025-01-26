@@ -16,14 +16,25 @@ public class TosController {
      * 上传文件
      * @param folder 文件夹
      * @param file 文件
-     * @return ApiResponse
      */
     @PostMapping(value = "/originalName",consumes ="multipart/form-data")
     public ApiResponse uploadFileOriginalName(@RequestParam String folder, @RequestPart MultipartFile file) {
         return tosService.uploadFile(folder, file);
     }
+
+    /**
+     * 上传文件
+     * @param folder 文件夹
+     * @param filename 文件名
+     * @param file 文件
+     */
     @PostMapping(value = "/customName",consumes ="multipart/form-data")
     public ApiResponse uploadFileCustomName(@RequestParam String folder, @RequestParam String filename, @RequestPart MultipartFile file) {
         return tosService.uploadFile(folder, filename, file);
+    }
+
+    @DeleteMapping("")
+    public ApiResponse delete(@RequestParam String url) {
+        return tosService.delete(url);
     }
 }

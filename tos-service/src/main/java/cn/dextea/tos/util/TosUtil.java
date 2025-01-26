@@ -2,6 +2,7 @@ package cn.dextea.tos.util;
 
 import com.volcengine.tos.TOSV2;
 import com.volcengine.tos.TOSV2ClientBuilder;
+import com.volcengine.tos.model.object.DeleteObjectInput;
 import com.volcengine.tos.model.object.PutObjectInput;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -61,5 +62,12 @@ public class TosUtil {
             return originalFilename.substring(originalFilename.lastIndexOf("."));
         }
         return "";
+    }
+
+    public Boolean delete(String url){
+        String key = url.replace(BASE_URL + "/", "");
+        DeleteObjectInput input=new DeleteObjectInput().setBucket(BUCKET_NAME).setKey(key);
+        tos.deleteObject(input);
+        return true;
     }
 }
