@@ -3,6 +3,7 @@ package cn.dextea.store.service.impl;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.store.dto.CreateStoreDTO;
 import cn.dextea.store.dto.SearchStoreDTO;
+import cn.dextea.store.dto.StoreSelectOption;
 import cn.dextea.store.dto.UpdateStoreDTO;
 import cn.dextea.store.feign.TosFeign;
 import cn.dextea.store.mapper.StoreMapper;
@@ -19,6 +20,8 @@ import org.springframework.cloud.client.loadbalancer.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.List;
 
 /**
  * @author Lai Yongchao
@@ -180,5 +183,11 @@ public class StoreServiceImpl implements StoreService {
         return ApiResponse.success(JSONObject.of(
                 "business_license",store.getBusinessLicense(),
                 "food_business_license",store.getFoodBusinessLicense()));
+    }
+
+    @Override
+    public ApiResponse getSelectOptions() {
+        List<StoreSelectOption> stores=storeMapper.getSelectOptions();
+        return ApiResponse.success(JSONObject.of("options",stores));
     }
 }

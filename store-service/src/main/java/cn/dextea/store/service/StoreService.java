@@ -20,4 +20,5 @@ public interface StoreService {
     ResponseEntity<ApiResponse> uploadBusinessLicense(Long id, MultipartFile file);
     ResponseEntity<ApiResponse> uploadFoodLicense(Long id, MultipartFile file);
     ApiResponse getLicenseById(Long id);
+    ApiResponse getSelectOptions();
 }

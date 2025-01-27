@@ -101,4 +101,12 @@ public class StoreController {
     public ApiResponse getLicense(@PathVariable Long id) {
         return storeService.getLicenseById(id);
     }
+
+    /**
+     * 获取门店下拉选项
+     */
+    @GetMapping("/selectOptions")
+    public ApiResponse getSelectOptions() {
+        return storeService.getSelectOptions();
+    }
 }
