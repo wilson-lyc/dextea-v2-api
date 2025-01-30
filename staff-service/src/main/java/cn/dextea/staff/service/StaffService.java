@@ -2,6 +2,7 @@ package cn.dextea.staff.service;
 
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.staff.dto.*;
+import jakarta.validation.Valid;
 
 /**
  * @author Lai Yongchao
@@ -15,4 +16,5 @@ public interface StaffService {
     ApiResponse login(CheckPwdDTO data);
     ApiResponse active(Long id);
     ApiResponse ban(Long id);
+    ApiResponse updatePwd(Long id, @Valid UpdatePwdDTO data);
 }

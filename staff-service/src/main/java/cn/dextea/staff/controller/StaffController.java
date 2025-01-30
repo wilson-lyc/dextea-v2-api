@@ -80,12 +80,26 @@ public class StaffController {
         return staffService.login(data);
     }
 
+    /**
+     * 激活员工
+     * @param id 员工id
+     */
     @PutMapping("/staff/active")
     public ApiResponse active(@RequestParam("id") Long id){
         return staffService.active(id);
     }
+
+    /**
+     * 禁用员工
+     * @param id 员工id
+     */
     @DeleteMapping("/staff/ban")
     public ApiResponse ban(@RequestParam("id") Long id){
         return staffService.ban(id);
+    }
+
+    @PutMapping("/staff/{id:\\d+}/password")
+    public ApiResponse updatePwd(@PathVariable("id") Long id,@Valid @RequestBody UpdatePwdDTO data){
+        return staffService.updatePwd(id,data);
     }
 }

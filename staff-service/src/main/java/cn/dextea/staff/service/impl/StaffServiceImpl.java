@@ -4,11 +4,14 @@ import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.staff.dto.*;
+import cn.dextea.staff.feign.RoleFeign;
+import cn.dextea.staff.feign.StoreFeign;
 import cn.dextea.staff.mapper.StaffMapper;
 import cn.dextea.staff.pojo.Staff;
 import cn.dextea.staff.service.StaffService;
 import cn.dextea.staff.util.AccountUtil;
 import cn.dextea.staff.util.PasswordUtil;
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -28,6 +31,10 @@ public class StaffServiceImpl implements StaffService {
     private AccountUtil accountUtil;
     @Autowired
     private PasswordUtil passwordUtil;
+    @Autowired
+    private StoreFeign storeFeign;
+    @Autowired
+    private RoleFeign roleFeign;
 
     @Override
     public ApiResponse create(CreateStaffDTO data) {
@@ -51,6 +58,10 @@ public class StaffServiceImpl implements StaffService {
         if(staff==null){
             String msg = String.format("员工不存在，id=%d",id);
             return ApiResponse.notFound(msg);
+        }
+        if(staff.getSide()==2){
+            ApiResponse res=storeFeign.getStoreById(staff.getStoreId());
+            staff.setStoreName(res.getData().getJSONObject("store").getString("name"));
         }
         return ApiResponse.success(JSONObject.of("staff",staff));
     }
@@ -132,7 +143,16 @@ public class StaffServiceImpl implements StaffService {
         // 创建token
         StpUtil.login(staff.getId());
         SaTokenInfo token=StpUtil.getTokenInfo();
-        return ApiResponse.success("登录成功",JSONObject.of("staff",staff,"token",token.getTokenValue()));
+        // 获取role
+        ApiResponse res=roleFeign.getStaffRoleKeyByUid(staff.getId());
+        JSONArray role = null;
+        if (res.getCode()==200){
+            role=res.getData().getJSONArray("keys");
+        }
+        return ApiResponse.success("登录成功",JSONObject.of(
+                "staff",staff,
+                "token",token.getTokenValue(),
+                "role",role));
     }
 
     @Override
@@ -159,5 +179,19 @@ public class StaffServiceImpl implements StaffService {
             return ApiResponse.notFound(msg);
         }
         return ApiResponse.success("账号已禁用");
+    }
+
+    @Override
+    public ApiResponse updatePwd(Long id, UpdatePwdDTO data) {
+        Staff staff=Staff.builder()
+                .id(id)
+                .password(passwordUtil.encrypt(data.getNewPwd()))
+                .build();
+        int num=staffMapper.updateById(staff);
+        if (num==0){
+            String msg=String.format("未找到该员工，id=%d",id);
+            return ApiResponse.notFound(msg);
+        }
+        return ApiResponse.success();
     }
 }

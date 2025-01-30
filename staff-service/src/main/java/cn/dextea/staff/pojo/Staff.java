@@ -1,5 +1,6 @@
 package cn.dextea.staff.pojo;
 
+import com.alibaba.fastjson2.JSONArray;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -28,4 +29,6 @@ public class Staff {
     Boolean status;// 状态
     Integer side;// 端侧 1-company 2-store
     Integer storeId;// 门店id
+    @TableField(exist = false)
+    String storeName;
 }
