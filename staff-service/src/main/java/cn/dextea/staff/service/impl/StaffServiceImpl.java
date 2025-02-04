@@ -59,7 +59,7 @@ public class StaffServiceImpl implements StaffService {
             String msg = String.format("员工不存在，id=%d",id);
             return ApiResponse.notFound(msg);
         }
-        if(staff.getSide()==2){
+        if(staff.getSide()==2 && staff.getStoreId()!=null){
             ApiResponse res=storeFeign.getStoreById(staff.getStoreId());
             staff.setStoreName(res.getData().getJSONObject("store").getString("name"));
         }
