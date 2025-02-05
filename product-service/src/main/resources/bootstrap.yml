@@ -1,0 +1,14 @@
+server:
+  port: 8085
+
+spring:
+  application:
+    name: product-service
+  cloud:
+    nacos:
+      server-addr: ${NACOS_URL}
+      discovery:
+        namespace: dextea
+      config:
+        namespace: dextea
+        file-extension: yaml
