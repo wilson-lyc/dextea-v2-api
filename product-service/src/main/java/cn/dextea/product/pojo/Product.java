@@ -27,6 +27,6 @@ public class Product {
     private BigDecimal price;//价格
     private Long typeId;//品类ID
     @TableField(exist = false)
-    private String typeLabel;//品类名称
+    private String typeName;//品类名称
     private String cover;//封面
 }

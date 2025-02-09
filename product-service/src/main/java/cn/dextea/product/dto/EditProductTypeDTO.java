@@ -9,13 +9,13 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductTypeDTO {
+public class EditProductTypeDTO {
     @NotBlank
-    private String label;
+    private String name;
 
     public ProductType toProductType() {
         return ProductType.builder()
-                .label(this.label)
+                .name(this.name)
                 .build();
     }
 }

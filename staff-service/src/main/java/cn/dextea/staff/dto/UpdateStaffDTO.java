@@ -14,13 +14,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class UpdateStaffDTO {
     private String phone;
-    private Boolean status;
-    private Integer storeId;
+    private Integer status;
     public Staff toStaff(){
         return Staff.builder()
                 .phone(phone)
                 .status(status)
-                .storeId(storeId)
                 .build();
     }
 }

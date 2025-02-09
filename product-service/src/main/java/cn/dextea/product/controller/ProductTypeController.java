@@ -1,7 +1,7 @@
 package cn.dextea.product.controller;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.ProductTypeDTO;
+import cn.dextea.product.dto.EditProductTypeDTO;
 import cn.dextea.product.service.ProductTypeService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ public class ProductTypeController {
      * @param data 商品类型数据
      */
     @PostMapping
-    public ApiResponse create(@Valid @RequestBody ProductTypeDTO data) {
+    public ApiResponse create(@Valid @RequestBody EditProductTypeDTO data) {
         return productTypeService.create(data);
     }
 
@@ -31,7 +31,7 @@ public class ProductTypeController {
      * @param data 商品类型数据
      */
     @PutMapping("/{id}")
-    public ApiResponse update(@PathVariable Long id,@Valid @RequestBody ProductTypeDTO data) {
+    public ApiResponse update(@PathVariable Long id,@Valid @RequestBody EditProductTypeDTO data) {
         return productTypeService.update(id,data);
     }
 
@@ -50,5 +50,10 @@ public class ProductTypeController {
     @GetMapping
     public ApiResponse getAll() {
         return productTypeService.getAll();
+    }
+
+    @GetMapping("/option")
+    public ApiResponse getSelectOptions() {
+        return productTypeService.getSelectOptions();
     }
 }

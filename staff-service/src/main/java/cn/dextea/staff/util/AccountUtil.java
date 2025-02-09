@@ -2,6 +2,7 @@ package cn.dextea.staff.util;
 
 import cn.dextea.staff.mapper.StaffMapper;
 import cn.dextea.staff.pojo.Staff;
+import cn.dextea.staff.pojo.StaffStatus;
 import cn.hutool.extra.pinyin.PinyinUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import jakarta.validation.constraints.NotBlank;
@@ -40,7 +41,7 @@ public class AccountUtil {
                     .name(name)
                     .namePinyin(namePinyin)
                     .account(account)
-                    .status(false) // 默认禁用
+                    .status(StaffStatus.Disable.getCode()) // 默认禁用
                     .build();
             staffMapper.insert(staff);
             return account;

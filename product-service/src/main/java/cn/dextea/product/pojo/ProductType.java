@@ -19,7 +19,7 @@ import lombok.NoArgsConstructor;
 public class ProductType {
     @TableId(type = IdType.AUTO)
     private Long id;
-    private String label;
+    private String name;
     private String createTime;
     private String updateTime;
 }

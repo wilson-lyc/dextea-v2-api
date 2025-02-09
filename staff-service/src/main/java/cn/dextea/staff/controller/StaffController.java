@@ -1,7 +1,7 @@
 package cn.dextea.staff.controller;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.staff.dto.CheckPwdDTO;
+import cn.dextea.staff.dto.StaffLoginDTO;
 import cn.dextea.staff.dto.*;
 import cn.dextea.staff.service.StaffService;
 import jakarta.validation.Valid;
@@ -19,7 +19,7 @@ public class StaffController {
 
     /**
      * 创建员工
-     * @param data {name,phone}
+     * @param data {name,phone,side,storeId}
      * @return 账号和密码
      */
     @PostMapping("/staff")
@@ -53,7 +53,7 @@ public class StaffController {
     }
 
     /**
-     * 重置密码
+     * 重置密码 - 系统自动生成新密码
      * @param id 员工id
      * @return 新密码
      */
@@ -72,11 +72,11 @@ public class StaffController {
         return staffService.update(id,data);
     }
     /**
-     * 检查密码
+     * 登录
      * @param data {account,password}
      */
     @PostMapping("/staff/login")
-    public ApiResponse login(@Valid @RequestBody CheckPwdDTO data){
+    public ApiResponse login(@Valid @RequestBody StaffLoginDTO data){
         return staffService.login(data);
     }
 
@@ -98,6 +98,11 @@ public class StaffController {
         return staffService.ban(id);
     }
 
+    /**
+     * 修改密码
+     * @param id 员工id
+     * @param data {oldPwd,newPwd}
+     */
     @PutMapping("/staff/{id:\\d+}/password")
     public ApiResponse updatePwd(@PathVariable("id") Long id,@Valid @RequestBody UpdatePwdDTO data){
         return staffService.updatePwd(id,data);

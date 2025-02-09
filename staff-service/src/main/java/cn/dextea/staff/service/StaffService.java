@@ -13,7 +13,7 @@ public interface StaffService {
     ApiResponse getStaffList(int current, int size, SearchStaffDTO data);
     ApiResponse resetPwd(Long id);
     ApiResponse update(Long id, UpdateStaffDTO data);
-    ApiResponse login(CheckPwdDTO data);
+    ApiResponse login(StaffLoginDTO data);
     ApiResponse active(Long id);
     ApiResponse ban(Long id);
     ApiResponse updatePwd(Long id, @Valid UpdatePwdDTO data);

@@ -8,6 +8,7 @@ import cn.dextea.staff.feign.RoleFeign;
 import cn.dextea.staff.feign.StoreFeign;
 import cn.dextea.staff.mapper.StaffMapper;
 import cn.dextea.staff.pojo.Staff;
+import cn.dextea.staff.pojo.StaffStatus;
 import cn.dextea.staff.service.StaffService;
 import cn.dextea.staff.util.AccountUtil;
 import cn.dextea.staff.util.PasswordUtil;
@@ -127,7 +128,7 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public ApiResponse login(CheckPwdDTO data) {
+    public ApiResponse login(StaffLoginDTO data) {
         QueryWrapper<Staff> wrapper=new QueryWrapper<>();
         wrapper.eq("account",data.getAccount());
         wrapper.eq("password",passwordUtil.encrypt(data.getPassword()));
@@ -137,7 +138,7 @@ public class StaffServiceImpl implements StaffService {
             return ApiResponse.badRequest("账号或密码错误");
         }
         // 账号被禁用
-        if(!staff.getStatus()){
+        if(staff.getStatus()==0){
             return ApiResponse.badRequest("账号已被禁用");
         }
         // 创建token
@@ -158,7 +159,7 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public ApiResponse active(Long id) {
         Staff staff=Staff.builder()
-                .status(true)
+                .status(StaffStatus.Enable.getCode())
                 .build();
         int num=staffMapper.update(staff,new QueryWrapper<Staff>().eq("id",id));
         if(num==0){
@@ -171,7 +172,7 @@ public class StaffServiceImpl implements StaffService {
     @Override
     public ApiResponse ban(Long id) {
         Staff staff=Staff.builder()
-                .status(false)
+                .status(StaffStatus.Disable.getCode())
                 .build();
         int num=staffMapper.update(staff,new QueryWrapper<Staff>().eq("id",id));
         if(num==0){

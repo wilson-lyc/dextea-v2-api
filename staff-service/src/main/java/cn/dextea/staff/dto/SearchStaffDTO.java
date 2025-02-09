@@ -16,7 +16,7 @@ public class SearchStaffDTO {
     private String name;
     private String account;
     private String phone;
-    private Boolean status;
+    private Integer status;
     private Integer side;
     private Integer storeId;
 }
