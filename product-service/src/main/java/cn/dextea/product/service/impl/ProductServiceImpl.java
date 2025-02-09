@@ -4,24 +4,32 @@ import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.product.dto.CreateProductDTO;
 import cn.dextea.product.dto.ProductDTO;
 import cn.dextea.product.dto.SearchProductDTO;
+import cn.dextea.product.feign.TosFeign;
 import cn.dextea.product.mapper.ProductMapper;
 import cn.dextea.product.pojo.Product;
 import cn.dextea.product.pojo.ProductType;
 import cn.dextea.product.service.ProductService;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 /**
  * @author Lai Yongchao
  */
+@Slf4j
 @Service
 public class ProductServiceImpl implements ProductService {
     @Autowired
     private ProductMapper productMapper;
+    @Autowired
+    private TosFeign tosFeign;
     @Override
     public ApiResponse create(CreateProductDTO data) {
         Product product = data.toProduct();
@@ -67,5 +75,32 @@ public class ProductServiceImpl implements ProductService {
             page = productMapper.selectJoinPage(new Page<>(page.getPages(), size), ProductDTO.class,wrapper);
         }
         return ApiResponse.success(JSONObject.from(page));
+    }
+
+    @Override
+    public ResponseEntity<ApiResponse> uploadCover(Long id, MultipartFile file) {
+        // 删除旧的封面
+        QueryWrapper<Product> wrapper=new QueryWrapper<>();
+        wrapper.eq("id",id);
+        String oldUrl=productMapper.selectOne(wrapper).getCover();
+        try{
+            tosFeign.delete(oldUrl);
+        }catch (Exception e){
+            log.error("删除封面失败",e);
+        }
+        // 上传封面
+        String folder=String.format("product/%d",id);
+        String filename=String.format("%d_cover",id);
+        ApiResponse response=tosFeign.uploadWithCustomName(folder,filename,file);
+        if (response.getCode()==200){
+            String url=response.getData().getString("url");
+            Product store=Product.builder()
+                    .id(id)
+                    .cover(url)
+                    .build();
+            productMapper.updateById(store);
+            return ResponseEntity.ok(response);
+        }
+        return ResponseEntity.badRequest().body(ApiResponse.badRequest("上传失败"));
     }
 }
