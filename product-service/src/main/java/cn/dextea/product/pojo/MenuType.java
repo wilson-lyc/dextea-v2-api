@@ -19,8 +19,9 @@ import lombok.NoArgsConstructor;
 public class MenuType {
     @TableId(type = IdType.AUTO)
     private Long id;
-    private String name;
     private Long menuId;
+    private String name;
+    private Integer sort;
     private String createTime;
     private String updateTime;
 }

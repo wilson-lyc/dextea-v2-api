@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductTransferOptionDTO {
+public class ProductOptionDTO {
     private Long value;
     private String label;
 }

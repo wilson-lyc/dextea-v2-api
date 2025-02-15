@@ -105,14 +105,14 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ApiResponse getProductTransferOption(Integer status) {
+    public ApiResponse getProductOption(Integer status) {
         MPJLambdaWrapper<Product> wrapper = new MPJLambdaWrapper<Product>()
-                .selectAs(Product::getId, ProductTransferOptionDTO::getValue)
-                .selectAs(Product::getName, ProductTransferOptionDTO::getLabel);
+                .selectAs(Product::getId, ProductOptionDTO::getValue)
+                .selectAs(Product::getName, ProductOptionDTO::getLabel);
         if (status != null) {
             wrapper.eq(Product::getStatus, status);
         }
-        List<ProductTransferOptionDTO> list = productMapper.selectJoinList(ProductTransferOptionDTO.class,wrapper);
+        List<ProductOptionDTO> list = productMapper.selectJoinList(ProductOptionDTO.class,wrapper);
         return ApiResponse.success(JSONObject.of("options", list));
     }
 }

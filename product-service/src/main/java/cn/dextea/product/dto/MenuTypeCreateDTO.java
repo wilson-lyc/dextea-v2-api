@@ -14,15 +14,17 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MenuTypeCreateDTO {
-    @NotBlank
+    @NotBlank(message = "名称不能为空")
     private String name;
-    @NotNull
+    @NotNull(message = "菜单id不能为空")
     private Long menuId;
-
+    @NotNull(message = "优先级不能为空")
+    private Integer sort;
     public MenuType toMenuType() {
         return MenuType.builder()
                 .name(name)
                 .menuId(menuId)
+                .sort(sort)
                 .build();
     }
 }

@@ -3,6 +3,7 @@ package cn.dextea.product.controller;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.product.dto.*;
 import cn.dextea.product.service.MenuService;
+import cn.dextea.product.service.MenuTypeService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -15,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 public class MenuController {
     @Resource
     private MenuService menuService;
+    @Resource
+    private MenuTypeService menuTypeService;
 
     /**
      * 创建菜单
@@ -56,42 +59,5 @@ public class MenuController {
     @PutMapping("/{id:\\d+}/base")
     public ApiResponse updateMenuBase(@PathVariable Long id, @RequestBody MenuBaseUpdateDTO data) {
         return menuService.updateMenuBase(id, data);
-    }
-
-    /**
-     * 创建菜单分类
-     * @param data {name}
-     */
-    @PostMapping("/type")
-    public ApiResponse createMenuType(@Valid @RequestBody MenuTypeCreateDTO data){
-        return menuService.createMenuType(data);
-    }
-
-    /**
-     * 获取菜单分类基础信息
-     * @param id 菜单分类id
-     */
-    @GetMapping("/type/{id:\\d+}")
-    public ApiResponse getMenuTypeBaseById(@PathVariable Long id){
-        return menuService.getMenuTypeBaseById(id);
-    }
-
-    /**
-     * 获取菜单分类列表
-     * @param menuId 菜单id
-     */
-    @GetMapping("/type")
-    public ApiResponse getMenuTypeList(@RequestParam("menuId") Long menuId){
-        return menuService.getMenuTypeList(menuId);
-    }
-
-    /**
-     * 更新菜单分类基础信息
-     * @param id 菜单分类id
-     * @param data {name}
-     */
-    @PutMapping("/type/{id:\\d+}")
-    public ApiResponse updateMenuTypeBase(@PathVariable Long id, @Valid @RequestBody MenuTypeUpdateDTO data){
-        return menuService.updateMenuTypeBase(id, data);
     }
 }

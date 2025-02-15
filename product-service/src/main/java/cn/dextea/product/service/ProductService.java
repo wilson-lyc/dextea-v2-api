@@ -16,5 +16,5 @@ public interface ProductService {
     ApiResponse getProductById(Long id);
     ApiResponse getProductListByFilter(@Valid @Min(value = 1,message = "current不能小于1") int current, @Valid @Min(value = 1,message = "size不能小于1") int size, @Valid SearchProductDTO filter);
     ResponseEntity<ApiResponse> uploadCover(Long id, MultipartFile file);
-    ApiResponse getProductTransferOption(Integer status);
+    ApiResponse getProductOption(Integer status);
 }

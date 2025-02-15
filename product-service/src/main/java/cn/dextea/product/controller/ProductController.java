@@ -76,8 +76,8 @@ public class ProductController {
     /**
      * 获取商品穿梭框选项
      */
-    @GetMapping("/transferOption")
-    public ApiResponse getProductTransferOption(Integer status) {
-        return productService.getProductTransferOption(status);
+    @GetMapping("/option")
+    public ApiResponse getProductOption(Integer status) {
+        return productService.getProductOption(status);
     }
 }

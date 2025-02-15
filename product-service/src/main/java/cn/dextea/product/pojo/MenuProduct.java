@@ -14,8 +14,9 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("r_menu_type_product")
-public class MenuTypeProduct {
-    private Long menuTypeId;
+public class MenuProduct {
+    private Long typeId;
     private Long productId;
+    private Integer sort;
     private String createTime;
 }
