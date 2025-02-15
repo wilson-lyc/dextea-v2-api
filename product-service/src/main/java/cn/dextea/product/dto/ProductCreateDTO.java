@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateProductDTO {
+public class ProductCreateDTO {
     @NotBlank
     private String name;//名称
     private String description;//描述
@@ -23,12 +23,16 @@ public class CreateProductDTO {
     private BigDecimal price;//价格
     @NotNull
     private Long typeId;//品类ID
+    @NotNull
+    private Integer status;//状态
+
     public Product toProduct() {
         return Product.builder()
                 .name(name)
                 .description(description)
                 .price(price)
                 .typeId(typeId)
+                .status(status)
                 .build();
     }
 }

@@ -1,7 +1,7 @@
 package cn.dextea.product.controller;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.CreateProductDTO;
+import cn.dextea.product.dto.ProductCreateDTO;
 import cn.dextea.product.dto.SearchProductDTO;
 import cn.dextea.product.dto.UpdateProductDTO;
 import cn.dextea.product.service.ProductService;
@@ -27,7 +27,7 @@ public class ProductController {
      * @param data {name,description,price,typeId}
      */
     @PostMapping
-    public ApiResponse create(@Valid @RequestBody CreateProductDTO data) {
+    public ApiResponse create(@Valid @RequestBody ProductCreateDTO data) {
         return productService.create(data);
     }
 
@@ -51,7 +51,7 @@ public class ProductController {
             @Valid @Min(value = 1,message = "current不能小于1") @RequestParam(defaultValue = "1") int current,
             @Valid @Min(value = 1,message = "size不能小于1") @RequestParam(defaultValue = "10") int size,
             @Valid @RequestBody SearchProductDTO filter){
-        return productService.getProductList(current,size,filter);
+        return productService.getProductListByFilter(current,size,filter);
     }
 
     /**
@@ -71,5 +71,13 @@ public class ProductController {
     @PostMapping(value = "/cover", consumes = "multipart/form-data")
     public ResponseEntity<ApiResponse> uploadCover(@RequestParam Long id, @RequestPart MultipartFile file) {
         return productService.uploadCover(id, file);
+    }
+
+    /**
+     * 获取商品穿梭框选项
+     */
+    @GetMapping("/transferOption")
+    public ApiResponse getProductTransferOption(Integer status) {
+        return productService.getProductTransferOption(status);
     }
 }

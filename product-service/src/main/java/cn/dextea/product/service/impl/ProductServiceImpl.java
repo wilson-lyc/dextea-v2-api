@@ -1,9 +1,7 @@
 package cn.dextea.product.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.CreateProductDTO;
-import cn.dextea.product.dto.ProductDTO;
-import cn.dextea.product.dto.SearchProductDTO;
+import cn.dextea.product.dto.*;
 import cn.dextea.product.feign.TosFeign;
 import cn.dextea.product.mapper.ProductMapper;
 import cn.dextea.product.pojo.Product;
@@ -20,6 +18,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.util.List;
+
 /**
  * @author Lai Yongchao
  */
@@ -30,8 +30,9 @@ public class ProductServiceImpl implements ProductService {
     private ProductMapper productMapper;
     @Autowired
     private TosFeign tosFeign;
+
     @Override
-    public ApiResponse create(CreateProductDTO data) {
+    public ApiResponse create(ProductCreateDTO data) {
         Product product = data.toProduct();
         productMapper.insert(product);
         return ApiResponse.success();
@@ -41,18 +42,17 @@ public class ProductServiceImpl implements ProductService {
     public ApiResponse getProductById(Long id) {
         Product product = productMapper.selectById(id);
         if(product == null) {
-            String msg = String.format("商品不存在，id=%d", id);
-            return ApiResponse.notFound(msg);
+            return ApiResponse.notFound(String.format("商品不存在，id=%d", id));
         }
         return ApiResponse.success(JSONObject.of("product", product));
     }
 
     @Override
-    public ApiResponse getProductList(int current, int size, SearchProductDTO filter) {
+    public ApiResponse getProductListByFilter(int current, int size, SearchProductDTO filter) {
         // 联表查询
         MPJLambdaWrapper<Product> wrapper = new MPJLambdaWrapper<Product>()
-                .selectAll(Product.class)
-                .selectAs(ProductType::getName, ProductDTO::getTypeName)
+                .selectAll(Product.class,Product::getTypeId)
+                .selectAs(ProductType::getName, ProductListDTO::getTypeName)
                 .innerJoin(ProductType.class, ProductType::getId, Product::getTypeId)
                 .orderByAsc(Product::getId);
         // 添加过滤条件
@@ -69,10 +69,10 @@ public class ProductServiceImpl implements ProductService {
             wrapper.eq("status", filter.getStatus());
         }
         // 分页查询
-        IPage<ProductDTO> page=productMapper.selectJoinPage(new Page<>(current, size), ProductDTO.class,wrapper);
+        IPage<ProductListDTO> page=productMapper.selectJoinPage(new Page<>(current, size), ProductListDTO.class,wrapper);
         // 如果当前页码大于总页数，返回最后一页
         if (page.getCurrent() > page.getPages()) {
-            page = productMapper.selectJoinPage(new Page<>(page.getPages(), size), ProductDTO.class,wrapper);
+            page = productMapper.selectJoinPage(new Page<>(page.getPages(), size), ProductListDTO.class,wrapper);
         }
         return ApiResponse.success(JSONObject.from(page));
     }
@@ -102,5 +102,17 @@ public class ProductServiceImpl implements ProductService {
             return ResponseEntity.ok(response);
         }
         return ResponseEntity.badRequest().body(ApiResponse.badRequest("上传失败"));
+    }
+
+    @Override
+    public ApiResponse getProductTransferOption(Integer status) {
+        MPJLambdaWrapper<Product> wrapper = new MPJLambdaWrapper<Product>()
+                .selectAs(Product::getId, ProductTransferOptionDTO::getValue)
+                .selectAs(Product::getName, ProductTransferOptionDTO::getLabel);
+        if (status != null) {
+            wrapper.eq(Product::getStatus, status);
+        }
+        List<ProductTransferOptionDTO> list = productMapper.selectJoinList(ProductTransferOptionDTO.class,wrapper);
+        return ApiResponse.success(JSONObject.of("options", list));
     }
 }
