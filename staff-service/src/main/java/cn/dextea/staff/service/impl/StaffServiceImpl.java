@@ -151,7 +151,7 @@ public class StaffServiceImpl implements StaffService {
             role=res.getData().getJSONArray("keys");
         }
         return ApiResponse.success("登录成功",JSONObject.of(
-                "staff",staff,
+                "user",staff,
                 "token",token.getTokenValue(),
                 "role",role));
     }
