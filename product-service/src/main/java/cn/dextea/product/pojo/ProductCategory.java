@@ -15,8 +15,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("s_product_type")
-public class ProductType {
+@TableName("s_product_category")
+public class ProductCategory {
     @TableId(type = IdType.AUTO)
     private Long id;
     private String name;

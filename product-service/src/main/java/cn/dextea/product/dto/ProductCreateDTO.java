@@ -22,7 +22,7 @@ public class ProductCreateDTO {
     @NotNull
     private BigDecimal price;//价格
     @NotNull
-    private Long typeId;//品类ID
+    private Long categoryId;//品类ID
     @NotNull
     private Integer status;//状态
 
@@ -31,7 +31,7 @@ public class ProductCreateDTO {
                 .name(name)
                 .description(description)
                 .price(price)
-                .typeId(typeId)
+                .categoryId(categoryId)
                 .status(status)
                 .build();
     }

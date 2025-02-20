@@ -25,7 +25,7 @@ public class Product {
     private String name;//名称
     private String description;//描述
     private BigDecimal price;//价格
-    private Long typeId;//品类ID
+    private Long categoryId;//品类ID
     private String cover;//封面
     private Integer status;//状态
 }

@@ -5,7 +5,7 @@ import cn.dextea.product.dto.*;
 import cn.dextea.product.feign.TosFeign;
 import cn.dextea.product.mapper.ProductMapper;
 import cn.dextea.product.pojo.Product;
-import cn.dextea.product.pojo.ProductType;
+import cn.dextea.product.pojo.ProductCategory;
 import cn.dextea.product.service.ProductService;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
@@ -39,7 +39,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ApiResponse getProductById(Long id) {
+    public ApiResponse getById(Long id) {
         Product product = productMapper.selectById(id);
         if(product == null) {
             return ApiResponse.notFound(String.format("商品不存在，id=%d", id));
@@ -48,25 +48,25 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ApiResponse getProductListByFilter(int current, int size, SearchProductDTO filter) {
+    public ApiResponse getList(int current, int size, ProductQueryDTO filter) {
         // 联表查询
         MPJLambdaWrapper<Product> wrapper = new MPJLambdaWrapper<Product>()
-                .selectAll(Product.class,Product::getTypeId)
-                .selectAs(ProductType::getName, ProductListDTO::getTypeName)
-                .innerJoin(ProductType.class, ProductType::getId, Product::getTypeId)
+                .selectAll(Product.class,Product::getCategoryId)
+                .selectAs(ProductCategory::getName, ProductListDTO::getTypeName)
+                .innerJoin(ProductCategory.class, ProductCategory::getId, Product::getCategoryId)
                 .orderByAsc(Product::getId);
         // 添加过滤条件
         if (filter.getId() != null) {
-            wrapper.eq("id", filter.getId());
+            wrapper.eq(Product::getId, filter.getId());
         }
         if (filter.getName() != null && !filter.getName().isBlank()) {
-            wrapper.like("name", filter.getName());
+            wrapper.like(Product::getName, filter.getName());
         }
-        if (filter.getTypeId() != null) {
-            wrapper.eq("type_id", filter.getTypeId());
+        if (filter.getCategoryId() != null) {
+            wrapper.eq(Product::getCategoryId, filter.getCategoryId());
         }
         if (filter.getStatus() != null) {
-            wrapper.eq("status", filter.getStatus());
+            wrapper.eq(Product::getStatus, filter.getStatus());
         }
         // 分页查询
         IPage<ProductListDTO> page=productMapper.selectJoinPage(new Page<>(current, size), ProductListDTO.class,wrapper);

@@ -38,7 +38,7 @@ public class StaffServiceImpl implements StaffService {
     private RoleFeign roleFeign;
 
     @Override
-    public ApiResponse create(CreateStaffDTO data) {
+    public ApiResponse create(StaffCreateDTO data) {
         // 创建账号，新账号已写入数据库
         String account = accountUtil.create(data.getName());
         // 生成密码
@@ -52,7 +52,7 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public ApiResponse getStaffById(Long id) {
+    public ApiResponse getById(Long id) {
         QueryWrapper<Staff> wrapper=new QueryWrapper<>();
         wrapper.eq("id",id);
         Staff staff=staffMapper.selectOne(wrapper);
@@ -68,28 +68,28 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public ApiResponse getStaffList(int current, int size, SearchStaffDTO condition) {
+    public ApiResponse getList(int current, int size, StaffQueryDTO filter) {
         QueryWrapper<Staff> wrapper=new QueryWrapper<>();
-        if(condition.getId()!=null){
-            wrapper.eq("id",condition.getId());
+        if(filter.getId()!=null){
+            wrapper.eq("id",filter.getId());
         }
-        if(condition.getName()!=null&&!condition.getName().isBlank()){
-            wrapper.eq("name",condition.getName());
+        if(filter.getName()!=null&&!filter.getName().isBlank()){
+            wrapper.like("name",filter.getName());
         }
-        if(condition.getAccount()!=null&&!condition.getAccount().isBlank()){
-            wrapper.eq("account",condition.getAccount());
+        if(filter.getAccount()!=null&&!filter.getAccount().isBlank()){
+            wrapper.like("account",filter.getAccount());
         }
-        if(condition.getPhone()!=null&&!condition.getPhone().isBlank()){
-            wrapper.eq("phone",condition.getPhone());
+        if(filter.getPhone()!=null&&!filter.getPhone().isBlank()){
+            wrapper.eq("phone",filter.getPhone());
         }
-        if(condition.getStatus()!=null){
-            wrapper.eq("status",condition.getStatus());
+        if(filter.getStatus()!=null){
+            wrapper.eq("status",filter.getStatus());
         }
-        if(condition.getSide()!=null){
-            wrapper.eq("side",condition.getSide());
+        if(filter.getSide()!=null){
+            wrapper.eq("side",filter.getSide());
         }
-        if(condition.getStoreId()!=null){
-            wrapper.eq("store_id",condition.getStoreId());
+        if(filter.getStoreId()!=null){
+            wrapper.eq("store_id",filter.getStoreId());
         }
         Page<Staff> page=new Page<>(current,size);
         page=staffMapper.selectPage(page,wrapper);
@@ -116,7 +116,7 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public ApiResponse update(Long id, UpdateStaffDTO data) {
+    public ApiResponse updateBase(Long id, StaffUpdateDTO data) {
         System.out.println(data);
         Staff staff=data.toStaff();
         int num=staffMapper.update(staff,new QueryWrapper<Staff>().eq("id",id));
@@ -183,7 +183,7 @@ public class StaffServiceImpl implements StaffService {
     }
 
     @Override
-    public ApiResponse updatePwd(Long id, UpdatePwdDTO data) {
+    public ApiResponse updatePwd(Long id, PwdUpdateDTO data) {
         Staff staff=Staff.builder()
                 .id(id)
                 .password(passwordUtil.encrypt(data.getNewPwd()))

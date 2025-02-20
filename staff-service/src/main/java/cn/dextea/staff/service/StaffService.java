@@ -2,19 +2,18 @@ package cn.dextea.staff.service;
 
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.staff.dto.*;
-import jakarta.validation.Valid;
 
 /**
  * @author Lai Yongchao
  */
 public interface StaffService {
-    ApiResponse create(CreateStaffDTO data);
-    ApiResponse getStaffById(Long id);
-    ApiResponse getStaffList(int current, int size, SearchStaffDTO data);
+    ApiResponse create(StaffCreateDTO data);
+    ApiResponse getById(Long id);
+    ApiResponse getList(int current, int size, StaffQueryDTO data);
     ApiResponse resetPwd(Long id);
-    ApiResponse update(Long id, UpdateStaffDTO data);
+    ApiResponse updateBase(Long id, StaffUpdateDTO data);
     ApiResponse login(StaffLoginDTO data);
     ApiResponse active(Long id);
     ApiResponse ban(Long id);
-    ApiResponse updatePwd(Long id, @Valid UpdatePwdDTO data);
+    ApiResponse updatePwd(Long id, PwdUpdateDTO data);
 }

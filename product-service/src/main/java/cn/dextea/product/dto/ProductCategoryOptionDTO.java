@@ -10,9 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SearchProductDTO {
-    private Long id;        // 商品ID
-    private String name;    // 商品名称
-    private Integer status; // 状态
-    private Integer typeId; // 分类ID
+public class ProductCategoryOptionDTO {
+    private Long value;
+    private String label;
 }

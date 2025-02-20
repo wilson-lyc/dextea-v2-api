@@ -1,7 +1,6 @@
 package cn.dextea.staff.dto;
 
 import cn.dextea.staff.pojo.Staff;
-import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateStaffDTO {
+public class StaffUpdateDTO {
     private String phone;
     private Integer status;
     public Staff toStaff(){

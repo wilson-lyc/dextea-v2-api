@@ -2,8 +2,9 @@ package cn.dextea.product.controller;
 
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.product.dto.ProductCreateDTO;
-import cn.dextea.product.dto.SearchProductDTO;
+import cn.dextea.product.dto.ProductQueryDTO;
 import cn.dextea.product.dto.UpdateProductDTO;
+import cn.dextea.product.pojo.Product;
 import cn.dextea.product.service.ProductService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -36,22 +37,16 @@ public class ProductController {
      * @param id 商品ID
      */
     @GetMapping("/{id:\\d+}")
-    public ApiResponse getProductById(@PathVariable Long id) {
-        return productService.getProductById(id);
+    public ApiResponse getById(@PathVariable Long id) {
+        return productService.getById(id);
     }
 
     /**
      * 获取商品列表
-     * @param current   页码
-     * @param size      页大小
-     * @param filter    过滤器
      */
-    @PostMapping("/search")
-    public ApiResponse getProductList(
-            @Valid @Min(value = 1,message = "current不能小于1") @RequestParam(defaultValue = "1") int current,
-            @Valid @Min(value = 1,message = "size不能小于1") @RequestParam(defaultValue = "10") int size,
-            @Valid @RequestBody SearchProductDTO filter){
-        return productService.getProductListByFilter(current,size,filter);
+    @GetMapping
+    public ApiResponse getList(@Valid ProductQueryDTO filter){
+        return productService.getList(filter.getCurrent(), filter.getSize(),filter);
     }
 
     /**

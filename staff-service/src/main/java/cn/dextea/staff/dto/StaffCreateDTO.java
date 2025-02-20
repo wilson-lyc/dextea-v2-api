@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateStaffDTO {
+public class StaffCreateDTO {
     @NotBlank(message = "name不能为空")
     private String name;
     @NotBlank(message = "phone不能为空")

@@ -23,7 +23,7 @@ public class StaffController {
      * @return 账号和密码
      */
     @PostMapping("/staff")
-    public ApiResponse create(@Valid @RequestBody CreateStaffDTO data) {
+    public ApiResponse create(@Valid @RequestBody StaffCreateDTO data) {
         return staffService.create(data);
     }
 
@@ -33,8 +33,8 @@ public class StaffController {
      * @return 员工信息
      */
     @GetMapping("/staff/{id:\\d+}")
-    public ApiResponse getStaffById(@Valid @PathVariable("id") Long id){
-        return staffService.getStaffById(id);
+    public ApiResponse getById(@Valid @PathVariable("id") Long id){
+        return staffService.getById(id);
     }
 
     /**
@@ -44,12 +44,12 @@ public class StaffController {
      * @param filter {name,phone,role,storeId,status,side}
      * @return 员工列表
      */
-    @PostMapping("/staff/search")
-    public ApiResponse getStaffList(
+    @GetMapping("/staff")
+    public ApiResponse getList(
             @Valid @Min(value = 1,message = "current不能小于1") @RequestParam(defaultValue = "1") int current,
             @Valid @Min(value = 1,message = "size不能小于1") @RequestParam(defaultValue = "10") int size,
-            @Valid @RequestBody SearchStaffDTO filter){
-        return staffService.getStaffList(current,size,filter);
+            @Valid StaffQueryDTO filter){
+        return staffService.getList(current,size,filter);
     }
 
     /**
@@ -68,8 +68,8 @@ public class StaffController {
      * @param data {phone,role,storeId,state}
      */
     @PutMapping("/staff/{id:\\d+}")
-    public ApiResponse updateStaff(@PathVariable("id") Long id,@Valid @RequestBody UpdateStaffDTO data){
-        return staffService.update(id,data);
+    public ApiResponse updateBase(@PathVariable("id") Long id,@Valid @RequestBody StaffUpdateDTO data){
+        return staffService.updateBase(id,data);
     }
     /**
      * 登录
@@ -104,7 +104,7 @@ public class StaffController {
      * @param data {oldPwd,newPwd}
      */
     @PutMapping("/staff/{id:\\d+}/password")
-    public ApiResponse updatePwd(@PathVariable("id") Long id,@Valid @RequestBody UpdatePwdDTO data){
+    public ApiResponse updatePwd(@PathVariable("id") Long id,@Valid @RequestBody PwdUpdateDTO data){
         return staffService.updatePwd(id,data);
     }
 }

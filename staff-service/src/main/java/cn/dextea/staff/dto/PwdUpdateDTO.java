@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdatePwdDTO {
+public class PwdUpdateDTO {
     @NotBlank
     private String oldPwd;
     @NotBlank

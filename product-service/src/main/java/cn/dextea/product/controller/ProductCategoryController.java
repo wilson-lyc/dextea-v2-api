@@ -1,8 +1,8 @@
 package cn.dextea.product.controller;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.EditProductTypeDTO;
-import cn.dextea.product.service.ProductTypeService;
+import cn.dextea.product.dto.ProductCategoryDTO;
+import cn.dextea.product.service.ProductCategoryService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -12,18 +12,18 @@ import org.springframework.web.bind.annotation.*;
  * @author Lai Yongchao
  */
 @RestController
-@RequestMapping("/productType")
-public class ProductTypeController {
+@RequestMapping("/product/category")
+public class ProductCategoryController {
     @Autowired
-    private ProductTypeService productTypeService;
+    private ProductCategoryService productCategoryService;
 
     /**
      * 创建商品类型
      * @param data 商品类型数据
      */
     @PostMapping
-    public ApiResponse create(@Valid @RequestBody EditProductTypeDTO data) {
-        return productTypeService.create(data);
+    public ApiResponse create(@Valid @RequestBody ProductCategoryDTO data) {
+        return productCategoryService.create(data);
     }
 
     /**
@@ -31,8 +31,8 @@ public class ProductTypeController {
      * @param data 商品类型数据
      */
     @PutMapping("/{id}")
-    public ApiResponse update(@PathVariable Long id,@Valid @RequestBody EditProductTypeDTO data) {
-        return productTypeService.update(id,data);
+    public ApiResponse update(@PathVariable Long id,@Valid @RequestBody ProductCategoryDTO data) {
+        return productCategoryService.update(id,data);
     }
 
     /**
@@ -41,7 +41,7 @@ public class ProductTypeController {
      */
     @GetMapping("/{id}")
     public ApiResponse getById(@PathVariable Long id) {
-        return productTypeService.getById(id);
+        return productCategoryService.getById(id);
     }
 
     /**
@@ -49,11 +49,11 @@ public class ProductTypeController {
      */
     @GetMapping
     public ApiResponse getAll() {
-        return productTypeService.getAll();
+        return productCategoryService.getAll();
     }
 
     @GetMapping("/option")
-    public ApiResponse getSelectOptions() {
-        return productTypeService.getSelectOptions();
+    public ApiResponse getOptions() {
+        return productCategoryService.getOptions();
     }
 }
