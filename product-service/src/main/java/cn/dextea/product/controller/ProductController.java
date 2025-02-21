@@ -3,8 +3,7 @@ package cn.dextea.product.controller;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.product.dto.ProductCreateDTO;
 import cn.dextea.product.dto.ProductQueryDTO;
-import cn.dextea.product.dto.UpdateProductDTO;
-import cn.dextea.product.pojo.Product;
+import cn.dextea.product.dto.ProductUpdateDTO;
 import cn.dextea.product.service.ProductService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -45,8 +44,11 @@ public class ProductController {
      * 获取商品列表
      */
     @GetMapping
-    public ApiResponse getList(@Valid ProductQueryDTO filter){
-        return productService.getList(filter.getCurrent(), filter.getSize(),filter);
+    public ApiResponse getList(
+            @Min(value = 1,message = "current不能小于1") Integer current,
+            @Min(value = 1,message = "size不能小于1") Integer size,
+            @Valid ProductQueryDTO filter){
+        return productService.getList(current, size,filter);
     }
 
     /**
@@ -54,8 +56,8 @@ public class ProductController {
      * @param id 商品ID
      */
     @PutMapping("/{id:\\d+}")
-    public ApiResponse updateProduct(@PathVariable Long id,@Valid @RequestBody UpdateProductDTO data) {
-        return null;
+    public ApiResponse updateProduct(@PathVariable Long id,@Valid @RequestBody ProductUpdateDTO data) {
+        return productService.updateProduct(id, data);
     }
 
     /**

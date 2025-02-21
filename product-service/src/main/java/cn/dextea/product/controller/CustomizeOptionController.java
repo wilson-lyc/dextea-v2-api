@@ -1,8 +1,8 @@
 package cn.dextea.product.controller;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.CreateCustomizeOptionDTO;
-import cn.dextea.product.dto.UpdateCustomizeOptionDTO;
+import cn.dextea.product.dto.CustomizeOptionCreateDTO;
+import cn.dextea.product.dto.CustomizeOptionUpdateDTO;
 import cn.dextea.product.service.CustomizeOptionService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -12,28 +12,28 @@ import org.springframework.web.bind.annotation.*;
  * @author Lai Yongchao
  */
 @RestController
-@RequestMapping("/customizeOption")
+@RequestMapping("/customize/option")
 public class CustomizeOptionController {
     @Resource
     private CustomizeOptionService customizeOptionService;
 
     @PostMapping
-    public ApiResponse create(@Valid @RequestBody CreateCustomizeOptionDTO data) {
+    public ApiResponse create(@Valid @RequestBody CustomizeOptionCreateDTO data) {
         return customizeOptionService.create(data);
     }
 
     @GetMapping
-    public ApiResponse getCustomizeOptionList(@RequestParam("customizeId") Long customizeId) {
-        return customizeOptionService.getCustomizeOptionList(customizeId);
+    public ApiResponse getList(@RequestParam("itemId") Long itemId) {
+        return customizeOptionService.getList(itemId);
     }
 
     @GetMapping("{id:\\d+}")
-    public ApiResponse getCustomizeOptionById(@PathVariable Long id) {
-        return customizeOptionService.getCustomizeOptionById(id);
+    public ApiResponse getById(@PathVariable Long id) {
+        return customizeOptionService.getById(id);
     }
 
     @PutMapping("{id:\\d+}")
-    public ApiResponse updateCustomizeOption(@PathVariable Long id, @Valid @RequestBody UpdateCustomizeOptionDTO data) {
-        return customizeOptionService.updateCustomizeOption(id, data);
+    public ApiResponse update(@PathVariable Long id, @Valid @RequestBody CustomizeOptionUpdateDTO data) {
+        return customizeOptionService.update(id, data);
     }
 }

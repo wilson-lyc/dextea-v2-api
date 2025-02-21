@@ -12,9 +12,6 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductQueryDTO {
-    @Min(value = 1,message = "current不能小于1")
-    private int current;
-    @Min(value = 1,message = "size不能小于1")
     private int size;
     private Long id;// 商品ID
     private String name;// 商品名称

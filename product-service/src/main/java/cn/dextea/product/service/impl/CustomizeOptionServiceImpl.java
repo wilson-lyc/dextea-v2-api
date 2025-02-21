@@ -1,11 +1,11 @@
 package cn.dextea.product.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.CreateCustomizeOptionDTO;
-import cn.dextea.product.dto.UpdateCustomizeOptionDTO;
-import cn.dextea.product.mapper.CustomizeMapper;
+import cn.dextea.product.dto.CustomizeOptionCreateDTO;
+import cn.dextea.product.dto.CustomizeOptionUpdateDTO;
+import cn.dextea.product.mapper.CustomizeItemMapper;
 import cn.dextea.product.mapper.CustomizeOptionMapper;
-import cn.dextea.product.pojo.Customize;
+import cn.dextea.product.pojo.CustomizeItem;
 import cn.dextea.product.pojo.CustomizeOption;
 import cn.dextea.product.service.CustomizeOptionService;
 import com.alibaba.fastjson2.JSONObject;
@@ -24,13 +24,13 @@ public class CustomizeOptionServiceImpl implements CustomizeOptionService {
     @Resource
     private CustomizeOptionMapper customizeOptionMapper;
     @Resource
-    private CustomizeMapper customizeMapper;
+    private CustomizeItemMapper customizeItemMapper;
     @Override
-    public ApiResponse create(CreateCustomizeOptionDTO data) {
+    public ApiResponse create(CustomizeOptionCreateDTO data) {
         // 校验ID对应的客制化项目是否存在
-        Customize customize = customizeMapper.selectById(data.getCustomizeId());
-        if (customize == null) {
-            return ApiResponse.badRequest(String.format("绑定的客制化项目不存在，id=%d", data.getCustomizeId()));
+        CustomizeItem customizeItem = customizeItemMapper.selectById(data.getItemId());
+        if (customizeItem == null) {
+            return ApiResponse.badRequest(String.format("无法与ID=%d的客制化项目绑定", data.getItemId()));
         }
         // 添加客制化选项
         CustomizeOption customizeOption = data.toCustomizeOption();
@@ -39,17 +39,18 @@ public class CustomizeOptionServiceImpl implements CustomizeOptionService {
     }
 
     @Override
-    public ApiResponse getCustomizeOptionList(Long customizeId) {
+    public ApiResponse getList(Long itemId) {
         MPJLambdaWrapper<CustomizeOption> wrapper = new MPJLambdaWrapper<CustomizeOption>()
                 .selectAll(CustomizeOption.class)
-                .innerJoin(Customize.class,Customize::getId,CustomizeOption::getCustomizeId)
-                .eq(Customize::getId, customizeId);
+                .innerJoin(CustomizeItem.class, CustomizeItem::getId,CustomizeOption::getItemId)
+                .orderByAsc(CustomizeOption::getSort)
+                .eq(CustomizeItem::getId, itemId);
         List<CustomizeOption> list = customizeOptionMapper.selectList(wrapper);
-        return ApiResponse.success(JSONObject.of("optionList", list));
+        return ApiResponse.success(JSONObject.of("options", list));
     }
 
     @Override
-    public ApiResponse getCustomizeOptionById(Long id) {
+    public ApiResponse getById(Long id) {
         CustomizeOption customizeOption = customizeOptionMapper.selectById(id);
         if (customizeOption == null) {
             return ApiResponse.notFound(String.format("资源不存在，id=%d", id));
@@ -58,7 +59,7 @@ public class CustomizeOptionServiceImpl implements CustomizeOptionService {
     }
 
     @Override
-    public ApiResponse updateCustomizeOption(Long id, @Valid UpdateCustomizeOptionDTO data) {
+    public ApiResponse update(Long id, @Valid CustomizeOptionUpdateDTO data) {
         CustomizeOption customizeOption=data.toCustomizeOption();
         customizeOption.setId(id);
         int num = customizeOptionMapper.updateById(customizeOption);

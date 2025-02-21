@@ -1,6 +1,6 @@
 package cn.dextea.product.dto;
 
-import cn.dextea.product.pojo.CustomizeOption;
+import cn.dextea.product.pojo.Product;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -13,26 +13,26 @@ import java.math.BigDecimal;
  * @author Lai Yongchao
  */
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class CreateCustomizeOptionDTO {
+@NoArgsConstructor
+public class ProductUpdateDTO {
     @NotBlank
-    private String name;
-    private BigDecimal price;
+    private String name;//名称
+    private String description;//描述
     @NotNull
-    private Integer sort;
+    private BigDecimal price;//价格
     @NotNull
-    private Integer status;
+    private Long categoryId;//品类ID
     @NotNull
-    private Long customizeId;
+    private Integer status;//状态
 
-    public CustomizeOption toCustomizeOption(){
-        return CustomizeOption.builder()
+    public Product toProduct() {
+        return Product.builder()
                 .name(name)
+                .description(description)
                 .price(price)
-                .sort(sort)
+                .categoryId(categoryId)
                 .status(status)
-                .customizeId(customizeId)
                 .build();
     }
 }

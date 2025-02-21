@@ -1,16 +1,15 @@
 package cn.dextea.product.service;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.CreateCustomizeOptionDTO;
-import cn.dextea.product.dto.UpdateCustomizeOptionDTO;
-import jakarta.validation.Valid;
+import cn.dextea.product.dto.CustomizeOptionCreateDTO;
+import cn.dextea.product.dto.CustomizeOptionUpdateDTO;
 
 /**
  * @author Lai Yongchao
  */
 public interface CustomizeOptionService {
-    ApiResponse create(@Valid CreateCustomizeOptionDTO data);
-    ApiResponse getCustomizeOptionList(Long customizeId);
-    ApiResponse getCustomizeOptionById(Long id);
-    ApiResponse updateCustomizeOption(Long id, @Valid UpdateCustomizeOptionDTO data);
+    ApiResponse create(CustomizeOptionCreateDTO data);
+    ApiResponse getList(Long itemId);
+    ApiResponse getById(Long id);
+    ApiResponse update(Long id, CustomizeOptionUpdateDTO data);
 }

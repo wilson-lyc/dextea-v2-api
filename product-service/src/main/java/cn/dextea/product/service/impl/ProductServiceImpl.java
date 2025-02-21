@@ -52,7 +52,7 @@ public class ProductServiceImpl implements ProductService {
         // 联表查询
         MPJLambdaWrapper<Product> wrapper = new MPJLambdaWrapper<Product>()
                 .selectAll(Product.class,Product::getCategoryId)
-                .selectAs(ProductCategory::getName, ProductListDTO::getTypeName)
+                .selectAs(ProductCategory::getName, ProductListDTO::getCategoryName)
                 .innerJoin(ProductCategory.class, ProductCategory::getId, Product::getCategoryId)
                 .orderByAsc(Product::getId);
         // 添加过滤条件
@@ -114,5 +114,16 @@ public class ProductServiceImpl implements ProductService {
         }
         List<ProductOptionDTO> list = productMapper.selectJoinList(ProductOptionDTO.class,wrapper);
         return ApiResponse.success(JSONObject.of("options", list));
+    }
+
+    @Override
+    public ApiResponse updateProduct(Long id, ProductUpdateDTO data) {
+        Product product = data.toProduct();
+        product.setId(id);
+        int count = productMapper.updateById(product);
+        if (count == 0) {
+            return ApiResponse.notFound(String.format("不存在id=%d的商品", id));
+        }
+        return ApiResponse.success("更新成功");
     }
 }

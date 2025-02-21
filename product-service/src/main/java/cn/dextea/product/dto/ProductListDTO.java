@@ -18,6 +18,6 @@ public class ProductListDTO {
     private String name;//名称
     private String description;//描述
     private BigDecimal price;//价格
-    private String typeName;//品类名称
+    private String categoryName;//品类名称
     private Integer status;//状态
 }

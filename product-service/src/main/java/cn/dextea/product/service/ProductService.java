@@ -3,8 +3,8 @@ package cn.dextea.product.service;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.product.dto.ProductCreateDTO;
 import cn.dextea.product.dto.ProductQueryDTO;
+import cn.dextea.product.dto.ProductUpdateDTO;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -17,4 +17,5 @@ public interface ProductService {
     ResponseEntity<ApiResponse> uploadCover(Long id, MultipartFile file);
     ApiResponse getProductOption(Integer status);
     ApiResponse getList(int current,int size, ProductQueryDTO filter);
+    ApiResponse updateProduct(Long id, @Valid ProductUpdateDTO data);
 }

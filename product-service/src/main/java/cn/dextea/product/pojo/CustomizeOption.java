@@ -25,5 +25,5 @@ public class CustomizeOption {
     private BigDecimal price;
     private Integer sort;
     private Integer status;
-    private Long customizeId;
+    private Long itemId;
 }

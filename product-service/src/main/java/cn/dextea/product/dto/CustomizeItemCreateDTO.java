@@ -1,6 +1,6 @@
 package cn.dextea.product.dto;
 
-import cn.dextea.product.pojo.Customize;
+import cn.dextea.product.pojo.CustomizeItem;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateCustomizeDTO {
+public class CustomizeItemCreateDTO {
     @NotBlank
     private String name;
     private String description;
@@ -21,13 +21,16 @@ public class UpdateCustomizeDTO {
     private Integer sort;
     @NotNull
     private Integer status;
+    @NotNull
+    private Long productId;
 
-    public Customize toCustomize(){
-        return Customize.builder()
+    public CustomizeItem toCustomize(){
+        return CustomizeItem.builder()
                 .name(name)
                 .description(description)
                 .sort(sort)
                 .status(status)
+                .productId(productId)
                 .build();
     }
 }
