@@ -3,9 +3,9 @@ package cn.dextea.product.controller;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.product.dto.*;
 import cn.dextea.product.service.MenuService;
-import cn.dextea.product.service.MenuTypeService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -16,16 +16,14 @@ import org.springframework.web.bind.annotation.*;
 public class MenuController {
     @Resource
     private MenuService menuService;
-    @Resource
-    private MenuTypeService menuTypeService;
 
     /**
      * 创建菜单
      * @param data {name,description}
      */
     @PostMapping
-    public ApiResponse createMenu(@Valid @RequestBody MenuCreateDTO data) {
-        return menuService.createMenu(data);
+    public ApiResponse create(@Valid @RequestBody MenuCreateDTO data) {
+        return menuService.create(data);
     }
 
     /**
@@ -34,12 +32,12 @@ public class MenuController {
      * @param size  页大小
      * @param filter 查询条件
      */
-    @PostMapping("/search")
-    public ApiResponse search(
-            @RequestParam(value = "current",defaultValue = "1") int current,
-            @RequestParam(value = "size",defaultValue = "10") int size,
-            @RequestBody MenuFilterDTO filter) {
-        return menuService.getMenuListByFilter(current,size,filter);
+    @GetMapping
+    public ApiResponse getList(
+            @Min(value = 1,message = "current不能小于1") Integer current,
+            @Min(value = 1,message = "size不能小于1") Integer size,
+            @Valid MenuQueryDTO filter) {
+        return menuService.getList(current,size,filter);
     }
 
     /**
@@ -47,8 +45,8 @@ public class MenuController {
      * @param id 菜单id
      */
     @GetMapping("/{id:\\d+}/base")
-    public ApiResponse getMenuBaseById(@PathVariable Long id) {
-        return menuService.getMenuBaseById(id);
+    public ApiResponse getById(@PathVariable Long id) {
+        return menuService.getById(id);
     }
 
     /**
@@ -57,7 +55,7 @@ public class MenuController {
      * @param data {name,description}
      */
     @PutMapping("/{id:\\d+}/base")
-    public ApiResponse updateMenuBase(@PathVariable Long id, @RequestBody MenuBaseUpdateDTO data) {
-        return menuService.updateMenuBase(id, data);
+    public ApiResponse update(@PathVariable Long id, @RequestBody MenuBaseUpdateDTO data) {
+        return menuService.update(id, data);
     }
 }

@@ -29,10 +29,10 @@ public class MenuProductServiceImpl implements MenuProductService {
     private ProductMapper productMapper;
 
     @Override
-    public ApiResponse createMenuProduct(MenuProductCreateDTO data) {
+    public ApiResponse menuBindProduct(MenuProductCreateDTO data) {
         // 检查是否已经绑定
         QueryWrapper<MenuProduct> wrapper=new QueryWrapper<>();
-        wrapper.eq("type_id",data.getTypeId());
+        wrapper.eq("group_id",data.getGroupId());
         wrapper.eq("product_id",data.getProductId());
         if(menuProductMapper.selectCount(wrapper)>0){
             return ApiResponse.badRequest("已经绑定");
@@ -44,30 +44,30 @@ public class MenuProductServiceImpl implements MenuProductService {
     }
 
     @Override
-    public ApiResponse getMenuProductListByTypeId(Long typeId) {
+    public ApiResponse getProductsByGroupId(Long id) {
         MPJLambdaWrapper<Product> wrapper=new MPJLambdaWrapper<Product>()
                 .select(Product::getId,Product::getName,Product::getPrice)
                 .select(MenuProduct::getSort)
                 .innerJoin(MenuProduct.class, MenuProduct::getProductId,Product::getId)
                 .orderByAsc(MenuProduct::getSort)
-                .eq(MenuProduct::getTypeId,typeId);
+                .eq(MenuProduct::getGroupId,id);
         List<MenuProductDTO> list=productMapper.selectJoinList(MenuProductDTO.class,wrapper);
         return ApiResponse.success(JSONObject.of("products",list));
     }
 
     @Override
-    public ApiResponse unbindProduct(Long typeId, Long productId) {
+    public ApiResponse menuUnbindProduct(Long groupId, Long productId) {
         QueryWrapper<MenuProduct> wrapper=new QueryWrapper<>();
-        wrapper.eq("type_id",typeId);
+        wrapper.eq("group_id",groupId);
         wrapper.eq("product_id",productId);
         menuProductMapper.delete(wrapper);
         return ApiResponse.success("解绑成功");
     }
 
     @Override
-    public ApiResponse getMenuProductBase(Long typeId, Long productId) {
+    public ApiResponse getMenuBindProductInfo(Long groupId, Long productId) {
         QueryWrapper<MenuProduct> wrapper=new QueryWrapper<>();
-        wrapper.eq("type_id",typeId);
+        wrapper.eq("group_id",groupId);
         wrapper.eq("product_id",productId);
         MenuProduct menuProduct=menuProductMapper.selectOne(wrapper);
         if(menuProduct==null){
@@ -77,13 +77,12 @@ public class MenuProductServiceImpl implements MenuProductService {
     }
 
     @Override
-    public ApiResponse updateMenuProductBase(Long typeId, Long productId, MenuProductUpdateDTO data) {
+    public ApiResponse updateMenuBindProductInfo(Long groupId, Long productId, MenuProductUpdateDTO data) {
         UpdateWrapper<MenuProduct> wrapper=new UpdateWrapper<>();
-        wrapper.eq("type_id",typeId);
+        wrapper.eq("group_id",groupId);
         wrapper.eq("product_id",productId);
         wrapper.set("sort",data.getSort());
         menuProductMapper.update(wrapper);
         return ApiResponse.success("更新成功");
-
     }
 }

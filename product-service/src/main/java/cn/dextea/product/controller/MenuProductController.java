@@ -1,7 +1,6 @@
 package cn.dextea.product.controller;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.MenuBindProductDTO;
 import cn.dextea.product.dto.MenuProductCreateDTO;
 import cn.dextea.product.dto.MenuProductUpdateDTO;
 import cn.dextea.product.service.MenuProductService;
@@ -13,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
  * @author Lai Yongchao
  */
 @RestController
-@RequestMapping("/menu/product")
 public class MenuProductController {
     @Resource
     private MenuProductService menuProductService;
@@ -22,40 +20,55 @@ public class MenuProductController {
      * 绑定菜单商品
      * @param data {typeId, productId}
      */
-    @PostMapping
-    public ApiResponse bindProduct(@Valid @RequestBody MenuProductCreateDTO data){
-        return menuProductService.createMenuProduct(data);
+    @PostMapping("/menu/product")
+    public ApiResponse menuBindProduct(@Valid @RequestBody MenuProductCreateDTO data){
+        return menuProductService.menuBindProduct(data);
     }
 
     /**
      * 解绑绑定商品
-     * @param typeId 菜单分类ID
+     * @param groupId 菜单分组ID
      * @param productId 商品ID
      */
-    @DeleteMapping
-    public ApiResponse unbindProduct(@RequestParam("typeId") Long typeId, @RequestParam("productId") Long productId){
-        return menuProductService.unbindProduct(typeId,productId);
+    @DeleteMapping("/menu/product")
+    public ApiResponse menuUnbindProduct(
+            @RequestParam("groupId") Long groupId,
+            @RequestParam("productId") Long productId){
+        return menuProductService.menuUnbindProduct(groupId,productId);
     }
 
     /**
-     * 根据TypeId获取商品列表
-     * @param typeId 菜单分类ID
+     * 获取同分组的商品列表
+     * @param id 菜单分组ID
      */
-    @GetMapping
-    public ApiResponse getMenuProductListByTypeId(@RequestParam("typeId") Long typeId){
-        return menuProductService.getMenuProductListByTypeId(typeId);
+    @GetMapping("/menu/group/{id:\\d+}/product")
+    public ApiResponse getProductsByGroupId(@PathVariable Long id){
+        return menuProductService.getProductsByGroupId(id);
     }
 
-    @GetMapping("/base")
-    public ApiResponse getMenuProductBase(@RequestParam("typeId") Long typeId, @RequestParam("productId") Long productId){
-        return menuProductService.getMenuProductBase(typeId,productId);
+    /**
+     * 获取商品绑定的菜单信息
+     * @param groupId 菜单分组ID
+     * @param productId 商品ID
+     */
+    @GetMapping("/menu/product")
+    public ApiResponse getMenuBindProductInfo(
+            @RequestParam("groupId") Long groupId,
+            @RequestParam("productId") Long productId){
+        return menuProductService.getMenuBindProductInfo(groupId,productId);
     }
 
-    @PutMapping("/base")
-    public ApiResponse updateMenuProductBase(
-            @RequestParam("typeId") Long typeId,
+    /**
+     * 更新菜单商品基础信息
+     * @param groupId 菜单分组ID
+     * @param productId 商品ID
+     * @param data {name, price, image}
+     */
+    @PutMapping("/menu/product")
+    public ApiResponse updateMenuBindProductInfo(
+            @RequestParam("groupId") Long groupId,
             @RequestParam("productId") Long productId,
             @Valid @RequestBody MenuProductUpdateDTO data){
-        return menuProductService.updateMenuProductBase(typeId,productId,data);
+        return menuProductService.updateMenuBindProductInfo(groupId,productId,data);
     }
 }

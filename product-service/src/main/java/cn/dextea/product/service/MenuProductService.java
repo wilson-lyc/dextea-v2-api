@@ -9,9 +9,9 @@ import jakarta.validation.Valid;
  * @author Lai Yongchao
  */
 public interface MenuProductService {
-    ApiResponse createMenuProduct(MenuProductCreateDTO data);
-    ApiResponse getMenuProductListByTypeId(Long typeId);
-    ApiResponse unbindProduct(Long typeId, Long productId);
-    ApiResponse getMenuProductBase(Long typeId, Long productId);
-    ApiResponse updateMenuProductBase(Long typeId, Long productId, @Valid MenuProductUpdateDTO data);
+    ApiResponse menuBindProduct(MenuProductCreateDTO data);
+    ApiResponse menuUnbindProduct(Long groupId, Long productId);
+    ApiResponse getProductsByGroupId(Long id);
+    ApiResponse getMenuBindProductInfo(Long groupId, Long productId);
+    ApiResponse updateMenuBindProductInfo(Long groupId, Long productId, MenuProductUpdateDTO data);
 }

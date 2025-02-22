@@ -20,14 +20,14 @@ public class MenuServiceImpl implements MenuService {
     private MenuMapper menuMapper;
 
     @Override
-    public ApiResponse createMenu(MenuCreateDTO data) {
+    public ApiResponse create(MenuCreateDTO data) {
         Menu menu=data.toMenu();
         menuMapper.insert(menu);
         return ApiResponse.success("创建成功");
     }
 
     @Override
-    public ApiResponse getMenuListByFilter(int current, int size, MenuFilterDTO filter) {
+    public ApiResponse getList(int current, int size, MenuQueryDTO filter) {
         QueryWrapper<Menu> wrapper=new QueryWrapper<>();
         if(filter.getId()!=null){
             wrapper.eq("id", filter.getId());
@@ -45,21 +45,21 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
-    public ApiResponse getMenuBaseById(Long id) {
+    public ApiResponse getById(Long id) {
         Menu menu=menuMapper.selectById(id);
         if(menu==null){
-            return ApiResponse.notFound(String.format("菜单不存在，id=%d",id));
+            return ApiResponse.notFound(String.format("不存在 ID=%d 的菜单",id));
         }
         return ApiResponse.success(JSONObject.of("menu",menu));
     }
 
     @Override
-    public ApiResponse updateMenuBase(Long id, MenuBaseUpdateDTO data) {
+    public ApiResponse update(Long id, MenuBaseUpdateDTO data) {
         Menu menu=data.toMenu();
         menu.setId(id);
         int count=menuMapper.updateById(menu);
         if(count==0){
-            return ApiResponse.notFound(String.format("菜单不存在，id=%d",id));
+            return ApiResponse.notFound(String.format("不存在 ID=%d 的菜单",id));
         }
         return ApiResponse.success("更新成功");
     }

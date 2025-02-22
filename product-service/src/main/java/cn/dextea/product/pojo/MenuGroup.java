@@ -15,8 +15,8 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("s_menu_type")
-public class MenuType {
+@TableName("s_menu_group")
+public class MenuGroup {
     @TableId(type = IdType.AUTO)
     private Long id;
     private Long menuId;

@@ -13,8 +13,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class MenuProductCreateDTO {
-    @NotNull(message = "typeId不能为空")
-    private Long typeId;
+    @NotNull(message = "groupId不能为空")
+    private Long groupId;
     @NotNull(message = "productId不能为空")
     private Long productId;
     @NotNull(message = "sort不能为空")
@@ -22,7 +22,7 @@ public class MenuProductCreateDTO {
 
     public MenuProduct toMenuProduct(){
         return MenuProduct.builder()
-                .typeId(typeId)
+                .groupId(groupId)
                 .productId(productId)
                 .sort(sort)
                 .build();

@@ -1,6 +1,6 @@
 package cn.dextea.product.dto;
 
-import cn.dextea.product.pojo.MenuType;
+import cn.dextea.product.pojo.MenuGroup;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -18,8 +18,8 @@ public class MenuTypeUpdateDTO {
     private String name;
     @NotNull(message = "优先级不能为空")
     private Integer sort;
-    public MenuType toMenuType() {
-        return MenuType.builder()
+    public MenuGroup toMenuType() {
+        return MenuGroup.builder()
                 .name(name)
                 .sort(sort)
                 .build();

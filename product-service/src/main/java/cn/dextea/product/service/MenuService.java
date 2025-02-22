@@ -8,8 +8,8 @@ import jakarta.validation.Valid;
  * @author Lai Yongchao
  */
 public interface MenuService {
-    ApiResponse createMenu(@Valid MenuCreateDTO data);
-    ApiResponse getMenuListByFilter(int current, int size, MenuFilterDTO filter);
-    ApiResponse getMenuBaseById(Long id);
-    ApiResponse updateMenuBase(Long id, MenuBaseUpdateDTO data);
+    ApiResponse create(@Valid MenuCreateDTO data);
+    ApiResponse getList(int current, int size, MenuQueryDTO filter);
+    ApiResponse getById(Long id);
+    ApiResponse update(Long id, MenuBaseUpdateDTO data);
 }

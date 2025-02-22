@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MenuFilterDTO {
+public class MenuQueryDTO {
     private Long id;
     private String name;
 }
