@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class SearchStoreDTO {
+public class StoreFilter {
     private Long id;
     private String name;
     private Integer status;

@@ -38,7 +38,7 @@ public class StaffController {
     }
 
     /**
-     * 查询员工列表
+     * 获取员工列表
      * @param current 当前页
      * @param size 每页大小
      * @param filter {name,phone,role,storeId,status,side}

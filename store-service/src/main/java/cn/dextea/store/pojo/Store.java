@@ -8,6 +8,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 /**
  * @author Lai Yongchao
  */
@@ -25,8 +27,8 @@ public class Store {
     private String city;// 市
     private String district;// 区
     private String address;// 详细地址
-    private Double longitude;// 经度
-    private Double latitude;// 纬度
+    private BigDecimal longitude;// 经度
+    private BigDecimal latitude;// 纬度
     private String linkman;// 联系人
     private String phone;// 联系电话
     private String openTime;// 营业时间

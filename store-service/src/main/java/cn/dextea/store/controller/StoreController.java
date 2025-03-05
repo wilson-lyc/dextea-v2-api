@@ -1,23 +1,23 @@
 package cn.dextea.store.controller;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.store.dto.CreateStoreDTO;
-import cn.dextea.store.dto.SearchStoreDTO;
-import cn.dextea.store.dto.UpdateStoreDTO;
+import cn.dextea.store.dto.StoreCreateDTO;
+import cn.dextea.store.dto.StoreFilter;
+import cn.dextea.store.dto.StoreUpdateDTO;
 import cn.dextea.store.service.StoreService;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.client.loadbalancer.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.math.BigDecimal;
 
 /**
  * @author Lai Yongchao
  */
 @RestController
-@RequestMapping("/store")
 public class StoreController {
     @Autowired
     StoreService storeService;
@@ -26,8 +26,8 @@ public class StoreController {
      * 创建门店
      * @param data {name,province,city,district,address,linkman,phone,openTime}
      */
-    @PostMapping("")
-    public ApiResponse create(@Valid @RequestBody CreateStoreDTO data) {
+    @PostMapping("/store")
+    public ApiResponse create(@Valid @RequestBody StoreCreateDTO data) {
         return storeService.create(data);
     }
 
@@ -35,7 +35,7 @@ public class StoreController {
      * 获取门店详情
      * @param id 门店id
      */
-    @GetMapping("/{id:\\d+}")
+    @GetMapping("/store/{id:\\d+}")
     public ApiResponse getStoreById(@PathVariable Long id) {
         return storeService.getStoreById(id);
     }
@@ -45,21 +45,21 @@ public class StoreController {
      * @param current 页码
      * @param size 分页大小
      */
-    @PostMapping("/search")
+    @GetMapping("/store")
     public ApiResponse getStoreList(
             @Valid @Min(value = 1,message = "current不能小于1") @RequestParam(defaultValue = "1") int current,
             @Valid @Min(value = 1,message = "size不能小于1") @RequestParam(defaultValue = "10") int size,
-            @Valid @RequestBody SearchStoreDTO filter) {
+            @Valid StoreFilter filter) {
         return storeService.getStoreList(current, size,filter);
     }
 
     /**
-     * 更新门店运营状态
+     * 更新门店状态
      * @param id 门店id
-     * @param status 运营状态
+     * @param status 状态
      */
-    @PutMapping("/status")
-    public ApiResponse updateStatus(@RequestParam Long id, @RequestParam Integer status) {
+    @PutMapping("/store/{id:\\d+}/status")
+    public ApiResponse updateStatus(@PathVariable Long id, @RequestParam Integer status) {
         return storeService.updateStatus(id, status);
     }
 
@@ -68,8 +68,8 @@ public class StoreController {
      * @param id 门店id
      * @param data {name,province,city,district,address,linkman,phone,openTime}
      */
-    @PutMapping("/{id:\\d+}/base")
-    public ApiResponse update(@PathVariable Long id, @RequestBody UpdateStoreDTO data) {
+    @PutMapping("/store/{id:\\d+}/base")
+    public ApiResponse update(@PathVariable Long id, @RequestBody StoreUpdateDTO data) {
         return storeService.update(id, data);
     }
 
@@ -78,7 +78,7 @@ public class StoreController {
      * @param id 门店id
      * @param file 营业执照文件
      */
-    @PostMapping(value = "/license/business", consumes = "multipart/form-data")
+    @PostMapping(value = "/store/license/business", consumes = "multipart/form-data")
     public ResponseEntity<ApiResponse> uploadBusinessLicense(@RequestParam Long id, @RequestPart MultipartFile file) {
         return storeService.uploadBusinessLicense(id, file);
     }
@@ -88,25 +88,30 @@ public class StoreController {
      * @param id 门店id
      * @param file 文件
      */
-    @PostMapping(value = "/license/food", consumes = "multipart/form-data")
+    @PostMapping(value = "/store/license/food", consumes = "multipart/form-data")
     public ResponseEntity<ApiResponse> uploadFoodLicense(@RequestParam Long id, @RequestPart MultipartFile file) {
         return storeService.uploadFoodLicense(id, file);
     }
 
     /**
-     * 获取许可证
-     * @param id 门店id
+     * 获取门店下拉选项
      */
-    @GetMapping("/{id:\\d+}/license")
-    public ApiResponse getLicense(@PathVariable Long id) {
-        return storeService.getLicenseById(id);
+    @GetMapping("/store/selectOptions")
+    public ApiResponse getSelectOptions() {
+        return storeService.getSelectOptions();
     }
 
     /**
-     * 获取门店下拉选项
+     * 更新门店位置
+     * @param id 门店id
+     * @param longitude 经度
+     * @param latitude 纬度
      */
-    @GetMapping("/selectOptions")
-    public ApiResponse getSelectOptions() {
-        return storeService.getSelectOptions();
+    @PutMapping("/store/{id:\\d+}/location")
+    public ApiResponse updateLocation(
+            @PathVariable Long id,
+            @RequestParam BigDecimal longitude,
+            @RequestParam BigDecimal latitude) {
+        return storeService.updateLocation(id, longitude, latitude);
     }
 }

@@ -1,26 +1,27 @@
 package cn.dextea.store.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.store.dto.CreateStoreDTO;
-import cn.dextea.store.dto.SearchStoreDTO;
+import cn.dextea.store.dto.StoreCreateDTO;
+import cn.dextea.store.dto.StoreFilter;
 import cn.dextea.store.dto.StoreSelectOption;
-import cn.dextea.store.dto.UpdateStoreDTO;
+import cn.dextea.store.dto.StoreUpdateDTO;
 import cn.dextea.store.feign.TosFeign;
 import cn.dextea.store.mapper.StoreMapper;
 import cn.dextea.store.pojo.Store;
-import cn.dextea.store.pojo.StoreStatus;
 import cn.dextea.store.service.StoreService;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.google.protobuf.Api;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cloud.client.loadbalancer.Response;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -35,27 +36,37 @@ public class StoreServiceImpl implements StoreService {
     TosFeign tosFeign;
 
     @Override
-    public ApiResponse create(CreateStoreDTO data) {
+    public ApiResponse create(StoreCreateDTO data) {
         Store store=data.toStore();
-        store.setStatus(StoreStatus.NOT_ACTIVE.getCode());// 新注册门店状态为未激活
+        store.setStatus(0);// 新注册门店状态为未激活
+        // 获取初步定位
+        JSONObject key=JSONObject.of("keyWord",store.getProvince()+store.getCity()+store.getDistrict()+store.getAddress());
+        try{
+            HttpResponse res= HttpRequest.get("https://api.tianditu.gov.cn/geocoder")
+                    .form("ds",key.toJSONString())
+                    .form("tk","7e3e6c02516464cd1c24ae21f562723c")
+                    .execute();
+            JSONObject location=JSONObject.parseObject(res.body()).getJSONObject("location");
+            store.setLatitude(location.getBigDecimal("lat"));
+            store.setLongitude(location.getBigDecimal("lon"));
+        }catch (Exception e){
+            log.error("获取门店初步定位失败",e);
+        }
         storeMapper.insert(store);
-        return ApiResponse.success();
+        return ApiResponse.success("门店创建成功");
     }
 
     @Override
     public ApiResponse getStoreById(Long id) {
-        QueryWrapper<Store> wrapper=new QueryWrapper<>();
-        wrapper.eq("id",id);
-        Store store=storeMapper.selectOne(wrapper);
+        Store store=storeMapper.selectById(id);
         if (store==null){
-            String mgs=String.format("门店不存在，ID=%d",id);
-            return ApiResponse.notFound(mgs);
+            return ApiResponse.notFound(String.format("不存在ID=%d的门店",id));
         }
         return ApiResponse.success(JSONObject.of("store",store));
     }
 
     @Override
-    public ApiResponse getStoreList(int current, int size,SearchStoreDTO filter) {
+    public ApiResponse getStoreList(int current, int size, StoreFilter filter) {
         QueryWrapper<Store> wrapper=new QueryWrapper<>();
         if(filter.getId()!=null){
             wrapper.eq("id",filter.getId());
@@ -93,25 +104,23 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     public ApiResponse updateStatus(Long id, Integer status) {
-        Store store=Store.builder()
-                .status(status)
-                .build();
-        int num=storeMapper.update(store,new QueryWrapper<Store>().eq("id",id));
+        UpdateWrapper<Store> wrapper=new UpdateWrapper<Store>()
+                .eq("id",id)
+                .set("status",status);
+        int num=storeMapper.update(wrapper);
         if (num==0){
-            String msg=String.format("门店不存在，ID=%d",id);
-            return ApiResponse.notFound(msg);
+            return ApiResponse.notFound("更新失败");
         }
         return ApiResponse.success();
     }
 
     @Override
-    public ApiResponse update(Long id, UpdateStoreDTO data) {
+    public ApiResponse update(Long id, StoreUpdateDTO data) {
         Store store=data.toStore();
         store.setId(id);
         int num=storeMapper.updateById(store);
         if (num==0){
-            String msg=String.format("门店不存在，ID=%d",id);
-            return ApiResponse.notFound(msg);
+            return ApiResponse.notFound("更新失败");
         }
         return ApiResponse.success();
     }
@@ -119,9 +128,7 @@ public class StoreServiceImpl implements StoreService {
     @Override
     public ResponseEntity<ApiResponse> uploadBusinessLicense(Long id, MultipartFile file) {
         // 查询旧的营业执照URL
-        QueryWrapper<Store> wrapper=new QueryWrapper<>();
-        wrapper.eq("id",id);
-        String oldUrl=storeMapper.selectOne(wrapper).getBusinessLicense();
+        String oldUrl=storeMapper.selectById(id).getBusinessLicense();
         try{
             tosFeign.delete(oldUrl);
         }catch (Exception e){
@@ -146,9 +153,7 @@ public class StoreServiceImpl implements StoreService {
     @Override
     public ResponseEntity<ApiResponse> uploadFoodLicense(Long id, MultipartFile file) {
         // 删除旧的食品经营许可证
-        QueryWrapper<Store> wrapper=new QueryWrapper<>();
-        wrapper.eq("id",id);
-        String oldUrl=storeMapper.selectOne(wrapper).getFoodBusinessLicense();
+        String oldUrl=storeMapper.selectById(id).getFoodBusinessLicense();
         try{
             tosFeign.delete(oldUrl);
         }catch (Exception e){
@@ -171,23 +176,19 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public ApiResponse getLicenseById(Long id) {
-        QueryWrapper<Store> wrapper=new QueryWrapper<>();
-        wrapper.select("business_license","food_business_license");
-        wrapper.eq("id",id);
-        Store store=storeMapper.selectOne(wrapper);
-        if (store==null){
-            String msg=String.format("门店不存在，ID=%d",id);
-            return ApiResponse.notFound(msg);
-        }
-        return ApiResponse.success(JSONObject.of(
-                "business_license",store.getBusinessLicense(),
-                "food_business_license",store.getFoodBusinessLicense()));
-    }
-
-    @Override
     public ApiResponse getSelectOptions() {
         List<StoreSelectOption> stores=storeMapper.getSelectOptions();
         return ApiResponse.success(JSONObject.of("options",stores));
+    }
+
+    @Override
+    public ApiResponse updateLocation(Long id, BigDecimal longitude, BigDecimal latitude) {
+        Store store=Store.builder()
+                .id(id)
+                .longitude(longitude)
+                .latitude(latitude)
+                .build();
+        storeMapper.updateById(store);
+        return ApiResponse.success();
     }
 }

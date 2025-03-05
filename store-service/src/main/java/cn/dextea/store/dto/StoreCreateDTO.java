@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CreateStoreDTO {
+public class StoreCreateDTO {
     @NotBlank(message = "门店名称不能为空")
     private String name;
     @NotBlank(message = "省份不能为空")

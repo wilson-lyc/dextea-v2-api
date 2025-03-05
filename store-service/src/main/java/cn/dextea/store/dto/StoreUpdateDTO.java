@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class UpdateStoreDTO {
+public class StoreUpdateDTO {
     @NotBlank
     private String name;
     @NotBlank
