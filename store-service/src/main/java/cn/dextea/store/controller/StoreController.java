@@ -28,7 +28,7 @@ public class StoreController {
      */
     @PostMapping("/store")
     public ApiResponse create(@Valid @RequestBody StoreCreateDTO data) {
-        return storeService.create(data);
+        return storeService.createStore(data);
     }
 
     /**
@@ -69,8 +69,8 @@ public class StoreController {
      * @param data {name,province,city,district,address,linkman,phone,openTime}
      */
     @PutMapping("/store/{id:\\d+}/base")
-    public ApiResponse update(@PathVariable Long id, @RequestBody StoreUpdateDTO data) {
-        return storeService.update(id, data);
+    public ApiResponse updateBase(@PathVariable Long id, @RequestBody StoreUpdateDTO data) {
+        return storeService.updateBase(id, data);
     }
 
     /**

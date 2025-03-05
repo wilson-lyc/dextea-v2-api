@@ -14,10 +14,10 @@ import java.math.BigDecimal;
  */
 public interface StoreService {
     ApiResponse getStoreList(int current, int size, StoreFilter filter);
-    ApiResponse create(StoreCreateDTO data);
+    ApiResponse createStore(StoreCreateDTO data);
     ApiResponse getStoreById(Long id);
     ApiResponse updateStatus(Long id, Integer status);
-    ApiResponse update(Long id, StoreUpdateDTO data);
+    ApiResponse updateBase(Long id, StoreUpdateDTO data);
     ResponseEntity<ApiResponse> uploadBusinessLicense(Long id, MultipartFile file);
     ResponseEntity<ApiResponse> uploadFoodLicense(Long id, MultipartFile file);
     ApiResponse getSelectOptions();

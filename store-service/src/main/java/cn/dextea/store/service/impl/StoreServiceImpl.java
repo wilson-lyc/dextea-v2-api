@@ -36,7 +36,7 @@ public class StoreServiceImpl implements StoreService {
     TosFeign tosFeign;
 
     @Override
-    public ApiResponse create(StoreCreateDTO data) {
+    public ApiResponse createStore(StoreCreateDTO data) {
         Store store=data.toStore();
         store.setStatus(0);// 新注册门店状态为未激活
         // 获取初步定位
@@ -115,7 +115,7 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public ApiResponse update(Long id, StoreUpdateDTO data) {
+    public ApiResponse updateBase(Long id, StoreUpdateDTO data) {
         Store store=data.toStore();
         store.setId(id);
         int num=storeMapper.updateById(store);
