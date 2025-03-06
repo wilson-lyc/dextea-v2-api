@@ -44,6 +44,7 @@ public class StoreController {
      * 获取门店列表
      * @param current 页码
      * @param size 分页大小
+     * @param filter 过滤条件
      */
     @GetMapping("/store")
     public ApiResponse getStoreList(
@@ -113,5 +114,19 @@ public class StoreController {
             @RequestParam BigDecimal longitude,
             @RequestParam BigDecimal latitude) {
         return storeService.updateLocation(id, longitude, latitude);
+    }
+
+    /**
+     * 获取附近门店
+     * @param longitude 经度
+     * @param latitude 纬度
+     * @param distance 距离
+     */
+    @GetMapping("/store/nearby")
+    public ApiResponse getNearbyStore(
+            @RequestParam BigDecimal longitude,
+            @RequestParam BigDecimal latitude,
+            @RequestParam Integer distance) {
+        return storeService.getNearbyStore(longitude, latitude, distance);
     }
 }

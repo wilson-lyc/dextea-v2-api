@@ -191,4 +191,10 @@ public class StoreServiceImpl implements StoreService {
         storeMapper.updateById(store);
         return ApiResponse.success();
     }
+
+    @Override
+    public ApiResponse getNearbyStore(BigDecimal longitude, BigDecimal latitude, Integer distance) {
+        List<Store> stores=storeMapper.selectList(null);
+        return ApiResponse.success(JSONObject.of("stores",stores));// temp
+    }
 }

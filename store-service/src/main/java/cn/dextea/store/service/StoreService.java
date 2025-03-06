@@ -22,4 +22,5 @@ public interface StoreService {
     ResponseEntity<ApiResponse> uploadFoodLicense(Long id, MultipartFile file);
     ApiResponse getSelectOptions();
     ApiResponse updateLocation(Long id, BigDecimal longitude, BigDecimal latitude);
+    ApiResponse getNearbyStore(BigDecimal longitude, BigDecimal latitude, Integer distance);
 }
