@@ -7,8 +7,6 @@ import cn.dextea.store.dto.StoreUpdateDTO;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.math.BigDecimal;
-
 /**
  * @author Lai Yongchao
  */
@@ -21,6 +19,6 @@ public interface StoreService {
     ResponseEntity<ApiResponse> uploadBusinessLicense(Long id, MultipartFile file);
     ResponseEntity<ApiResponse> uploadFoodLicense(Long id, MultipartFile file);
     ApiResponse getSelectOptions();
-    ApiResponse updateLocation(Long id, BigDecimal longitude, BigDecimal latitude);
-    ApiResponse getNearbyStore(BigDecimal longitude, BigDecimal latitude, Integer distance);
+    ApiResponse updateLocation(Long id, Double longitude, Double latitude);
+    ApiResponse getNearbyStore(Double longitude, Double latitude, Integer radius);
 }

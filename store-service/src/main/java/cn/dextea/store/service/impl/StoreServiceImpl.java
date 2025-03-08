@@ -1,20 +1,19 @@
 package cn.dextea.store.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.store.dto.StoreCreateDTO;
-import cn.dextea.store.dto.StoreFilter;
-import cn.dextea.store.dto.StoreSelectOption;
-import cn.dextea.store.dto.StoreUpdateDTO;
+import cn.dextea.store.dto.*;
 import cn.dextea.store.feign.TosFeign;
 import cn.dextea.store.mapper.StoreMapper;
 import cn.dextea.store.pojo.Store;
 import cn.dextea.store.service.StoreService;
+import cn.dextea.store.util.RedisUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -30,29 +29,38 @@ import java.util.List;
 @Slf4j
 @Service
 public class StoreServiceImpl implements StoreService {
-    @Autowired
+    @Resource
     StoreMapper storeMapper;
-    @Autowired
+    @Resource
     TosFeign tosFeign;
+    @Resource
+    RedisUtil redisUtil;
 
     @Override
     public ApiResponse createStore(StoreCreateDTO data) {
         Store store=data.toStore();
-        store.setStatus(0);// 新注册门店状态为未激活
-        // 获取初步定位
-        JSONObject key=JSONObject.of("keyWord",store.getProvince()+store.getCity()+store.getDistrict()+store.getAddress());
+        store.setStatus(0);// 状态默认为未激活
+        // 获取门店定位 - 高德api
         try{
-            HttpResponse res= HttpRequest.get("https://api.tianditu.gov.cn/geocoder")
-                    .form("ds",key.toJSONString())
-                    .form("tk","7e3e6c02516464cd1c24ae21f562723c")
+            HttpResponse res= HttpRequest.get("https://restapi.amap.com/v3/geocode/geo")
+                    .form("key","ba9e3a30dede2dbb9f6f6fd97f1b4fd1")
+                    .form("address",store.getAddress())
+                    .form("city",store.getCity())
                     .execute();
-            JSONObject location=JSONObject.parseObject(res.body()).getJSONObject("location");
-            store.setLatitude(location.getBigDecimal("lat"));
-            store.setLongitude(location.getBigDecimal("lon"));
+            String location=JSONObject.parseObject(res.body())
+                    .getJSONArray("geocodes")
+                    .getJSONObject(0)
+                    .getString("location");
+            String[] parts = location.split(",");
+            store.setLongitude(Double.parseDouble(parts[0]));
+            store.setLatitude(Double.parseDouble(parts[1]));
         }catch (Exception e){
-            log.error("获取门店初步定位失败",e);
+            log.error("门店定位获取失败",e);
         }
+        // 写入db
         storeMapper.insert(store);
+        // 定位写入redis
+        redisUtil.setStoreLocation(store.getId(),store.getLongitude(), store.getLatitude());
         return ApiResponse.success("门店创建成功");
     }
 
@@ -182,19 +190,31 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public ApiResponse updateLocation(Long id, BigDecimal longitude, BigDecimal latitude) {
+    public ApiResponse updateLocation(Long id, Double longitude, Double latitude) {
         Store store=Store.builder()
                 .id(id)
                 .longitude(longitude)
                 .latitude(latitude)
                 .build();
-        storeMapper.updateById(store);
+        storeMapper.updateById(store);// 更新db
+        redisUtil.setStoreLocation(id,longitude,latitude);// 更新redis
         return ApiResponse.success();
     }
 
     @Override
-    public ApiResponse getNearbyStore(BigDecimal longitude, BigDecimal latitude, Integer distance) {
-        List<Store> stores=storeMapper.selectList(null);
-        return ApiResponse.success(JSONObject.of("stores",stores));// temp
+    public ApiResponse getNearbyStore(Double longitude, Double latitude, Integer radius) {
+        List<NearbyStoreDTO> nearbyStores=redisUtil.getNearbyStores(longitude,latitude,radius,10);
+        for(NearbyStoreDTO store:nearbyStores){
+            Store s=storeMapper.selectById(store.getId());
+            store.setId(s.getId());
+            store.setName(s.getName());
+            store.setStatus(s.getStatus());
+            store.setProvince(s.getProvince());
+            store.setCity(s.getCity());
+            store.setDistrict(s.getDistrict());
+            store.setAddress(s.getAddress());
+            store.setOpenTime(s.getOpenTime());
+        }
+        return ApiResponse.success(JSONObject.of("stores",nearbyStores,"counts",nearbyStores.size()));
     }
 }

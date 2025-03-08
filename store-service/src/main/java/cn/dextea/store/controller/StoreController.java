@@ -27,7 +27,7 @@ public class StoreController {
      * @param data {name,province,city,district,address,linkman,phone,openTime}
      */
     @PostMapping("/store")
-    public ApiResponse create(@Valid @RequestBody StoreCreateDTO data) {
+    public ApiResponse createStore(@Valid @RequestBody StoreCreateDTO data) {
         return storeService.createStore(data);
     }
 
@@ -111,8 +111,8 @@ public class StoreController {
     @PutMapping("/store/{id:\\d+}/location")
     public ApiResponse updateLocation(
             @PathVariable Long id,
-            @RequestParam BigDecimal longitude,
-            @RequestParam BigDecimal latitude) {
+            @RequestParam Double longitude,
+            @RequestParam Double latitude) {
         return storeService.updateLocation(id, longitude, latitude);
     }
 
@@ -120,13 +120,13 @@ public class StoreController {
      * 获取附近门店
      * @param longitude 经度
      * @param latitude 纬度
-     * @param distance 距离
+     * @param radius 距离
      */
     @GetMapping("/store/nearby")
     public ApiResponse getNearbyStore(
-            @RequestParam BigDecimal longitude,
-            @RequestParam BigDecimal latitude,
-            @RequestParam Integer distance) {
-        return storeService.getNearbyStore(longitude, latitude, distance);
+            @RequestParam Double longitude,
+            @RequestParam Double latitude,
+            @RequestParam Integer radius) {
+        return storeService.getNearbyStore(longitude, latitude, radius);
     }
 }
