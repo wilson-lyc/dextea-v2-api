@@ -35,9 +35,9 @@ public class StoreController {
      * 获取门店详情
      * @param id 门店id
      */
-    @GetMapping("/store/{id:\\d+}")
-    public ApiResponse getStoreById(@PathVariable Long id) {
-        return storeService.getStoreById(id);
+    @GetMapping("/store/{id:\\d+}/base")
+    public ApiResponse getStoreBaseById(@PathVariable Long id) {
+        return storeService.getStoreBaseById(id);
     }
 
     /**
@@ -75,6 +75,14 @@ public class StoreController {
     }
 
     /**
+     * 获取门店下拉选项
+     */
+    @GetMapping("/store/option")
+    public ApiResponse getSelectOptions() {
+        return storeService.getSelectOptions();
+    }
+
+    /**
      * 上传营业执照
      * @param id 门店id
      * @param file 营业执照文件
@@ -94,12 +102,9 @@ public class StoreController {
         return storeService.uploadFoodLicense(id, file);
     }
 
-    /**
-     * 获取门店下拉选项
-     */
-    @GetMapping("/store/selectOptions")
-    public ApiResponse getSelectOptions() {
-        return storeService.getSelectOptions();
+    @GetMapping("/store/{id:\\d+}/license")
+    public ApiResponse getStoreLicenseById(@PathVariable Long id) {
+        return storeService.getStoreLicenseById(id);
     }
 
     /**

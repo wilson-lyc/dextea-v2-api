@@ -27,8 +27,8 @@ public class ProductController {
      * @param data {name,description,price,typeId}
      */
     @PostMapping
-    public ApiResponse create(@Valid @RequestBody ProductCreateDTO data) {
-        return productService.create(data);
+    public ApiResponse createProduct(@Valid @RequestBody ProductCreateDTO data) {
+        return productService.createProduct(data);
     }
 
     /**
@@ -36,19 +36,19 @@ public class ProductController {
      * @param id 商品ID
      */
     @GetMapping("/{id:\\d+}")
-    public ApiResponse getById(@PathVariable Long id) {
-        return productService.getById(id);
+    public ApiResponse getProductBaseById(@PathVariable Long id) {
+        return productService.getProductBaseById(id);
     }
 
     /**
      * 获取商品列表
      */
     @GetMapping
-    public ApiResponse getList(
+    public ApiResponse getProductList(
             @Min(value = 1,message = "current不能小于1") Integer current,
             @Min(value = 1,message = "size不能小于1") Integer size,
             @Valid ProductQueryDTO filter){
-        return productService.getList(current, size,filter);
+        return productService.getProductList(current, size,filter);
     }
 
     /**

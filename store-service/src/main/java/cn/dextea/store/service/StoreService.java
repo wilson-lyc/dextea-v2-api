@@ -13,7 +13,7 @@ import org.springframework.web.multipart.MultipartFile;
 public interface StoreService {
     ApiResponse getStoreList(int current, int size, StoreFilter filter);
     ApiResponse createStore(StoreCreateDTO data);
-    ApiResponse getStoreById(Long id);
+    ApiResponse getStoreBaseById(Long id);
     ApiResponse updateStatus(Long id, Integer status);
     ApiResponse updateBase(Long id, StoreUpdateDTO data);
     ResponseEntity<ApiResponse> uploadBusinessLicense(Long id, MultipartFile file);
@@ -21,4 +21,5 @@ public interface StoreService {
     ApiResponse getSelectOptions();
     ApiResponse updateLocation(Long id, Double longitude, Double latitude);
     ApiResponse getNearbyStore(Double longitude, Double latitude, Integer radius);
+    ApiResponse getStoreLicenseById(Long id);
 }

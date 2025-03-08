@@ -23,14 +23,14 @@ public class MenuGroupServiceImpl implements MenuGroupService {
     private MenuGroupMapper menuGroupMapper;
 
     @Override
-    public ApiResponse create(MenuGroupCreateDTO data) {
+    public ApiResponse createMenuGroup(MenuGroupCreateDTO data) {
         MenuGroup menuGroup = data.toMenuGroup();
         menuGroupMapper.insert(menuGroup);
         return ApiResponse.success("创建成功");
     }
 
     @Override
-    public ApiResponse getById(Long id) {
+    public ApiResponse getMenuGroupById(Long id) {
         MenuGroup menuGroup = menuGroupMapper.selectById(id);
         if (menuGroup ==null){
             return ApiResponse.notFound(String.format("不存在 ID=%d 的菜单分组",id));
@@ -39,7 +39,7 @@ public class MenuGroupServiceImpl implements MenuGroupService {
     }
 
     @Override
-    public ApiResponse getList(Long menuId) {
+    public ApiResponse getMenuGroupList(Long menuId) {
         MPJLambdaWrapper<MenuGroup> wrapper=new MPJLambdaWrapper<MenuGroup>()
                 .selectAll(MenuGroup.class)
                 .innerJoin(Menu.class,Menu::getId, MenuGroup::getMenuId)
@@ -50,7 +50,7 @@ public class MenuGroupServiceImpl implements MenuGroupService {
     }
 
     @Override
-    public ApiResponse update(Long id, MenuTypeUpdateDTO data) {
+    public ApiResponse updateMenuGroup(Long id, MenuTypeUpdateDTO data) {
         MenuGroup menuGroup =data.toMenuType();
         menuGroup.setId(id);
         int num= menuGroupMapper.updateById(menuGroup);

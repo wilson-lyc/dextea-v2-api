@@ -12,6 +12,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
+import jdk.jfr.Category;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -32,26 +33,30 @@ public class ProductServiceImpl implements ProductService {
     private TosFeign tosFeign;
 
     @Override
-    public ApiResponse create(ProductCreateDTO data) {
+    public ApiResponse createProduct(ProductCreateDTO data) {
         Product product = data.toProduct();
         productMapper.insert(product);
         return ApiResponse.success();
     }
 
     @Override
-    public ApiResponse getById(Long id) {
-        Product product = productMapper.selectById(id);
+    public ApiResponse getProductBaseById(Long id) {
+        MPJLambdaWrapper<Product> wrapper=new MPJLambdaWrapper<Product>()
+                .selectAsClass(Product.class,ProductDTO.class)
+                .selectAs(ProductCategory::getName, ProductListDTO::getCategoryName)
+                .innerJoin(ProductCategory.class,ProductCategory::getId,Product::getCategoryId)
+                .eq(Product::getId,id);
+        ProductDTO product = productMapper.selectJoinOne(ProductDTO.class,wrapper);
         if(product == null) {
-            return ApiResponse.notFound(String.format("商品不存在，id=%d", id));
+            return ApiResponse.notFound(String.format("不存在id=%d的商品", id));
         }
         return ApiResponse.success(JSONObject.of("product", product));
     }
 
     @Override
-    public ApiResponse getList(int current, int size, ProductQueryDTO filter) {
-        // 联表查询
+    public ApiResponse getProductList(int current, int size, ProductQueryDTO filter) {
         MPJLambdaWrapper<Product> wrapper = new MPJLambdaWrapper<Product>()
-                .selectAll(Product.class,Product::getCategoryId)
+                .selectAsClass(Product.class,ProductListDTO.class)
                 .selectAs(ProductCategory::getName, ProductListDTO::getCategoryName)
                 .innerJoin(ProductCategory.class, ProductCategory::getId, Product::getCategoryId)
                 .orderByAsc(Product::getId);
@@ -69,10 +74,15 @@ public class ProductServiceImpl implements ProductService {
             wrapper.eq(Product::getStatus, filter.getStatus());
         }
         // 分页查询
-        IPage<ProductListDTO> page=productMapper.selectJoinPage(new Page<>(current, size), ProductListDTO.class,wrapper);
-        // 如果当前页码大于总页数，返回最后一页
+        IPage<ProductListDTO> page=productMapper.selectJoinPage(
+                new Page<>(current, size),
+                ProductListDTO.class,
+                wrapper);
         if (page.getCurrent() > page.getPages()) {
-            page = productMapper.selectJoinPage(new Page<>(page.getPages(), size), ProductListDTO.class,wrapper);
+            page = productMapper.selectJoinPage(
+                    new Page<>(page.getPages(), size),
+                    ProductListDTO.class,
+                    wrapper);
         }
         return ApiResponse.success(JSONObject.from(page));
     }

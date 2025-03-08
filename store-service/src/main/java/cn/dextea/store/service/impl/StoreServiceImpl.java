@@ -13,6 +13,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -61,8 +62,11 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public ApiResponse getStoreById(Long id) {
-        Store store=storeMapper.selectById(id);
+    public ApiResponse getStoreBaseById(Long id) {
+        MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
+                .selectAsClass(Store.class, StoreBaseDTO.class)
+                .eq(Store::getId,id);
+        StoreBaseDTO store=storeMapper.selectJoinOne(StoreBaseDTO.class, wrapper);
         if (store==null){
             return ApiResponse.notFound(String.format("不存在ID=%d的门店",id));
         }
@@ -71,37 +75,38 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     public ApiResponse getStoreList(int current, int size, StoreFilter filter) {
-        QueryWrapper<Store> wrapper=new QueryWrapper<>();
+        MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
+                .selectAsClass(Store.class,StoreListDTO.class);
         if(filter.getId()!=null){
-            wrapper.eq("id",filter.getId());
+            wrapper.eq(Store::getId,filter.getId());
         }
         if (filter.getName()!=null&&!filter.getName().isBlank()){
-            wrapper.like("name",filter.getName());
+            wrapper.like(Store::getName,filter.getName());
         }
         if (filter.getStatus()!=null){
-            wrapper.eq("status",filter.getStatus());
+            wrapper.eq(Store::getStatus,filter.getStatus());
         }
         if (filter.getProvince()!=null&&!filter.getProvince().isBlank()){
-            wrapper.eq("province",filter.getProvince());
+            wrapper.eq(Store::getProvince,filter.getProvince());
         }
         if (filter.getCity()!=null&&!filter.getCity().isBlank()){
-            wrapper.eq("city",filter.getCity());
+            wrapper.eq(Store::getCity,filter.getCity());
         }
         if (filter.getDistrict()!=null&&!filter.getDistrict().isBlank()){
-            wrapper.eq("district",filter.getDistrict());
+            wrapper.eq(Store::getDistrict,filter.getDistrict());
         }
         if (filter.getLinkman()!=null&&!filter.getLinkman().isBlank()){
-            wrapper.eq("linkman",filter.getLinkman());
+            wrapper.eq(Store::getLinkman,filter.getLinkman());
         }
         if (filter.getPhone()!=null&&!filter.getPhone().isBlank()) {
-            wrapper.eq("phone", filter.getPhone());
+            wrapper.eq(Store::getPhone, filter.getPhone());
         }
         Page<Store> page = new Page<>(current, size);
-        page=storeMapper.selectPage(page,wrapper);
+        page=storeMapper.selectJoinPage(page,wrapper);
         // 如果当前页码大于总页数，返回最后一页
         if (page.getCurrent()>page.getPages()){
             page.setCurrent(page.getPages());
-            page=storeMapper.selectPage(page,wrapper);
+            page=storeMapper.selectJoinPage(page,wrapper);
         }
         return ApiResponse.success(JSONObject.from(page));
     }
@@ -206,5 +211,14 @@ public class StoreServiceImpl implements StoreService {
         return ApiResponse.success(JSONObject.of(
                 "counts",nearbyStores.size(),
                 "stores",nearbyStores));
+    }
+
+    @Override
+    public ApiResponse getStoreLicenseById(Long id) {
+        MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
+                .selectAsClass(Store.class,StoreLicenseDTO.class)
+                .eq(Store::getId,id);
+        StoreLicenseDTO license=storeMapper.selectJoinOne(StoreLicenseDTO.class,wrapper);
+        return ApiResponse.success(JSONObject.of("license",license));
     }
 }

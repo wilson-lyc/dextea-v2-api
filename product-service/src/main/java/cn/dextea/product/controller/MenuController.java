@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.*;
  * @author Lai Yongchao
  */
 @RestController
-@RequestMapping("/menu")
 public class MenuController {
     @Resource
     private MenuService menuService;
@@ -21,7 +20,7 @@ public class MenuController {
      * 创建菜单
      * @param data {name,description}
      */
-    @PostMapping
+    @PostMapping("/menu")
     public ApiResponse create(@Valid @RequestBody MenuCreateDTO data) {
         return menuService.create(data);
     }
@@ -32,7 +31,7 @@ public class MenuController {
      * @param size  页大小
      * @param filter 查询条件
      */
-    @GetMapping
+    @GetMapping("/menu")
     public ApiResponse getList(
             @Min(value = 1,message = "current不能小于1") Integer current,
             @Min(value = 1,message = "size不能小于1") Integer size,
@@ -44,7 +43,7 @@ public class MenuController {
      * 获取菜单基本信息
      * @param id 菜单id
      */
-    @GetMapping("/{id:\\d+}/base")
+    @GetMapping("/menu/{id:\\d+}/base")
     public ApiResponse getById(@PathVariable Long id) {
         return menuService.getById(id);
     }
@@ -54,7 +53,7 @@ public class MenuController {
      * @param id 菜单id
      * @param data {name,description}
      */
-    @PutMapping("/{id:\\d+}/base")
+    @PutMapping("/menu/{id:\\d+}/base")
     public ApiResponse update(@PathVariable Long id, @RequestBody MenuBaseUpdateDTO data) {
         return menuService.update(id, data);
     }

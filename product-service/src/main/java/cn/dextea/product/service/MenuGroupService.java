@@ -9,8 +9,8 @@ import jakarta.validation.Valid;
  * @author Lai Yongchao
  */
 public interface MenuGroupService {
-    ApiResponse create(@Valid MenuGroupCreateDTO data);
-    ApiResponse getById(Long id);
-    ApiResponse getList(Long id);
-    ApiResponse update(Long id, @Valid MenuTypeUpdateDTO data);
+    ApiResponse createMenuGroup(@Valid MenuGroupCreateDTO data);
+    ApiResponse getMenuGroupById(Long id);
+    ApiResponse getMenuGroupList(Long id);
+    ApiResponse updateMenuGroup(Long id, @Valid MenuTypeUpdateDTO data);
 }

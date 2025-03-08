@@ -21,8 +21,8 @@ public class MenuGroupController {
      * @param data {name}
      */
     @PostMapping("/menu/group")
-    public ApiResponse create(@Valid @RequestBody MenuGroupCreateDTO data){
-        return menuGroupService.create(data);
+    public ApiResponse createMenuGroup(@Valid @RequestBody MenuGroupCreateDTO data){
+        return menuGroupService.createMenuGroup(data);
     }
 
     /**
@@ -30,8 +30,8 @@ public class MenuGroupController {
      * @param id 菜单分组id
      */
     @GetMapping("/menu/group/{id:\\d+}")
-    public ApiResponse getById(@PathVariable Long id){
-        return menuGroupService.getById(id);
+    public ApiResponse getMenuGroupById(@PathVariable Long id){
+        return menuGroupService.getMenuGroupById(id);
     }
 
     /**
@@ -40,8 +40,8 @@ public class MenuGroupController {
      * @param data {name}
      */
     @PutMapping("/menu/group/{id:\\d+}")
-    public ApiResponse update(@PathVariable Long id, @Valid @RequestBody MenuTypeUpdateDTO data){
-        return menuGroupService.update(id, data);
+    public ApiResponse updateMenuGroup(@PathVariable Long id, @Valid @RequestBody MenuTypeUpdateDTO data){
+        return menuGroupService.updateMenuGroup(id, data);
     }
 
     /**
@@ -49,7 +49,7 @@ public class MenuGroupController {
      * @param id 菜单id
      */
     @GetMapping("/menu/{id:\\d+}/group")
-    public ApiResponse getList(@PathVariable Long id){
-        return menuGroupService.getList(id);
+    public ApiResponse getMenuGroupList(@PathVariable Long id){
+        return menuGroupService.getMenuGroupList(id);
     }
 }

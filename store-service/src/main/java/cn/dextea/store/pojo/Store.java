@@ -34,6 +34,7 @@ public class Store {
     private String openTime;// 营业时间
     private String businessLicense;// 营业执照
     private String foodBusinessLicense;// 食品经营许可证
+    private Long menuId;// 菜单ID
     private String createTime;// 创建时间
     private String updateTime;// 更新时间
 }
