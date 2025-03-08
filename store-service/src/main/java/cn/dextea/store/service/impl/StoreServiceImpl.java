@@ -41,22 +41,18 @@ public class StoreServiceImpl implements StoreService {
         Store store=data.toStore();
         store.setStatus(0);// 状态默认为未激活
         // 获取门店定位 - 高德api
-        try{
-            HttpResponse res= HttpRequest.get("https://restapi.amap.com/v3/geocode/geo")
-                    .form("key","ba9e3a30dede2dbb9f6f6fd97f1b4fd1")
-                    .form("address",store.getAddress())
-                    .form("city",store.getCity())
-                    .execute();
-            String location=JSONObject.parseObject(res.body())
-                    .getJSONArray("geocodes")
-                    .getJSONObject(0)
-                    .getString("location");
-            String[] parts = location.split(",");
-            store.setLongitude(Double.parseDouble(parts[0]));
-            store.setLatitude(Double.parseDouble(parts[1]));
-        }catch (Exception e){
-            log.error("门店定位获取失败",e);
-        }
+        HttpResponse res= HttpRequest.get("https://restapi.amap.com/v3/geocode/geo")
+                .form("key","ba9e3a30dede2dbb9f6f6fd97f1b4fd1")
+                .form("address",store.getAddress())
+                .form("city",store.getCity())
+                .execute();
+        String location=JSONObject.parseObject(res.body())
+                .getJSONArray("geocodes")
+                .getJSONObject(0)
+                .getString("location");
+        String[] parts = location.split(",");
+        store.setLongitude(Double.parseDouble(parts[0]));
+        store.setLatitude(Double.parseDouble(parts[1]));
         // 写入db
         storeMapper.insert(store);
         // 定位写入redis
@@ -137,11 +133,7 @@ public class StoreServiceImpl implements StoreService {
     public ResponseEntity<ApiResponse> uploadBusinessLicense(Long id, MultipartFile file) {
         // 查询旧的营业执照URL
         String oldUrl=storeMapper.selectById(id).getBusinessLicense();
-        try{
-            tosFeign.delete(oldUrl);
-        }catch (Exception e){
-            log.error("删除旧营业执照失败",e);
-        }
+        tosFeign.delete(oldUrl);
         // 上传新的营业执照
         String folder="store/license";
         String filename=String.format("%d_business",id);
@@ -162,11 +154,7 @@ public class StoreServiceImpl implements StoreService {
     public ResponseEntity<ApiResponse> uploadFoodLicense(Long id, MultipartFile file) {
         // 删除旧的食品经营许可证
         String oldUrl=storeMapper.selectById(id).getFoodBusinessLicense();
-        try{
-            tosFeign.delete(oldUrl);
-        }catch (Exception e){
-            log.error("删除旧食品经营许可证失败",e);
-        }
+        tosFeign.delete(oldUrl);
         // 上传新的食品经营许可证
         String folder="store/license";
         String filename=String.format("%d_food",id);
@@ -215,6 +203,8 @@ public class StoreServiceImpl implements StoreService {
             store.setAddress(s.getAddress());
             store.setOpenTime(s.getOpenTime());
         }
-        return ApiResponse.success(JSONObject.of("stores",nearbyStores,"counts",nearbyStores.size()));
+        return ApiResponse.success(JSONObject.of(
+                "counts",nearbyStores.size(),
+                "stores",nearbyStores));
     }
 }
