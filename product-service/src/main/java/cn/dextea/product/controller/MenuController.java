@@ -21,8 +21,8 @@ public class MenuController {
      * @param data {name,description}
      */
     @PostMapping("/menu")
-    public ApiResponse create(@Valid @RequestBody MenuCreateDTO data) {
-        return menuService.create(data);
+    public ApiResponse createMenu(@Valid @RequestBody MenuCreateDTO data) {
+        return menuService.createMenu(data);
     }
 
     /**
@@ -32,11 +32,11 @@ public class MenuController {
      * @param filter 查询条件
      */
     @GetMapping("/menu")
-    public ApiResponse getList(
+    public ApiResponse getMenuList(
             @Min(value = 1,message = "current不能小于1") Integer current,
             @Min(value = 1,message = "size不能小于1") Integer size,
             @Valid MenuQueryDTO filter) {
-        return menuService.getList(current,size,filter);
+        return menuService.getMenuList(current,size,filter);
     }
 
     /**
@@ -44,8 +44,8 @@ public class MenuController {
      * @param id 菜单id
      */
     @GetMapping("/menu/{id:\\d+}/base")
-    public ApiResponse getById(@PathVariable Long id) {
-        return menuService.getById(id);
+    public ApiResponse getMenuById(@PathVariable Long id) {
+        return menuService.getMenuById(id);
     }
 
     /**
@@ -54,7 +54,16 @@ public class MenuController {
      * @param data {name,description}
      */
     @PutMapping("/menu/{id:\\d+}/base")
-    public ApiResponse update(@PathVariable Long id, @RequestBody MenuBaseUpdateDTO data) {
-        return menuService.update(id, data);
+    public ApiResponse updateMenu(@PathVariable Long id, @RequestBody MenuBaseUpdateDTO data) {
+        return menuService.updateMenu(id, data);
+    }
+
+    /**
+     * 获取菜单商品
+     * @param id 菜单id
+     */
+    @GetMapping("/menu/{id:\\d+}/product")
+    public ApiResponse getMenuProducts(@PathVariable Long id) {
+        return menuService.getMenuProducts(id);
     }
 }

@@ -17,7 +17,6 @@ import org.springframework.web.multipart.MultipartFile;
  * @author Lai Yongchao
  */
 @RestController
-@RequestMapping("/product")
 public class ProductController {
     @Autowired
     private ProductService productService;
@@ -26,7 +25,7 @@ public class ProductController {
      * 创建商品
      * @param data {name,description,price,typeId}
      */
-    @PostMapping
+    @PostMapping("/product")
     public ApiResponse createProduct(@Valid @RequestBody ProductCreateDTO data) {
         return productService.createProduct(data);
     }
@@ -35,7 +34,7 @@ public class ProductController {
      * 根据ID查询商品
      * @param id 商品ID
      */
-    @GetMapping("/{id:\\d+}")
+    @GetMapping("/product/{id:\\d+}/base")
     public ApiResponse getProductBaseById(@PathVariable Long id) {
         return productService.getProductBaseById(id);
     }
@@ -43,7 +42,7 @@ public class ProductController {
     /**
      * 获取商品列表
      */
-    @GetMapping
+    @GetMapping("/product")
     public ApiResponse getProductList(
             @Min(value = 1,message = "current不能小于1") Integer current,
             @Min(value = 1,message = "size不能小于1") Integer size,
@@ -55,7 +54,7 @@ public class ProductController {
      * 更新商品
      * @param id 商品ID
      */
-    @PutMapping("/{id:\\d+}")
+    @PutMapping("/product/{id:\\d+}/base")
     public ApiResponse updateProduct(@PathVariable Long id,@Valid @RequestBody ProductUpdateDTO data) {
         return productService.updateProduct(id, data);
     }
@@ -76,5 +75,10 @@ public class ProductController {
     @GetMapping("/option")
     public ApiResponse getProductOption(Integer status) {
         return productService.getProductOption(status);
+    }
+
+    @GetMapping("/product/{id:\\d+}")
+    public ApiResponse getProductById(@PathVariable Long id) {
+        return productService.getProductById(id);
     }
 }
