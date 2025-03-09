@@ -22,4 +22,6 @@ public interface StoreService {
     ApiResponse updateLocation(Long id, Double longitude, Double latitude);
     ApiResponse getNearbyStore(Double longitude, Double latitude, Integer radius);
     ApiResponse getStoreLicenseById(Long id);
+    ApiResponse getStoreLocationById(Long id);
+    ApiResponse getStoreForOrder(Long id, Double longitude, Double latitude);
 }

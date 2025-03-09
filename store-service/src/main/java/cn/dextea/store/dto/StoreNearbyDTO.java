@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.springframework.data.geo.Distance;
 
 /**
  * @author Lai Yongchao
@@ -13,7 +12,7 @@ import org.springframework.data.geo.Distance;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class NearbyStoreDTO {
+public class StoreNearbyDTO {
     private Long id;
     private String name;
     private Integer status;

@@ -10,18 +10,16 @@ import cn.dextea.store.util.RedisUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
 import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.math.BigDecimal;
+import java.text.DecimalFormat;
 import java.util.List;
 
 /**
@@ -196,8 +194,8 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     public ApiResponse getNearbyStore(Double longitude, Double latitude, Integer radius) {
-        List<NearbyStoreDTO> nearbyStores=redisUtil.getNearbyStores(longitude,latitude,radius,10);
-        for(NearbyStoreDTO store:nearbyStores){
+        List<StoreNearbyDTO> nearbyStores=redisUtil.getNearbyStores(longitude,latitude,radius,10);
+        for(StoreNearbyDTO store:nearbyStores){
             Store s=storeMapper.selectById(store.getId());
             store.setId(s.getId());
             store.setName(s.getName());
@@ -207,6 +205,8 @@ public class StoreServiceImpl implements StoreService {
             store.setDistrict(s.getDistrict());
             store.setAddress(s.getAddress());
             store.setOpenTime(s.getOpenTime());
+            store.setLongitude(s.getLongitude());
+            store.setLatitude(s.getLatitude());
         }
         return ApiResponse.success(JSONObject.of(
                 "counts",nearbyStores.size(),
@@ -220,5 +220,45 @@ public class StoreServiceImpl implements StoreService {
                 .eq(Store::getId,id);
         StoreLicenseDTO license=storeMapper.selectJoinOne(StoreLicenseDTO.class,wrapper);
         return ApiResponse.success(JSONObject.of("license",license));
+    }
+
+    @Override
+    public ApiResponse getStoreLocationById(Long id) {
+        MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
+                .selectAsClass(Store.class,StoreLocationDTO.class)
+                .eq(Store::getId,id);
+        StoreLocationDTO location=storeMapper.selectJoinOne(StoreLocationDTO.class,wrapper);
+        if (location==null){
+            return ApiResponse.notFound(String.format("不存在ID=%d的门店",id));
+        }
+        return ApiResponse.success(JSONObject.of("location",location));
+    }
+
+    @Override
+    public ApiResponse getStoreForOrder(Long id, Double longitude, Double latitude) {
+        // 获取门店信息
+        MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
+                .selectAsClass(Store.class,StoreForOrderDTO.class)
+                .eq(Store::getId,id);
+        StoreForOrderDTO store=storeMapper.selectJoinOne(StoreForOrderDTO.class,wrapper);
+        if (store==null){
+            return ApiResponse.notFound(String.format("不存在ID=%d的门店",id));
+        }
+        // 计算距离
+        if(latitude!=null&&longitude!=null){
+            double distance=redisUtil.getDistanceToStore(id,longitude,latitude);
+            if(distance<1){
+                DecimalFormat df = new DecimalFormat("#");
+                distance = Double.parseDouble(df.format(distance*1000));
+                store.setDistanceUnit("m");
+            }else{
+                DecimalFormat df = new DecimalFormat("#.0");
+                distance = Double.parseDouble(df.format(distance));
+                store.setDistanceUnit("km");
+            }
+
+            store.setDistance(distance);
+        }
+        return ApiResponse.success(JSONObject.of("store",store));
     }
 }

@@ -102,6 +102,10 @@ public class StoreController {
         return storeService.uploadFoodLicense(id, file);
     }
 
+    /**
+     * 获取门店许可证
+     * @param id 门店ID
+     */
     @GetMapping("/store/{id:\\d+}/license")
     public ApiResponse getStoreLicenseById(@PathVariable Long id) {
         return storeService.getStoreLicenseById(id);
@@ -133,5 +137,26 @@ public class StoreController {
             @RequestParam Double latitude,
             @RequestParam Integer radius) {
         return storeService.getNearbyStore(longitude, latitude, radius);
+    }
+
+    /**
+     * 获取门店位置
+     * @param id 门店id
+     */
+    @GetMapping("/store/{id:\\d+}/location")
+    public ApiResponse getStoreLocationById(@PathVariable Long id) {
+        return storeService.getStoreLocationById(id);
+    }
+
+    /**
+     * 获取门店信息（供点单使用）
+     * @param id 门店id
+     */
+    @GetMapping("/store/{id:\\d+}/order")
+    public ApiResponse getStoreForOrder(
+            @PathVariable Long id,
+            @RequestParam(required = false) Double longitude,
+            @RequestParam(required = false) Double latitude) {
+        return storeService.getStoreForOrder(id, longitude, latitude);
     }
 }
