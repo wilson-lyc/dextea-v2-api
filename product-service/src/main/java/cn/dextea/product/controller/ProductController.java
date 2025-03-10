@@ -81,4 +81,9 @@ public class ProductController {
     public ApiResponse getProductById(@PathVariable Long id) {
         return productService.getProductById(id);
     }
+
+    @GetMapping("/product/{id:\\d+}/image")
+    public ApiResponse getProductImgById(@PathVariable Long id) {
+        return productService.getProductImgById(id);
+    }
 }

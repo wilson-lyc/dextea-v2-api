@@ -2,6 +2,7 @@ package cn.dextea.store.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.store.dto.*;
+import cn.dextea.store.feign.ProductFeign;
 import cn.dextea.store.feign.TosFeign;
 import cn.dextea.store.mapper.StoreMapper;
 import cn.dextea.store.pojo.Store;
@@ -32,6 +33,8 @@ public class StoreServiceImpl implements StoreService {
     StoreMapper storeMapper;
     @Resource
     TosFeign tosFeign;
+    @Resource
+    ProductFeign productFeign;
     @Resource
     RedisUtil redisUtil;
 
@@ -260,5 +263,10 @@ public class StoreServiceImpl implements StoreService {
             store.setDistance(distance);
         }
         return ApiResponse.success(JSONObject.of("store",store));
+    }
+
+    @Override
+    public ApiResponse getStoreMenu(Long id) {
+        return productFeign.getMenuById(1L);
     }
 }

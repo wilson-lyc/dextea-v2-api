@@ -58,7 +58,7 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
-    public ApiResponse getMenuById(Long id) {
+    public ApiResponse getMenuBaseById(Long id) {
         Menu menu=menuMapper.selectById(id);
         if(menu==null){
             return ApiResponse.notFound(String.format("不存在 ID=%d 的菜单",id));
@@ -78,7 +78,7 @@ public class MenuServiceImpl implements MenuService {
     }
 
     @Override
-    public ApiResponse getMenuProducts(Long id) {
+    public ApiResponse getMenuById(Long id) {
         JSONArray menu=new JSONArray();
         // 查询菜单分组
         QueryWrapper<MenuGroup> groupWrapper=new QueryWrapper<>();

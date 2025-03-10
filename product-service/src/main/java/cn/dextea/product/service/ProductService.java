@@ -18,6 +18,6 @@ public interface ProductService {
     ApiResponse getProductOption(Integer status);
     ApiResponse getProductList(int current,int size, ProductQueryDTO filter);
     ApiResponse updateProduct(Long id, @Valid ProductUpdateDTO data);
-
     ApiResponse getProductById(Long id);
+    ApiResponse getProductImgById(Long id);
 }

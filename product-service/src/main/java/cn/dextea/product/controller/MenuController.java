@@ -44,8 +44,8 @@ public class MenuController {
      * @param id 菜单id
      */
     @GetMapping("/menu/{id:\\d+}/base")
-    public ApiResponse getMenuById(@PathVariable Long id) {
-        return menuService.getMenuById(id);
+    public ApiResponse getMenuBaseById(@PathVariable Long id) {
+        return menuService.getMenuBaseById(id);
     }
 
     /**
@@ -59,11 +59,11 @@ public class MenuController {
     }
 
     /**
-     * 获取菜单商品
+     * 获取菜单
      * @param id 菜单id
      */
-    @GetMapping("/menu/{id:\\d+}/product")
-    public ApiResponse getMenuProducts(@PathVariable Long id) {
-        return menuService.getMenuProducts(id);
+    @GetMapping("/menu/{id:\\d+}")
+    public ApiResponse getMenuById(@PathVariable Long id) {
+        return menuService.getMenuById(id);
     }
 }

@@ -17,6 +17,7 @@ import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
+import com.google.protobuf.Api;
 import jakarta.annotation.Resource;
 import jdk.jfr.Category;
 import lombok.extern.slf4j.Slf4j;
@@ -177,5 +178,18 @@ public class ProductServiceImpl implements ProductService {
         }
         productJson.put("customize",customize);
         return ApiResponse.success(JSONObject.of("product", productJson));
+    }
+
+    @Override
+    public ApiResponse getProductImgById(Long id) {
+        JSONArray images=new JSONArray();
+        MPJLambdaWrapper<Product> wrapper=new MPJLambdaWrapper<Product>()
+                .eq(Product::getId, id)
+                .select(Product::getId)
+                .select(Product::getCover);
+        Product product=productMapper.selectJoinOne(wrapper);
+        // 封面
+        images.add(new ProductImgDTO("cover", "封面", product.getCover(), "/product/cover"));
+        return ApiResponse.success(JSONObject.of("images",images));
     }
 }

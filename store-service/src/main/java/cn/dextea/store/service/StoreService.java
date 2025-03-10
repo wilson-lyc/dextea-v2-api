@@ -24,4 +24,5 @@ public interface StoreService {
     ApiResponse getStoreLicenseById(Long id);
     ApiResponse getStoreLocationById(Long id);
     ApiResponse getStoreForOrder(Long id, Double longitude, Double latitude);
+    ApiResponse getStoreMenu(Long id);
 }
