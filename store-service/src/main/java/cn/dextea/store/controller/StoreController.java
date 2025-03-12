@@ -1,43 +1,28 @@
 package cn.dextea.store.controller;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.store.dto.StoreCreateDTO;
-import cn.dextea.store.dto.StoreFilter;
-import cn.dextea.store.dto.StoreUpdateDTO;
+import cn.dextea.store.dto.*;
 import cn.dextea.store.service.StoreService;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-
-import java.math.BigDecimal;
 
 /**
  * @author Lai Yongchao
  */
 @RestController
 public class StoreController {
-    @Autowired
+    @Resource
     StoreService storeService;
 
     /**
      * 创建门店
-     * @param data {name,province,city,district,address,linkman,phone,openTime}
+     * @param data 门店信息
      */
     @PostMapping("/store")
     public ApiResponse createStore(@Valid @RequestBody StoreCreateDTO data) {
         return storeService.createStore(data);
-    }
-
-    /**
-     * 获取门店详情
-     * @param id 门店id
-     */
-    @GetMapping("/store/{id:\\d+}/base")
-    public ApiResponse getStoreBaseById(@PathVariable Long id) {
-        return storeService.getStoreBaseById(id);
     }
 
     /**
@@ -55,51 +40,22 @@ public class StoreController {
     }
 
     /**
-     * 更新门店状态
-     * @param id 门店id
+     * 获取门店选项
      * @param status 状态
      */
-    @PutMapping("/store/{id:\\d+}/status")
-    public ApiResponse updateStatus(@PathVariable Long id, @RequestParam Integer status) {
-        return storeService.updateStatus(id, status);
-    }
-
-    /**
-     * 更新门店基本信息
-     * @param id 门店id
-     * @param data {name,province,city,district,address,linkman,phone,openTime}
-     */
-    @PutMapping("/store/{id:\\d+}/base")
-    public ApiResponse updateBase(@PathVariable Long id, @RequestBody StoreUpdateDTO data) {
-        return storeService.updateBase(id, data);
-    }
-
-    /**
-     * 获取门店下拉选项
-     */
     @GetMapping("/store/option")
-    public ApiResponse getSelectOptions() {
-        return storeService.getSelectOptions();
+    public ApiResponse getStoreOption(
+            @RequestParam(required = false) Integer status) {
+        return storeService.getStoreOption(status);
     }
 
     /**
-     * 上传营业执照
-     * @param id 门店id
-     * @param file 营业执照文件
+     * 获取门店基础信息
+     * @param id 门店ID
      */
-    @PostMapping(value = "/store/license/business", consumes = "multipart/form-data")
-    public ResponseEntity<ApiResponse> uploadBusinessLicense(@RequestParam Long id, @RequestPart MultipartFile file) {
-        return storeService.uploadBusinessLicense(id, file);
-    }
-
-    /**
-     * 上传食品经营许可证
-     * @param id 门店id
-     * @param file 文件
-     */
-    @PostMapping(value = "/store/license/food", consumes = "multipart/form-data")
-    public ResponseEntity<ApiResponse> uploadFoodLicense(@RequestParam Long id, @RequestPart MultipartFile file) {
-        return storeService.uploadFoodLicense(id, file);
+    @GetMapping("/store/{id:\\d+}/base")
+    public ApiResponse getStoreBase(@PathVariable Long id) {
+        return storeService.getStoreBase(id);
     }
 
     /**
@@ -107,36 +63,17 @@ public class StoreController {
      * @param id 门店ID
      */
     @GetMapping("/store/{id:\\d+}/license")
-    public ApiResponse getStoreLicenseById(@PathVariable Long id) {
-        return storeService.getStoreLicenseById(id);
+    public ApiResponse getStoreLicense(@PathVariable Long id) {
+        return storeService.getStoreLicense(id);
     }
 
     /**
-     * 更新门店位置
+     * 获取门店状态
      * @param id 门店id
-     * @param longitude 经度
-     * @param latitude 纬度
      */
-    @PutMapping("/store/{id:\\d+}/location")
-    public ApiResponse updateLocation(
-            @PathVariable Long id,
-            @RequestParam Double longitude,
-            @RequestParam Double latitude) {
-        return storeService.updateLocation(id, longitude, latitude);
-    }
-
-    /**
-     * 获取附近门店
-     * @param longitude 经度
-     * @param latitude 纬度
-     * @param radius 距离
-     */
-    @GetMapping("/store/nearby")
-    public ApiResponse getNearbyStore(
-            @RequestParam Double longitude,
-            @RequestParam Double latitude,
-            @RequestParam Integer radius) {
-        return storeService.getNearbyStore(longitude, latitude, radius);
+    @GetMapping("/store/{id:\\d+}/status")
+    public ApiResponse getStoreStatus(@PathVariable Long id) {
+        return storeService.getStoreStatus(id);
     }
 
     /**
@@ -144,28 +81,43 @@ public class StoreController {
      * @param id 门店id
      */
     @GetMapping("/store/{id:\\d+}/location")
-    public ApiResponse getStoreLocationById(@PathVariable Long id) {
-        return storeService.getStoreLocationById(id);
+    public ApiResponse getStoreLocation(@PathVariable Long id) {
+        return storeService.getStoreLocation(id);
     }
 
     /**
-     * 获取门店信息（供点单使用）
+     * 更新门店基本信息
      * @param id 门店id
+     * @param data 门店基础信息
      */
-    @GetMapping("/store/{id:\\d+}/order")
-    public ApiResponse getStoreForOrder(
-            @PathVariable Long id,
-            @RequestParam(required = false) Double longitude,
-            @RequestParam(required = false) Double latitude) {
-        return storeService.getStoreForOrder(id, longitude, latitude);
+    @PutMapping("/store/{id:\\d+}/base")
+    public ApiResponse updateStoreBase(@PathVariable Long id, @RequestBody StoreUpdateBaseDTO data) {
+        return storeService.updateStoreBase(id, data);
     }
 
     /**
-     * 获取门店菜单
-     * @param id 门店ID
+     * 更新门店位置
+     * @param id 门店id
+     * @param body 经度,纬度
+     * @param latitude 纬度
      */
-    @GetMapping("/store/{id:\\d+}/menu")
-    public ApiResponse getStoreMenu(@PathVariable Long id) {
-        return storeService.getStoreMenu(id);
+    @PutMapping("/store/{id:\\d+}/location")
+    public ApiResponse updateStoreLocation(
+            @PathVariable Long id,
+            @RequestBody StoreUpdateLocationDTO body,
+            @RequestParam Double latitude) {
+        return storeService.updateStoreLocation(id, body);
+    }
+
+    /**
+     * 更新门店状态
+     * @param id 门店id
+     * @param body 状态
+     */
+    @PutMapping("/store/{id:\\d+}/status")
+    public ApiResponse updateStoreStatus(
+            @PathVariable Long id,
+            @RequestBody StoreUpdateStatusDTO body) {
+        return storeService.updateStoreStatus(id, body);
     }
 }

@@ -12,9 +12,11 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductQueryDTO {
-    private int size;
     private Long id;// 商品ID
     private String name;// 商品名称
     private Integer status;// 状态
     private Integer categoryId;// 分类ID
+    private Double minPrice;// 最小价格
+    private Double maxPrice;// 最大价格
+    private Long storeId;// 店铺ID
 }

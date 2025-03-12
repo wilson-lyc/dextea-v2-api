@@ -15,45 +15,40 @@ import java.time.Instant;
 @Slf4j
 @Component
 public class TosUtil {
-    private final String ENDPOINT = "tos-cn-guangzhou.volces.com";
-    private final String REGION = "cn-guangzhou";
     private final String BUCKET_NAME = "dextea";
-    private final String ACCESS_KEY= System.getenv("TOS_ACCESS_KEY");
-    private final String SECRET_KEY= System.getenv("TOS_SECRET_KEY");
     private final String BASE_URL = "https://dextea.tos-cn-guangzhou.volces.com";
-    private TOSV2 tos;
+    private final TOSV2 tos;
 
     public TosUtil() {
-        this.tos=new TOSV2ClientBuilder().build(REGION, ENDPOINT,ACCESS_KEY, SECRET_KEY);
+        String ENDPOINT = "tos-cn-guangzhou.volces.com";
+        String REGION = "cn-guangzhou";
+        String ACCESS_KEY = System.getenv("TOS_ACCESS_KEY");
+        String SECRET_KEY = System.getenv("TOS_SECRET_KEY");
+        this.tos=new TOSV2ClientBuilder().build(REGION, ENDPOINT, ACCESS_KEY, SECRET_KEY);
     }
 
     public String uploadMultipartFile(String folder, MultipartFile file){
         String originalFilename = file.getOriginalFilename(); // 获取文件原名
         String timestamp = String.valueOf(Instant.now().toEpochMilli()); // 获取当前时间戳
-        String key = String.format("%s/%s-%s", folder, timestamp, originalFilename); // 拼接文件名
-        InputStream inputStream = null;
-        try {
-            inputStream = file.getInputStream();
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-        PutObjectInput putObjectInput = new PutObjectInput().setBucket(BUCKET_NAME).setKey(key).setContent(inputStream);
-        tos.putObject(putObjectInput);
-        return String.format("%s/%s", BASE_URL, key);
+        String key = String.format("%s/%s_%s", folder, timestamp, originalFilename); // 拼接文件名
+        return uploadFileStream(key,file);
     }
 
     public String uploadMultipartFile(String folder,String fileName, MultipartFile file){
         String timestamp = String.valueOf(Instant.now().toEpochMilli()); // 获取当前时间戳
         String key = String.format("%s/%s_%s%s", folder,fileName, timestamp,getFileExtension(file));
-        InputStream inputStream = null;
+        return uploadFileStream(key,file);
+    }
+
+    private String uploadFileStream(String key, MultipartFile file){
         try {
-            inputStream = file.getInputStream();
+            InputStream inputStream = file.getInputStream();
+            PutObjectInput putObjectInput = new PutObjectInput().setBucket(BUCKET_NAME).setKey(key).setContent(inputStream);
+            tos.putObject(putObjectInput);
+            return String.format("%s/%s", BASE_URL, key);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
-        PutObjectInput putObjectInput = new PutObjectInput().setBucket(BUCKET_NAME).setKey(key).setContent(inputStream);
-        tos.putObject(putObjectInput);
-        return String.format("%s/%s", BASE_URL, key);
     }
 
     private String getFileExtension(MultipartFile file) {

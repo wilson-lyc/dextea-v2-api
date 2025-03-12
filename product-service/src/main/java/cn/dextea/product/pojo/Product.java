@@ -23,9 +23,12 @@ public class Product {
     @TableId(type = IdType.AUTO)
     private Long id;//商品ID
     private String name;//名称
-    private String description;//描述
+    private String description;//简介
     private BigDecimal price;//价格
-    private Long categoryId;//品类ID
+    private Long categoryId;//分类ID
     private String cover;//封面
+    private String detailHeaderImg;//详情页头图
     private Integer status;//状态
+    private String createTime;//创建时间
+    private String updateTime;//更新时间
 }

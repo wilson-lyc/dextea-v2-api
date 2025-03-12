@@ -10,17 +10,14 @@ import cn.dextea.store.service.StoreService;
 import cn.dextea.store.util.RedisUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
+import com.alibaba.cloud.commons.lang.StringUtils;
 import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.text.DecimalFormat;
 import java.util.List;
 
 /**
@@ -31,10 +28,6 @@ import java.util.List;
 public class StoreServiceImpl implements StoreService {
     @Resource
     StoreMapper storeMapper;
-    @Resource
-    TosFeign tosFeign;
-    @Resource
-    ProductFeign productFeign;
     @Resource
     RedisUtil redisUtil;
 
@@ -63,7 +56,38 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public ApiResponse getStoreBaseById(Long id) {
+    public ApiResponse getStoreList(int current, int size, StoreFilter filter) {
+        MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
+                .selectAsClass(Store.class,StoreListDTO.class)
+                .eq(filter.getId()!=null,Store::getId,filter.getId())
+                .like(StringUtils.isNotBlank(filter.getName()),Store::getName,filter.getName())
+                .eq(filter.getStatus()!=null,Store::getStatus,filter.getStatus())
+                .eq(StringUtils.isNotBlank(filter.getProvince()),Store::getProvince,filter.getProvince())
+                .eq(StringUtils.isNotBlank(filter.getCity()),Store::getCity,filter.getCity())
+                .eq(StringUtils.isNotBlank(filter.getDistrict()),Store::getDistrict,filter.getDistrict())
+                .eq(StringUtils.isNotBlank(filter.getLinkman()),Store::getLinkman,filter.getLinkman())
+                .eq(StringUtils.isNotBlank(filter.getPhone()),Store::getPhone,filter.getPhone());
+        Page<Store> page = new Page<>(current, size);
+        page=storeMapper.selectJoinPage(page,wrapper);
+        if (page.getCurrent()>page.getPages()){
+            page.setCurrent(page.getPages());
+            page=storeMapper.selectJoinPage(page,wrapper);
+        }
+        return ApiResponse.success(JSONObject.from(page));
+    }
+
+    @Override
+    public ApiResponse getStoreOption(Integer status) {
+        MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
+                .selectAs(Store::getId, StoreOptionDTO::getValue)
+                .selectAs(Store::getName, StoreOptionDTO::getLabel)
+                .eq(status!=null,Store::getStatus,status);
+        List<StoreOptionDTO> options=storeMapper.selectJoinList(StoreOptionDTO.class,wrapper);
+        return ApiResponse.success(JSONObject.of("options",options,"count",options.size()));
+    }
+
+    @Override
+    public ApiResponse getStoreBase(Long id) {
         MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
                 .selectAsClass(Store.class, StoreBaseDTO.class)
                 .eq(Store::getId,id);
@@ -75,158 +99,28 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public ApiResponse getStoreList(int current, int size, StoreFilter filter) {
-        MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
-                .selectAsClass(Store.class,StoreListDTO.class);
-        if(filter.getId()!=null){
-            wrapper.eq(Store::getId,filter.getId());
-        }
-        if (filter.getName()!=null&&!filter.getName().isBlank()){
-            wrapper.like(Store::getName,filter.getName());
-        }
-        if (filter.getStatus()!=null){
-            wrapper.eq(Store::getStatus,filter.getStatus());
-        }
-        if (filter.getProvince()!=null&&!filter.getProvince().isBlank()){
-            wrapper.eq(Store::getProvince,filter.getProvince());
-        }
-        if (filter.getCity()!=null&&!filter.getCity().isBlank()){
-            wrapper.eq(Store::getCity,filter.getCity());
-        }
-        if (filter.getDistrict()!=null&&!filter.getDistrict().isBlank()){
-            wrapper.eq(Store::getDistrict,filter.getDistrict());
-        }
-        if (filter.getLinkman()!=null&&!filter.getLinkman().isBlank()){
-            wrapper.eq(Store::getLinkman,filter.getLinkman());
-        }
-        if (filter.getPhone()!=null&&!filter.getPhone().isBlank()) {
-            wrapper.eq(Store::getPhone, filter.getPhone());
-        }
-        Page<Store> page = new Page<>(current, size);
-        page=storeMapper.selectJoinPage(page,wrapper);
-        // 如果当前页码大于总页数，返回最后一页
-        if (page.getCurrent()>page.getPages()){
-            page.setCurrent(page.getPages());
-            page=storeMapper.selectJoinPage(page,wrapper);
-        }
-        return ApiResponse.success(JSONObject.from(page));
-    }
-
-    @Override
-    public ApiResponse updateStatus(Long id, Integer status) {
-        UpdateWrapper<Store> wrapper=new UpdateWrapper<Store>()
-                .eq("id",id)
-                .set("status",status);
-        int num=storeMapper.update(wrapper);
-        if (num==0){
-            return ApiResponse.notFound("更新失败");
-        }
-        return ApiResponse.success();
-    }
-
-    @Override
-    public ApiResponse updateBase(Long id, StoreUpdateDTO data) {
-        Store store=data.toStore();
-        store.setId(id);
-        int num=storeMapper.updateById(store);
-        if (num==0){
-            return ApiResponse.notFound("更新失败");
-        }
-        return ApiResponse.success();
-    }
-
-    @Override
-    public ResponseEntity<ApiResponse> uploadBusinessLicense(Long id, MultipartFile file) {
-        // 查询旧的营业执照URL
-        String oldUrl=storeMapper.selectById(id).getBusinessLicense();
-        tosFeign.delete(oldUrl);
-        // 上传新的营业执照
-        String folder="store/license";
-        String filename=String.format("%d_business",id);
-        ApiResponse response=tosFeign.uploadWithCustomName(folder,filename,file);
-        if (response.getCode()==200){
-            String url=response.getData().getString("url");
-            Store store=Store.builder()
-                    .id(id)
-                    .businessLicense(url)
-                    .build();
-            storeMapper.updateById(store);
-            return ResponseEntity.ok(response);
-        }
-        return ResponseEntity.badRequest().body(ApiResponse.badRequest("上传失败"));
-    }
-
-    @Override
-    public ResponseEntity<ApiResponse> uploadFoodLicense(Long id, MultipartFile file) {
-        // 删除旧的食品经营许可证
-        String oldUrl=storeMapper.selectById(id).getFoodBusinessLicense();
-        tosFeign.delete(oldUrl);
-        // 上传新的食品经营许可证
-        String folder="store/license";
-        String filename=String.format("%d_food",id);
-        ApiResponse response=tosFeign.uploadWithCustomName(folder,filename,file);
-        if (response.getCode()==200){
-            String url=response.getData().getString("url");
-            Store store=Store.builder()
-                    .id(id)
-                    .foodBusinessLicense(url)
-                    .build();
-            storeMapper.updateById(store);
-            return ResponseEntity.ok(response);
-        }
-        return ResponseEntity.badRequest().body(ApiResponse.badRequest("上传失败"));
-    }
-
-    @Override
-    public ApiResponse getSelectOptions() {
-        List<StoreSelectOption> stores=storeMapper.getSelectOptions();
-        return ApiResponse.success(JSONObject.of("options",stores));
-    }
-
-    @Override
-    public ApiResponse updateLocation(Long id, Double longitude, Double latitude) {
-        Store store=Store.builder()
-                .id(id)
-                .longitude(longitude)
-                .latitude(latitude)
-                .build();
-        storeMapper.updateById(store);// 更新db
-        redisUtil.setStoreLocation(id,longitude,latitude);// 更新redis
-        return ApiResponse.success();
-    }
-
-    @Override
-    public ApiResponse getNearbyStore(Double longitude, Double latitude, Integer radius) {
-        List<StoreNearbyDTO> nearbyStores=redisUtil.getNearbyStores(longitude,latitude,radius,10);
-        for(StoreNearbyDTO store:nearbyStores){
-            Store s=storeMapper.selectById(store.getId());
-            store.setId(s.getId());
-            store.setName(s.getName());
-            store.setStatus(s.getStatus());
-            store.setProvince(s.getProvince());
-            store.setCity(s.getCity());
-            store.setDistrict(s.getDistrict());
-            store.setAddress(s.getAddress());
-            store.setOpenTime(s.getOpenTime());
-            store.setLongitude(s.getLongitude());
-            store.setLatitude(s.getLatitude());
-        }
-        return ApiResponse.success(JSONObject.of(
-                "counts",nearbyStores.size(),
-                "stores",nearbyStores));
-    }
-
-    @Override
-    public ApiResponse getStoreLicenseById(Long id) {
+    public ApiResponse getStoreLicense(Long id) {
         MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
                 .selectAsClass(Store.class,StoreLicenseDTO.class)
                 .eq(Store::getId,id);
         StoreLicenseDTO license=storeMapper.selectJoinOne(StoreLicenseDTO.class,wrapper);
+        if (license==null){
+            return ApiResponse.notFound(String.format("不存在ID=%d的门店",id));
+        }
         return ApiResponse.success(JSONObject.of("license",license));
     }
 
     @Override
-    public ApiResponse getStoreLocationById(Long id) {
+    public ApiResponse getStoreStatus(Long id) {
+        MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
+                .selectAsClass(Store.class, StoreStatusDTO.class)
+                .eq(Store::getId,id);
+        StoreStatusDTO status=storeMapper.selectJoinOne(StoreStatusDTO.class,wrapper);
+        return ApiResponse.success(JSONObject.of("store",status));
+    }
+
+    @Override
+    public ApiResponse getStoreLocation(Long id) {
         MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
                 .selectAsClass(Store.class,StoreLocationDTO.class)
                 .eq(Store::getId,id);
@@ -238,35 +132,38 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public ApiResponse getStoreForOrder(Long id, Double longitude, Double latitude) {
-        // 获取门店信息
-        MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
-                .selectAsClass(Store.class,StoreForOrderDTO.class)
-                .eq(Store::getId,id);
-        StoreForOrderDTO store=storeMapper.selectJoinOne(StoreForOrderDTO.class,wrapper);
-        if (store==null){
-            return ApiResponse.notFound(String.format("不存在ID=%d的门店",id));
+    public ApiResponse updateStoreBase(Long id, StoreUpdateBaseDTO data) {
+        Store store=data.toStore();
+        store.setId(id);
+        int num=storeMapper.updateById(store);
+        if (num==0){
+            return ApiResponse.notFound("更新失败");
         }
-        // 计算距离
-        if(latitude!=null&&longitude!=null){
-            double distance=redisUtil.getDistanceToStore(id,longitude,latitude);
-            if(distance<1){
-                DecimalFormat df = new DecimalFormat("#");
-                distance = Double.parseDouble(df.format(distance*1000));
-                store.setDistanceUnit("m");
-            }else{
-                DecimalFormat df = new DecimalFormat("#.0");
-                distance = Double.parseDouble(df.format(distance));
-                store.setDistanceUnit("km");
-            }
-
-            store.setDistance(distance);
-        }
-        return ApiResponse.success(JSONObject.of("store",store));
+        return ApiResponse.success();
     }
 
     @Override
-    public ApiResponse getStoreMenu(Long id) {
-        return productFeign.getMenuById(1L);
+    public ApiResponse updateStoreLocation(Long id, StoreUpdateLocationDTO body) {
+        Store store=Store.builder()
+                .id(id)
+                .longitude(body.getLongitude())
+                .latitude(body.getLatitude())
+                .build();
+        storeMapper.updateById(store);// 更新db
+        redisUtil.setStoreLocation(id,body.getLongitude(),body.getLatitude());// 更新redis
+        return ApiResponse.success("定位更新成功");
+    }
+
+    @Override
+    public ApiResponse updateStoreStatus(Long id, StoreUpdateStatusDTO body) {
+        Store store=Store.builder()
+                .id(id)
+                .status(body.getStatus())
+                .build();
+        int num=storeMapper.updateById(store);
+        if (num==0){
+            return ApiResponse.notFound("更新失败");
+        }
+        return ApiResponse.success();
     }
 }
