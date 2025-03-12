@@ -17,6 +17,7 @@
         <module>auth-service</module>
         <module>tos-service</module>
         <module>product-service</module>
+        <module>menu-service</module>
     </modules>
     <!-- 全局变量 -->
     <properties>

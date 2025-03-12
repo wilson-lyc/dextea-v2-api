@@ -14,7 +14,7 @@ import org.springframework.web.multipart.MultipartFile;
  * @author Lai Yongchao
  */
 @RestController
-public class UploadFileController {
+public class UploadController {
     @Resource
     private UploadService uploadService;
     /**
@@ -26,7 +26,13 @@ public class UploadFileController {
     public ResponseEntity<ApiResponse> uploadCover(@RequestParam Long id, @RequestPart MultipartFile file) {
         return uploadService.uploadCover(id, file);
     }
-    @PostMapping(value="/product/upload/detailHeaderImg", consumes = "multipart/form-data")
+
+    /**
+     * 上传商品详情页头部图
+     * @param id 商品ID
+     * @param file 文件
+     */
+    @PostMapping(value="/product/upload/detail-header-img", consumes = "multipart/form-data")
     public ResponseEntity<ApiResponse> uploadDetailHeaderImg(@RequestParam Long id, @RequestPart MultipartFile file) {
         return uploadService.uploadDetailHeaderImg(id, file);
     }

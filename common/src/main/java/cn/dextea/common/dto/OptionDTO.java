@@ -1,4 +1,4 @@
-package cn.dextea.product.dto;
+package cn.dextea.common.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
  * @author Lai Yongchao
  */
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class ProductOptionDTO {
+@NoArgsConstructor
+public class OptionDTO {
     private Long value;
     private String label;
 }

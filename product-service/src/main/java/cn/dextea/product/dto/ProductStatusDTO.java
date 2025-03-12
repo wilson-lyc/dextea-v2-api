@@ -8,9 +8,9 @@ import lombok.NoArgsConstructor;
  * @author Lai Yongchao
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class ProductCategoryOptionDTO {
-    private Long value;
-    private String label;
+@AllArgsConstructor
+public class ProductStatusDTO {
+    private Long id;
+    private Integer status;
 }

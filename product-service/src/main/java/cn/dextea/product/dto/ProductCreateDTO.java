@@ -23,8 +23,6 @@ public class ProductCreateDTO {
     private BigDecimal price;//价格
     @NotNull
     private Long categoryId;//分类ID
-    @NotNull
-    private Integer status;//状态
 
     public Product toProduct() {
         return Product.builder()
@@ -32,7 +30,6 @@ public class ProductCreateDTO {
                 .description(description)
                 .price(price)
                 .categoryId(categoryId)
-                .status(status)
                 .build();
     }
 }

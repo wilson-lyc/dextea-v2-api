@@ -17,7 +17,5 @@ public class ProductBaseDTO {
     private String name;
     private String description;
     private BigDecimal price;
-    private Integer status;
     private Long categoryId;
-    private String categoryName;
 }

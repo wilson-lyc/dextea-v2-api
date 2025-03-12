@@ -18,5 +18,4 @@ public class ProductQueryDTO {
     private Integer categoryId;// 分类ID
     private Double minPrice;// 最小价格
     private Double maxPrice;// 最大价格
-    private Long storeId;// 店铺ID
 }
