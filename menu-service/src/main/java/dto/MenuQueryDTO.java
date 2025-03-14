@@ -1,20 +1,16 @@
-package cn.dextea.product.dto;
+package dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 /**
  * @author Lai Yongchao
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class MenuProductDTO {
+@AllArgsConstructor
+public class MenuQueryDTO {
     private Long id;
     private String name;
-    private BigDecimal price;
-    private Integer sort;
 }

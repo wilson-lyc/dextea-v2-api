@@ -1,7 +1,5 @@
 package cn.dextea.product.pojo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,13 +13,10 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("s_menu_group")
-public class MenuGroup {
-    @TableId(type = IdType.AUTO)
-    private Long id;
-    private Long menuId;
-    private String name;
-    private Integer sort;
+@TableName("r_product_store_status")
+public class ProductStatus {
+    private Long storeId;
+    private Long productId;
+    private Integer status;
     private String createTime;
-    private String updateTime;
 }

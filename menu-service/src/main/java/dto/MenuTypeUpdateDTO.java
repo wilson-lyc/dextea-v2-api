@@ -1,4 +1,4 @@
-package cn.dextea.product.dto;
+package dto;
 
 import cn.dextea.product.pojo.MenuGroup;
 import jakarta.validation.constraints.NotBlank;
@@ -13,17 +13,14 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class MenuGroupCreateDTO {
+public class MenuTypeUpdateDTO {
     @NotBlank(message = "名称不能为空")
     private String name;
-    @NotNull(message = "菜单id不能为空")
-    private Long menuId;
     @NotNull(message = "优先级不能为空")
     private Integer sort;
-    public MenuGroup toMenuGroup() {
+    public MenuGroup toMenuType() {
         return MenuGroup.builder()
                 .name(name)
-                .menuId(menuId)
                 .sort(sort)
                 .build();
     }

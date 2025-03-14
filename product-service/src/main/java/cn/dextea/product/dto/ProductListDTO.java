@@ -19,5 +19,6 @@ public class ProductListDTO {
     private String description;//描述
     private BigDecimal price;//价格
     private String categoryName;//品类名称
-    private Integer status;//状态
+    private Integer globalStatus;//全局状态
+    private Integer storeStatus;//门店状态
 }

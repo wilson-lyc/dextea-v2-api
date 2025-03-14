@@ -1,7 +1,6 @@
-package cn.dextea.product.service.impl;
+package service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.*;
 import cn.dextea.product.mapper.MenuGroupMapper;
 import cn.dextea.product.mapper.MenuMapper;
 import cn.dextea.product.mapper.ProductMapper;

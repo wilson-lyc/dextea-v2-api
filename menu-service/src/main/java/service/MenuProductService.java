@@ -1,9 +1,8 @@
-package cn.dextea.product.service;
+package service;
 
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.product.dto.MenuProductCreateDTO;
 import cn.dextea.product.dto.MenuProductUpdateDTO;
-import jakarta.validation.Valid;
 
 /**
  * @author Lai Yongchao

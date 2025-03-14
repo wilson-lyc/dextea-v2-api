@@ -1,6 +1,5 @@
-package cn.dextea.product.dto;
+package dto;
 
-import com.alibaba.fastjson2.JSONArray;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;

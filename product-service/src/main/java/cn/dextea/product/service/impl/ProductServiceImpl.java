@@ -3,18 +3,13 @@ package cn.dextea.product.service.impl;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.common.dto.OptionDTO;
 import cn.dextea.product.dto.*;
-import cn.dextea.product.mapper.CustomizeItemMapper;
-import cn.dextea.product.mapper.CustomizeOptionMapper;
 import cn.dextea.product.mapper.ProductMapper;
-import cn.dextea.product.pojo.CustomizeItem;
-import cn.dextea.product.pojo.CustomizeOption;
-import cn.dextea.product.pojo.Product;
-import cn.dextea.product.pojo.Category;
+import cn.dextea.product.mapper.ProductStatusMapper;
+import cn.dextea.product.pojo.*;
 import cn.dextea.product.service.ProductService;
 import com.alibaba.cloud.commons.lang.StringUtils;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
@@ -33,31 +28,28 @@ public class ProductServiceImpl implements ProductService {
     @Resource
     private ProductMapper productMapper;
 
-    @Resource
-    private CustomizeItemMapper customizeItemMapper;
-
-    @Resource
-    private CustomizeOptionMapper customizeOptionMapper;
-
     @Override
     public ApiResponse createProduct(ProductCreateDTO data) {
         Product product = data.toProduct();
-        product.setStatus(0);// 默认禁售
+        product.setGlobalStatus(1);// 默认全局禁售
         productMapper.insert(product);
-        return ApiResponse.success("商品创建成功");
+        return ApiResponse.success("商品创建成功",JSONObject.of("product",product));
     }
 
     @Override
     public ApiResponse getProductList(int current, int size, ProductQueryDTO filter) {
-        // 查询条件
+        // 构建查询条件
         MPJLambdaWrapper<Product> wrapper = new MPJLambdaWrapper<Product>()
+                // 基础
                 .selectAsClass(Product.class,ProductListDTO.class)
+                // 分类
                 .selectAs(Category::getName, ProductListDTO::getCategoryName)
                 .innerJoin(Category.class, Category::getId, Product::getCategoryId)
-                .eq(filter.getId() != null, Product::getId, filter.getId())
-                .like(StringUtils.isNotBlank(filter.getName()), Product::getName, filter.getName())
-                .eq(filter.getCategoryId() != null, Product::getCategoryId, filter.getCategoryId())
-                .eq(filter.getStatus() != null, Product::getStatus, filter.getStatus())
+                // 用户搜索条件
+                .eqIfExists(Product::getId, filter.getId())
+                .likeIfExists(Product::getName, filter.getName())
+                .eqIfExists(Product::getCategoryId, filter.getCategoryId())
+                .eqIfExists(Product::getGlobalStatus, filter.getStatus())
                 .between(filter.getMinPrice()!=null&& filter.getMaxPrice()!=null,Product::getPrice,filter.getMinPrice(),filter.getMaxPrice());
         // 分页查询
         IPage<ProductListDTO> page=productMapper.selectJoinPage(
@@ -77,10 +69,8 @@ public class ProductServiceImpl implements ProductService {
     public ApiResponse getProductOption(Integer status) {
         MPJLambdaWrapper<Product> wrapper = new MPJLambdaWrapper<Product>()
                 .selectAs(Product::getId, OptionDTO::getValue)
-                .selectAs(Product::getName, OptionDTO::getLabel);
-        if (status != null) {
-            wrapper.eq(Product::getStatus, status);
-        }
+                .selectAs(Product::getName, OptionDTO::getLabel)
+                .eqIfExists(Product::getGlobalStatus,status);
         List<OptionDTO> options = productMapper.selectJoinList(OptionDTO.class,wrapper);
         return ApiResponse.success(JSONObject.of("options", options,"count",options.size()));
     }
@@ -109,10 +99,16 @@ public class ProductServiceImpl implements ProductService {
                 .select(Product::getDetailHeaderImg);
         Product product=productMapper.selectJoinOne(wrapper);
         // 封面
-        if(StringUtils.isNotBlank(product.getCover()))
-            images.add(new ProductImgDTO("cover", "封面", product.getCover(), "/product/upload/cover"));
-        if(StringUtils.isNotBlank(product.getDetailHeaderImg()))
-            images.add(new ProductImgDTO("detailHeaderImg", "商品详情页头部图", product.getDetailHeaderImg(), "/product/upload/detail-header-img"));
+        images.add(new ProductImgDTO(
+                "cover",
+                "封面",
+                StringUtils.isNotBlank(product.getCover())?product.getCover():null,
+                "/product/upload/cover"));
+        images.add(new ProductImgDTO(
+                "detailHeaderImg",
+                "商品详情页头部图",
+                StringUtils.isNotBlank(product.getDetailHeaderImg())?product.getDetailHeaderImg():null,
+                "/product/upload/detail-header-img"));
         return ApiResponse.success(JSONObject.of("images",images));
     }
 
@@ -129,8 +125,22 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ApiResponse updateProduct(Long id, Product product) {
+    public ApiResponse updateProductBase(Long id, ProductUpdateBaseDTO data) {
+        Product product=data.toProduct();
         product.setId(id);
+        int count = productMapper.updateById(product);
+        if (count == 0) {
+            return ApiResponse.notFound(String.format("不存在id=%d的商品", id));
+        }
+        return ApiResponse.success("更新成功");
+    }
+
+    @Override
+    public ApiResponse updateProductGlobalStatus(Long id, Integer status) {
+        Product product=Product.builder()
+                .id(id)
+                .globalStatus(status)
+                .build();
         int count = productMapper.updateById(product);
         if (count == 0) {
             return ApiResponse.notFound(String.format("不存在id=%d的商品", id));

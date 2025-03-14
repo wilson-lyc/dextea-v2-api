@@ -12,5 +12,5 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 public class ProductStatusDTO {
     private Long id;
-    private Integer status;
+    private Integer globalStatus;
 }

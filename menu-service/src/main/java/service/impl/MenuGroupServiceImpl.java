@@ -1,4 +1,4 @@
-package cn.dextea.product.service.impl;
+package service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.product.dto.MenuGroupCreateDTO;

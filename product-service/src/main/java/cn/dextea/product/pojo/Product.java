@@ -1,7 +1,6 @@
 package cn.dextea.product.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -28,7 +27,7 @@ public class Product {
     private Long categoryId;//分类ID
     private String cover;//封面
     private String detailHeaderImg;//详情页头图
-    private Integer status;//状态
+    private Integer globalStatus;// 全局状态
     private String createTime;//创建时间
     private String updateTime;//更新时间
 }

@@ -4,7 +4,6 @@ import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.product.dto.ProductCreateDTO;
 import cn.dextea.product.dto.ProductQueryDTO;
 import cn.dextea.product.dto.ProductUpdateBaseDTO;
-import cn.dextea.product.dto.ProductUpdateStatusDTO;
 import cn.dextea.product.service.ProductService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -12,7 +11,6 @@ import jakarta.validation.constraints.Min;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * 商品
  * @author Lai Yongchao
  */
 @RestController
@@ -74,7 +72,7 @@ public class ProductController {
     }
 
     /**
-     *  获取商品的全局状态
+     * 获取商品的全局状态
      * @param id 商品ID
      */
     @GetMapping("/product/{id:\\d+}/status")
@@ -91,18 +89,18 @@ public class ProductController {
     public ApiResponse updateProductBase(
             @PathVariable Long id,
             @Valid @RequestBody ProductUpdateBaseDTO body){
-        return productService.updateProduct(id, body.toProduct());
+        return productService.updateProductBase(id, body);
     }
 
     /**
      * 更新商品全局状态
      * @param id 商品ID
-     * @param body 更新数据
+     * @param status 全局状态
      */
     @PutMapping("/product/{id:\\d+}/status")
     public ApiResponse updateProductStatus(
             @PathVariable Long id,
-            @Valid @RequestBody ProductUpdateStatusDTO body){
-        return productService.updateProduct(id, body.toProduct());
+            @RequestParam Integer status){
+        return productService.updateProductGlobalStatus(id,status);
     }
 }

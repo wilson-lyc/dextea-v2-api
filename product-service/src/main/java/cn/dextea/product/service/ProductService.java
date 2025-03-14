@@ -3,6 +3,7 @@ package cn.dextea.product.service;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.product.dto.ProductCreateDTO;
 import cn.dextea.product.dto.ProductQueryDTO;
+import cn.dextea.product.dto.ProductUpdateBaseDTO;
 import cn.dextea.product.pojo.Product;
 
 /**
@@ -20,5 +21,6 @@ public interface ProductService {
     ApiResponse getProductImg(Long id);
     ApiResponse getProductGlobalStatus(Long id);
     // 更新
-    ApiResponse updateProduct(Long id, Product product);
+    ApiResponse updateProductBase(Long id, ProductUpdateBaseDTO product);
+    ApiResponse updateProductGlobalStatus(Long id, Integer status);
 }

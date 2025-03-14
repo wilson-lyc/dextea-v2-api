@@ -1,4 +1,4 @@
-package cn.dextea.product.dto;
+package dto;
 
 import cn.dextea.product.pojo.MenuProduct;
 import jakarta.validation.constraints.NotNull;

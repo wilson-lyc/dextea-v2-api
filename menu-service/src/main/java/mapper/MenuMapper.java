@@ -1,4 +1,4 @@
-package cn.dextea.product.mapper;
+package mapper;
 
 import cn.dextea.product.pojo.Menu;
 import com.github.yulichang.base.MPJBaseMapper;

@@ -18,7 +18,7 @@ import java.math.BigDecimal;
 public class ProductUpdateBaseDTO {
     @NotBlank
     private String name;//名称
-    private String description;//描述
+    private String description;//简介
     @NotNull
     private BigDecimal price;//价格
     @NotNull
