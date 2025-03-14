@@ -12,9 +12,9 @@ public interface CustomizeItemService {
     // 列表
     ApiResponse getItemList(Long id);
     // 单项
-    ApiResponse getItemBase(Long productId, Long customizeItemId);
-    ApiResponse getItemGlobalStatus(Long productId, Long customizeItemId);
+    ApiResponse getItemBase(Long productId);
+    ApiResponse getItemGlobalStatus(Long productId);
     // 更新
-    ApiResponse updateItemBase(Long productId, Long itemId, CustomizeItemEditDTO data);
-    ApiResponse updateItemStatus(Long productId, Long itemId, Integer status);
+    ApiResponse updateItemBase(Long productId, CustomizeItemEditDTO data);
+    ApiResponse updateItemStatus(Long productId, Integer status);
 }

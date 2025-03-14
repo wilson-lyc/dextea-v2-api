@@ -52,10 +52,10 @@ public class CustomizeItemServiceImpl implements CustomizeItemService {
     }
 
     @Override
-    public ApiResponse getItemBase(Long productId, Long customizeItemId) {
+    public ApiResponse getItemBase(Long id) {
         MPJLambdaWrapper<CustomizeItem> wrapper=new MPJLambdaWrapper<CustomizeItem>()
                 .selectAsClass(CustomizeItem.class,CustomizeItemDTO.class)
-                .eq(CustomizeItem::getId,customizeItemId);
+                .eq(CustomizeItem::getId,id);
         CustomizeItem item = customizeItemMapper.selectOne(wrapper);
         if(item ==null){
             return ApiResponse.notFound("无符合条件的客制化项目");
@@ -64,10 +64,10 @@ public class CustomizeItemServiceImpl implements CustomizeItemService {
     }
 
     @Override
-    public ApiResponse getItemGlobalStatus(Long productId, Long customizeItemId) {
+    public ApiResponse getItemGlobalStatus(Long id) {
         MPJLambdaWrapper<CustomizeItem> wrapper=new MPJLambdaWrapper<CustomizeItem>()
                 .selectAsClass(CustomizeItem.class,CustomizeItemDTO.class)
-                .eq(CustomizeItem::getId,customizeItemId);
+                .eq(CustomizeItem::getId,id);
         CustomizeItem item = customizeItemMapper.selectOne(wrapper);
         if(item ==null){
             return ApiResponse.notFound("无符合条件的客制化项目");
@@ -76,9 +76,9 @@ public class CustomizeItemServiceImpl implements CustomizeItemService {
     }
 
     @Override
-    public ApiResponse updateItemBase(Long productId, Long itemId, CustomizeItemEditDTO data) {
+    public ApiResponse updateItemBase(Long id, CustomizeItemEditDTO data) {
         CustomizeItem customizeItem =data.toCustomize();
-        customizeItem.setId(itemId);
+        customizeItem.setId(id);
         int num= customizeItemMapper.updateById(customizeItem);
         if(num==0){
             return ApiResponse.notFound("无符合条件的客制化项目");
@@ -87,9 +87,9 @@ public class CustomizeItemServiceImpl implements CustomizeItemService {
     }
 
     @Override
-    public ApiResponse updateItemStatus(Long productId, Long itemId, Integer status) {
+    public ApiResponse updateItemStatus(Long id, Integer status) {
         CustomizeItem customizeItem=CustomizeItem.builder()
-                .id(itemId)
+                .id(id)
                 .globalStatus(status)
                 .build();
         int num= customizeItemMapper.updateById(customizeItem);

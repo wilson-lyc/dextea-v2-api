@@ -39,49 +39,43 @@ public class CustomizeItemController {
 
     /**
      * 获取客制化项目的基础信息
-     * @param productId 商品ID
-     * @param itemId 项目ID
+     * @param id 客制化项目ID
      */
-    @GetMapping("/product/{productId}/customize/{itemId}/base")
-    public ApiResponse getItemBase(@PathVariable Long productId,@PathVariable Long itemId){
-        return customizeItemService.getItemBase(productId, itemId);
+    @GetMapping("/product/customize/{id}/base")
+    public ApiResponse getItemBase(@PathVariable Long id){
+        return customizeItemService.getItemBase(id);
     }
 
     /**
      * 获取客制化项目的状态
-     * @param productId 商品ID
-     * @param itemId 项目ID
+     * @param id 客制化项目ID
      */
-    @GetMapping("/product/{productId}/customize/{itemId}/status")
-    public ApiResponse getItemGlobalStatus(@PathVariable Long productId,@PathVariable Long itemId){
-        return customizeItemService.getItemGlobalStatus(productId, itemId);
+    @GetMapping("/product/customize/{id}/status")
+    public ApiResponse getItemGlobalStatus(@PathVariable Long id){
+        return customizeItemService.getItemGlobalStatus(id);
     }
 
     /**
      * 更新客制化项目的基础信息
-     * @param productId 商品ID
-     * @param itemId 项目ID
+     * @param id 客制化项目ID
      * @param data 更新数据
      */
-    @PutMapping("/product/{productId}/customize/{itemId}/base")
+    @PutMapping("/product/customize/{id}/base")
     public ApiResponse updateItemBase(
-            @PathVariable Long productId,
-            @PathVariable Long itemId,
+            @PathVariable Long id,
             @Valid @RequestBody CustomizeItemEditDTO data){
-        return customizeItemService.updateItemBase(productId,itemId,data);
+        return customizeItemService.updateItemBase(id,data);
     }
 
     /**
      * 更新客制化项目的全局状态
-     * @param productId 商品ID
-     * @param itemId 项目ID
+     * @param id 客制化项目ID
      * @param status 状态
      */
-    @PutMapping("/product/{productId}/customize/{itemId}/status")
+    @PutMapping("/product/customize/{id}/status")
     public ApiResponse updateItemStatus(
-            @PathVariable Long productId,
-            @PathVariable Long itemId,
+            @PathVariable Long id,
             @RequestParam Integer status){
-        return customizeItemService.updateItemStatus(productId,itemId,status);
+        return customizeItemService.updateItemStatus(id,status);
     }
 }
