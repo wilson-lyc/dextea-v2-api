@@ -1,8 +1,8 @@
 package cn.dextea.product.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.CustomizeItemCreateDTO;
-import cn.dextea.product.dto.CustomizeItemUpdateDTO;
+import cn.dextea.product.dto.CustomizeItemEditDTO;
+import cn.dextea.product.dto.CustomizeItemDTO;
 import cn.dextea.product.mapper.CustomizeItemMapper;
 import cn.dextea.product.mapper.ProductMapper;
 import cn.dextea.product.pojo.CustomizeItem;
@@ -26,50 +26,75 @@ public class CustomizeItemServiceImpl implements CustomizeItemService {
     private ProductMapper productMapper;
 
     @Override
-    public ApiResponse create(CustomizeItemCreateDTO data) {
+    public ApiResponse createItem(Long id, CustomizeItemEditDTO data) {
         CustomizeItem customizeItem =data.toCustomize();
+        customizeItem.setGlobalStatus(1);// 全局状态默认禁用
+        customizeItem.setProductId(id);
         // 校验ProduceId是否存在
         MPJLambdaWrapper<Product> wrapper=new MPJLambdaWrapper<Product>()
-                .eq(Product::getId,data.getProductId());
-        Long num=productMapper.selectCount(wrapper);
-        if(num==0){
-            return ApiResponse.notFound(String.format("商品不存在，id=%d",data.getProductId()));
+                .eq(Product::getId,id);
+        if(!productMapper.exists(wrapper)){
+            return ApiResponse.notFound(String.format("不存在id=%d的商品",id));
         }
-        // 创建新的客制化项目
+        // 写入db
         customizeItemMapper.insert(customizeItem);
         return ApiResponse.success("创建成功");
     }
 
     @Override
-    public ApiResponse getList(Long productId) {
+    public ApiResponse getItemList(Long id) {
         MPJLambdaWrapper<CustomizeItem> wrapper=new MPJLambdaWrapper<CustomizeItem>()
-                .selectAll(CustomizeItem.class)
-                .innerJoin(Product.class,Product::getId, CustomizeItem::getProductId)
+                .selectAsClass(CustomizeItem.class, CustomizeItemDTO.class)
                 .orderByAsc(CustomizeItem::getSort)
-                .eq(Product::getId,productId);
+                .eq(CustomizeItem::getProductId,id);
         List<CustomizeItem> list= customizeItemMapper.selectList(wrapper);
         return ApiResponse.success(JSONObject.of("items",list));
     }
 
     @Override
-    public ApiResponse getById(Long id) {
+    public ApiResponse getItemBase(Long productId, Long customizeItemId) {
         MPJLambdaWrapper<CustomizeItem> wrapper=new MPJLambdaWrapper<CustomizeItem>()
-                .selectAll(CustomizeItem.class)
-                .eq(CustomizeItem::getId,id);
+                .selectAsClass(CustomizeItem.class,CustomizeItemDTO.class)
+                .eq(CustomizeItem::getId,customizeItemId);
         CustomizeItem item = customizeItemMapper.selectOne(wrapper);
         if(item ==null){
-            return ApiResponse.notFound(String.format("不存在ID=%d的客制化项目",id));
+            return ApiResponse.notFound("无符合条件的客制化项目");
         }
         return ApiResponse.success(JSONObject.of("item", item));
     }
 
     @Override
-    public ApiResponse update(Long id, CustomizeItemUpdateDTO data) {
+    public ApiResponse getItemGlobalStatus(Long productId, Long customizeItemId) {
+        MPJLambdaWrapper<CustomizeItem> wrapper=new MPJLambdaWrapper<CustomizeItem>()
+                .selectAsClass(CustomizeItem.class,CustomizeItemDTO.class)
+                .eq(CustomizeItem::getId,customizeItemId);
+        CustomizeItem item = customizeItemMapper.selectOne(wrapper);
+        if(item ==null){
+            return ApiResponse.notFound("无符合条件的客制化项目");
+        }
+        return ApiResponse.success(JSONObject.of("status", item.getGlobalStatus()));
+    }
+
+    @Override
+    public ApiResponse updateItemBase(Long productId, Long itemId, CustomizeItemEditDTO data) {
         CustomizeItem customizeItem =data.toCustomize();
-        customizeItem.setId(id);
+        customizeItem.setId(itemId);
         int num= customizeItemMapper.updateById(customizeItem);
         if(num==0){
-            return ApiResponse.notFound(String.format("资源不存在，id=%d",id));
+            return ApiResponse.notFound("无符合条件的客制化项目");
+        }
+        return ApiResponse.success("更新成功");
+    }
+
+    @Override
+    public ApiResponse updateItemStatus(Long productId, Long itemId, Integer status) {
+        CustomizeItem customizeItem=CustomizeItem.builder()
+                .id(itemId)
+                .globalStatus(status)
+                .build();
+        int num= customizeItemMapper.updateById(customizeItem);
+        if(num==0){
+            return ApiResponse.notFound("无符合条件的客制化项目");
         }
         return ApiResponse.success("更新成功");
     }

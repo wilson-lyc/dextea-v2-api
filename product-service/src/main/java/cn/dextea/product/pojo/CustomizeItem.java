@@ -22,6 +22,6 @@ public class CustomizeItem {
     private String name;
     private String description;
     private Integer sort;
-    private Integer status;
+    private Integer globalStatus;
     private Long productId;
 }

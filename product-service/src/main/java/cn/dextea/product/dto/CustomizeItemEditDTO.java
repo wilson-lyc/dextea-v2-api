@@ -13,24 +13,18 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CustomizeItemCreateDTO {
+public class CustomizeItemEditDTO {
     @NotBlank
     private String name;
     private String description;
     @NotNull
     private Integer sort;
-    @NotNull
-    private Integer status;
-    @NotNull
-    private Long productId;
 
     public CustomizeItem toCustomize(){
         return CustomizeItem.builder()
                 .name(name)
                 .description(description)
                 .sort(sort)
-                .status(status)
-                .productId(productId)
                 .build();
     }
 }
