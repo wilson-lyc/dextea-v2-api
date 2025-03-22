@@ -12,12 +12,9 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ApiResponse handleValidationException(MethodArgumentNotValidException e) {
-        JSONObject errors = new JSONObject();
-        e.getBindingResult().getFieldErrors().forEach(error ->
-                errors.put(error.getField(), error.getDefaultMessage())
-        );
-        log.error("请求参数错误: {}", errors);
-        return ApiResponse.badRequest();
+        String errorMessage = e.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
+        log.error("请求参数错误: {}", errorMessage);
+        return ApiResponse.badRequest(errorMessage);
     }
     @ExceptionHandler(Exception.class)
     public ApiResponse handleException(Exception e) {

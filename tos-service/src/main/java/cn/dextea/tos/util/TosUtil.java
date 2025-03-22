@@ -51,6 +51,10 @@ public class TosUtil {
         }
     }
 
+    /**
+     * 获取文件后缀名
+     * @param file 文件
+     */
     private String getFileExtension(MultipartFile file) {
         String originalFilename = file.getOriginalFilename();
         if (originalFilename != null && originalFilename.contains(".")) {
@@ -59,7 +63,7 @@ public class TosUtil {
         return "";
     }
 
-    public Boolean delete(String url){
+    public boolean delete(String url){
         String key = url.replace(BASE_URL + "/", "");
         DeleteObjectInput input=new DeleteObjectInput().setBucket(BUCKET_NAME).setKey(key);
         tos.deleteObject(input);

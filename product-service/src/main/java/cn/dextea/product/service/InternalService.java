@@ -5,4 +5,5 @@ package cn.dextea.product.service;
  */
 public interface InternalService {
     boolean isProductIdValid(Long id);
+    boolean isCategoryIdValid(Long id);
 }

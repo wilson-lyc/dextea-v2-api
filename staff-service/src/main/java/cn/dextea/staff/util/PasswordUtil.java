@@ -5,16 +5,14 @@ import cn.hutool.core.util.HexUtil;
 import cn.hutool.crypto.SecureUtil;
 import cn.hutool.crypto.SmUtil;
 import cn.hutool.crypto.symmetric.SM4;
-import org.bouncycastle.jcajce.provider.asymmetric.ec.GMKeyPairGeneratorSpi;
 import org.passay.CharacterData;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.PasswordGenerator;
 import org.springframework.stereotype.Component;
-import cn.hutool.crypto.asymmetric.SM2;
 
-import java.security.KeyPair;
-import java.sql.SQLOutput;
+
+
 import java.util.Arrays;
 import java.util.List;
 

@@ -7,6 +7,7 @@ import cn.dextea.product.dto.ProductUpdateBaseDTO;
 import cn.dextea.product.service.ProductService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.springframework.web.bind.annotation.*;
 
@@ -29,6 +30,7 @@ public class ProductController {
 
     /**
      * 获取商品列表
+     * 本接口返回的状态是全局的
      * @param current 当前页
      * @param size 每页大小
      * @param filter 过滤条件
@@ -53,12 +55,9 @@ public class ProductController {
     /**
      * 获取商品基础信息
      * @param id 商品ID
-     * @param storeId 门店ID，携带后返回的status是门店的销售状态
      */
     @GetMapping("/product/{id:\\d+}/base")
-    public ApiResponse getProductBaseById(
-            @PathVariable Long id,
-            @RequestParam(required = false) Long storeId) {
+    public ApiResponse getProductBaseById(@PathVariable Long id) {
         return productService.getProductBase(id);
     }
 
@@ -66,7 +65,7 @@ public class ProductController {
      * 获取商品图册
      * @param id 商品ID
      */
-    @GetMapping("/product/{id:\\d+}/image")
+    @GetMapping("/product/{id:\\d+}/img")
     public ApiResponse getProductImgById(@PathVariable Long id) {
         return productService.getProductImg(id);
     }

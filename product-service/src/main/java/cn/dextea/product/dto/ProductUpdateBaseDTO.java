@@ -16,12 +16,12 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 @NoArgsConstructor
 public class ProductUpdateBaseDTO {
-    @NotBlank
+    @NotBlank(message = "商品名称不能为空")
     private String name;//名称
     private String description;//简介
-    @NotNull
+    @NotNull(message = "商品价格不能为空")
     private BigDecimal price;//价格
-    @NotNull
+    @NotNull(message = "商品分类不能为空")
     private Long categoryId;//分类ID
 
     public Product toProduct() {

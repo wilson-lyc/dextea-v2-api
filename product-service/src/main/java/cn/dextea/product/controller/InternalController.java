@@ -17,4 +17,9 @@ public class InternalController {
     public boolean isProductIdValid(@PathVariable Long id) {
         return internalService.isProductIdValid(id);
     }
+
+    @GetMapping("/product-category/internal/{id:\\d+}/valid")
+    public boolean isCategoryIdValid(@PathVariable Long id) {
+        return internalService.isCategoryIdValid(id);
+    }
 }

@@ -3,8 +3,8 @@ package cn.dextea.product.service.impl;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.common.dto.OptionDTO;
 import cn.dextea.product.dto.*;
+import cn.dextea.product.feign.ProductFeign;
 import cn.dextea.product.mapper.ProductMapper;
-import cn.dextea.product.mapper.ProductStatusMapper;
 import cn.dextea.product.pojo.*;
 import cn.dextea.product.service.ProductService;
 import com.alibaba.cloud.commons.lang.StringUtils;
@@ -27,25 +27,33 @@ import java.util.List;
 public class ProductServiceImpl implements ProductService {
     @Resource
     private ProductMapper productMapper;
+    @Resource
+    private ProductFeign productFeign;
 
     @Override
     public ApiResponse createProduct(ProductCreateDTO data) {
         Product product = data.toProduct();
-        product.setGlobalStatus(1);// 默认全局禁售
+        product.setGlobalStatus(0);// 默认全局禁售
+        // 校验商品分类
+        if(!productFeign.isCategoryIdValid(product.getCategoryId())){
+            return ApiResponse.badRequest("商品分类不存在");
+        }
+        // 插入db
         productMapper.insert(product);
-        return ApiResponse.success("商品创建成功",JSONObject.of("product",product));
+        return ApiResponse.success("商品创建成功");
     }
 
     @Override
     public ApiResponse getProductList(int current, int size, ProductQueryDTO filter) {
         // 构建查询条件
         MPJLambdaWrapper<Product> wrapper = new MPJLambdaWrapper<Product>()
-                // 基础
                 .selectAsClass(Product.class,ProductListDTO.class)
-                // 分类
-                .selectAs(Category::getName, ProductListDTO::getCategoryName)
-                .innerJoin(Category.class, Category::getId, Product::getCategoryId)
-                // 用户搜索条件
+                // 商品分类
+                .leftJoin(Category.class, Category::getId, Product::getCategoryId)
+                .selectFunc("coalesce(%s,\"未知\")",arg ->arg
+                                .accept(Category::getName),
+                        ProductListDTO::getCategoryName)
+                // 搜索条件
                 .eqIfExists(Product::getId, filter.getId())
                 .likeIfExists(Product::getName, filter.getName())
                 .eqIfExists(Product::getCategoryId, filter.getCategoryId())
@@ -72,15 +80,13 @@ public class ProductServiceImpl implements ProductService {
                 .selectAs(Product::getName, OptionDTO::getLabel)
                 .eqIfExists(Product::getGlobalStatus,status);
         List<OptionDTO> options = productMapper.selectJoinList(OptionDTO.class,wrapper);
-        return ApiResponse.success(JSONObject.of("options", options,"count",options.size()));
+        return ApiResponse.success(JSONObject.of("count",options.size(),"options", options));
     }
 
     @Override
     public ApiResponse getProductBase(Long id) {
         MPJLambdaWrapper<Product> wrapper=new MPJLambdaWrapper<Product>()
                 .selectAsClass(Product.class, ProductBaseDTO.class)
-                .selectAs(Category::getName, ProductListDTO::getCategoryName)
-                .innerJoin(Category.class, Category::getId,Product::getCategoryId)
                 .eq(Product::getId,id);
         ProductBaseDTO product = productMapper.selectJoinOne(ProductBaseDTO.class,wrapper);
         if(product == null) {
@@ -98,6 +104,9 @@ public class ProductServiceImpl implements ProductService {
                 .select(Product::getCover)
                 .select(Product::getDetailHeaderImg);
         Product product=productMapper.selectJoinOne(wrapper);
+        if (product == null){
+            return ApiResponse.notFound(String.format("不存在id=%d的商品", id));
+        }
         // 封面
         images.add(new ProductImgDTO(
                 "cover",
@@ -121,29 +130,35 @@ public class ProductServiceImpl implements ProductService {
         if (productStatus == null) {
             return ApiResponse.notFound(String.format("不存在id=%d的商品", id));
         }
-        return ApiResponse.success(JSONObject.of("product", productStatus));
+        return ApiResponse.success(JSONObject.of("status", productStatus));
     }
 
     @Override
     public ApiResponse updateProductBase(Long id, ProductUpdateBaseDTO data) {
         Product product=data.toProduct();
         product.setId(id);
-        int count = productMapper.updateById(product);
-        if (count == 0) {
-            return ApiResponse.notFound(String.format("不存在id=%d的商品", id));
+        // 校验分类ID
+        if(!productFeign.isCategoryIdValid(product.getCategoryId())){
+            return ApiResponse.badRequest("商品分类有误");
+        }
+        // 更新db
+        if (productMapper.updateById(product) == 0) {
+            return ApiResponse.notFound("更新失败，可能是不存在该商品");
         }
         return ApiResponse.success("更新成功");
     }
 
     @Override
     public ApiResponse updateProductGlobalStatus(Long id, Integer status) {
+        if(status<0 || status>1){
+            return ApiResponse.badRequest("状态值有误");
+        }
         Product product=Product.builder()
                 .id(id)
                 .globalStatus(status)
                 .build();
-        int count = productMapper.updateById(product);
-        if (count == 0) {
-            return ApiResponse.notFound(String.format("不存在id=%d的商品", id));
+        if (productMapper.updateById(product) == 0) {
+            return ApiResponse.notFound("更新失败，可能是不存在该商品");
         }
         return ApiResponse.success("更新成功");
     }

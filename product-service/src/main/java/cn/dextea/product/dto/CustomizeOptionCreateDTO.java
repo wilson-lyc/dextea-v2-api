@@ -21,18 +21,12 @@ public class CustomizeOptionCreateDTO {
     private BigDecimal price;
     @NotNull
     private Integer sort;
-    @NotNull
-    private Integer status;
-    @NotNull
-    private Long itemId;
 
     public CustomizeOption toCustomizeOption(){
         return CustomizeOption.builder()
                 .name(name)
                 .price(price)
                 .sort(sort)
-                .status(status)
-                .itemId(itemId)
                 .build();
     }
 }

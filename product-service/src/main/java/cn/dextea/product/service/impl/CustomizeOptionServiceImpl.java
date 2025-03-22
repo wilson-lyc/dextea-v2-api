@@ -3,6 +3,7 @@ package cn.dextea.product.service.impl;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.product.dto.CustomizeOptionCreateDTO;
 import cn.dextea.product.dto.CustomizeOptionUpdateDTO;
+import cn.dextea.product.dto.OptionListDTO;
 import cn.dextea.product.mapper.CustomizeItemMapper;
 import cn.dextea.product.mapper.CustomizeOptionMapper;
 import cn.dextea.product.pojo.CustomizeItem;
@@ -26,26 +27,27 @@ public class CustomizeOptionServiceImpl implements CustomizeOptionService {
     @Resource
     private CustomizeItemMapper customizeItemMapper;
     @Override
-    public ApiResponse create(CustomizeOptionCreateDTO data) {
+    public ApiResponse createOption(Long id, CustomizeOptionCreateDTO data) {
         // 校验ID对应的客制化项目是否存在
-        CustomizeItem customizeItem = customizeItemMapper.selectById(data.getItemId());
-        if (customizeItem == null) {
-            return ApiResponse.badRequest(String.format("无法与ID=%d的客制化项目绑定", data.getItemId()));
+        if (customizeItemMapper.selectById(id) == null) {
+            return ApiResponse.badRequest(String.format("无法与ID=%d的客制化项目绑定", id));
         }
         // 添加客制化选项
-        CustomizeOption customizeOption = data.toCustomizeOption();
-        customizeOptionMapper.insert(customizeOption);
+        CustomizeOption option = data.toCustomizeOption();
+        option.setItemId(id);// 绑定项目
+        option.setStatus(0);// 默认为禁用
+        customizeOptionMapper.insert(option);
         return ApiResponse.success("创建成功");
     }
 
     @Override
-    public ApiResponse getList(Long itemId) {
+    public ApiResponse getOptionList(Long itemId) {
         MPJLambdaWrapper<CustomizeOption> wrapper = new MPJLambdaWrapper<CustomizeOption>()
-                .selectAll(CustomizeOption.class)
+                .selectAsClass(CustomizeOption.class, OptionListDTO.class)
                 .innerJoin(CustomizeItem.class, CustomizeItem::getId,CustomizeOption::getItemId)
                 .orderByAsc(CustomizeOption::getSort)
                 .eq(CustomizeItem::getId, itemId);
-        List<CustomizeOption> list = customizeOptionMapper.selectList(wrapper);
+        List<OptionListDTO> list = customizeOptionMapper.selectJoinList(OptionListDTO.class,wrapper);
         return ApiResponse.success(JSONObject.of("options", list));
     }
 

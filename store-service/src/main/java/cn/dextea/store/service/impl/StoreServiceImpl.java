@@ -36,11 +36,11 @@ public class StoreServiceImpl implements StoreService {
         Store store=data.toStore();
         store.setStatus(0);// 状态默认为未激活
         // 获取门店定位 - 高德api
-        HttpResponse res= HttpRequest.get("https://restapi.amap.com/v3/geocode/geo")
-                .form("key","ba9e3a30dede2dbb9f6f6fd97f1b4fd1")
-                .form("address",store.getAddress())
-                .form("city",store.getCity())
-                .execute();
+        HttpResponse res = HttpRequest.get("https://restapi.amap.com/v3/geocode/geo")
+                    .form("key", "ba9e3a30dede2dbb9f6f6fd97f1b4fd1")
+                    .form("address", store.getAddress())
+                    .form("city", store.getCity())
+                    .execute();
         String location=JSONObject.parseObject(res.body())
                 .getJSONArray("geocodes")
                 .getJSONObject(0)
@@ -59,14 +59,14 @@ public class StoreServiceImpl implements StoreService {
     public ApiResponse getStoreList(int current, int size, StoreFilter filter) {
         MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
                 .selectAsClass(Store.class,StoreListDTO.class)
-                .eq(filter.getId()!=null,Store::getId,filter.getId())
-                .like(StringUtils.isNotBlank(filter.getName()),Store::getName,filter.getName())
-                .eq(filter.getStatus()!=null,Store::getStatus,filter.getStatus())
-                .eq(StringUtils.isNotBlank(filter.getProvince()),Store::getProvince,filter.getProvince())
-                .eq(StringUtils.isNotBlank(filter.getCity()),Store::getCity,filter.getCity())
-                .eq(StringUtils.isNotBlank(filter.getDistrict()),Store::getDistrict,filter.getDistrict())
-                .eq(StringUtils.isNotBlank(filter.getLinkman()),Store::getLinkman,filter.getLinkman())
-                .eq(StringUtils.isNotBlank(filter.getPhone()),Store::getPhone,filter.getPhone());
+                .eqIfExists(Store::getId,filter.getId())
+                .likeIfExists(Store::getName,filter.getName())
+                .eqIfExists(Store::getStatus,filter.getStatus())
+                .eqIfExists(Store::getProvince,filter.getProvince())
+                .eqIfExists(Store::getCity,filter.getCity())
+                .eqIfExists(Store::getDistrict,filter.getDistrict())
+                .eqIfExists(Store::getLinkman,filter.getLinkman())
+                .eqIfExists(Store::getPhone,filter.getPhone());
         Page<Store> page = new Page<>(current, size);
         page=storeMapper.selectJoinPage(page,wrapper);
         if (page.getCurrent()>page.getPages()){

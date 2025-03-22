@@ -5,6 +5,7 @@ import cn.dextea.staff.pojo.Staff;
 import cn.dextea.staff.pojo.StaffStatus;
 import cn.hutool.extra.pinyin.PinyinUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import jakarta.annotation.Resource;
 import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ import java.util.concurrent.locks.ReentrantLock;
 @Validated
 public class AccountUtil {
     private final Lock lock = new ReentrantLock();
-    @Autowired
+    @Resource
     StaffMapper staffMapper;
     /**
      * 创建账号
@@ -28,7 +29,7 @@ public class AccountUtil {
      * @return 账号
      */
     @Transactional(rollbackFor = Exception.class)
-    public String create(@NotBlank(message = "name is required") String name) {
+    public synchronized String create(@NotBlank(message = "name is required") String name) {
         // 姓名转拼音
         String namePinyin = PinyinUtil.getPinyin(name, "");
         QueryWrapper<Staff> wrapper = new QueryWrapper<>();

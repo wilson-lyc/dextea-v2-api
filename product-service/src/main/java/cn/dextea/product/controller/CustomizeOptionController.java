@@ -12,19 +12,20 @@ import org.springframework.web.bind.annotation.*;
  * @author Lai Yongchao
  */
 @RestController
-@RequestMapping("/customize/option")
 public class CustomizeOptionController {
     @Resource
     private CustomizeOptionService customizeOptionService;
 
-    @PostMapping
-    public ApiResponse create(@Valid @RequestBody CustomizeOptionCreateDTO data) {
-        return customizeOptionService.create(data);
+    @PostMapping("/product/customize/{id:\\d+}/option")
+    public ApiResponse createOption(
+            @PathVariable Long id,
+            @Valid @RequestBody CustomizeOptionCreateDTO createDTO) {
+        return customizeOptionService.createOption(id,createDTO);
     }
 
-    @GetMapping
-    public ApiResponse getList(@RequestParam("itemId") Long itemId) {
-        return customizeOptionService.getList(itemId);
+    @GetMapping("/product/customize/{itemId:\\d+}/option")
+    public ApiResponse getOptionList(@PathVariable Long itemId) {
+        return customizeOptionService.getOptionList(itemId);
     }
 
     @GetMapping("{id:\\d+}")

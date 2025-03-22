@@ -14,6 +14,13 @@ public interface TosFeign {
     ApiResponse uploadWithOriginalName(@RequestParam("folder") String folder, @RequestPart("file") MultipartFile file);
     @PostMapping(value = "/tos/customName", consumes = "multipart/form-data")
     ApiResponse uploadWithCustomName(@RequestParam("folder") String folder, @RequestParam("filename") String fileName, @RequestPart("file") MultipartFile file);
+
     @DeleteMapping("/tos")
-    ApiResponse delete(@RequestParam("url") String url);
+    boolean delete(@RequestParam("url") String url);
+
+    @PostMapping(value = "/tos",consumes ="multipart/form-data")
+    String uploadFile(
+            @RequestParam("folder") String folder,
+            @RequestParam("filename") String filename,
+            @RequestPart("file") MultipartFile file);
 }

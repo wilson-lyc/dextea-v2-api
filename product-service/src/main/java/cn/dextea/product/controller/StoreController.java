@@ -18,6 +18,7 @@ public class StoreController {
 
     /**
      * 获取门店商品列表
+     * 返回商品的门店状态
      * @param storeId 门店ID
      * @param current 当前页码
      * @param size 每页数量
@@ -44,6 +45,12 @@ public class StoreController {
         return storeService.getProductStoreStatus(storeId,productId);
     }
 
+    /**
+     * 更新商品的门店状态
+     * @param storeId 门店ID
+     * @param productId 商品ID
+     * @param status 门店状态
+     */
     @PutMapping("/store/{storeId:\\d+}/product/{productId:\\d+}/status")
     public ApiResponse updateProductStoreStatus(
             @PathVariable Long storeId,
