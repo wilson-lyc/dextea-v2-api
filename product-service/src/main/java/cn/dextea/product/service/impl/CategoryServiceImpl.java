@@ -25,7 +25,7 @@ public class CategoryServiceImpl implements CategoryService {
     public ApiResponse createCategory(CategoryDTO data) {
         Category category = data.toCategory();
         categoryMapper.insert(category);
-        return ApiResponse.success("商品分类创建成功");
+        return ApiResponse.success("分类创建成功");
     }
 
     @Override
@@ -38,8 +38,7 @@ public class CategoryServiceImpl implements CategoryService {
     public ApiResponse getCategoryById(Long id) {
         Category category = categoryMapper.selectById(id);
         if (category == null) {
-            String msg=String.format("不存在ID=%d的分类",id);
-            return ApiResponse.notFound(msg);
+            return ApiResponse.notFound(String.format("不存在ID=%d的分类",id));
         }
         return ApiResponse.success(JSONObject.of("category", category));
     }
@@ -59,9 +58,8 @@ public class CategoryServiceImpl implements CategoryService {
         category.setId(id);
         int num= categoryMapper.updateById(category);
         if (num==0){
-            String msg=String.format("不存在ID=%d的分类",id);
-            return ApiResponse.notFound(msg);
+            return ApiResponse.notFound(String.format("不存在ID=%d的分类",id));
         }
-        return ApiResponse.success();
+        return ApiResponse.success("更新成功");
     }
 }
