@@ -8,5 +8,5 @@ import org.apache.ibatis.annotations.Mapper;
  * @author Lai Yongchao
  */
 @Mapper
-public interface CustomizeOptionMapper extends MPJBaseMapper<CustomizeOption> {
+public interface OptionMapper extends MPJBaseMapper<CustomizeOption> {
 }

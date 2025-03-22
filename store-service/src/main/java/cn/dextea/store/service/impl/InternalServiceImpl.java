@@ -5,6 +5,8 @@ import cn.dextea.store.service.InternalService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 /**
  * @author Lai Yongchao
  */
@@ -14,6 +16,6 @@ public class InternalServiceImpl implements InternalService {
     private StoreMapper storeMapper;
     @Override
     public boolean isStoreIdValid(Long id) {
-        return storeMapper.selectById(id) != null;
+        return Objects.nonNull(storeMapper.selectById(id));
     }
 }

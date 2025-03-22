@@ -15,21 +15,19 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CustomizeOptionUpdateDTO {
-    @NotBlank
+public class OptionCreateDTO {
+    @NotBlank(message = "选项名不能为空")
     private String name;
+    @NotNull(message = "价格不能为空")
     private BigDecimal price;
-    @NotNull
+    @NotNull(message = "排序不能为空")
     private Integer sort;
-    @NotNull
-    private Integer status;
 
     public CustomizeOption toCustomizeOption(){
         return CustomizeOption.builder()
                 .name(name)
                 .price(price)
                 .sort(sort)
-                .status(status)
                 .build();
     }
 }

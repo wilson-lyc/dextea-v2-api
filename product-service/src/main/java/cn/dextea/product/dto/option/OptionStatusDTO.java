@@ -4,20 +4,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.util.Objects;
 
 /**
  * @author Lai Yongchao
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class OptionListDTO {
-    private Long id;
-    private String name;
-    private BigDecimal price;
-    private Integer sort;
+@AllArgsConstructor
+public class OptionStatusDTO {
     private Integer globalStatus;
     private Integer storeStatus;
     private Integer status;

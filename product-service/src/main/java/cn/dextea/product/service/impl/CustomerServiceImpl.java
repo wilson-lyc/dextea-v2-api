@@ -1,8 +1,8 @@
 package cn.dextea.product.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.mapper.CustomizeItemMapper;
-import cn.dextea.product.mapper.CustomizeOptionMapper;
+import cn.dextea.product.mapper.ItemMapper;
+import cn.dextea.product.mapper.OptionMapper;
 import cn.dextea.product.mapper.ProductMapper;
 import cn.dextea.product.pojo.CustomizeItem;
 import cn.dextea.product.pojo.CustomizeOption;
@@ -22,9 +22,9 @@ import java.util.List;
 @Service
 public class CustomerServiceImpl implements CustomerService {
     @Resource
-    private CustomizeItemMapper customizeItemMapper;
+    private ItemMapper itemMapper;
     @Resource
-    private CustomizeOptionMapper customizeOptionMapper;
+    private OptionMapper optionMapper;
     @Resource
     private ProductMapper productMapper;
 
@@ -41,7 +41,7 @@ public class CustomerServiceImpl implements CustomerService {
         itemWrapper.eq("product_id",id);
         itemWrapper.eq("status",1);
         itemWrapper.orderByAsc("sort");
-        List<CustomizeItem> customizeItem=customizeItemMapper.selectList(itemWrapper);
+        List<CustomizeItem> customizeItem= itemMapper.selectList(itemWrapper);
         for(CustomizeItem item:customizeItem){
             JSONObject itemJson=JSONObject.from(item);
             // 查询客制化选项
@@ -49,7 +49,7 @@ public class CustomerServiceImpl implements CustomerService {
             optionWrapper.eq("item_id",item.getId());
             optionWrapper.eq("status",1);
             optionWrapper.orderByAsc("sort");
-            List<CustomizeOption> customizeOption=customizeOptionMapper.selectList(optionWrapper);
+            List<CustomizeOption> customizeOption= optionMapper.selectList(optionWrapper);
             itemJson.put("options",customizeOption);
             customize.add(itemJson);
         }

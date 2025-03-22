@@ -4,6 +4,7 @@ import cn.dextea.product.service.InternalService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -13,13 +14,23 @@ import org.springframework.web.bind.annotation.RestController;
 public class InternalController {
     @Resource
     private InternalService internalService;
-    @GetMapping("/product/internal/{id:\\d+}/valid")
-    public boolean isProductIdValid(@PathVariable Long id) {
+    @GetMapping("/product/internal/isProductIdValid")
+    public boolean isProductIdValid(@RequestParam("id") Long id) {
         return internalService.isProductIdValid(id);
     }
 
-    @GetMapping("/product-category/internal/{id:\\d+}/valid")
+    @GetMapping("/product/internal/isCategoryIdValid")
     public boolean isCategoryIdValid(@PathVariable Long id) {
         return internalService.isCategoryIdValid(id);
+    }
+
+    @GetMapping("/product/internal/isCustomizeItemIdValid")
+    public boolean isCustomizeItemIdValid(@RequestParam Long id) {
+        return internalService.isCustomizeItemIdValid(id);
+    }
+
+    @GetMapping("/product/internal/isCustomizeOptionIdValid")
+    public boolean isCustomizeOptionIdValid(@RequestParam Long id) {
+        return internalService.isCustomizeOptionIdValid(id);
     }
 }

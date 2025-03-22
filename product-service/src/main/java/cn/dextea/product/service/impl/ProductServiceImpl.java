@@ -45,6 +45,10 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ApiResponse getProductList(int current, int size, ProductQueryDTO filter) {
+        return getProductListForCompany(current, size, filter);
+    }
+
+    private ApiResponse getProductListForCompany(int current, int size, ProductQueryDTO filter) {
         // 构建查询条件
         MPJLambdaWrapper<Product> wrapper = new MPJLambdaWrapper<Product>()
                 .selectAsClass(Product.class, ProductListDTO.class)

@@ -11,19 +11,17 @@ import lombok.NoArgsConstructor;
  * @author Lai Yongchao
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class CustomizeItemEditDTO {
-    @NotBlank
+@AllArgsConstructor
+public class ItemCreateDTO {
+    @NotBlank(message = "项目名不能为空")
     private String name;
-    private String description;
-    @NotNull
+    @NotNull(message = "排序不能为空")
     private Integer sort;
 
-    public CustomizeItem toCustomize(){
-        return CustomizeItem.builder()
+    public CustomizeItem toCustomize() {
+        return  CustomizeItem.builder()
                 .name(name)
-                .description(description)
                 .sort(sort)
                 .build();
     }
