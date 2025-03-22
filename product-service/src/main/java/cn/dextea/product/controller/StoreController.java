@@ -1,7 +1,7 @@
 package cn.dextea.product.controller;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.ProductQueryDTO;
+import cn.dextea.product.dto.product.ProductQueryDTO;
 import cn.dextea.product.service.StoreService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;

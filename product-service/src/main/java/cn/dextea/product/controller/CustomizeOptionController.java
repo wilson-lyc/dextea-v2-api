@@ -1,8 +1,8 @@
 package cn.dextea.product.controller;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.CustomizeOptionCreateDTO;
-import cn.dextea.product.dto.CustomizeOptionUpdateDTO;
+import cn.dextea.product.dto.option.CustomizeOptionCreateDTO;
+import cn.dextea.product.dto.option.CustomizeOptionUpdateDTO;
 import cn.dextea.product.service.CustomizeOptionService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;

@@ -1,4 +1,4 @@
-package cn.dextea.product.dto;
+package cn.dextea.product.dto.option;
 
 import cn.dextea.product.pojo.CustomizeOption;
 import jakarta.validation.constraints.NotBlank;
@@ -15,18 +15,21 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CustomizeOptionCreateDTO {
+public class CustomizeOptionUpdateDTO {
     @NotBlank
     private String name;
     private BigDecimal price;
     @NotNull
     private Integer sort;
+    @NotNull
+    private Integer status;
 
     public CustomizeOption toCustomizeOption(){
         return CustomizeOption.builder()
                 .name(name)
                 .price(price)
                 .sort(sort)
+                .status(status)
                 .build();
     }
 }

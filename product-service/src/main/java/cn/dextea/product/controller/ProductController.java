@@ -1,13 +1,12 @@
 package cn.dextea.product.controller;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.ProductCreateDTO;
-import cn.dextea.product.dto.ProductQueryDTO;
-import cn.dextea.product.dto.ProductUpdateBaseDTO;
+import cn.dextea.product.dto.product.ProductCreateDTO;
+import cn.dextea.product.dto.product.ProductQueryDTO;
+import cn.dextea.product.dto.product.ProductUpdateBaseDTO;
 import cn.dextea.product.service.ProductService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.springframework.web.bind.annotation.*;
 

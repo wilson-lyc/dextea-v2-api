@@ -1,10 +1,9 @@
 package cn.dextea.product.service;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.ProductCreateDTO;
-import cn.dextea.product.dto.ProductQueryDTO;
-import cn.dextea.product.dto.ProductUpdateBaseDTO;
-import cn.dextea.product.pojo.Product;
+import cn.dextea.product.dto.product.ProductCreateDTO;
+import cn.dextea.product.dto.product.ProductQueryDTO;
+import cn.dextea.product.dto.product.ProductUpdateBaseDTO;
 
 /**
  * @author Lai Yongchao

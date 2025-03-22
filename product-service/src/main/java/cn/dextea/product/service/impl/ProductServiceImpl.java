@@ -2,7 +2,7 @@ package cn.dextea.product.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.common.dto.OptionDTO;
-import cn.dextea.product.dto.*;
+import cn.dextea.product.dto.product.*;
 import cn.dextea.product.feign.ProductFeign;
 import cn.dextea.product.mapper.ProductMapper;
 import cn.dextea.product.pojo.*;
@@ -47,7 +47,7 @@ public class ProductServiceImpl implements ProductService {
     public ApiResponse getProductList(int current, int size, ProductQueryDTO filter) {
         // 构建查询条件
         MPJLambdaWrapper<Product> wrapper = new MPJLambdaWrapper<Product>()
-                .selectAsClass(Product.class,ProductListDTO.class)
+                .selectAsClass(Product.class, ProductListDTO.class)
                 // 商品分类
                 .leftJoin(Category.class, Category::getId, Product::getCategoryId)
                 .selectFunc("coalesce(%s,\"未知\")",arg ->arg

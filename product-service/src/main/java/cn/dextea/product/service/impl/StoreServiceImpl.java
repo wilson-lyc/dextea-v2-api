@@ -1,9 +1,9 @@
 package cn.dextea.product.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.ProductListDTO;
-import cn.dextea.product.dto.ProductQueryDTO;
-import cn.dextea.product.dto.ProductStatusDTO;
+import cn.dextea.product.dto.product.ProductListDTO;
+import cn.dextea.product.dto.product.ProductQueryDTO;
+import cn.dextea.product.dto.product.ProductStatusDTO;
 import cn.dextea.product.feign.ProductFeign;
 import cn.dextea.product.feign.StoreFeign;
 import cn.dextea.product.mapper.ProductMapper;
@@ -17,7 +17,6 @@ import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
-import com.google.protobuf.Api;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 

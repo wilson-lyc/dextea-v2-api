@@ -1,7 +1,7 @@
 package cn.dextea.product.service;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.CategoryDTO;
+import cn.dextea.product.dto.category.CategoryDTO;
 
 /**
  * @author Lai Yongchao

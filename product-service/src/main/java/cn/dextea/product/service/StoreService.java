@@ -1,9 +1,7 @@
 package cn.dextea.product.service;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.ProductQueryDTO;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.Min;
+import cn.dextea.product.dto.product.ProductQueryDTO;
 
 /**
  * @author Lai Yongchao

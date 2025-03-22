@@ -1,6 +1,5 @@
-package cn.dextea.product.dto;
+package cn.dextea.product.dto.product;
 
-import jakarta.validation.constraints.Min;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

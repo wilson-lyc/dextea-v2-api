@@ -1,8 +1,8 @@
 package cn.dextea.product.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.CustomizeItemEditDTO;
-import cn.dextea.product.dto.CustomizeItemDTO;
+import cn.dextea.product.dto.item.CustomizeItemEditDTO;
+import cn.dextea.product.dto.item.CustomizeItemDTO;
 import cn.dextea.product.mapper.CustomizeItemMapper;
 import cn.dextea.product.mapper.ProductMapper;
 import cn.dextea.product.pojo.CustomizeItem;

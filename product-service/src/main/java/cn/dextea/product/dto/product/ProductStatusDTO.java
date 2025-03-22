@@ -1,10 +1,9 @@
-package cn.dextea.product.dto;
+package cn.dextea.product.dto.product;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.util.Objects;
 
 /**
@@ -13,17 +12,10 @@ import java.util.Objects;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductBaseDTO {
-    private Long id;
-    private String name;
-    private String description;
-    private BigDecimal price;
-    private Long categoryId;
-    private String categoryName;
+public class ProductStatusDTO {
     private Integer globalStatus;
     private Integer storeStatus;
     private Integer status;
-
     public Integer getStatus() {
         if(globalStatus == 0){
             return 0;

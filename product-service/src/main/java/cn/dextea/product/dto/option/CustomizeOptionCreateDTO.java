@@ -1,29 +1,31 @@
-package cn.dextea.product.dto;
+package cn.dextea.product.dto.option;
 
-import cn.dextea.product.pojo.CustomizeItem;
+import cn.dextea.product.pojo.CustomizeOption;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
+
 /**
  * @author Lai Yongchao
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class CustomizeItemEditDTO {
+@AllArgsConstructor
+public class CustomizeOptionCreateDTO {
     @NotBlank
     private String name;
-    private String description;
+    private BigDecimal price;
     @NotNull
     private Integer sort;
 
-    public CustomizeItem toCustomize(){
-        return CustomizeItem.builder()
+    public CustomizeOption toCustomizeOption(){
+        return CustomizeOption.builder()
                 .name(name)
-                .description(description)
+                .price(price)
                 .sort(sort)
                 .build();
     }

@@ -1,7 +1,7 @@
 package cn.dextea.product.controller;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.CustomizeItemEditDTO;
+import cn.dextea.product.dto.item.CustomizeItemEditDTO;
 import cn.dextea.product.service.CustomizeItemService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;

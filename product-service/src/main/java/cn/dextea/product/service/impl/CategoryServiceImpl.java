@@ -2,7 +2,7 @@ package cn.dextea.product.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.common.dto.OptionDTO;
-import cn.dextea.product.dto.CategoryDTO;
+import cn.dextea.product.dto.category.CategoryDTO;
 import cn.dextea.product.mapper.CategoryMapper;
 import cn.dextea.product.pojo.Category;
 import cn.dextea.product.service.CategoryService;
