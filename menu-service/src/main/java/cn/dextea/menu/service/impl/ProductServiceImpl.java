@@ -2,13 +2,12 @@ package cn.dextea.menu.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.menu.dto.ProductListDTO;
-import cn.dextea.menu.mapper.ProductMapper;
+import cn.dextea.menu.mapper.MenuProductMapper;
 import cn.dextea.menu.pojo.MenuProduct;
 import cn.dextea.menu.pojo.Product;
 import cn.dextea.menu.pojo.ProductStoreStatus;
 import cn.dextea.menu.service.ProductService;
 import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
@@ -23,7 +22,7 @@ import java.util.Objects;
 @Service
 public class ProductServiceImpl implements ProductService {
     @Resource
-    private ProductMapper productMapper;
+    private MenuProductMapper menuProductMapper;
 
     @Override
     public ApiResponse menuBindProduct(Long groupId, Long productId, Integer sort) {
@@ -31,7 +30,7 @@ public class ProductServiceImpl implements ProductService {
         MPJLambdaWrapper<MenuProduct> wrapper=new MPJLambdaWrapper<MenuProduct>()
                 .eq(MenuProduct::getGroupId,groupId)
                 .eq(MenuProduct::getProductId,productId);
-        if(productMapper.exists(wrapper)){
+        if(menuProductMapper.exists(wrapper)){
             return ApiResponse.badRequest("分组已绑定该商品");
         }
         // 绑定商品
@@ -40,7 +39,7 @@ public class ProductServiceImpl implements ProductService {
                 .productId(productId)
                 .sort(sort)
                 .build();
-        productMapper.insert(menuProduct);
+        menuProductMapper.insert(menuProduct);
         return ApiResponse.success("绑定成功");
     }
 
@@ -49,7 +48,7 @@ public class ProductServiceImpl implements ProductService {
         MPJLambdaWrapper<MenuProduct> wrapper=new MPJLambdaWrapper<MenuProduct>()
                 .eq(MenuProduct::getGroupId,groupId)
                 .eq(MenuProduct::getProductId,productId);
-        if(productMapper.delete(wrapper)==0){
+        if(menuProductMapper.delete(wrapper)==0){
             return ApiResponse.badRequest("商品未绑定");
         }
         return ApiResponse.success("解绑成功");
@@ -61,7 +60,7 @@ public class ProductServiceImpl implements ProductService {
                 .eq(MenuProduct::getProductId,productId)
                 .eq(MenuProduct::getGroupId,groupId)
                 .selectAll(MenuProduct.class);
-        MenuProduct menuProduct=productMapper.selectOne(wrapper);
+        MenuProduct menuProduct= menuProductMapper.selectOne(wrapper);
         if (Objects.isNull(menuProduct)){
             return ApiResponse.badRequest("商品未绑定");
         }
@@ -74,7 +73,7 @@ public class ProductServiceImpl implements ProductService {
                 .set("sort",sort)
                 .eq("product_id",productId)
                 .eq("group_id",groupId);
-        if (productMapper.update(updateWrapper)==0){
+        if (menuProductMapper.update(updateWrapper)==0){
             return ApiResponse.badRequest("商品未绑定");
         }else{
             return ApiResponse.success("更新成功");
@@ -88,7 +87,7 @@ public class ProductServiceImpl implements ProductService {
                 .innerJoin(Product.class,Product::getId,MenuProduct::getProductId)
                 .selectAsClass(Product.class,ProductListDTO.class)
                 .selectAs(MenuProduct::getSort,ProductListDTO::getSort);
-        List<ProductListDTO> products=productMapper.selectJoinList(ProductListDTO.class,wrapper);
+        List<ProductListDTO> products= menuProductMapper.selectJoinList(ProductListDTO.class,wrapper);
         return ApiResponse.success(JSONObject.of("count",products.size(),"products", products));
     }
 
@@ -105,7 +104,7 @@ public class ProductServiceImpl implements ProductService {
                                 .accept(ProductStoreStatus::getStatus),
                         ProductListDTO::getStoreStatus)
                 .eq(MenuProduct::getGroupId,groupId);
-        List<ProductListDTO> products=productMapper.selectJoinList(ProductListDTO.class,wrapper);
+        List<ProductListDTO> products= menuProductMapper.selectJoinList(ProductListDTO.class,wrapper);
         return ApiResponse.success(JSONObject.of("count",products.size(),"products", products));
     }
 }

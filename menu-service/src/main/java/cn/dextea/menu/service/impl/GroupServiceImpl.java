@@ -3,7 +3,7 @@ package cn.dextea.menu.service.impl;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.menu.dto.GroupEditDTO;
 import cn.dextea.menu.feign.MenuFeign;
-import cn.dextea.menu.mapper.GroupMapper;
+import cn.dextea.menu.mapper.MenuGroupMapper;
 import cn.dextea.menu.pojo.MenuGroup;
 import cn.dextea.menu.service.GroupService;
 import com.alibaba.fastjson2.JSONObject;
@@ -20,7 +20,7 @@ import java.util.Objects;
 @Service
 public class GroupServiceImpl implements GroupService {
     @Resource
-    private GroupMapper groupMapper;
+    private MenuGroupMapper menuGroupMapper;
     @Resource
     private MenuFeign menuFeign;
 
@@ -32,7 +32,7 @@ public class GroupServiceImpl implements GroupService {
         // 插入db
         MenuGroup menuGroup = data.toMenuGroup();
         menuGroup.setMenuId(menuId);
-        groupMapper.insert(menuGroup);
+        menuGroupMapper.insert(menuGroup);
         return ApiResponse.success("分组创建成功");
     }
 
@@ -42,13 +42,13 @@ public class GroupServiceImpl implements GroupService {
                 .selectAll(MenuGroup.class)
                 .eq(MenuGroup::getMenuId,menuId)
                 .orderByAsc(MenuGroup::getSort);
-        List<MenuGroup> list= groupMapper.selectJoinList(MenuGroup.class,wrapper);
+        List<MenuGroup> list= menuGroupMapper.selectJoinList(MenuGroup.class,wrapper);
         return ApiResponse.success(JSONObject.of("groups",list));
     }
 
     @Override
     public ApiResponse getGroupInfo(Long groupId) {
-        MenuGroup menuGroup = groupMapper.selectById(groupId);
+        MenuGroup menuGroup = menuGroupMapper.selectById(groupId);
         if (Objects.isNull(menuGroup)){
             return ApiResponse.notFound("菜单分组不存在");
         }
@@ -59,7 +59,7 @@ public class GroupServiceImpl implements GroupService {
     public ApiResponse updateGroupInfo(Long groupId, GroupEditDTO data) {
         MenuGroup menuGroup =data.toMenuGroup();
         menuGroup.setId(groupId);
-        if (groupMapper.updateById(menuGroup)==0){
+        if (menuGroupMapper.updateById(menuGroup)==0){
             return ApiResponse.notFound("菜单分组不存在");
         }
         return ApiResponse.success("更新成功");

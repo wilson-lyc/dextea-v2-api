@@ -44,7 +44,7 @@ public class ProductController {
     }
 
     /**
-     * 获取菜单绑定的商品列表
+     * 获取分组内商品列表
      * @param groupId 菜单分组ID
      * @param storeId 门店ID
      */
@@ -59,7 +59,7 @@ public class ProductController {
     }
 
     /**
-     * 获取商品绑定的菜单信息
+     * 获取分组商品
      * @param groupId 菜单分组ID
      * @param productId 商品ID
      */

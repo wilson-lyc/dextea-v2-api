@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: product-service
+    name: menu-service
   cloud:
     nacos:
       server-addr: ${NACOS_URL}
