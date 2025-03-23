@@ -35,15 +35,19 @@ public class GroupController {
         return groupService.getGroupList(menuId);
     }
 
+    /**
+     * 获取菜单分组详情
+     * @param groupId 分组ID
+     */
     @GetMapping("/menu/group/{groupId:\\d+}")
     public ApiResponse getGroupInfo(@PathVariable Long groupId){
         return groupService.getGroupInfo(groupId);
     }
 
     /**
-     * 更新菜单分组的基础信息
+     * 更新菜单分组详情
      * @param groupId 菜单分组id
-     * @param data {name}
+     * @param data 数据
      */
     @PutMapping("/menu/group/{groupId:\\d+}")
     public ApiResponse updateGroupInfo(

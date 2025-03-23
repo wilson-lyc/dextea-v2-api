@@ -2,6 +2,8 @@ package cn.dextea.menu.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.menu.dto.ProductListDTO;
+import cn.dextea.menu.feign.MenuFeign;
+import cn.dextea.menu.feign.ProductFeign;
 import cn.dextea.menu.mapper.MenuProductMapper;
 import cn.dextea.menu.pojo.MenuProduct;
 import cn.dextea.menu.pojo.Product;
@@ -11,6 +13,7 @@ import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -23,15 +26,26 @@ import java.util.Objects;
 public class ProductServiceImpl implements ProductService {
     @Resource
     private MenuProductMapper menuProductMapper;
+    @Autowired
+    private ProductFeign productFeign;
+    @Autowired
+    private MenuFeign menuFeign;
 
     @Override
     public ApiResponse menuBindProduct(Long groupId, Long productId, Integer sort) {
+        // 校验ID
+        if(!productFeign.isProductIdValid(productId)){
+            return ApiResponse.badRequest("商品不存在");
+        }
+        if(!menuFeign.isGroupIdValid(groupId)){
+            return ApiResponse.badRequest("分组不存在");
+        }
         // 检查是否已经绑定
         MPJLambdaWrapper<MenuProduct> wrapper=new MPJLambdaWrapper<MenuProduct>()
                 .eq(MenuProduct::getGroupId,groupId)
                 .eq(MenuProduct::getProductId,productId);
         if(menuProductMapper.exists(wrapper)){
-            return ApiResponse.badRequest("分组已绑定该商品");
+            return ApiResponse.badRequest("已绑定");
         }
         // 绑定商品
         MenuProduct menuProduct=MenuProduct.builder()
@@ -45,36 +59,60 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ApiResponse menuUnbindProduct(Long groupId, Long productId) {
+        // 校验ID
+        if(!productFeign.isProductIdValid(productId)){
+            return ApiResponse.badRequest("商品不存在");
+        }
+        if(!menuFeign.isGroupIdValid(groupId)){
+            return ApiResponse.badRequest("分组不存在");
+        }
+        // 更新db
         MPJLambdaWrapper<MenuProduct> wrapper=new MPJLambdaWrapper<MenuProduct>()
                 .eq(MenuProduct::getGroupId,groupId)
                 .eq(MenuProduct::getProductId,productId);
         if(menuProductMapper.delete(wrapper)==0){
-            return ApiResponse.badRequest("商品未绑定");
+            return ApiResponse.badRequest("未绑定");
         }
         return ApiResponse.success("解绑成功");
     }
 
     @Override
     public ApiResponse getMenuBindProductInfo(Long groupId, Long productId) {
+        // 校验ID
+        if(!productFeign.isProductIdValid(productId)){
+            return ApiResponse.badRequest("商品不存在");
+        }
+        if(!menuFeign.isGroupIdValid(groupId)){
+            return ApiResponse.badRequest("分组不存在");
+        }
+        // 查询db
         MPJLambdaWrapper<MenuProduct> wrapper=new MPJLambdaWrapper<MenuProduct>()
                 .eq(MenuProduct::getProductId,productId)
                 .eq(MenuProduct::getGroupId,groupId)
                 .selectAll(MenuProduct.class);
         MenuProduct menuProduct= menuProductMapper.selectOne(wrapper);
         if (Objects.isNull(menuProduct)){
-            return ApiResponse.badRequest("商品未绑定");
+            return ApiResponse.badRequest("未绑定");
         }
-        return ApiResponse.success(JSONObject.of("bindInfo",menuProduct.getSort()));
+        return ApiResponse.success(JSONObject.of("bindInfo",menuProduct));
     }
 
     @Override
     public ApiResponse updateMenuBindProductInfo(Long groupId, Long productId, Integer sort) {
+        // 校验ID
+        if(!productFeign.isProductIdValid(productId)){
+            return ApiResponse.badRequest("商品不存在");
+        }
+        if(!menuFeign.isGroupIdValid(groupId)){
+            return ApiResponse.badRequest("分组不存在");
+        }
+        // 更新db
         UpdateWrapper<MenuProduct> updateWrapper=new UpdateWrapper<MenuProduct>()
                 .set("sort",sort)
                 .eq("product_id",productId)
                 .eq("group_id",groupId);
         if (menuProductMapper.update(updateWrapper)==0){
-            return ApiResponse.badRequest("商品未绑定");
+            return ApiResponse.badRequest("未绑定");
         }else{
             return ApiResponse.success("更新成功");
         }

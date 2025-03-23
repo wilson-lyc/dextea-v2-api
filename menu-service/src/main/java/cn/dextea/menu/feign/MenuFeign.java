@@ -11,4 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface MenuFeign {
     @GetMapping("/menu/internal/isMenuIdValid")
     boolean isMenuIdValid(@RequestParam("id")Long id);
+    @GetMapping("/menu/internal/isGroupIdValid")
+    boolean isGroupIdValid(@RequestParam("id") Long id);
 }

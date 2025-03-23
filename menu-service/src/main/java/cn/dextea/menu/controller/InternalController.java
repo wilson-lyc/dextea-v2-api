@@ -17,4 +17,8 @@ public class InternalController {
     public boolean isMenuIdValid(@RequestParam Long id) {
         return internalService.isMenuIdValid(id);
     }
+    @GetMapping("/menu/internal/isGroupIdValid")
+    public boolean isGroupIdValid(@RequestParam Long id) {
+        return internalService.isGroupIdValid(id);
+    }
 }

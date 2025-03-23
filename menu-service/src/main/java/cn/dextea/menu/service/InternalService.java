@@ -5,4 +5,5 @@ package cn.dextea.menu.service;
  */
 public interface InternalService {
     boolean isMenuIdValid(Long id);
+    boolean isGroupIdValid(Long id);
 }
