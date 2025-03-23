@@ -1,11 +1,11 @@
 package cn.dextea.menu.controller;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.MenuGroupCreateDTO;
-import cn.dextea.product.dto.MenuTypeUpdateDTO;
-import cn.dextea.product.service.MenuGroupService;
+import cn.dextea.menu.dto.GroupEditDTO;
+import cn.dextea.menu.service.GroupService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Lai Yongchao
@@ -13,42 +13,42 @@ import jakarta.validation.Valid;
 @RestController
 public class GroupController {
     @Resource
-    private MenuGroupService menuGroupService;
+    private GroupService groupService;
 
     /**
      * 创建菜单分组
      * @param data {name}
      */
-    @PostMapping("/menu/group")
-    public ApiResponse createMenuGroup(@Valid @RequestBody MenuGroupCreateDTO data){
-        return menuGroupService.createMenuGroup(data);
+    @PostMapping("/menu/{menuId:\\d+}/group")
+    public ApiResponse createGroup(
+            @PathVariable Long menuId,
+            @Valid @RequestBody GroupEditDTO data){
+        return groupService.createGroup(menuId,data);
     }
 
     /**
-     * 获取菜单分组的基础信息
-     * @param id 菜单分组id
+     * 获取菜单的分组列表
+     * @param menuId 菜单id
      */
-    @GetMapping("/menu/group/{id:\\d+}")
-    public ApiResponse getMenuGroupById(@PathVariable Long id){
-        return menuGroupService.getMenuGroupById(id);
+    @GetMapping("/menu/{menuId:\\d+}/group")
+    public ApiResponse getGroupList(@PathVariable Long menuId){
+        return groupService.getGroupList(menuId);
+    }
+
+    @GetMapping("/menu/group/{groupId:\\d+}")
+    public ApiResponse getGroupInfo(@PathVariable Long groupId){
+        return groupService.getGroupInfo(groupId);
     }
 
     /**
      * 更新菜单分组的基础信息
-     * @param id 菜单分组id
+     * @param groupId 菜单分组id
      * @param data {name}
      */
-    @PutMapping("/menu/group/{id:\\d+}")
-    public ApiResponse updateMenuGroup(@PathVariable Long id, @Valid @RequestBody MenuTypeUpdateDTO data){
-        return menuGroupService.updateMenuGroup(id, data);
-    }
-
-    /**
-     * 根据MenuId获取分组列表
-     * @param id 菜单id
-     */
-    @GetMapping("/menu/{id:\\d+}/group")
-    public ApiResponse getMenuGroupList(@PathVariable Long id){
-        return menuGroupService.getMenuGroupList(id);
+    @PutMapping("/menu/group/{groupId:\\d+}")
+    public ApiResponse updateGroupInfo(
+            @PathVariable Long groupId,
+            @Valid @RequestBody GroupEditDTO data){
+        return groupService.updateGroupInfo(groupId, data);
     }
 }

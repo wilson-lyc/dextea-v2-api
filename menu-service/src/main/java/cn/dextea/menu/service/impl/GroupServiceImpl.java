@@ -1,61 +1,66 @@
 package cn.dextea.menu.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.MenuGroupCreateDTO;
-import cn.dextea.product.dto.MenuTypeUpdateDTO;
-import cn.dextea.product.mapper.MenuGroupMapper;
-import cn.dextea.product.pojo.Menu;
-import cn.dextea.product.pojo.MenuGroup;
-import cn.dextea.product.service.MenuGroupService;
+import cn.dextea.menu.dto.GroupEditDTO;
+import cn.dextea.menu.feign.MenuFeign;
+import cn.dextea.menu.mapper.GroupMapper;
+import cn.dextea.menu.pojo.MenuGroup;
+import cn.dextea.menu.service.GroupService;
 import com.alibaba.fastjson2.JSONObject;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Lai Yongchao
  */
 @Service
-public class GroupServiceImpl implements MenuGroupService {
+public class GroupServiceImpl implements GroupService {
     @Resource
-    private MenuGroupMapper menuGroupMapper;
+    private GroupMapper groupMapper;
+    @Resource
+    private MenuFeign menuFeign;
 
     @Override
-    public ApiResponse createMenuGroup(MenuGroupCreateDTO data) {
+    public ApiResponse createGroup(Long menuId, GroupEditDTO data) {
+        // 校验菜单ID
+        if(!menuFeign.isMenuIdValid(menuId))
+            return ApiResponse.badRequest("菜单不存在");
+        // 插入db
         MenuGroup menuGroup = data.toMenuGroup();
-        menuGroupMapper.insert(menuGroup);
-        return ApiResponse.success("创建成功");
+        menuGroup.setMenuId(menuId);
+        groupMapper.insert(menuGroup);
+        return ApiResponse.success("分组创建成功");
     }
 
     @Override
-    public ApiResponse getMenuGroupById(Long id) {
-        MenuGroup menuGroup = menuGroupMapper.selectById(id);
-        if (menuGroup ==null){
-            return ApiResponse.notFound(String.format("不存在 ID=%d 的菜单分组",id));
+    public ApiResponse getGroupList(Long menuId) {
+        MPJLambdaWrapper<MenuGroup> wrapper=new MPJLambdaWrapper<MenuGroup>()
+                .selectAll(MenuGroup.class)
+                .eq(MenuGroup::getMenuId,menuId)
+                .orderByAsc(MenuGroup::getSort);
+        List<MenuGroup> list= groupMapper.selectJoinList(MenuGroup.class,wrapper);
+        return ApiResponse.success(JSONObject.of("groups",list));
+    }
+
+    @Override
+    public ApiResponse getGroupInfo(Long groupId) {
+        MenuGroup menuGroup = groupMapper.selectById(groupId);
+        if (Objects.isNull(menuGroup)){
+            return ApiResponse.notFound("菜单分组不存在");
         }
         return ApiResponse.success(JSONObject.of("group", menuGroup));
     }
 
     @Override
-    public ApiResponse getMenuGroupList(Long menuId) {
-        MPJLambdaWrapper<MenuGroup> wrapper=new MPJLambdaWrapper<MenuGroup>()
-                .selectAll(MenuGroup.class)
-                .innerJoin(Menu.class,Menu::getId, MenuGroup::getMenuId)
-                .orderByAsc(MenuGroup::getSort)
-                .eq(Menu::getId,menuId);
-        List<MenuGroup> list= menuGroupMapper.selectList(wrapper);
-        return ApiResponse.success(JSONObject.of("groups",list));
-    }
-
-    @Override
-    public ApiResponse updateMenuGroup(Long id, MenuTypeUpdateDTO data) {
-        MenuGroup menuGroup =data.toMenuType();
-        menuGroup.setId(id);
-        int num= menuGroupMapper.updateById(menuGroup);
-        if (num==0){
-            return ApiResponse.notFound(String.format("不存在 ID=%d 的菜单分组",id));
+    public ApiResponse updateGroupInfo(Long groupId, GroupEditDTO data) {
+        MenuGroup menuGroup =data.toMenuGroup();
+        menuGroup.setId(groupId);
+        if (groupMapper.updateById(menuGroup)==0){
+            return ApiResponse.notFound("菜单分组不存在");
         }
         return ApiResponse.success("更新成功");
     }
