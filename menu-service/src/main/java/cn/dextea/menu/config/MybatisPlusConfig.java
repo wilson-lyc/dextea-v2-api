@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
  * @author Lai Yongchao
  */
 @Configuration
-@MapperScan("cn.dextea.product.mapper")
+@MapperScan("cn.dextea.menu.mapper")
 public class MybatisPlusConfig {
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {

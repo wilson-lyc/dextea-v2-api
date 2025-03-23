@@ -1,16 +1,15 @@
 package cn.dextea.menu.service;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.MenuProductCreateDTO;
-import cn.dextea.product.dto.MenuProductUpdateDTO;
 
 /**
  * @author Lai Yongchao
  */
 public interface ProductService {
-    ApiResponse menuBindProduct(MenuProductCreateDTO data);
+    ApiResponse menuBindProduct(Long groupId, Long productId, Integer sort);
     ApiResponse menuUnbindProduct(Long groupId, Long productId);
-    ApiResponse getProductsByGroupId(Long id);
     ApiResponse getMenuBindProductInfo(Long groupId, Long productId);
-    ApiResponse updateMenuBindProductInfo(Long groupId, Long productId, MenuProductUpdateDTO data);
+    ApiResponse updateMenuBindProductInfo(Long groupId, Long productId, Integer sort);
+    ApiResponse getProductList(Long groupId);
+    ApiResponse getProductList(Long storeId, Long groupId);
 }

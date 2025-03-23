@@ -1,14 +1,12 @@
 package cn.dextea.menu.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.MenuProductCreateDTO;
-import cn.dextea.product.dto.MenuProductDTO;
-import cn.dextea.product.dto.MenuProductUpdateDTO;
-import cn.dextea.product.mapper.MenuProductMapper;
-import cn.dextea.product.mapper.ProductMapper;
-import cn.dextea.product.pojo.MenuProduct;
-import cn.dextea.product.pojo.Product;
-import cn.dextea.product.service.MenuProductService;
+import cn.dextea.menu.dto.ProductListDTO;
+import cn.dextea.menu.mapper.ProductMapper;
+import cn.dextea.menu.pojo.MenuProduct;
+import cn.dextea.menu.pojo.Product;
+import cn.dextea.menu.pojo.ProductStoreStatus;
+import cn.dextea.menu.service.ProductService;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -17,72 +15,97 @@ import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Lai Yongchao
  */
 @Service
-public class ProductServiceImpl implements MenuProductService {
-    @Resource
-    private MenuProductMapper menuProductMapper;
+public class ProductServiceImpl implements ProductService {
     @Resource
     private ProductMapper productMapper;
 
     @Override
-    public ApiResponse menuBindProduct(MenuProductCreateDTO data) {
+    public ApiResponse menuBindProduct(Long groupId, Long productId, Integer sort) {
         // 检查是否已经绑定
-        QueryWrapper<MenuProduct> wrapper=new QueryWrapper<>();
-        wrapper.eq("group_id",data.getGroupId());
-        wrapper.eq("product_id",data.getProductId());
-        if(menuProductMapper.selectCount(wrapper)>0){
-            return ApiResponse.badRequest("已经绑定");
+        MPJLambdaWrapper<MenuProduct> wrapper=new MPJLambdaWrapper<MenuProduct>()
+                .eq(MenuProduct::getGroupId,groupId)
+                .eq(MenuProduct::getProductId,productId);
+        if(productMapper.exists(wrapper)){
+            return ApiResponse.badRequest("分组已绑定该商品");
         }
         // 绑定商品
-        MenuProduct menuProduct=data.toMenuProduct();
-        menuProductMapper.insert(menuProduct);
-        return ApiResponse.success("创建成功");
-    }
-
-    @Override
-    public ApiResponse getProductsByGroupId(Long id) {
-        MPJLambdaWrapper<Product> wrapper=new MPJLambdaWrapper<Product>()
-                .select(Product::getId,Product::getName,Product::getPrice)
-                .select(MenuProduct::getSort)
-                .innerJoin(MenuProduct.class, MenuProduct::getProductId,Product::getId)
-                .orderByAsc(MenuProduct::getSort)
-                .eq(MenuProduct::getGroupId,id);
-        List<MenuProductDTO> list=productMapper.selectJoinList(MenuProductDTO.class,wrapper);
-        return ApiResponse.success(JSONObject.of("products",list));
+        MenuProduct menuProduct=MenuProduct.builder()
+                .groupId(groupId)
+                .productId(productId)
+                .sort(sort)
+                .build();
+        productMapper.insert(menuProduct);
+        return ApiResponse.success("绑定成功");
     }
 
     @Override
     public ApiResponse menuUnbindProduct(Long groupId, Long productId) {
-        QueryWrapper<MenuProduct> wrapper=new QueryWrapper<>();
-        wrapper.eq("group_id",groupId);
-        wrapper.eq("product_id",productId);
-        menuProductMapper.delete(wrapper);
+        MPJLambdaWrapper<MenuProduct> wrapper=new MPJLambdaWrapper<MenuProduct>()
+                .eq(MenuProduct::getGroupId,groupId)
+                .eq(MenuProduct::getProductId,productId);
+        if(productMapper.delete(wrapper)==0){
+            return ApiResponse.badRequest("商品未绑定");
+        }
         return ApiResponse.success("解绑成功");
     }
 
     @Override
     public ApiResponse getMenuBindProductInfo(Long groupId, Long productId) {
-        QueryWrapper<MenuProduct> wrapper=new QueryWrapper<>();
-        wrapper.eq("group_id",groupId);
-        wrapper.eq("product_id",productId);
-        MenuProduct menuProduct=menuProductMapper.selectOne(wrapper);
-        if(menuProduct==null){
-            return ApiResponse.badRequest("未绑定");
+        MPJLambdaWrapper<MenuProduct> wrapper=new MPJLambdaWrapper<MenuProduct>()
+                .eq(MenuProduct::getProductId,productId)
+                .eq(MenuProduct::getGroupId,groupId)
+                .selectAll(MenuProduct.class);
+        MenuProduct menuProduct=productMapper.selectOne(wrapper);
+        if (Objects.isNull(menuProduct)){
+            return ApiResponse.badRequest("商品未绑定");
         }
-        return ApiResponse.success(JSONObject.of("product",menuProduct));
+        return ApiResponse.success(JSONObject.of("bindInfo",menuProduct.getSort()));
     }
 
     @Override
-    public ApiResponse updateMenuBindProductInfo(Long groupId, Long productId, MenuProductUpdateDTO data) {
-        UpdateWrapper<MenuProduct> wrapper=new UpdateWrapper<>();
-        wrapper.eq("group_id",groupId);
-        wrapper.eq("product_id",productId);
-        wrapper.set("sort",data.getSort());
-        menuProductMapper.update(wrapper);
-        return ApiResponse.success("更新成功");
+    public ApiResponse updateMenuBindProductInfo(Long groupId, Long productId, Integer sort) {
+        UpdateWrapper<MenuProduct> updateWrapper=new UpdateWrapper<MenuProduct>()
+                .set("sort",sort)
+                .eq("product_id",productId)
+                .eq("group_id",groupId);
+        if (productMapper.update(updateWrapper)==0){
+            return ApiResponse.badRequest("商品未绑定");
+        }else{
+            return ApiResponse.success("更新成功");
+        }
+    }
+
+    @Override
+    public ApiResponse getProductList(Long groupId) {
+        MPJLambdaWrapper<MenuProduct> wrapper=new MPJLambdaWrapper<MenuProduct>()
+                .eq(MenuProduct::getGroupId,groupId)
+                .innerJoin(Product.class,Product::getId,MenuProduct::getProductId)
+                .selectAsClass(Product.class,ProductListDTO.class)
+                .selectAs(MenuProduct::getSort,ProductListDTO::getSort);
+        List<ProductListDTO> products=productMapper.selectJoinList(ProductListDTO.class,wrapper);
+        return ApiResponse.success(JSONObject.of("count",products.size(),"products", products));
+    }
+
+    @Override
+    public ApiResponse getProductList(Long storeId, Long groupId) {
+        MPJLambdaWrapper<MenuProduct> wrapper=new MPJLambdaWrapper<MenuProduct>()
+                .innerJoin(Product.class,Product::getId,MenuProduct::getProductId)
+                .selectAsClass(Product.class,ProductListDTO.class)
+                .selectAs(MenuProduct::getSort,ProductListDTO::getSort)
+                .leftJoin(ProductStoreStatus.class,"ps", on -> on
+                        .eq(ProductStoreStatus::getProductId,Product::getId)
+                        .eq(ProductStoreStatus::getStoreId,storeId))
+                .selectFunc("coalesce(%s,3)",arg ->arg
+                                .accept(ProductStoreStatus::getStatus),
+                        ProductListDTO::getStoreStatus)
+                .eq(MenuProduct::getGroupId,groupId);
+        List<ProductListDTO> products=productMapper.selectJoinList(ProductListDTO.class,wrapper);
+        return ApiResponse.success(JSONObject.of("count",products.size(),"products", products));
     }
 }

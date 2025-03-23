@@ -1,11 +1,13 @@
 package cn.dextea.menu.controller;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.dto.MenuProductCreateDTO;
-import cn.dextea.product.dto.MenuProductUpdateDTO;
-import cn.dextea.product.service.MenuProductService;
+import cn.dextea.menu.service.ProductService;
+import com.alibaba.fastjson2.function.ObjBoolConsumer;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 /**
  * @author Lai Yongchao
@@ -13,15 +15,20 @@ import jakarta.validation.Valid;
 @RestController
 public class ProductController {
     @Resource
-    private MenuProductService menuProductService;
+    private ProductService productService;
 
     /**
-     * 绑定菜单商品
-     * @param data {typeId, productId}
+     * 绑定商品
+     * @param groupId 菜单分组ID
+     * @param productId 商品ID
+     * @param sort 排序
      */
-    @PostMapping("/menu/product")
-    public ApiResponse menuBindProduct(@Valid @RequestBody MenuProductCreateDTO data){
-        return menuProductService.menuBindProduct(data);
+    @PostMapping("/menu/group/{groupId:\\d+}/product/{productId:\\d+}")
+    public ApiResponse menuBindProduct(
+            @PathVariable Long groupId,
+            @PathVariable Long productId,
+            @RequestParam Integer sort){
+        return productService.menuBindProduct(groupId,productId,sort);
     }
 
     /**
@@ -29,20 +36,26 @@ public class ProductController {
      * @param groupId 菜单分组ID
      * @param productId 商品ID
      */
-    @DeleteMapping("/menu/product")
+    @DeleteMapping("/menu/group/{groupId:\\d+}/product/{productId:\\d+}")
     public ApiResponse menuUnbindProduct(
-            @RequestParam("groupId") Long groupId,
-            @RequestParam("productId") Long productId){
-        return menuProductService.menuUnbindProduct(groupId,productId);
+            @PathVariable Long groupId,
+            @PathVariable Long productId){
+        return productService.menuUnbindProduct(groupId,productId);
     }
 
     /**
-     * 获取同分组的商品列表
-     * @param id 菜单分组ID
+     * 获取菜单绑定的商品列表
+     * @param groupId 菜单分组ID
+     * @param storeId 门店ID
      */
-    @GetMapping("/menu/group/{id:\\d+}/product")
-    public ApiResponse getProductsByGroupId(@PathVariable Long id){
-        return menuProductService.getProductsByGroupId(id);
+    @GetMapping("/menu/group/{groupId:\\d+}/product")
+    public ApiResponse getProductList(
+            @PathVariable("groupId") Long groupId,
+            @RequestParam(required = false) Long storeId){
+        if(Objects.isNull(storeId))
+            return productService.getProductList(groupId);
+        else
+            return productService.getProductList(storeId,groupId);
     }
 
     /**
@@ -50,24 +63,24 @@ public class ProductController {
      * @param groupId 菜单分组ID
      * @param productId 商品ID
      */
-    @GetMapping("/menu/product")
+    @GetMapping("/menu/group/{groupId:\\d+}/product/{productId:\\d+}")
     public ApiResponse getMenuBindProductInfo(
-            @RequestParam("groupId") Long groupId,
-            @RequestParam("productId") Long productId){
-        return menuProductService.getMenuBindProductInfo(groupId,productId);
+            @PathVariable("groupId") Long groupId,
+            @PathVariable("productId") Long productId){
+        return productService.getMenuBindProductInfo(groupId,productId);
     }
 
     /**
      * 更新菜单商品基础信息
      * @param groupId 菜单分组ID
      * @param productId 商品ID
-     * @param data {name, price, image}
+     * @param sort 排序
      */
-    @PutMapping("/menu/product")
+    @PutMapping("/menu/group/{groupId:\\d+}/product/{productId:\\d+}")
     public ApiResponse updateMenuBindProductInfo(
-            @RequestParam("groupId") Long groupId,
-            @RequestParam("productId") Long productId,
-            @Valid @RequestBody MenuProductUpdateDTO data){
-        return menuProductService.updateMenuBindProductInfo(groupId,productId,data);
+            @PathVariable("groupId") Long groupId,
+            @PathVariable("productId") Long productId,
+            @RequestParam Integer sort){
+        return productService.updateMenuBindProductInfo(groupId,productId,sort);
     }
 }
