@@ -7,8 +7,11 @@ import cn.dextea.product.dto.product.ProductUpdateBaseDTO;
 import cn.dextea.product.service.ProductService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Objects;
 
 /**
  * @author Lai Yongchao
@@ -29,17 +32,22 @@ public class ProductController {
 
     /**
      * 获取商品列表
-     * 本接口返回的状态是全局的
+     * 携带storeId额外返回门店状态
      * @param current 当前页
      * @param size 每页大小
      * @param filter 过滤条件
+     * @param storeId 门店ID
      */
     @GetMapping("/product")
     public ApiResponse getProductList(
-            @Min(value = 1,message = "current不能小于1") Integer current,
-            @Min(value = 1,message = "size不能小于1") Integer size,
-            @Valid ProductQueryDTO filter){
-        return productService.getProductList(current, size, filter);
+            @Min(value = 1,message = "current不能小于1") int current,
+            @Min(value = 1,message = "size不能小于1") int size,
+            @Valid ProductQueryDTO filter,
+            @RequestParam(required = false) Long storeId){
+        if(Objects.isNull(storeId))
+            return productService.getProductList(current, size, filter);
+        else
+            return productService.getProductList(storeId,current, size, filter);
     }
 
     /**
@@ -70,35 +78,49 @@ public class ProductController {
     }
 
     /**
-     * 获取商品的全局状态
-     * @param id 商品ID
+     * 获取商品状态
+     * 携带storeId额外返回门店状态
+     * @param productId 商品ID
+     * @param storeId 门店ID
      */
-    @GetMapping("/product/{id:\\d+}/status")
-    public ApiResponse getProductGlobalStatus(@PathVariable Long id) {
-        return productService.getProductGlobalStatus(id);
+    @GetMapping("/product/{productId:\\d+}/status")
+    public ApiResponse getProductStatus(
+            @PathVariable Long productId,
+            @RequestParam(required = false) Long storeId) {
+        if(Objects.isNull(storeId))
+            return productService.getProductStatus(productId);
+        else
+            return productService.getProductStatus(productId,storeId);
     }
 
     /**
      * 更新商品基础信息
      * @param id 商品ID
-     * @param body 更新数据
+     * @param data 数据
      */
     @PutMapping("/product/{id:\\d+}/base")
     public ApiResponse updateProductBase(
             @PathVariable Long id,
-            @Valid @RequestBody ProductUpdateBaseDTO body){
-        return productService.updateProductBase(id, body);
+            @Valid @RequestBody ProductUpdateBaseDTO data){
+        return productService.updateProductBase(id, data);
     }
 
     /**
-     * 更新商品全局状态
-     * @param id 商品ID
+     * 更新商品状态
+     * @param productId 商品ID
+     * @param storeId 门店ID
      * @param status 全局状态
      */
-    @PutMapping("/product/{id:\\d+}/status")
+    @PutMapping("/product/{productId:\\d+}/status")
     public ApiResponse updateProductStatus(
-            @PathVariable Long id,
+            @PathVariable Long productId,
+            @RequestParam(required = false) Long storeId,
+            @Min(value = 0,message = "状态码有误")
+            @Max(value = 3,message = "状态码有误")
             @RequestParam Integer status){
-        return productService.updateProductGlobalStatus(id,status);
+        if(Objects.isNull(storeId))
+            return productService.updateProductStatus(productId,status);
+        else
+            return productService.updateProductStatus(productId,storeId,status);
     }
 }

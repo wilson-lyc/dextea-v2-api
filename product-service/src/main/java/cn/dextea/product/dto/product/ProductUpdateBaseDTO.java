@@ -1,6 +1,8 @@
 package cn.dextea.product.dto.product;
 
 import cn.dextea.product.pojo.Product;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -17,12 +19,16 @@ import java.math.BigDecimal;
 @NoArgsConstructor
 public class ProductUpdateBaseDTO {
     @NotBlank(message = "商品名称不能为空")
-    private String name;//名称
-    private String description;//简介
+    private String name;
+    private String description;
     @NotNull(message = "商品价格不能为空")
-    private BigDecimal price;//价格
+    private BigDecimal price;
     @NotNull(message = "商品分类不能为空")
-    private Long categoryId;//分类ID
+    private Long categoryId;
+    @Min(value = 0, message = "状态码有误")
+    @Max(value = 1, message = "状态码有误")
+    @NotNull(message = "全局状态不能为空")
+    private Integer globalStatus;
 
     public Product toProduct() {
         return Product.builder()
@@ -30,6 +36,7 @@ public class ProductUpdateBaseDTO {
                 .description(description)
                 .price(price)
                 .categoryId(categoryId)
+                .globalStatus(globalStatus)
                 .build();
     }
 }

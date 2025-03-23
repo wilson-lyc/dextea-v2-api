@@ -8,6 +8,8 @@ import cn.dextea.product.service.InternalService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 /**
  * @author Lai Yongchao
  */
@@ -24,7 +26,7 @@ public class InternalServiceImpl implements InternalService {
 
     @Override
     public boolean isProductIdValid(Long id) {
-        return productMapper.selectById(id) != null;
+        return Objects.nonNull(productMapper.selectById(id));
     }
 
     @Override

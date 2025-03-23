@@ -14,15 +14,15 @@ import java.util.Objects;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductListDTO {
-    private Long id;//商品ID
-    private String name;//名称
-    private String description;//描述
-    private BigDecimal price;//价格
-    private Long categoryId;//分类ID
-    private String categoryName;//分类名称
-    private Integer globalStatus;//全局状态
-    private Integer storeStatus;//门店状态
-    private Integer status;//销售状态
+    private Long id;
+    private String name;
+    private String description;
+    private BigDecimal price;
+    private Long categoryId;
+    private String categoryName;
+    private Integer globalStatus;
+    private Integer storeStatus;
+    private Integer status;
 
     public Integer getStatus() {
         if(globalStatus == 0){

@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @TableName("r_product_store_status")
-public class ProductStatus {
+public class ProductStoreStatus {
     private Long storeId;
     private Long productId;
     private Integer status;

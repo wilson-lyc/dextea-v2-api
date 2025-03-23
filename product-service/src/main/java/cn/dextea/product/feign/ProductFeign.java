@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient("product-service")
 public interface ProductFeign {
     @GetMapping("/product/internal/isProductIdValid")
-    boolean isProductIdValid(@PathVariable("id") Long id);
+    boolean isProductIdValid(@RequestParam("id") Long id);
 
     @GetMapping("/product/internal/isCategoryIdValid")
     boolean isCategoryIdValid(@RequestParam("id") Long id);

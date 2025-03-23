@@ -64,15 +64,15 @@ public class StoreServiceImpl implements StoreService {
                                 .accept(Category::getName),
                         ProductListDTO::getCategoryName)
                 // 门店状态 - 表内无记录说明禁售
-                .leftJoin(ProductStatus.class,"ps", on -> on
-                        .eq(ProductStatus::getProductId,Product::getId)
-                        .eq(ProductStatus::getStoreId,storeId))
+                .leftJoin(ProductStoreStatus.class,"ps", on -> on
+                        .eq(ProductStoreStatus::getProductId,Product::getId)
+                        .eq(ProductStoreStatus::getStoreId,storeId))
                 .selectFunc("coalesce(%s,3)",arg ->arg
-                                .accept(ProductStatus::getStatus),
+                                .accept(ProductStoreStatus::getStatus),
                         ProductListDTO::getStoreStatus)
                 // 门店状态的自定义查询
-                .isNull(Objects.nonNull(storeStatus) && storeStatus==3,"ps",ProductStatus::getStatus)
-                .eq(Objects.nonNull(storeStatus) && storeStatus!=3,"ps",ProductStatus::getStatus,storeStatus)
+                .isNull(Objects.nonNull(storeStatus) && storeStatus==3,"ps", ProductStoreStatus::getStatus)
+                .eq(Objects.nonNull(storeStatus) && storeStatus!=3,"ps", ProductStoreStatus::getStatus,storeStatus)
                 // 用户搜索条件
                 .eqIfExists(Product::getId, filter.getId())
                 .likeIfExists(Product::getName, filter.getName())
@@ -100,11 +100,11 @@ public class StoreServiceImpl implements StoreService {
                 // 全局状态
                 .selectAs(Product::getGlobalStatus, ProductStatusDTO::getGlobalStatus)
                 // 门店状态
-                .leftJoin(ProductStatus.class,"ps", on -> on
-                        .eq(ProductStatus::getProductId,Product::getId)
-                        .eq(ProductStatus::getStoreId,storeId))
+                .leftJoin(ProductStoreStatus.class,"ps", on -> on
+                        .eq(ProductStoreStatus::getProductId,Product::getId)
+                        .eq(ProductStoreStatus::getStoreId,storeId))
                 .selectFunc("coalesce(%s,3)",arg ->arg
-                                .accept(ProductStatus::getStatus),
+                                .accept(ProductStoreStatus::getStatus),
                         ProductStatusDTO::getStoreStatus)
                 .eq(Product::getId,productId);
         ProductStatusDTO status=productMapper.selectJoinOne(ProductStatusDTO.class,wrapper);
@@ -119,24 +119,24 @@ public class StoreServiceImpl implements StoreService {
         if(status<1||status>3||!storeFeign.isStoreIdValid(storeId)||!productFeign.isProductIdValid(productId)){
             return ApiResponse.badRequest("请求参数错误");
         }
-        MPJLambdaWrapper<ProductStatus> wrapper = new MPJLambdaWrapper<ProductStatus>()
-                .eq(ProductStatus::getStoreId,storeId)
-                .eq(ProductStatus::getProductId,productId);
-        ProductStatus productStatus=productStatusMapper.selectOne(wrapper);
+        MPJLambdaWrapper<ProductStoreStatus> wrapper = new MPJLambdaWrapper<ProductStoreStatus>()
+                .eq(ProductStoreStatus::getStoreId,storeId)
+                .eq(ProductStoreStatus::getProductId,productId);
+        ProductStoreStatus productStoreStatus =productStatusMapper.selectOne(wrapper);
         if(status==3){
-            if(Objects.nonNull(productStatus)){
+            if(Objects.nonNull(productStoreStatus)){
                 productStatusMapper.delete(wrapper);
             }
         }else {
-            if(Objects.isNull(productStatus)){
-                productStatus=ProductStatus.builder()
+            if(Objects.isNull(productStoreStatus)){
+                productStoreStatus = ProductStoreStatus.builder()
                         .storeId(storeId)
                         .productId(productId)
                         .status(status)
                         .build();
-                productStatusMapper.insert(productStatus);
+                productStatusMapper.insert(productStoreStatus);
             }else {
-                UpdateWrapper<ProductStatus> updateWrapper=new UpdateWrapper<>();
+                UpdateWrapper<ProductStoreStatus> updateWrapper=new UpdateWrapper<>();
                 updateWrapper.set("status",status);
                 updateWrapper.eq("store_id",storeId);
                 updateWrapper.eq("product_id",productId);

@@ -19,18 +19,7 @@ public class ProductBaseDTO {
     private String description;
     private BigDecimal price;
     private Long categoryId;
-    private String categoryName;
     private Integer globalStatus;
-    private Integer storeStatus;
-    private Integer status;
-
-    public Integer getStatus() {
-        if(globalStatus == 0){
-            return 0;
-        }else if(Objects.isNull(storeStatus)){
-            return globalStatus;
-        }else{
-            return storeStatus;
-        }
-    }
+    private String createTime;
+    private String updateTime;
 }

@@ -15,12 +15,12 @@ public class InternalController {
     @Resource
     private InternalService internalService;
     @GetMapping("/product/internal/isProductIdValid")
-    public boolean isProductIdValid(@RequestParam("id") Long id) {
+    public boolean isProductIdValid(@RequestParam Long id) {
         return internalService.isProductIdValid(id);
     }
 
     @GetMapping("/product/internal/isCategoryIdValid")
-    public boolean isCategoryIdValid(@PathVariable Long id) {
+    public boolean isCategoryIdValid(@RequestParam Long id) {
         return internalService.isCategoryIdValid(id);
     }
 
