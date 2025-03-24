@@ -1,5 +1,6 @@
 package cn.dextea.product.dto.item;
 
+import cn.dextea.common.code.CustomizeItemStatus;
 import cn.dextea.common.pojo.CustomizeItem;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -19,7 +20,7 @@ public class ItemUpdateDTO {
     @NotNull(message = "排序不能为空")
     private Integer sort;
     @NotNull(message = "状态不能为空")
-    private Integer status;
+    private CustomizeItemStatus status;
 
     public CustomizeItem toCustomize(){
         return CustomizeItem.builder()

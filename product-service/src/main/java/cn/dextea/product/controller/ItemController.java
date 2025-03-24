@@ -6,6 +6,7 @@ import cn.dextea.product.dto.item.ItemCreateDTO;
 import cn.dextea.product.service.ItemService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -43,7 +44,7 @@ public class ItemController {
      * @param id 客制化项目ID
      */
     @GetMapping("/product/customize/{id}")
-    public ApiResponse getItemInfo(@PathVariable Long id){
+    public ApiResponse getItemInfo(@PathVariable Long id) throws NotFoundException {
         return itemService.getItemInfo(id);
     }
 
@@ -55,7 +56,7 @@ public class ItemController {
     @PutMapping("/product/customize/{id}")
     public ApiResponse updateItemInfo(
             @PathVariable Long id,
-            @Valid @RequestBody ItemUpdateDTO data){
+            @Valid @RequestBody ItemUpdateDTO data) throws NotFoundException {
         return itemService.updateItemInfo(id,data);
     }
 }

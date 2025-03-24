@@ -1,5 +1,6 @@
 package cn.dextea.common.pojo;
 
+import cn.dextea.common.code.CustomizeItemStatus;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -21,7 +22,7 @@ public class CustomizeItem {
     private Long id;
     private String name;
     private Integer sort;
-    private Integer status;
+    private CustomizeItemStatus status;
     private Long productId;
     private String createTime;
     private String updateTime;
