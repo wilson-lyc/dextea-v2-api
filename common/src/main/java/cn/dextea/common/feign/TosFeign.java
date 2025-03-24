@@ -1,4 +1,4 @@
-package cn.dextea.store.feign;
+package cn.dextea.common.feign;
 
 import cn.dextea.common.dto.ApiResponse;
 import org.springframework.cloud.openfeign.FeignClient;

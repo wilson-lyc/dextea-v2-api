@@ -1,4 +1,4 @@
-package cn.dextea.staff.config;
+package cn.dextea.common.config;
 
 import com.alibaba.druid.support.jakarta.StatViewServlet;
 import com.alibaba.druid.support.jakarta.WebStatFilter;

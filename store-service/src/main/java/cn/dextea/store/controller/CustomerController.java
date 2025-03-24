@@ -42,13 +42,4 @@ public class CustomerController {
             @RequestParam(required = false) Double latitude) {
         return customerService.getStoreInfo(id, longitude, latitude);
     }
-
-    /**
-     * 获取门店菜单
-     * @param id 门店ID
-     */
-    @GetMapping("/store/{id:\\d+}/menu")
-    public ApiResponse getStoreMenu(@PathVariable Long id) {
-        return customerService.getStoreMenu(id);
-    }
 }

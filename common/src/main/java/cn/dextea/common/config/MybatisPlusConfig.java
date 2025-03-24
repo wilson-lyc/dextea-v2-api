@@ -1,4 +1,4 @@
-package cn.dextea.store.config;
+package cn.dextea.common.config;
 
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
@@ -11,7 +11,7 @@ import org.springframework.context.annotation.Configuration;
  * @author Lai Yongchao
  */
 @Configuration
-@MapperScan("cn.dextea.store.mapper")
+@MapperScan(basePackages = {"cn.dextea.store.mapper", "cn.dextea.staff.mapper"})
 public class MybatisPlusConfig {
     @Bean
     public MybatisPlusInterceptor mybatisPlusInterceptor() {

@@ -3,9 +3,8 @@ package cn.dextea.store.service.impl;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.store.dto.StoreInfoDTO;
 import cn.dextea.store.dto.StoreNearbyDTO;
-import cn.dextea.store.feign.ProductFeign;
 import cn.dextea.store.mapper.StoreMapper;
-import cn.dextea.store.pojo.Store;
+import cn.dextea.common.pojo.Store;
 import cn.dextea.store.service.CustomerService;
 import cn.dextea.store.util.RedisUtil;
 import com.alibaba.fastjson2.JSONObject;
@@ -24,8 +23,6 @@ import java.util.List;
 public class CustomerServiceImpl implements CustomerService {
     @Resource
     private RedisUtil redisUtil;
-    @Resource
-    ProductFeign productFeign;
     @Resource
     private StoreMapper storeMapper;
     @Override
@@ -65,10 +62,5 @@ public class CustomerServiceImpl implements CustomerService {
             store.setDistance(distance);
         }
         return ApiResponse.success(JSONObject.of("store",store));
-    }
-
-    @Override
-    public ApiResponse getStoreMenu(Long id) {
-        return productFeign.getMenuById(1L);
     }
 }

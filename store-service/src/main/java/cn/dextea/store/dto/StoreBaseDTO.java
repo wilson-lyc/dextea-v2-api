@@ -1,5 +1,7 @@
 package cn.dextea.store.dto;
 
+import cn.dextea.common.code.StaffStatus;
+import cn.dextea.common.code.StoreStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class StoreBaseDTO {
     private Long id;
     private String name;
-    private Integer status;
+    private StoreStatus status;
     private String province;
     private String city;
     private String district;

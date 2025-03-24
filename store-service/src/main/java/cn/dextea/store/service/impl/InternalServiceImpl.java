@@ -1,7 +1,7 @@
 package cn.dextea.store.service.impl;
 
 import cn.dextea.store.mapper.StoreMapper;
-import cn.dextea.store.pojo.Store;
+import cn.dextea.common.pojo.Store;
 import cn.dextea.store.service.InternalService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;

@@ -1,9 +1,9 @@
 package cn.dextea.store.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.store.feign.TosFeign;
+import cn.dextea.common.feign.TosFeign;
 import cn.dextea.store.mapper.StoreMapper;
-import cn.dextea.store.pojo.Store;
+import cn.dextea.common.pojo.Store;
 import cn.dextea.store.service.UploadService;
 import jakarta.annotation.Resource;
 import org.springframework.http.ResponseEntity;
@@ -44,7 +44,7 @@ public class UploadServiceImpl implements UploadService {
     @Override
     public ResponseEntity<ApiResponse> uploadFoodLicense(Long id, MultipartFile file) {
         // 删除旧的食品经营许可证
-        String oldUrl=storeMapper.selectById(id).getFoodBusinessLicense();
+        String oldUrl=storeMapper.selectById(id).getFoodLicense();
         tosFeign.delete(oldUrl);
         // 上传新的食品经营许可证
         String folder="store/license";
@@ -54,7 +54,7 @@ public class UploadServiceImpl implements UploadService {
             String url=response.getData().getString("url");
             Store store=Store.builder()
                     .id(id)
-                    .foodBusinessLicense(url)
+                    .foodLicense(url)
                     .build();
             storeMapper.updateById(store);
             return ResponseEntity.ok(response);

@@ -8,5 +8,4 @@ import cn.dextea.common.dto.ApiResponse;
 public interface CustomerService {
     ApiResponse getNearbyStore(Double longitude, Double latitude, Integer radius, Integer limit);
     ApiResponse getStoreInfo(Long id, Double longitude, Double latitude);
-    ApiResponse getStoreMenu(Long id);
 }

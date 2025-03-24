@@ -1,6 +1,7 @@
 package cn.dextea.store.dto;
 
-import cn.dextea.store.pojo.Store;
+import cn.dextea.common.code.StoreStatus;
+import cn.dextea.common.pojo.Store;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -31,7 +32,7 @@ public class StoreUpdateBaseDTO {
     @NotBlank
     private String openTime;
     @NotNull
-    private Integer status;
+    private StoreStatus status;
     public Store toStore(){
         return Store.builder()
                 .name(name)
