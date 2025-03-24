@@ -5,4 +5,5 @@ package cn.dextea.store.service;
  */
 public interface InternalService {
     boolean isStoreIdValid(Long id);
+    String getStoreName(Long id) throws IllegalArgumentException;
 }

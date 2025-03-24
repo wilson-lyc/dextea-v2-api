@@ -18,4 +18,13 @@ public enum StaffIdentity {
     @EnumValue
     private final int value;
     private final String label;
+
+    public static StaffIdentity fromCode(int value) {
+        for (StaffIdentity identity : StaffIdentity.values()) {
+            if (identity.getValue() == value) {
+                return identity;
+            }
+        }
+        throw new IllegalArgumentException("未知的员工身份码");
+    }
 }

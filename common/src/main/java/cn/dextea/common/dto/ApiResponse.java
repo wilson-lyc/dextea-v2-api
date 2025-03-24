@@ -126,4 +126,32 @@ public class ApiResponse {
                 .data(data)
                 .build();
     }
+
+    // 403 - FORBIDDEN
+    public static ApiResponse forbidden(){
+        return ApiResponse.builder()
+                .code(ResultCode.FORBIDDEN.getCode())
+                .msg(ResultCode.FORBIDDEN.getMsg())
+                .build();
+    }
+    public static ApiResponse forbidden(String msg){
+        return ApiResponse.builder()
+                .code(ResultCode.FORBIDDEN.getCode())
+                .msg(msg)
+                .build();
+    }
+    public static ApiResponse forbidden(JSONObject data){
+        return ApiResponse.builder()
+                .code(ResultCode.FORBIDDEN.getCode())
+                .msg(ResultCode.FORBIDDEN.getMsg())
+                .data(data)
+                .build();
+    }
+    public static ApiResponse forbidden(String msg,JSONObject data){
+        return ApiResponse.builder()
+                .code(ResultCode.FORBIDDEN.getCode())
+                .msg(msg)
+                .data(data)
+                .build();
+    }
 }

@@ -18,4 +18,13 @@ public enum StaffStatus {
     @EnumValue
     private final int value;
     private final String label;
+
+    public static StaffStatus fromValue(int value) {
+        for (StaffStatus item : StaffStatus.values()) {
+            if (item.getValue() == value) {
+                return item;
+            }
+        }
+        throw new IllegalArgumentException("未知的员工状态码");
+    }
 }

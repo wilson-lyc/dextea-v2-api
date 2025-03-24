@@ -18,4 +18,8 @@ public class InternalController {
     public boolean isStoreIdValid(@RequestParam Long id) {
         return internalService.isStoreIdValid(id);
     }
+    @GetMapping("/store/internal/getStoreName")
+    public String getStoreName(@RequestParam Long id) throws IllegalArgumentException {
+        return internalService.getStoreName(id);
+    }
 }

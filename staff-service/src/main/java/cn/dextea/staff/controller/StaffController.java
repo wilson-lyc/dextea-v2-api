@@ -1,5 +1,6 @@
 package cn.dextea.staff.controller;
 
+import cn.dextea.common.code.StaffStatus;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.staff.dto.StaffLoginDTO;
 import cn.dextea.staff.dto.*;
@@ -7,6 +8,7 @@ import cn.dextea.staff.service.StaffService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
+import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -22,7 +24,7 @@ public class StaffController {
      * @param data 数据
      */
     @PostMapping("/staff")
-    public ApiResponse createStaff(@Valid @RequestBody StaffCreateDTO data) {
+    public ApiResponse createStaff(@Valid @RequestBody StaffCreateDTO data) throws NotFoundException {
         return staffService.createStaff(data);
     }
 
@@ -47,8 +49,13 @@ public class StaffController {
      * @return 员工信息
      */
     @GetMapping("/staff/{id:\\d+}")
-    public ApiResponse getStaffInfo(@Valid @PathVariable("id") Long id){
+    public ApiResponse getStaffInfo(@Valid @PathVariable("id") Long id) throws NotFoundException {
         return staffService.getStaffInfo(id);
+    }
+
+    @GetMapping("/staff/{id:\\d+}/status")
+    public ApiResponse getStaffStatus(@PathVariable("id") Long id) throws NotFoundException {
+        return staffService.getStaffStatus(id);
     }
 
     /**
@@ -59,8 +66,15 @@ public class StaffController {
     @PutMapping("/staff/{id:\\d+}")
     public ApiResponse updateStaffInfo(
             @PathVariable("id") Long id,
-            @Valid @RequestBody StaffUpdateDTO data){
+            @Valid @RequestBody StaffUpdateDTO data) throws NotFoundException {
         return staffService.updateStaffInfo(id,data);
+    }
+
+    @PutMapping("/staff/{id:\\d+}/status")
+    public ApiResponse updateStaffStatus(
+            @PathVariable Long id,
+            @RequestParam Integer status) throws NotFoundException {
+        return staffService.updateStaffStatus(id,StaffStatus.fromValue(status));
     }
 
     /**
@@ -68,7 +82,7 @@ public class StaffController {
      * @param id 员工id
      */
     @PutMapping("/staff/{id:\\d+}/password-auto")
-    public ApiResponse sysResetPwd(@PathVariable("id") Long id){
+    public ApiResponse sysResetPwd(@PathVariable("id") Long id) throws NotFoundException {
         return staffService.sysResetPwd(id);
     }
 
@@ -80,7 +94,7 @@ public class StaffController {
     @PutMapping("/staff/{id:\\d+}/password")
     public ApiResponse updateStaffPwd(
             @PathVariable("id") Long id,
-            @Valid @RequestBody StaffUpdatePwdDTO data){
+            @Valid @RequestBody StaffUpdatePwdDTO data) throws NotFoundException {
         return staffService.updateStaffPwd(id,data);
     }
 
@@ -89,7 +103,7 @@ public class StaffController {
      * @param data 数据
      */
     @PostMapping("/staff/login")
-    public ApiResponse login(@Valid @RequestBody StaffLoginDTO data){
+    public ApiResponse login(@Valid @RequestBody StaffLoginDTO data) throws IllegalAccessException {
         return staffService.login(data);
     }
 }
