@@ -1,14 +1,11 @@
 package cn.dextea.staff.util;
 
+import cn.dextea.common.pojo.Staff;
 import cn.dextea.staff.mapper.StaffMapper;
-import cn.dextea.staff.pojo.Staff;
-import cn.dextea.staff.pojo.StaffStatus;
 import cn.hutool.extra.pinyin.PinyinUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import jakarta.annotation.Resource;
-import jakarta.validation.constraints.NotBlank;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -29,11 +26,11 @@ public class AccountUtil {
      * @return 账号
      */
     @Transactional(rollbackFor = Exception.class)
-    public synchronized String create(@NotBlank(message = "name is required") String name) {
+    public Staff create(String name) {
         // 姓名转拼音
         String namePinyin = PinyinUtil.getPinyin(name, "");
-        QueryWrapper<Staff> wrapper = new QueryWrapper<>();
-        wrapper.eq("name_pinyin", namePinyin);
+        // 生成账号
+        QueryWrapper<Staff> wrapper = new QueryWrapper<Staff>().eq("name_pinyin", namePinyin);
         try {
             lock.lock();
             Long samePinYinCount = staffMapper.selectCount(wrapper);
@@ -42,10 +39,9 @@ public class AccountUtil {
                     .name(name)
                     .namePinyin(namePinyin)
                     .account(account)
-                    .status(StaffStatus.Disable.getCode()) // 默认禁用
                     .build();
             staffMapper.insert(staff);
-            return account;
+            return staff;
         } finally {
             lock.unlock();
         }

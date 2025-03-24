@@ -4,9 +4,9 @@ import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.staff.dto.StaffLoginDTO;
 import cn.dextea.staff.dto.*;
 import cn.dextea.staff.service.StaffService;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -14,97 +14,82 @@ import org.springframework.web.bind.annotation.*;
  */
 @RestController
 public class StaffController {
-    @Autowired
+    @Resource
     private StaffService staffService;
 
     /**
      * 创建员工
-     * @param data {name,phone,side,storeId}
-     * @return 账号和密码
+     * @param data 数据
      */
     @PostMapping("/staff")
-    public ApiResponse create(@Valid @RequestBody StaffCreateDTO data) {
-        return staffService.create(data);
-    }
-
-    /**
-     * 根据id查询员工
-     * @param id 员工id
-     * @return 员工信息
-     */
-    @GetMapping("/staff/{id:\\d+}")
-    public ApiResponse getById(@Valid @PathVariable("id") Long id){
-        return staffService.getById(id);
+    public ApiResponse createStaff(@Valid @RequestBody StaffCreateDTO data) {
+        return staffService.createStaff(data);
     }
 
     /**
      * 获取员工列表
      * @param current 当前页
      * @param size 每页大小
-     * @param filter {name,phone,role,storeId,status,side}
+     * @param filter 搜索条件
      * @return 员工列表
      */
     @GetMapping("/staff")
-    public ApiResponse getList(
+    public ApiResponse getStaffList(
             @Valid @Min(value = 1,message = "current不能小于1") @RequestParam(defaultValue = "1") int current,
             @Valid @Min(value = 1,message = "size不能小于1") @RequestParam(defaultValue = "10") int size,
             @Valid StaffQueryDTO filter){
-        return staffService.getList(current,size,filter);
+        return staffService.getStaffList(current,size,filter);
     }
 
     /**
-     * 重置密码 - 系统自动生成新密码
+     * 获取员工详情
      * @param id 员工id
-     * @return 新密码
+     * @return 员工信息
      */
-    @PutMapping("/staff/resetPwd")
-    public ApiResponse resetPwd(@RequestParam("id") Long id){
-        return staffService.resetPwd(id);
+    @GetMapping("/staff/{id:\\d+}")
+    public ApiResponse getStaffInfo(@Valid @PathVariable("id") Long id){
+        return staffService.getStaffInfo(id);
     }
 
     /**
-     * 更新员工信息
+     * 更新员工详情
      * @param id 员工id
-     * @param data {phone,role,storeId,state}
+     * @param data 数据
      */
     @PutMapping("/staff/{id:\\d+}")
-    public ApiResponse updateBase(@PathVariable("id") Long id,@Valid @RequestBody StaffUpdateDTO data){
-        return staffService.updateBase(id,data);
-    }
-    /**
-     * 登录
-     * @param data {account,password}
-     */
-    @PostMapping("/staff/login")
-    public ApiResponse login(@Valid @RequestBody StaffLoginDTO data){
-        return staffService.login(data);
+    public ApiResponse updateStaffInfo(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody StaffUpdateDTO data){
+        return staffService.updateStaffInfo(id,data);
     }
 
     /**
-     * 激活员工
+     * 系统重置密码
      * @param id 员工id
      */
-    @PutMapping("/staff/active")
-    public ApiResponse active(@RequestParam("id") Long id){
-        return staffService.active(id);
-    }
-
-    /**
-     * 禁用员工
-     * @param id 员工id
-     */
-    @DeleteMapping("/staff/ban")
-    public ApiResponse ban(@RequestParam("id") Long id){
-        return staffService.ban(id);
+    @PutMapping("/staff/{id:\\d+}/password-auto")
+    public ApiResponse sysResetPwd(@PathVariable("id") Long id){
+        return staffService.sysResetPwd(id);
     }
 
     /**
      * 修改密码
      * @param id 员工id
-     * @param data {oldPwd,newPwd}
+     * @param data 数据
      */
     @PutMapping("/staff/{id:\\d+}/password")
-    public ApiResponse updatePwd(@PathVariable("id") Long id,@Valid @RequestBody PwdUpdateDTO data){
-        return staffService.updatePwd(id,data);
+    public ApiResponse updateStaffPwd(
+            @PathVariable("id") Long id,
+            @Valid @RequestBody StaffUpdatePwdDTO data){
+        return staffService.updateStaffPwd(id,data);
+    }
+
+    /**
+     * 登录
+     * @param data 数据
+     */
+    @PostMapping("/staff/login")
+    public ApiResponse login(@Valid @RequestBody StaffLoginDTO data){
+        return staffService.login(data);
     }
 }

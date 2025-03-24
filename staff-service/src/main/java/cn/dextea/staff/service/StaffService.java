@@ -7,13 +7,11 @@ import cn.dextea.staff.dto.*;
  * @author Lai Yongchao
  */
 public interface StaffService {
-    ApiResponse create(StaffCreateDTO data);
-    ApiResponse getById(Long id);
-    ApiResponse getList(int current, int size, StaffQueryDTO data);
-    ApiResponse resetPwd(Long id);
-    ApiResponse updateBase(Long id, StaffUpdateDTO data);
+    ApiResponse createStaff(StaffCreateDTO data);
+    ApiResponse getStaffList(int current, int size, StaffQueryDTO data);
+    ApiResponse getStaffInfo(Long id);
+    ApiResponse updateStaffInfo(Long id, StaffUpdateDTO data);
+    ApiResponse sysResetPwd(Long id);
+    ApiResponse updateStaffPwd(Long id, StaffUpdatePwdDTO data);
     ApiResponse login(StaffLoginDTO data);
-    ApiResponse active(Long id);
-    ApiResponse ban(Long id);
-    ApiResponse updatePwd(Long id, PwdUpdateDTO data);
 }
