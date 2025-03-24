@@ -1,15 +1,15 @@
 package cn.dextea.product.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.feign.ProductFeign;
+import cn.dextea.common.feign.StoreFeign;
 import cn.dextea.product.dto.option.*;
-import cn.dextea.product.feign.ProductFeign;
-import cn.dextea.product.feign.StoreFeign;
 import cn.dextea.product.mapper.ItemMapper;
 import cn.dextea.product.mapper.OptionMapper;
 import cn.dextea.product.mapper.OptionStatusMapper;
-import cn.dextea.product.pojo.CustomizeItem;
-import cn.dextea.product.pojo.CustomizeOption;
-import cn.dextea.product.pojo.OptionStatus;
+import cn.dextea.common.pojo.CustomizeItem;
+import cn.dextea.common.pojo.CustomizeOption;
+import cn.dextea.common.pojo.CustomizeOptionStoreStatus;
 import cn.dextea.product.service.OptionService;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
@@ -78,11 +78,11 @@ public class OptionServiceImpl implements OptionService {
                 .selectAsClass(CustomizeOption.class, OptionListDTO.class)
                 .eq(CustomizeOption::getItemId,itemId)
                 // 门店状态 - 表内无记录说明可用
-                .leftJoin(OptionStatus.class,"os", on -> on
-                        .eq(OptionStatus::getOptionId,CustomizeOption::getId)
-                        .eq(OptionStatus::getStoreId,storeId))
+                .leftJoin(CustomizeOptionStoreStatus.class,"os", on -> on
+                        .eq(CustomizeOptionStoreStatus::getOptionId,CustomizeOption::getId)
+                        .eq(CustomizeOptionStoreStatus::getStoreId,storeId))
                 .selectFunc("coalesce(%s,1)",arg ->arg
-                                .accept(OptionStatus::getStatus),
+                                .accept(CustomizeOptionStoreStatus::getStatus),
                         OptionListDTO::getStoreStatus);
         List<OptionListDTO> options=optionMapper.selectJoinList(OptionListDTO.class,wrapper);
         return ApiResponse.success(JSONObject.of("options",options));
@@ -126,11 +126,11 @@ public class OptionServiceImpl implements OptionService {
                 // 全局状态
                 .selectAs(CustomizeOption::getGlobalStatus, OptionStatusDTO::getGlobalStatus)
                 // 门店状态
-                .leftJoin(OptionStatus.class,"os", on -> on
-                        .eq(OptionStatus::getOptionId,CustomizeOption::getId)
-                        .eq(OptionStatus::getStoreId,storeId))
+                .leftJoin(CustomizeOptionStoreStatus.class,"os", on -> on
+                        .eq(CustomizeOptionStoreStatus::getOptionId,CustomizeOption::getId)
+                        .eq(CustomizeOptionStoreStatus::getStoreId,storeId))
                 .selectFunc("coalesce(%s,1)",arg ->arg
-                                .accept(OptionStatus::getStatus),
+                                .accept(CustomizeOptionStoreStatus::getStatus),
                         OptionStatusDTO::getStoreStatus)
                 .eq(CustomizeOption::getId,optionId);
         OptionStatusDTO status=optionMapper.selectJoinOne(OptionStatusDTO.class,wrapper);
@@ -178,24 +178,24 @@ public class OptionServiceImpl implements OptionService {
             return ApiResponse.badRequest("状态码错误");
         }
         // 更新db
-        MPJLambdaWrapper<OptionStatus> wrapper = new MPJLambdaWrapper<OptionStatus>()
-                .eq(OptionStatus::getStoreId,storeId)
-                .eq(OptionStatus::getOptionId,optionId);
-        OptionStatus optionStatus=optionStatusMapper.selectOne(wrapper);
+        MPJLambdaWrapper<CustomizeOptionStoreStatus> wrapper = new MPJLambdaWrapper<CustomizeOptionStoreStatus>()
+                .eq(CustomizeOptionStoreStatus::getStoreId,storeId)
+                .eq(CustomizeOptionStoreStatus::getOptionId,optionId);
+        CustomizeOptionStoreStatus customizeOptionStoreStatus =optionStatusMapper.selectOne(wrapper);
         if(status==1){
-            if(Objects.nonNull(optionStatus)){
+            if(Objects.nonNull(customizeOptionStoreStatus)){
                 optionStatusMapper.delete(wrapper);
             }
         }else{
-            if(Objects.isNull(optionStatus)){
-                OptionStatus status1=OptionStatus.builder()
+            if(Objects.isNull(customizeOptionStoreStatus)){
+                CustomizeOptionStoreStatus status1= CustomizeOptionStoreStatus.builder()
                         .storeId(storeId)
                         .optionId(optionId)
                         .status(status)
                         .build();
                 optionStatusMapper.insert(status1);
             }else {
-                UpdateWrapper<OptionStatus> updateWrapper=new UpdateWrapper<OptionStatus>()
+                UpdateWrapper<CustomizeOptionStoreStatus> updateWrapper=new UpdateWrapper<CustomizeOptionStoreStatus>()
                         .set("status",status)
                         .eq("store_id",storeId)
                         .eq("option_id",optionId);

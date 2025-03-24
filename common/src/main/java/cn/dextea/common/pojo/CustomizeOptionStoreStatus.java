@@ -1,4 +1,4 @@
-package cn.dextea.menu.pojo;
+package cn.dextea.common.pojo;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -13,10 +13,11 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("r_menu_group_product")
-public class MenuProduct {
-    private Long groupId;
-    private Long productId;
-    private Integer sort;
+@TableName("r_customize_option_store_status")
+public class CustomizeOptionStoreStatus {
+    private Long optionId;
+    private Long storeId;
+    private Integer status;
     private String createTime;
+    private String updateTime;
 }

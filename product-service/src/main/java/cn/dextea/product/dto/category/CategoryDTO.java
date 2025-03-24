@@ -1,6 +1,6 @@
 package cn.dextea.product.dto.category;
 
-import cn.dextea.product.pojo.Category;
+import cn.dextea.common.pojo.ProductCategory;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -13,8 +13,8 @@ public class CategoryDTO {
     @NotBlank
     private String name;
 
-    public Category toCategory() {
-        return Category.builder()
+    public ProductCategory toCategory() {
+        return ProductCategory.builder()
                 .name(this.name)
                 .build();
     }

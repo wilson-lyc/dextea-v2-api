@@ -1,6 +1,6 @@
 package cn.dextea.product.dto.option;
 
-import cn.dextea.product.pojo.CustomizeOption;
+import cn.dextea.common.pojo.CustomizeOption;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

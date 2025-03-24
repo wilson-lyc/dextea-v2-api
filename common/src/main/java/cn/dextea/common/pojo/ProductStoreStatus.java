@@ -1,5 +1,6 @@
-package cn.dextea.product.pojo;
+package cn.dextea.common.pojo;
 
+import cn.dextea.common.code.ProductStatus;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,6 +18,6 @@ import lombok.NoArgsConstructor;
 public class ProductStoreStatus {
     private Long storeId;
     private Long productId;
-    private Integer status;
+    private ProductStatus status;
     private String createTime;
 }

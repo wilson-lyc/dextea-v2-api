@@ -1,15 +1,23 @@
 package cn.dextea.common.feign;
 
-import cn.dextea.common.dto.ApiResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.RequestParam;
 
 /**
  * @author Lai Yongchao
  */
 @FeignClient("product-service")
 public interface ProductFeign {
-    @GetMapping("/menu/{id:\\d+}")
-    ApiResponse getMenuById(@PathVariable("id") Long id);
+    @GetMapping("/product/internal/isProductIdValid")
+    boolean isProductIdValid(@RequestParam("id") Long id);
+
+    @GetMapping("/product/internal/isCategoryIdValid")
+    boolean isCategoryIdValid(@RequestParam("id") Long id);
+
+    @GetMapping("/product/internal/isCustomizeItemIdValid")
+    boolean isCustomizeItemIdValid(@RequestParam("id") Long id);
+
+    @GetMapping("/product/internal/isCustomizeOptionIdValid")
+    boolean isCustomizeOptionIdValid(@RequestParam("id") Long id);
 }

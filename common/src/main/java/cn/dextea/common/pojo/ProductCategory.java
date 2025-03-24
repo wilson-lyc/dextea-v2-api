@@ -1,4 +1,4 @@
-package cn.dextea.product.pojo;
+package cn.dextea.common.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -8,8 +8,6 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 /**
  * @author Lai Yongchao
  */
@@ -17,15 +15,11 @@ import java.math.BigDecimal;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("s_customize_option")
-public class CustomizeOption {
+@TableName("s_product_category")
+public class ProductCategory {
     @TableId(type = IdType.AUTO)
-    private Long id;
-    private String name;
-    private BigDecimal price;
-    private Integer sort;
-    private Integer globalStatus;
-    private Long itemId;
+    private Long id;//分类ID
+    private String name;//分类名称
     private String createTime;
     private String updateTime;
 }

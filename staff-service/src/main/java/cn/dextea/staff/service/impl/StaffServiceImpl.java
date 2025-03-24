@@ -5,6 +5,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.dextea.common.code.StaffIdentity;
 import cn.dextea.common.code.StaffStatus;
 import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.feign.StaffFeign;
 import cn.dextea.common.feign.StoreFeign;
 import cn.dextea.common.pojo.Staff;
 import cn.dextea.staff.dto.*;
@@ -37,6 +38,8 @@ public class StaffServiceImpl implements StaffService {
     private PasswordUtil passwordUtil;
     @Resource
     private StoreFeign storeFeign;
+    @Resource
+    private StaffFeign staffFeign;
 
     @Override
     public ApiResponse createStaff(StaffCreateDTO data) throws NotFoundException {
@@ -152,6 +155,9 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public ApiResponse updateStaffPwd(Long id, StaffUpdatePwdDTO data) throws NotFoundException {
+        // 校验id
+        if(!staffFeign.isStaffIdValid(id))
+            throw new NotFoundException("不存在该员工");
         // 校验旧密码
         MPJLambdaWrapper<Staff> wrapper=new MPJLambdaWrapper<Staff>()
                 .select(Staff::getPassword)
@@ -165,9 +171,7 @@ public class StaffServiceImpl implements StaffService {
                 .id(id)
                 .password(passwordUtil.encrypt(data.getNewPwd()))
                 .build();
-        if (staffMapper.updateById(staff)==0){
-            throw new NotFoundException("不存在该员工");
-        }
+        staffMapper.updateById(staff);
         return ApiResponse.success("密码修改成功");
     }
 

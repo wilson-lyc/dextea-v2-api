@@ -1,6 +1,7 @@
 package cn.dextea.product.dto.product;
 
-import cn.dextea.product.pojo.Product;
+import cn.dextea.common.code.ProductStatus;
+import cn.dextea.common.pojo.Product;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -25,10 +26,8 @@ public class ProductUpdateBaseDTO {
     private BigDecimal price;
     @NotNull(message = "商品分类不能为空")
     private Long categoryId;
-    @Min(value = 0, message = "状态码有误")
-    @Max(value = 1, message = "状态码有误")
     @NotNull(message = "全局状态不能为空")
-    private Integer globalStatus;
+    private ProductStatus globalStatus;
 
     public Product toProduct() {
         return Product.builder()

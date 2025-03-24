@@ -1,4 +1,4 @@
-package cn.dextea.menu.pojo;
+package cn.dextea.common.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
@@ -13,14 +13,15 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-@TableName("s_menu")
-public class Menu {
+@AllArgsConstructor
+@TableName("s_menu_group")
+public class MenuGroup {
     @TableId(type = IdType.AUTO)
     private Long id;
+    private Long menuId;
     private String name;
-    private String description;
+    private Integer sort;
     private String createTime;
     private String updateTime;
 }

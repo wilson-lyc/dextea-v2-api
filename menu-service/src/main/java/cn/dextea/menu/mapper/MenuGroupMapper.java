@@ -1,6 +1,6 @@
 package cn.dextea.menu.mapper;
 
-import cn.dextea.menu.pojo.MenuGroup;
+import cn.dextea.common.pojo.MenuGroup;
 import com.github.yulichang.base.MPJBaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 

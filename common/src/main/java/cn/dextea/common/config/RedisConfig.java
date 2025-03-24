@@ -3,6 +3,7 @@ package cn.dextea.common.config;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
@@ -15,6 +16,7 @@ import java.text.SimpleDateFormat;
  * @author Lai Yongchao
  */
 @Configuration
+@ConditionalOnProperty(name = "spring.redis.enabled",havingValue = "true",matchIfMissing = false)
 public class RedisConfig {
     @Bean
     public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory factory) {

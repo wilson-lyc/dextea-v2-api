@@ -1,13 +1,13 @@
 package cn.dextea.menu.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.pojo.Product;
+import cn.dextea.common.pojo.ProductStoreStatus;
 import cn.dextea.menu.dto.ProductListDTO;
 import cn.dextea.menu.feign.MenuFeign;
 import cn.dextea.menu.feign.ProductFeign;
 import cn.dextea.menu.mapper.MenuProductMapper;
-import cn.dextea.menu.pojo.MenuProduct;
-import cn.dextea.menu.pojo.Product;
-import cn.dextea.menu.pojo.ProductStoreStatus;
+import cn.dextea.common.pojo.MenuProduct;
 import cn.dextea.menu.service.ProductService;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;

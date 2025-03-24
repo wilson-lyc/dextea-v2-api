@@ -1,4 +1,4 @@
-package cn.dextea.product.pojo;
+package cn.dextea.common.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;

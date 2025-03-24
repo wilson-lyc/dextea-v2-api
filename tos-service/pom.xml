@@ -18,7 +18,7 @@
             <artifactId>common</artifactId>
             <version>2.0</version>
         </dependency>
-        <!-- Spring Web -->
+        <!-- SpringBoot Web -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
@@ -36,18 +36,7 @@
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-bootstrap</artifactId>
         </dependency>
-        <!-- 数据校验 -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-        <!-- Spring Test -->
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-test</artifactId>
-            <scope>test</scope>
-        </dependency>
-        <!-- ve-tos -->
+        <!-- 火山引擎TOS -->
         <dependency>
             <groupId>com.volcengine</groupId>
             <artifactId>ve-tos-java-sdk</artifactId>

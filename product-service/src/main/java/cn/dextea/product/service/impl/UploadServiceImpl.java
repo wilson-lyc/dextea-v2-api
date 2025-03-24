@@ -1,13 +1,12 @@
 package cn.dextea.product.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.product.feign.TosFeign;
+import cn.dextea.common.feign.TosFeign;
 import cn.dextea.product.mapper.ProductMapper;
-import cn.dextea.product.pojo.Product;
+import cn.dextea.common.pojo.Product;
 import cn.dextea.product.service.UploadService;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
-import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;

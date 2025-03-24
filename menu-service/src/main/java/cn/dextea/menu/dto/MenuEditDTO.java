@@ -1,6 +1,6 @@
 package cn.dextea.menu.dto;
 
-import cn.dextea.menu.pojo.Menu;
+import cn.dextea.common.pojo.Menu;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;

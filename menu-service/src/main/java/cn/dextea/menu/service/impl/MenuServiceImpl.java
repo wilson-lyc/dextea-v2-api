@@ -4,7 +4,7 @@ import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.menu.dto.MenuEditDTO;
 import cn.dextea.menu.dto.MenuQueryDTO;
 import cn.dextea.menu.mapper.MenuMapper;
-import cn.dextea.menu.pojo.Menu;
+import cn.dextea.common.pojo.Menu;
 import cn.dextea.menu.service.MenuService;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;

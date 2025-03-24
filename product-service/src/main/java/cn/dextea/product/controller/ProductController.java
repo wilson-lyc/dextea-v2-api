@@ -1,5 +1,6 @@
 package cn.dextea.product.controller;
 
+import cn.dextea.common.code.ProductStatus;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.product.dto.product.ProductCreateDTO;
 import cn.dextea.product.dto.product.ProductQueryDTO;
@@ -9,6 +10,7 @@ import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
@@ -26,7 +28,7 @@ public class ProductController {
      * @param data 商品信息
      */
     @PostMapping("/product")
-    public ApiResponse createProduct(@Valid @RequestBody ProductCreateDTO data) {
+    public ApiResponse createProduct(@Valid @RequestBody ProductCreateDTO data) throws NotFoundException {
         return productService.createProduct(data);
     }
 
@@ -43,7 +45,7 @@ public class ProductController {
             @Min(value = 1,message = "current不能小于1") int current,
             @Min(value = 1,message = "size不能小于1") int size,
             @Valid ProductQueryDTO filter,
-            @RequestParam(required = false) Long storeId){
+            @RequestParam(required = false) Long storeId) throws NotFoundException {
         if(Objects.isNull(storeId))
             return productService.getProductList(current, size, filter);
         else
@@ -64,7 +66,7 @@ public class ProductController {
      * @param id 商品ID
      */
     @GetMapping("/product/{id:\\d+}/base")
-    public ApiResponse getProductBaseById(@PathVariable Long id) {
+    public ApiResponse getProductBaseById(@PathVariable Long id) throws NotFoundException {
         return productService.getProductBase(id);
     }
 
@@ -73,7 +75,7 @@ public class ProductController {
      * @param id 商品ID
      */
     @GetMapping("/product/{id:\\d+}/img")
-    public ApiResponse getProductImgById(@PathVariable Long id) {
+    public ApiResponse getProductImgById(@PathVariable Long id) throws NotFoundException {
         return productService.getProductImg(id);
     }
 
@@ -86,7 +88,7 @@ public class ProductController {
     @GetMapping("/product/{productId:\\d+}/status")
     public ApiResponse getProductStatus(
             @PathVariable Long productId,
-            @RequestParam(required = false) Long storeId) {
+            @RequestParam(required = false) Long storeId) throws NotFoundException {
         if(Objects.isNull(storeId))
             return productService.getProductStatus(productId);
         else
@@ -101,7 +103,7 @@ public class ProductController {
     @PutMapping("/product/{id:\\d+}/base")
     public ApiResponse updateProductBase(
             @PathVariable Long id,
-            @Valid @RequestBody ProductUpdateBaseDTO data){
+            @Valid @RequestBody ProductUpdateBaseDTO data) throws NotFoundException {
         return productService.updateProductBase(id, data);
     }
 
@@ -115,12 +117,10 @@ public class ProductController {
     public ApiResponse updateProductStatus(
             @PathVariable Long productId,
             @RequestParam(required = false) Long storeId,
-            @Min(value = 0,message = "状态码有误")
-            @Max(value = 3,message = "状态码有误")
-            @RequestParam Integer status){
+            @RequestParam Integer status) throws NotFoundException {
         if(Objects.isNull(storeId))
-            return productService.updateProductStatus(productId,status);
+            return productService.updateProductStatus(productId, ProductStatus.fromValue(status));
         else
-            return productService.updateProductStatus(productId,storeId,status);
+            return productService.updateProductStatus(productId,storeId,ProductStatus.fromValue(status));
     }
 }

@@ -4,7 +4,7 @@ import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.menu.dto.GroupEditDTO;
 import cn.dextea.menu.feign.MenuFeign;
 import cn.dextea.menu.mapper.MenuGroupMapper;
-import cn.dextea.menu.pojo.MenuGroup;
+import cn.dextea.common.pojo.MenuGroup;
 import cn.dextea.menu.service.GroupService;
 import com.alibaba.fastjson2.JSONObject;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;

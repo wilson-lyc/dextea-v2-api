@@ -1,5 +1,6 @@
 package cn.dextea.product.dto.product;
 
+import cn.dextea.common.code.ProductStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -19,7 +20,7 @@ public class ProductBaseDTO {
     private String description;
     private BigDecimal price;
     private Long categoryId;
-    private Integer globalStatus;
+    private ProductStatus globalStatus;
     private String createTime;
     private String updateTime;
 }
