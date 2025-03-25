@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class StoreBaseDTO {
     private Long id;
     private String name;
-    private StoreStatus status;
+    private Integer status;
     private String province;
     private String city;
     private String district;

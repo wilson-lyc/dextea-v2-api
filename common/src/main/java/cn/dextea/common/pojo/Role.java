@@ -1,4 +1,4 @@
-package cn.dextea.auth.pojo;
+package cn.dextea.common.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
@@ -23,10 +23,12 @@ import java.util.List;
 public class Role {
     @TableId(type = IdType.AUTO)
     private Long id;
-    @TableField("`key`")
-    private String key;
+    private String name;
     private String description;
     @TableField(typeHandler = Fastjson2TypeHandler.class)
     private List<Integer> routers;
+    @TableField(typeHandler = Fastjson2TypeHandler.class)
+    private List<Integer> permissions;
     private String createTime;
+    private String updateTime;
 }

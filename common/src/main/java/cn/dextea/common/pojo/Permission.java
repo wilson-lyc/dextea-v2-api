@@ -1,4 +1,4 @@
-package cn.dextea.auth.pojo;
+package cn.dextea.common.pojo;
 
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;

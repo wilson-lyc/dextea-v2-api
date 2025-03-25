@@ -1,81 +1,45 @@
 package cn.dextea.auth.controller;
 
-import cn.dextea.auth.dto.RoleDTO;
-import cn.dextea.auth.pojo.Role;
+import cn.dextea.auth.dto.role.RoleCreateDTO;
+import cn.dextea.auth.dto.role.RoleUpdateDTO;
 import cn.dextea.auth.service.RoleService;
 import cn.dextea.common.dto.ApiResponse;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Lai Yongchao
  */
 @RestController
-@RequestMapping("/role")
 public class RoleController {
-    @Autowired
-    RoleService roleService;
-
-    /**
-     * 创建角色
-     * @param data {key,description}
-     */
-    @PostMapping("")
-    public ApiResponse create(@Valid @RequestBody RoleDTO data) {
-        return roleService.create(data);
+    @Resource
+    private RoleService roleService;
+    @PostMapping("/role")
+    public ApiResponse createRole(@Valid @RequestBody RoleCreateDTO data){
+        return roleService.createRole(data);
     }
 
-    /**
-     * 获取角色列表
-     * @param current 当前页
-     * @param size 每页大小
-     */
-    @GetMapping("")
-    public ApiResponse getRoleList(@RequestParam(defaultValue = "1") int current, @RequestParam(defaultValue = "10") int size) {
-        return roleService.getRoleList(current,size);
+    @GetMapping("/role")
+    public ApiResponse getRoleList(){
+        return roleService.getRoleList();
     }
 
-    /**
-     * 根据id获取角色详情
-     * @param id 角色ID
-     */
-    @GetMapping("/{id:\\d+}")
-    public ApiResponse getRoleById(@PathVariable Long id) {
+    @GetMapping("/role/{id:\\d+}")
+    public ApiResponse getRoleById(@PathVariable Long id) throws NotFoundException {
         return roleService.getRoleById(id);
     }
 
-    /**
-     * 更新角色
-     * @param id 角色ID
-     * @param data {key,label,description}
-     */
-    @PutMapping("/{id:\\d+}")
-    public ApiResponse update(@PathVariable Long id, @Valid @RequestBody RoleDTO data) {
-        return roleService.update(id, data);
+    @GetMapping("/role/{id:\\d+}/base")
+    public ApiResponse getRoleBase(@PathVariable Long id) throws NotFoundException {
+        return roleService.getRoleBase(id);
     }
 
-    /**
-     * 获取员工所有角色
-     * @param uid 员工ID
-     */
-    @GetMapping("/getStaffRole")
-    public ApiResponse getStaffRoleByUid(@RequestParam Long uid) {
-        return roleService.getStaffRoleByUid(uid);
-    }
-
-    /**
-     * 获取员工所有角色Key
-     * @param uid 员工ID
-     */
-    @GetMapping("/getStaffRoleKey")
-    public ApiResponse getStaffRoleKeyByUid(@RequestParam Long uid) {
-        return roleService.getStaffRoleKeyByUid(uid);
-    }
-
-    @GetMapping("/getStaffRouter")
-    public ApiResponse getStaffRouterByUid(@RequestParam Long uid) {
-        return roleService.getStaffRouterByUid(uid);
+    @PutMapping("/role/{id:\\d+}/base")
+    public ApiResponse updateRoleBase(
+            @PathVariable Long id,
+            @Valid @RequestBody RoleUpdateDTO data) throws NotFoundException {
+        return roleService.updateRoleBase(id, data);
     }
 }

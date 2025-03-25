@@ -1,6 +1,5 @@
 package cn.dextea.store.service;
 
-import cn.dextea.common.code.StoreStatus;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.store.dto.*;
 import org.apache.ibatis.javassist.NotFoundException;
@@ -22,5 +21,5 @@ public interface StoreService {
     // 更新
     ApiResponse updateStoreBase(Long id, StoreUpdateBaseDTO data) throws NotFoundException;
     ApiResponse updateStoreLocation(Long id, StoreUpdateLocationDTO body) throws NotFoundException;
-    ApiResponse updateStoreStatus(Long id, StoreStatus status) throws NotFoundException;
+    ApiResponse updateStoreStatus(Long id, Integer status) throws NotFoundException;
 }

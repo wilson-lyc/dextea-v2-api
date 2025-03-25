@@ -16,8 +16,8 @@ public class StaffDTO {
     String namePinyin;//姓名拼音
     String account;//账号
     String phone;//手机号
-    StaffStatus status;//状态 0-禁用 1-启用
-    StaffIdentity identity;//身份
+    Integer status;//状态 0-禁用 1-启用
+    Integer identity;//身份
     Long storeId;//隶属门店ID
     String storeName;//门店名称
     String createTime;//创建时间

@@ -74,7 +74,7 @@ public class StaffController {
     public ApiResponse updateStaffStatus(
             @PathVariable Long id,
             @RequestParam Integer status) throws NotFoundException {
-        return staffService.updateStaffStatus(id,StaffStatus.fromValue(status));
+        return staffService.updateStaffStatus(id,status);
     }
 
     /**

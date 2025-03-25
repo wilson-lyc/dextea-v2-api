@@ -41,7 +41,6 @@ public class StoreServiceImpl implements StoreService {
     @Override
     public ApiResponse createStore(StoreCreateDTO data) {
         Store store=data.toStore();
-        store.setStatus(StoreStatus.NOT_ACTIVE);// 默认未激活
         // 获取经纬度坐标
         HttpResponse res = HttpRequest.get("https://restapi.amap.com/v3/geocode/geo")
                     .form("key", "ba9e3a30dede2dbb9f6f6fd97f1b4fd1")
@@ -184,7 +183,7 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public ApiResponse updateStoreStatus(Long id, StoreStatus status) throws NotFoundException {
+    public ApiResponse updateStoreStatus(Long id, Integer status) throws NotFoundException {
         Store store=Store.builder()
                 .id(id)
                 .status(status)

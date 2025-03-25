@@ -32,7 +32,7 @@ public class StoreUpdateBaseDTO {
     @NotBlank
     private String openTime;
     @NotNull
-    private StoreStatus status;
+    private Integer status;
     public Store toStore(){
         return Store.builder()
                 .name(name)

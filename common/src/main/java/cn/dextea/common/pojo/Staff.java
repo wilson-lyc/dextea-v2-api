@@ -22,8 +22,8 @@ public class Staff {
     @TableField(select = false)
     String password;//密码
     String phone;//手机号
-    StaffStatus status;//状态
-    StaffIdentity identity;//身份
+    Integer status;//状态
+    Integer identity;//身份
     Long storeId;//隶属门店ID
     String createTime;//创建时间
     String updateTime;//更新时间

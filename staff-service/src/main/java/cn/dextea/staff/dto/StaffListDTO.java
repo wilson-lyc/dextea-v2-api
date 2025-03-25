@@ -15,5 +15,5 @@ public class StaffListDTO {
     private String account;
     private String phone;
     private Integer status;
-    private StaffIdentity identity;
+    private Integer identity;
 }

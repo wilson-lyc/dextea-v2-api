@@ -42,12 +42,12 @@ public class StaffServiceImpl implements StaffService {
     private StaffFeign staffFeign;
 
     @Override
-    public ApiResponse createStaff(StaffCreateDTO data) throws NotFoundException {
+    public ApiResponse createStaff(StaffCreateDTO data){
         // 校验身份和隶属门店
-        if (data.getIdentity() == StaffIdentity.STORE && Objects.isNull(data.getStoreId()))
+        if (data.getIdentity() == StaffIdentity.STORE.getValue() && Objects.isNull(data.getStoreId()))
             throw new IllegalArgumentException("缺少门店ID");
-        if(data.getIdentity() == StaffIdentity.STORE && !storeFeign.isStoreIdValid(data.getStoreId()))
-            throw new NotFoundException("门店不存在");
+        if(data.getIdentity() == StaffIdentity.STORE.getValue() && !storeFeign.isStoreIdValid(data.getStoreId()))
+            throw new IllegalArgumentException("storeId错误");
         // 生成账号
         Staff staff = accountUtil.create(data.getName());
         // 生成密码
@@ -59,7 +59,7 @@ public class StaffServiceImpl implements StaffService {
         staff.setIdentity(data.getIdentity());
         staff.setStoreId(data.getStoreId());
         // 默认禁用
-        staff.setStatus(StaffStatus.FORBIDDEN);
+        staff.setStatus(StaffStatus.FORBIDDEN.getValue());
         // 更新db
         staffMapper.updateById(staff);
         staff.setPassword(password);
@@ -97,10 +97,10 @@ public class StaffServiceImpl implements StaffService {
                 .eq(Staff::getId,id);
         StaffDTO staff=staffMapper.selectJoinOne(StaffDTO.class,wrapper);
         if(Objects.isNull(staff)){
-            throw new NotFoundException("不存在该员工");
+            throw new NotFoundException("员工不存在");
         }
         // 获取门店名
-        if(staff.getIdentity()==StaffIdentity.STORE){
+        if(staff.getIdentity()==StaffIdentity.STORE.getValue()){
             String storeName=storeFeign.getStoreName(staff.getStoreId());
             staff.setStoreName(storeName);
         }
@@ -112,9 +112,9 @@ public class StaffServiceImpl implements StaffService {
         MPJLambdaWrapper<Staff> wrapper=new MPJLambdaWrapper<Staff>()
                 .select(Staff::getStatus)
                 .eq(Staff::getId,id);
-        StaffStatus status=staffMapper.selectJoinOne(StaffStatus.class,wrapper);
+        Integer status=staffMapper.selectJoinOne(Integer.class,wrapper);
         if (Objects.isNull(status))
-            throw new NotFoundException("不存在该员工");
+            throw new NotFoundException("员工不存在");
         return ApiResponse.success(JSONObject.of("status",status));
     }
 
@@ -123,19 +123,19 @@ public class StaffServiceImpl implements StaffService {
         Staff staff=data.toStaff();
         staff.setId(id);
         if (staffMapper.updateById(staff)==0){
-            throw new NotFoundException("不存在该员工");
+            throw new NotFoundException("员工不存在");
         }
         return ApiResponse.success("更新成功");
     }
 
     @Override
-    public ApiResponse updateStaffStatus(Long id, StaffStatus status) throws NotFoundException {
+    public ApiResponse updateStaffStatus(Long id, Integer status) throws NotFoundException {
         Staff staff=Staff.builder()
                 .id(id)
                 .status(status)
                 .build();
         if(staffMapper.updateById(staff)==0){
-            throw new NotFoundException("不存在该员工");
+            throw new NotFoundException("员工不存在");
         }
         return ApiResponse.success("状态更新成功");
     }
@@ -148,7 +148,7 @@ public class StaffServiceImpl implements StaffService {
                 .password(passwordUtil.encrypt(password))
                 .build();
         if(staffMapper.updateById(staff)==0){
-            throw new NotFoundException("不存在该员工");
+            throw new NotFoundException("员工不存在");
         }
         return ApiResponse.success("密码已重置",JSONObject.of("password",password));
     }
@@ -157,7 +157,7 @@ public class StaffServiceImpl implements StaffService {
     public ApiResponse updateStaffPwd(Long id, StaffUpdatePwdDTO data) throws NotFoundException {
         // 校验id
         if(!staffFeign.isStaffIdValid(id))
-            throw new NotFoundException("不存在该员工");
+            throw new NotFoundException("员工不存在");
         // 校验旧密码
         MPJLambdaWrapper<Staff> wrapper=new MPJLambdaWrapper<Staff>()
                 .select(Staff::getPassword)
@@ -187,7 +187,7 @@ public class StaffServiceImpl implements StaffService {
             throw new IllegalArgumentException("账号或密码错误");
         }
         // 账号被禁用
-        if(staff.getStatus()==StaffStatus.FORBIDDEN){
+        if(staff.getStatus()==StaffStatus.FORBIDDEN.getValue()){
             throw new IllegalAccessException("账号被禁用");
         }
         // 创建token

@@ -1,99 +1,70 @@
 package cn.dextea.auth.service.impl;
 
-import cn.dextea.auth.dto.RoleDTO;
+import cn.dextea.auth.dto.role.RoleBaseDTO;
+import cn.dextea.auth.dto.role.RoleCreateDTO;
+import cn.dextea.auth.dto.role.RoleListDTO;
+import cn.dextea.auth.dto.role.RoleUpdateDTO;
 import cn.dextea.auth.mapper.RoleMapper;
-import cn.dextea.auth.pojo.Role;
-import cn.dextea.auth.pojo.StaffRole;
 import cn.dextea.auth.service.RoleService;
 import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.pojo.Role;
 import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.annotation.Resource;
+import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
+import javax.management.relation.RoleList;
 import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 /**
  * @author Lai Yongchao
  */
 @Service
 public class RoleServiceImpl implements RoleService {
-    @Autowired
-    RoleMapper roleMapper;
+    @Resource
+    private RoleMapper roleMapper;
 
     @Override
-    public ApiResponse create(RoleDTO data) {
-        Role role = data.toRole();
+    public ApiResponse createRole(RoleCreateDTO data) {
+        Role role=data.toRole();
         roleMapper.insert(role);
-        return ApiResponse.success();
+        return ApiResponse.success("角色创建成功", JSONObject.of("role",role));
     }
 
     @Override
-    public ApiResponse getRoleList(int current, int size) {
-        Page<Role> page = new Page<>(current, size);
-        page=roleMapper.selectPage(page,null);
-        if (page.getCurrent()>page.getPages()){
-            page.setCurrent(page.getPages());
-            page=roleMapper.selectPage(page,null);
-        }
-        return ApiResponse.success(JSONObject.from(page));
+    public ApiResponse getRoleList() {
+        MPJLambdaWrapper<Role> wrapper=new MPJLambdaWrapper<Role>()
+                .selectAsClass(Role.class, RoleListDTO.class);
+        List<RoleListDTO> roles=roleMapper.selectJoinList(RoleListDTO.class,wrapper);
+        return ApiResponse.success(JSONObject.of("roles",roles));
     }
 
     @Override
-    public ApiResponse getRoleById(Long id) {
+    public ApiResponse getRoleById(Long id) throws NotFoundException {
         Role role=roleMapper.selectById(id);
-        if (role==null){
-            String msg=String.format("角色不存在，ID=%d",id);
-            return ApiResponse.notFound(msg);
-        }
+        if (Objects.isNull(role))
+            throw new NotFoundException("角色不存在");
         return ApiResponse.success(JSONObject.of("role",role));
     }
 
     @Override
-    public ApiResponse update(Long id, RoleDTO data) {
-        Role role=data.toRole();
-        role.setId(id);
-        int num=roleMapper.updateById(role);
-        if (num==0){
-            String msg=String.format("角色不存在，ID=%d",id);
-            return ApiResponse.notFound(msg);
-        }
-        return ApiResponse.success();
+    public ApiResponse getRoleBase(Long id) throws NotFoundException {
+        MPJLambdaWrapper<Role> wrapper=new MPJLambdaWrapper<Role>()
+                .selectAsClass(Role.class, RoleBaseDTO.class)
+                .eq(Role::getId,id);
+        RoleBaseDTO role=roleMapper.selectJoinOne(RoleBaseDTO.class,wrapper);
+        if (Objects.isNull(role))
+            throw new NotFoundException("角色不存在");
+        return ApiResponse.success(JSONObject.of("role",role));
     }
 
     @Override
-    public ApiResponse getStaffRoleByUid(Long uid) {
-        MPJLambdaWrapper<Role> wrapper = new MPJLambdaWrapper<Role>()
-                .selectAll(Role.class)
-                .innerJoin(StaffRole.class, StaffRole::getRoleId, Role::getId)
-                .eq(StaffRole::getStaffId, uid);
-        List<Role> roles = roleMapper.selectList(wrapper);
-        return ApiResponse.success(JSONObject.of("roles", roles));
-    }
-
-    @Override
-    public ApiResponse getStaffRoleKeyByUid(Long uid) {
-        MPJLambdaWrapper<Role> wrapper = new MPJLambdaWrapper<Role>()
-                .select(Role::getKey)
-                .innerJoin(StaffRole.class, StaffRole::getRoleId, Role::getId)
-                .eq(StaffRole::getStaffId, uid);
-        List<String> keys = roleMapper.selectObjs(wrapper);
-        return ApiResponse.success(JSONObject.of("keys", keys));
-    }
-
-    @Override
-    public ApiResponse getStaffRouterByUid(Long uid) {
-        MPJLambdaWrapper<Role> wrapper = new MPJLambdaWrapper<Role>()
-                .select(Role::getRouters)
-                .innerJoin(StaffRole.class, StaffRole::getRoleId, Role::getId)
-                .eq(StaffRole::getStaffId, uid);
-        List<Role> routersList = roleMapper.selectList(wrapper);
-        Set<Integer> mergedRouters = routersList.stream()
-                .flatMap(role -> role.getRouters().stream())
-                .collect(Collectors.toSet());
-        return ApiResponse.success(JSONObject.of("routers", mergedRouters));
+    public ApiResponse updateRoleBase(Long id, RoleUpdateDTO data) throws NotFoundException {
+        Role role=data.toRole(id);
+        if (roleMapper.updateById(role)==0)
+            throw new NotFoundException("角色不存在");
+        return ApiResponse.success("更新成功");
     }
 }

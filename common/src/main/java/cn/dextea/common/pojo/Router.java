@@ -1,4 +1,4 @@
-package cn.dextea.auth.pojo;
+package cn.dextea.common.pojo;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -19,5 +19,5 @@ public class Router {
     private String label;
     private String icon;
     private Integer parentId;
-    private Integer side;
+    private Integer identity;
 }

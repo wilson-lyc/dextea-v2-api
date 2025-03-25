@@ -1,5 +1,6 @@
 package cn.dextea.store.dto;
 
+import cn.dextea.common.code.StoreStatus;
 import cn.dextea.common.pojo.Store;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -39,6 +40,7 @@ public class StoreCreateDTO {
                 .linkman(linkman)
                 .phone(phone)
                 .openTime(openTime)
+                .status(StoreStatus.NOT_ACTIVE.getValue())
                 .build();
     }
 }

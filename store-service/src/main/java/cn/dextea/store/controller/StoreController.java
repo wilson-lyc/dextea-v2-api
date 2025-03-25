@@ -121,6 +121,6 @@ public class StoreController {
     public ApiResponse updateStoreStatus(
             @PathVariable Long id,
             @RequestParam Integer status) throws NotFoundException {
-        return storeService.updateStoreStatus(id, StoreStatus.fromValue(status));
+        return storeService.updateStoreStatus(id, status);
     }
 }
