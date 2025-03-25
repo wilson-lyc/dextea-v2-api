@@ -101,15 +101,13 @@ public class StoreController {
     /**
      * 更新门店位置
      * @param id 门店id
-     * @param body 经度,纬度
-     * @param latitude 纬度
+     * @param data 经度,纬度
      */
     @PutMapping("/store/{id:\\d+}/location")
     public ApiResponse updateStoreLocation(
             @PathVariable Long id,
-            @RequestBody StoreUpdateLocationDTO body,
-            @RequestParam Double latitude) throws NotFoundException {
-        return storeService.updateStoreLocation(id, body);
+            @RequestBody StoreUpdateLocationDTO data) throws NotFoundException {
+        return storeService.updateStoreLocation(id, data);
     }
 
     /**

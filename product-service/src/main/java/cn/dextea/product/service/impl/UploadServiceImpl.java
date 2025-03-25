@@ -33,8 +33,7 @@ public class UploadServiceImpl implements UploadService {
         QueryWrapper<Product> wrapper=new QueryWrapper<Product>().eq("id",id);
         String oldUrl=productMapper.selectOne(wrapper).getCover();
         if(Objects.nonNull(oldUrl)) {
-            boolean delRes = tosFeign.delete(oldUrl);
-            if (!delRes)
+            if (!tosFeign.delete(oldUrl))
                 return ResponseEntity.internalServerError().body(ApiResponse.serverError("上传服务异常"));
         }
         // 上传新封面
@@ -61,8 +60,7 @@ public class UploadServiceImpl implements UploadService {
         QueryWrapper<Product> wrapper=new QueryWrapper<Product>().eq("id",id);
         String oldUrl=productMapper.selectOne(wrapper).getDetailHeaderImg();
         if(Objects.nonNull(oldUrl)) {
-            boolean delRes = tosFeign.delete(oldUrl);
-            if (!delRes)
+            if (!tosFeign.delete(oldUrl))
                 return ResponseEntity.internalServerError().body(ApiResponse.serverError("上传服务异常"));
         }
         // 上传新图

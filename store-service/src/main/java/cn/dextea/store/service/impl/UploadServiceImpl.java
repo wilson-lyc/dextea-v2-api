@@ -5,10 +5,14 @@ import cn.dextea.common.feign.TosFeign;
 import cn.dextea.store.mapper.StoreMapper;
 import cn.dextea.common.pojo.Store;
 import cn.dextea.store.service.UploadService;
+import com.alibaba.fastjson2.JSONObject;
+import com.google.protobuf.Api;
 import jakarta.annotation.Resource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+
+import java.util.Objects;
 
 /**
  * @author Lai Yongchao
@@ -22,43 +26,53 @@ public class UploadServiceImpl implements UploadService {
 
     @Override
     public ResponseEntity<ApiResponse> uploadBusinessLicense(Long id, MultipartFile file) {
-        // 查询旧的营业执照URL
+        // 获取旧url
         String oldUrl=storeMapper.selectById(id).getBusinessLicense();
-        tosFeign.delete(oldUrl);
-        // 上传新的营业执照
+        if(Objects.nonNull(oldUrl)) {
+            if (!tosFeign.delete(oldUrl))
+                return ResponseEntity.internalServerError().body(ApiResponse.serverError("上传服务异常"));
+        }
+        // 上传
         String folder="store/license";
         String filename=String.format("%d_business",id);
-        ApiResponse response=tosFeign.uploadWithCustomName(folder,filename,file);
-        if (response.getCode()==200){
-            String url=response.getData().getString("url");
-            Store store=Store.builder()
-                    .id(id)
-                    .businessLicense(url)
-                    .build();
-            storeMapper.updateById(store);
-            return ResponseEntity.ok(response);
+        String url;
+        try{
+            url=tosFeign.uploadFile(folder,filename,file);
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(ApiResponse.badRequest("上传失败"));
         }
-        return ResponseEntity.badRequest().body(ApiResponse.badRequest("上传失败"));
+        // 更新db
+        Store store=Store.builder()
+                .id(id)
+                .businessLicense(url)
+                .build();
+        storeMapper.updateById(store);
+        return ResponseEntity.ok(ApiResponse.success("上传成功", JSONObject.of("url",url)));
     }
 
     @Override
     public ResponseEntity<ApiResponse> uploadFoodLicense(Long id, MultipartFile file) {
-        // 删除旧的食品经营许可证
+        // 获取旧url
         String oldUrl=storeMapper.selectById(id).getFoodLicense();
-        tosFeign.delete(oldUrl);
-        // 上传新的食品经营许可证
+        if(Objects.nonNull(oldUrl)) {
+            if (!tosFeign.delete(oldUrl))
+                return ResponseEntity.internalServerError().body(ApiResponse.serverError("上传服务异常"));
+        }
+        // 上传
         String folder="store/license";
         String filename=String.format("%d_food",id);
-        ApiResponse response=tosFeign.uploadWithCustomName(folder,filename,file);
-        if (response.getCode()==200){
-            String url=response.getData().getString("url");
-            Store store=Store.builder()
-                    .id(id)
-                    .foodLicense(url)
-                    .build();
-            storeMapper.updateById(store);
-            return ResponseEntity.ok(response);
+        String url;
+        try{
+            url=tosFeign.uploadFile(folder,filename,file);
+        }catch (Exception e){
+            return ResponseEntity.badRequest().body(ApiResponse.badRequest("上传失败"));
         }
-        return ResponseEntity.badRequest().body(ApiResponse.badRequest("上传失败"));
+        // 更新db
+        Store store=Store.builder()
+                .id(id)
+                .foodLicense(url)
+                .build();
+        storeMapper.updateById(store);
+        return ResponseEntity.ok(ApiResponse.success("上传成功", JSONObject.of("url",url)));
     }
 }

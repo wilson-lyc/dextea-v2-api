@@ -13,6 +13,7 @@ import cn.dextea.store.service.StoreService;
 import cn.dextea.store.util.RedisUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -114,7 +115,7 @@ public class StoreServiceImpl implements StoreService {
         if (Objects.isNull(store)){
             throw new NotFoundException("不存在该门店");
         }
-        JSONObject res=new JSONObject();
+        JSONArray licenses=new JSONArray();
         // 营业执照
         License business= License.builder()
                 .key("businessLicense")
@@ -122,7 +123,7 @@ public class StoreServiceImpl implements StoreService {
                 .action("/store/upload/business-license")
                 .url(store.getBusinessLicense())
                 .build();
-        res.put("businessLicense",business);
+        licenses.add(business);
         // 食品许可证
         License food= License.builder()
                 .key("foodBusinessLicense")
@@ -130,8 +131,8 @@ public class StoreServiceImpl implements StoreService {
                 .action("/store/upload/food-license")
                 .url(store.getFoodLicense())
                 .build();
-        res.put("foodBusinessLicense",food);
-        return ApiResponse.success(res);
+        licenses.add(food);
+        return ApiResponse.success(JSONObject.of("licenses",licenses));
     }
 
     @Override
@@ -139,7 +140,7 @@ public class StoreServiceImpl implements StoreService {
         MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
                 .select(Store::getStatus)
                 .eq(Store::getId,id);
-        StoreStatus status=storeMapper.selectJoinOne(StoreStatus.class,wrapper);
+        Integer status=storeMapper.selectJoinOne(Integer.class,wrapper);
         if(Objects.isNull(status))
             throw new NotFoundException("不存在该门店");
         return ApiResponse.success(JSONObject.of("status",status));
