@@ -2,6 +2,7 @@ package cn.dextea.common.pojo;
 
 import cn.dextea.common.code.CustomizeOptionStatus;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -26,7 +27,15 @@ public class CustomizeOption {
     private String name;
     private BigDecimal price;
     private Integer sort;
-    private CustomizeOptionStatus globalStatus;
+    private Integer globalStatus;
+    @TableField(exist = false)
+    private Integer storeStatus;
+    @TableField(exist = false)
+    private Integer status;
     private String createTime;
     private String updateTime;
+
+    public Integer getStatus(){
+        return CustomizeOptionStatus.getStatus(globalStatus,storeStatus);
+    }
 }

@@ -18,7 +18,7 @@ public class OptionBaseDTO {
     private String name;
     private BigDecimal price;
     private Integer sort;
-    private CustomizeOptionStatus globalStatus;
+    private Integer globalStatus;
     private Long itemId;
     private String createTime;
     private String updateTime;

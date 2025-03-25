@@ -22,20 +22,11 @@ public enum CustomizeOptionStatus {
     private final int value;
     private final String label;
 
-    public static CustomizeOptionStatus fromValue(int value) {
-        for (CustomizeOptionStatus item : CustomizeOptionStatus.values()) {
-            if (item.getValue() == value) {
-                return item;
-            }
-        }
-        throw new IllegalArgumentException("未知的客制化选项状态码");
-    }
-
-    public static CustomizeOptionStatus getStatus(CustomizeOptionStatus globalStafus, CustomizeOptionStatus storeStatus) {
-        if(globalStafus.equals(CustomizeOptionStatus.GLOBAL_FORBIDDEN)){
-            return CustomizeOptionStatus.GLOBAL_FORBIDDEN;
+    public static Integer getStatus(Integer globalStatus, Integer storeStatus) {
+        if(globalStatus.equals(CustomizeOptionStatus.GLOBAL_FORBIDDEN.getValue())){
+            return CustomizeOptionStatus.GLOBAL_FORBIDDEN.getValue();
         }else{
-            return Objects.isNull(storeStatus)?globalStafus:storeStatus;
+            return Objects.isNull(storeStatus)?globalStatus:storeStatus;
         }
     }
 }

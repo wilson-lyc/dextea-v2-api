@@ -35,4 +35,12 @@ public interface ProductFeign {
     Product getProductById(
             @RequestParam("productId") Long productId,
             @RequestParam("storeId") Long storeId);
+
+    @GetMapping("/product/internal/getOptionGlobalStatus")
+    Integer getOptionGlobalStatus(@RequestParam("optionId") Long optionId);
+
+    @GetMapping("/product/internal/getOptionStoreStatus")
+    Integer getOptionStoreStatus(
+            @RequestParam("optionId") Long optionId,
+            @RequestParam("storeId") Long storeId);
 }

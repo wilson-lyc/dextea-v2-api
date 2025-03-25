@@ -1,10 +1,11 @@
 package cn.dextea.product.service.impl;
 
+import cn.dextea.common.code.CustomizeOptionStatus;
 import cn.dextea.common.code.ProductStatus;
-import cn.dextea.common.feign.ProductFeign;
+import cn.dextea.common.pojo.CustomizeOption;
+import cn.dextea.common.pojo.CustomizeOptionStoreStatus;
 import cn.dextea.common.pojo.Product;
 import cn.dextea.common.pojo.ProductStoreStatus;
-import cn.dextea.product.dto.product.ProductStatusDTO;
 import cn.dextea.product.mapper.*;
 import cn.dextea.product.service.InternalService;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
@@ -28,6 +29,8 @@ public class InternalServiceImpl implements InternalService {
     private ItemMapper itemMapper;
     @Resource
     private OptionMapper optionMapper;
+    @Resource
+    private OptionStatusMapper optionStatusMapper;
 
     @Override
     public boolean isProductIdValid(Long id) {
@@ -78,5 +81,23 @@ public class InternalServiceImpl implements InternalService {
         if(Objects.nonNull(storeId))
             product.setStoreStatus(getProductStoreStatus(productId,storeId));
         return product;
+    }
+
+    @Override
+    public Integer getCustomizeOptionGlobalStatus(Long optionId) {
+        MPJLambdaWrapper<CustomizeOption> globalWrapper = new MPJLambdaWrapper<CustomizeOption>()
+                .select(CustomizeOption::getGlobalStatus)
+                .eq(CustomizeOption::getId, optionId);
+        return optionMapper.selectJoinOne(Integer.class,globalWrapper);
+    }
+
+    @Override
+    public Integer getCustomizeOptionStoreStatus(Long optionId, Long storeId) {
+        MPJLambdaWrapper<CustomizeOptionStoreStatus> wrapper=new MPJLambdaWrapper<CustomizeOptionStoreStatus>()
+                .select(CustomizeOptionStoreStatus::getStatus)
+                .eq(CustomizeOptionStoreStatus::getOptionId,optionId)
+                .eq(CustomizeOptionStoreStatus::getStoreId,storeId);
+        Integer status=optionStatusMapper.selectJoinOne(Integer.class,wrapper);
+        return Objects.isNull(status)?CustomizeOptionStatus.AVAILABLE.getValue():status;
     }
 }

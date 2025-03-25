@@ -18,7 +18,7 @@ import lombok.NoArgsConstructor;
 public class CustomizeOptionStoreStatus {
     private Long optionId;
     private Long storeId;
-    private CustomizeOptionStatus status;
+    private Integer status;
     private String createTime;
     private String updateTime;
 }

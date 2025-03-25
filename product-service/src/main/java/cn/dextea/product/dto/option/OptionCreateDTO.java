@@ -1,5 +1,6 @@
 package cn.dextea.product.dto.option;
 
+import cn.dextea.common.code.CustomizeOptionStatus;
 import cn.dextea.common.pojo.CustomizeOption;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -23,11 +24,13 @@ public class OptionCreateDTO {
     @NotNull(message = "排序不能为空")
     private Integer sort;
 
-    public CustomizeOption toCustomizeOption(){
+    public CustomizeOption toCustomizeOption(Long itemId){
         return CustomizeOption.builder()
+                .id(itemId)
                 .name(name)
                 .price(price)
                 .sort(sort)
+                .globalStatus(CustomizeOptionStatus.GLOBAL_FORBIDDEN.getValue())
                 .build();
     }
 }

@@ -5,10 +5,8 @@ import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.common.feign.ProductFeign;
 import cn.dextea.common.feign.StoreFeign;
 import cn.dextea.product.dto.option.*;
-import cn.dextea.product.mapper.ItemMapper;
 import cn.dextea.product.mapper.OptionMapper;
 import cn.dextea.product.mapper.OptionStatusMapper;
-import cn.dextea.common.pojo.CustomizeItem;
 import cn.dextea.common.pojo.CustomizeOption;
 import cn.dextea.common.pojo.CustomizeOptionStoreStatus;
 import cn.dextea.product.service.OptionService;
@@ -42,9 +40,7 @@ public class OptionServiceImpl implements OptionService {
         if(!productFeign.isCustomizeItemIdValid(itemId))
             throw new IllegalArgumentException("itemId错误");
         // 添加选项
-        CustomizeOption option = data.toCustomizeOption();
-        option.setItemId(itemId);
-        option.setGlobalStatus(CustomizeOptionStatus.GLOBAL_FORBIDDEN);// 默认禁用
+        CustomizeOption option = data.toCustomizeOption(itemId);
         optionMapper.insert(option);
         return ApiResponse.success("选项创建成功");
     }
@@ -116,13 +112,11 @@ public class OptionServiceImpl implements OptionService {
      */
     @Override
     public ApiResponse getOptionStatus(Long optionId) throws NotFoundException {
-        MPJLambdaWrapper<CustomizeOption> wrapper=new MPJLambdaWrapper<CustomizeOption>()
-                .select(CustomizeOption::getGlobalStatus)
-                .eq(CustomizeOption::getId,optionId);
-        CustomizeOptionStatus globalStatus = optionMapper.selectJoinOne(CustomizeOptionStatus.class,wrapper);
+        Integer globalStatus= productFeign.getOptionGlobalStatus(optionId);
         if (Objects.isNull(globalStatus))
             throw new NotFoundException("客制化选项不存在");
-        return ApiResponse.success(JSONObject.of("globalStatus", globalStatus));
+        OptionStatusDTO status=new OptionStatusDTO(globalStatus);
+        return ApiResponse.success(JSONObject.of("status", status));
     }
 
     /**
@@ -131,31 +125,17 @@ public class OptionServiceImpl implements OptionService {
      * @param storeId 门店ID
      */
     @Override
-    public ApiResponse getOptionStatus(Long optionId, Long storeId) {
-        // 校验选项ID
-        if(!productFeign.isCustomizeOptionIdValid(optionId))
-            throw new IllegalArgumentException("optionId错误");
-        // 校验门店ID
+    public ApiResponse getOptionStatus(Long optionId, Long storeId) throws NotFoundException {
         if(!storeFeign.isStoreIdValid(storeId))
             throw new IllegalArgumentException("storeId错误");
         // 全局状态
-        MPJLambdaWrapper<CustomizeOption> globalWrapper=new MPJLambdaWrapper<CustomizeOption>()
-                .select(CustomizeOption::getGlobalStatus)
-                .eq(CustomizeOption::getId,optionId);
-        CustomizeOptionStatus globalStatus = optionMapper.selectJoinOne(CustomizeOptionStatus.class,globalWrapper);
+        Integer globalStatus= productFeign.getOptionGlobalStatus(optionId);
+        if (Objects.isNull(globalStatus))
+            throw new NotFoundException("客制化选项不存在");
         // 门店状态
-        MPJLambdaWrapper<CustomizeOption> storeWrapper=new MPJLambdaWrapper<CustomizeOption>()
-                .leftJoin(CustomizeOptionStoreStatus.class,"os", on -> on
-                        .eq(CustomizeOptionStoreStatus::getOptionId,CustomizeOption::getId)
-                        .eq(CustomizeOptionStoreStatus::getStoreId,storeId))
-                .selectFunc("coalesce(%s,1)",arg ->arg
-                                .accept(CustomizeOptionStoreStatus::getStatus),
-                        OptionStatusDTO::getStoreStatus)
-                .eq(CustomizeOption::getId,optionId);
-        CustomizeOptionStatus storeStatus = optionMapper.selectJoinOne(CustomizeOptionStatus.class,storeWrapper);
-        return ApiResponse.success(JSONObject.of(
-                "globalStatus",globalStatus,
-                "storeStatus",storeStatus));
+        Integer storeStatus= productFeign.getOptionStoreStatus(optionId,storeId);
+        OptionStatusDTO status=new OptionStatusDTO(globalStatus,storeStatus);
+        return ApiResponse.success(JSONObject.of("status",status));
     }
 
     /**
@@ -166,10 +146,10 @@ public class OptionServiceImpl implements OptionService {
      */
     @Override
     public ApiResponse updateOptionBase(Long optionId,OptionUpdateDTO data) throws NotFoundException {
-        CustomizeOption option=data.toCustomizeOption();
-        option.setId(optionId);
+        CustomizeOption option=data.toCustomizeOption(optionId);
         // 校验状态
-        if(option.getGlobalStatus()!=CustomizeOptionStatus.GLOBAL_FORBIDDEN && option.getGlobalStatus()!=CustomizeOptionStatus.AVAILABLE)
+        if(option.getGlobalStatus()!=CustomizeOptionStatus.GLOBAL_FORBIDDEN.getValue() &&
+                option.getGlobalStatus()!=CustomizeOptionStatus.AVAILABLE.getValue())
             throw new IllegalArgumentException("客制化选项状态码有误");
         // 更新db
         if (optionMapper.updateById(option) == 0)
@@ -183,9 +163,9 @@ public class OptionServiceImpl implements OptionService {
      * @param status 状态
      */
     @Override
-    public ApiResponse updateOptionStatus(Long optionId, CustomizeOptionStatus status) throws NotFoundException {
+    public ApiResponse updateOptionStatus(Long optionId, Integer status) throws NotFoundException {
         // 校验状态
-        if(status!=CustomizeOptionStatus.GLOBAL_FORBIDDEN && status!=CustomizeOptionStatus.AVAILABLE)
+        if(status!=CustomizeOptionStatus.GLOBAL_FORBIDDEN.getValue() && status!=CustomizeOptionStatus.AVAILABLE.getValue())
             throw new IllegalArgumentException("客制化选项状态码有误");
         CustomizeOption option=CustomizeOption.builder()
                 .id(optionId)
@@ -197,9 +177,9 @@ public class OptionServiceImpl implements OptionService {
     }
 
     @Override
-    public ApiResponse updateOptionStatus(Long optionId, Long storeId, CustomizeOptionStatus status) {
+    public ApiResponse updateOptionStatus(Long optionId, Long storeId, Integer status) {
         // 校验状态
-        if(status==CustomizeOptionStatus.GLOBAL_FORBIDDEN)
+        if(status==CustomizeOptionStatus.GLOBAL_FORBIDDEN.getValue())
             throw new IllegalArgumentException("客制化选项状态码有误");
         // 校验门店ID
         if(!storeFeign.isStoreIdValid(storeId))
@@ -210,7 +190,7 @@ public class OptionServiceImpl implements OptionService {
                 .eq(CustomizeOptionStoreStatus::getOptionId,optionId);
         CustomizeOptionStoreStatus customizeOptionStoreStatus =optionStatusMapper.selectOne(wrapper);
         // 表中无数据是可售
-        if(status==CustomizeOptionStatus.AVAILABLE){
+        if(status==CustomizeOptionStatus.AVAILABLE.getValue()){
             if(Objects.nonNull(customizeOptionStoreStatus)){
                 optionStatusMapper.delete(wrapper);
             }

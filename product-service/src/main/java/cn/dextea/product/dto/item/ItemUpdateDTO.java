@@ -20,7 +20,7 @@ public class ItemUpdateDTO {
     @NotNull(message = "排序不能为空")
     private Integer sort;
     @NotNull(message = "状态不能为空")
-    private CustomizeItemStatus status;
+    private Integer status;
 
     public CustomizeItem toCustomize(){
         return CustomizeItem.builder()

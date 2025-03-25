@@ -23,10 +23,11 @@ public class OptionUpdateDTO {
     @NotNull(message = "排序不能为空")
     private Integer sort;
     @NotNull(message = "全局状态不能为空")
-    private CustomizeOptionStatus globalStatus;
+    private Integer globalStatus;
 
-    public CustomizeOption toCustomizeOption(){
+    public CustomizeOption toCustomizeOption(Long id){
         return CustomizeOption.builder()
+                .id(id)
                 .name(name)
                 .price(price)
                 .sort(sort)

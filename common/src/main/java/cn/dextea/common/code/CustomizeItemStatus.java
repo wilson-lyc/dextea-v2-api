@@ -20,13 +20,4 @@ public enum CustomizeItemStatus {
     @EnumValue
     private final int value;
     private final String label;
-
-    public static CustomizeItemStatus fromValue(int value) {
-        for (CustomizeItemStatus item : CustomizeItemStatus.values()) {
-            if (item.getValue() == value) {
-                return item;
-            }
-        }
-        throw new IllegalArgumentException("未知的客制化项目状态码");
-    }
 }

@@ -1,5 +1,6 @@
 package cn.dextea.product.dto.item;
 
+import cn.dextea.common.code.CustomizeItemStatus;
 import cn.dextea.common.pojo.CustomizeItem;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -23,6 +24,7 @@ public class ItemCreateDTO {
         return  CustomizeItem.builder()
                 .name(name)
                 .sort(sort)
+                .status(CustomizeItemStatus.FORBIDDEN.getValue())
                 .build();
     }
 }

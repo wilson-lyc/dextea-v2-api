@@ -1,5 +1,6 @@
 package cn.dextea.product.dto.option;
 
+import cn.dextea.common.code.CustomizeOptionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -17,13 +18,16 @@ public class OptionStatusDTO {
     private Integer storeStatus;
     private Integer status;
 
+    public OptionStatusDTO(Integer globalStatus) {
+        this.globalStatus = globalStatus;
+    }
+
+    public OptionStatusDTO(Integer globalStatus, Integer storeStatus) {
+        this.globalStatus = globalStatus;
+        this.storeStatus = storeStatus;
+    }
+
     public Integer getStatus() {
-        if(globalStatus == 0){
-            return 0;
-        }else if(Objects.isNull(storeStatus)){
-            return globalStatus;
-        }else{
-            return storeStatus;
-        }
+        return CustomizeOptionStatus.getStatus(globalStatus,storeStatus);
     }
 }

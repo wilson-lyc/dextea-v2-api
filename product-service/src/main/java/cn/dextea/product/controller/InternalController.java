@@ -57,4 +57,16 @@ public class InternalController {
         else
             return internalService.getProductById(productId,storeId);
     }
+
+    @GetMapping("/product/internal/getOptionGlobalStatus")
+    public Integer getOptionGlobalStatus(@RequestParam Long optionId) {
+        return internalService.getCustomizeOptionGlobalStatus(optionId);
+    }
+
+    @GetMapping("/product/internal/getOptionStoreStatus")
+    public Integer getOptionStoreStatus(
+            @RequestParam Long optionId,
+            @RequestParam Long storeId){
+        return internalService.getCustomizeOptionStoreStatus(optionId,storeId);
+    }
 }

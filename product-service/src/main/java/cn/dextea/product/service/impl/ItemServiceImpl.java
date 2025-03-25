@@ -38,7 +38,6 @@ public class ItemServiceImpl implements ItemService {
         }
         // 创建项目
         CustomizeItem item =data.toCustomize();
-        item.setStatus(CustomizeItemStatus.FORBIDDEN);// 默认禁用
         item.setProductId(productId);
         itemMapper.insert(item);
         return ApiResponse.success("项目创建成功",JSONObject.of("item",item));

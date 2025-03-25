@@ -22,7 +22,7 @@ public class CustomizeItem {
     private Long id;
     private String name;
     private Integer sort;
-    private CustomizeItemStatus status;
+    private Integer status;
     private Long productId;
     private String createTime;
     private String updateTime;

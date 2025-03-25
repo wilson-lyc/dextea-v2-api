@@ -19,11 +19,11 @@ public class OptionListDTO {
     private String name;
     private BigDecimal price;
     private Integer sort;
-    private CustomizeOptionStatus globalStatus;
-    private CustomizeOptionStatus storeStatus;
-    private CustomizeOptionStatus status;
+    private Integer globalStatus;
+    private Integer storeStatus;
+    private Integer status;
 
-    public CustomizeOptionStatus getStatus() {
+    public Integer getStatus() {
         return CustomizeOptionStatus.getStatus(globalStatus,storeStatus);
     }
 }

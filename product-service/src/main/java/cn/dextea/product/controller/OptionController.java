@@ -92,8 +92,8 @@ public class OptionController {
             @RequestParam(required = false) Long storeId,
             @RequestParam Integer status) throws NotFoundException {
         if (Objects.isNull(storeId))
-            return optionService.updateOptionStatus(optionId, CustomizeOptionStatus.fromValue(status));
+            return optionService.updateOptionStatus(optionId, status);
         else
-            return optionService.updateOptionStatus(optionId, storeId, CustomizeOptionStatus.fromValue(status));
+            return optionService.updateOptionStatus(optionId, storeId, status);
     }
 }
