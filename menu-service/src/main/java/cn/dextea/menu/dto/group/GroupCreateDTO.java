@@ -1,11 +1,16 @@
-package cn.dextea.menu.dto;
+package cn.dextea.menu.dto.group;
 
 import cn.dextea.common.pojo.MenuGroup;
+import cn.dextea.common.pojo.MenuProduct;
+import cn.hutool.core.util.IdUtil;
+import com.alibaba.fastjson2.JSONArray;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.ArrayList;
 
 /**
  * @author Lai Yongchao
@@ -13,15 +18,18 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroupEditDTO {
-    @NotBlank(message = "名称不能为空")
+public class GroupCreateDTO {
+    @NotBlank(message = "分组名不能为空")
     private String name;
-    @NotNull(message = "优先级不能为空")
+    @NotNull(message = "排序不能为空")
     private Integer sort;
-    public MenuGroup toMenuGroup() {
+
+    public MenuGroup toMenuGroup(){
         return MenuGroup.builder()
+                .id(IdUtil.objectId())
                 .name(name)
                 .sort(sort)
+                .content(new ArrayList<MenuProduct>())
                 .build();
     }
 }

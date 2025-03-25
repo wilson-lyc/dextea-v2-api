@@ -18,6 +18,6 @@ import lombok.NoArgsConstructor;
 public class ProductStoreStatus {
     private Long storeId;
     private Long productId;
-    private ProductStatus status;
+    private Integer status;
     private String createTime;
 }

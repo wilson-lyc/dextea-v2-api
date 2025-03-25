@@ -1,12 +1,11 @@
 package cn.dextea.common.pojo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /**
  * @author Lai Yongchao
@@ -15,13 +14,35 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@TableName("s_menu_group")
 public class MenuGroup {
-    @TableId(type = IdType.AUTO)
-    private Long id;
-    private Long menuId;
+    private String id;
     private String name;
     private Integer sort;
-    private String createTime;
-    private String updateTime;
+    private List<MenuProduct> content;
+
+    public boolean hasProduct(Long id){
+        for (MenuProduct menuProduct : content) {
+            if (menuProduct.getId().equals(id)){
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void sortContent(){
+        content.sort((o1, o2) -> o1.getSort() - o2.getSort());
+    }
+
+    public void deleteProduct(Long id){
+        content.removeIf(menuProduct -> menuProduct.getId().equals(id));
+    }
+
+    public MenuProduct getProduct(Long id){
+        for (MenuProduct menuProduct : content) {
+            if (menuProduct.getId().equals(id)){
+                return menuProduct;
+            }
+        }
+        return null;
+    }
 }

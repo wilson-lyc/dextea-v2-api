@@ -1,5 +1,6 @@
 package cn.dextea.product.dto.product;
 
+import cn.dextea.common.code.ProductStatus;
 import cn.dextea.common.pojo.Product;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -30,6 +31,7 @@ public class ProductCreateDTO {
                 .description(description)
                 .price(price)
                 .categoryId(categoryId)
+                .globalStatus(ProductStatus.GLOBAL_FORBIDDEN.getValue())// 默认全局禁售
                 .build();
     }
 }

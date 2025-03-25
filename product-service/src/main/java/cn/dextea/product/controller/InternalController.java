@@ -1,11 +1,13 @@
 package cn.dextea.product.controller;
 
+import cn.dextea.common.pojo.Product;
 import cn.dextea.product.service.InternalService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.util.Objects;
 
 /**
  * @author Lai Yongchao
@@ -32,5 +34,27 @@ public class InternalController {
     @GetMapping("/product/internal/isCustomizeOptionIdValid")
     public boolean isCustomizeOptionIdValid(@RequestParam Long id) {
         return internalService.isCustomizeOptionIdValid(id);
+    }
+
+    @GetMapping("/product/internal/getProductStoreStatus")
+    public Integer getProductStoreStatus(
+            @RequestParam Long productId,
+            @RequestParam Long storeId) {
+        return internalService.getProductStoreStatus(productId,storeId);
+    }
+
+    @GetMapping("/product/internal/getProductGlobalStatus")
+    public Integer getProductGlobalStatus(@RequestParam Long productId) {
+        return internalService.getProductGlobalStatus(productId);
+    }
+
+    @GetMapping("/product/internal/getProductById")
+    public Product getProductById(
+            @RequestParam Long productId,
+            @RequestParam(required = false) Long storeId) {
+        if (Objects.isNull(storeId))
+            return internalService.getProductById(productId);
+        else
+            return internalService.getProductById(productId,storeId);
     }
 }

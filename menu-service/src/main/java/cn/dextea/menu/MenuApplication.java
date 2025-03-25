@@ -1,5 +1,6 @@
 package cn.dextea.menu;
 
+import org.mybatis.spring.annotation.MapperScan;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
@@ -11,7 +12,9 @@ import org.springframework.context.annotation.ComponentScan;
  */
 @SpringBootApplication
 @EnableDiscoveryClient
-@EnableFeignClients
+@EnableFeignClients(basePackages = {"cn.dextea.common.feign"})
+@ComponentScan(basePackages = {"cn.dextea.common", "cn.dextea.menu"})
+@MapperScan(basePackages = {"cn.dextea.menu.mapper"})
 public class MenuApplication {
     public static void main(String[] args) {
         SpringApplication.run(MenuApplication.class, args);

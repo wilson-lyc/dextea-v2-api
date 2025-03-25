@@ -1,14 +1,17 @@
 package cn.dextea.menu.service;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.menu.dto.GroupEditDTO;
+import cn.dextea.menu.dto.group.GroupCreateDTO;
+import cn.dextea.menu.dto.group.GroupUpdateBaseDTO;
+import org.apache.ibatis.javassist.NotFoundException;
 
 /**
  * @author Lai Yongchao
  */
 public interface GroupService {
-    ApiResponse createGroup(Long menuId, GroupEditDTO data);
+    ApiResponse createGroup(Long menuId,GroupCreateDTO data);
     ApiResponse getGroupList(Long menuId);
-    ApiResponse getGroupInfo(Long groupId);
-    ApiResponse updateGroupInfo(Long groupId, GroupEditDTO data);
+    ApiResponse getGroupById(Long menuId, String groupId) throws NotFoundException;
+    ApiResponse getGroupBase(Long menuId, String groupId) throws NotFoundException;
+    ApiResponse updateGroupBase(Long menuId, String groupId, GroupUpdateBaseDTO data) throws NotFoundException;
 }

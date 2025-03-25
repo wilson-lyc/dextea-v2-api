@@ -1,10 +1,13 @@
 package cn.dextea.product.service.impl;
 
-import cn.dextea.product.mapper.CategoryMapper;
-import cn.dextea.product.mapper.ItemMapper;
-import cn.dextea.product.mapper.OptionMapper;
-import cn.dextea.product.mapper.ProductMapper;
+import cn.dextea.common.code.ProductStatus;
+import cn.dextea.common.feign.ProductFeign;
+import cn.dextea.common.pojo.Product;
+import cn.dextea.common.pojo.ProductStoreStatus;
+import cn.dextea.product.dto.product.ProductStatusDTO;
+import cn.dextea.product.mapper.*;
 import cn.dextea.product.service.InternalService;
+import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
@@ -17,6 +20,8 @@ import java.util.Objects;
 public class InternalServiceImpl implements InternalService {
     @Resource
     private ProductMapper productMapper;
+    @Resource
+    private ProductStatusMapper productStatusMapper;
     @Resource
     private CategoryMapper categoryMapper;
     @Resource
@@ -42,5 +47,36 @@ public class InternalServiceImpl implements InternalService {
     @Override
     public boolean isCustomizeOptionIdValid(Long id) {
         return optionMapper.selectById(id)!=null;
+    }
+
+    @Override
+    public Integer getProductStoreStatus(Long productId, Long storeId) {
+        MPJLambdaWrapper<ProductStoreStatus> storeWrapper = new MPJLambdaWrapper<ProductStoreStatus>()
+                .eq(ProductStoreStatus::getProductId,productId)
+                .eq(ProductStoreStatus::getStoreId,storeId)
+                .select(ProductStoreStatus::getStatus);
+        Integer storeStatus=productStatusMapper.selectJoinOne(Integer.class,storeWrapper);
+        return Objects.isNull(storeStatus)?ProductStatus.STORE_FORBIDDEN.getValue():storeStatus;
+    }
+
+    @Override
+    public Integer getProductGlobalStatus(Long productId) {
+        MPJLambdaWrapper<Product> globalWrapper = new MPJLambdaWrapper<Product>()
+                .select(Product::getGlobalStatus)
+                .eq(Product::getId, productId);
+        return productMapper.selectJoinOne(Integer.class,globalWrapper);
+    }
+
+    @Override
+    public Product getProductById(Long productId) {
+        return productMapper.selectById(productId);
+    }
+
+    @Override
+    public Product getProductById(Long productId, Long storeId) {
+        Product product=getProductById(productId);
+        if(Objects.nonNull(storeId))
+            product.setStoreStatus(getProductStoreStatus(productId,storeId));
+        return product;
     }
 }

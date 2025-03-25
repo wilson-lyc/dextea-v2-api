@@ -1,4 +1,4 @@
-package cn.dextea.menu.dto;
+package cn.dextea.menu.dto.menu;
 
 import cn.dextea.common.pojo.Menu;
 import jakarta.validation.constraints.NotBlank;
@@ -10,14 +10,16 @@ import lombok.NoArgsConstructor;
  * @author Lai Yongchao
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class MenuEditDTO {
+@AllArgsConstructor
+public class MenuUpdateBaseDTO {
     @NotBlank(message = "菜单名称不能为空")
     private String name;
     private String description;
-    public Menu toMenu() {
+
+    public Menu toMenu(Long id){
         return Menu.builder()
+                .id(id)
                 .name(name)
                 .description(description)
                 .build();

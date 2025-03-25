@@ -27,10 +27,11 @@ public class ProductUpdateBaseDTO {
     @NotNull(message = "商品分类不能为空")
     private Long categoryId;
     @NotNull(message = "全局状态不能为空")
-    private ProductStatus globalStatus;
+    private Integer globalStatus;
 
-    public Product toProduct() {
+    public Product toProduct(Long id) {
         return Product.builder()
+                .id(id)
                 .name(name)
                 .description(description)
                 .price(price)

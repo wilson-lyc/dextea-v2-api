@@ -2,6 +2,7 @@ package cn.dextea.common.pojo;
 
 import cn.dextea.common.code.ProductStatus;
 import com.baomidou.mybatisplus.annotation.IdType;
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
@@ -26,9 +27,19 @@ public class Product {
     private String description;//简介
     private BigDecimal price;//价格
     private Long categoryId;//分类ID
+    @TableField(exist = false)
+    private String categoryName;//分类名称
     private String cover;//封面
     private String detailHeaderImg;//详情页头图
-    private ProductStatus globalStatus;// 全局状态
+    private Integer globalStatus;// 全局状态
+    @TableField(exist = false)
+    private Integer storeStatus;// 门店状态
     private String createTime;//创建时间
     private String updateTime;//更新时间
+    @TableField(exist = false)
+    private Integer status;
+
+    public Integer getStatus() {
+        return ProductStatus.getStatus(globalStatus, storeStatus);
+    }
 }

@@ -1,10 +1,12 @@
 package cn.dextea.menu.controller;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.menu.dto.GroupEditDTO;
+import cn.dextea.menu.dto.group.GroupCreateDTO;
+import cn.dextea.menu.dto.group.GroupUpdateBaseDTO;
 import cn.dextea.menu.service.GroupService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -15,44 +17,39 @@ public class GroupController {
     @Resource
     private GroupService groupService;
 
-    /**
-     * 创建菜单分组
-     * @param data {name}
-     */
     @PostMapping("/menu/{menuId:\\d+}/group")
     public ApiResponse createGroup(
             @PathVariable Long menuId,
-            @Valid @RequestBody GroupEditDTO data){
+            @Valid @RequestBody GroupCreateDTO data){
         return groupService.createGroup(menuId,data);
     }
 
-    /**
-     * 获取菜单的分组列表
-     * @param menuId 菜单id
-     */
     @GetMapping("/menu/{menuId:\\d+}/group")
-    public ApiResponse getGroupList(@PathVariable Long menuId){
+    public ApiResponse getGroupList(
+            @PathVariable Long menuId){
         return groupService.getGroupList(menuId);
     }
 
-    /**
-     * 获取菜单分组详情
-     * @param groupId 分组ID
-     */
-    @GetMapping("/menu/group/{groupId:\\d+}")
-    public ApiResponse getGroupInfo(@PathVariable Long groupId){
-        return groupService.getGroupInfo(groupId);
+    @GetMapping("/menu/{menuId:\\d+}/group/{groupId}")
+    public ApiResponse getGroupById(
+            @PathVariable Long menuId,
+            @PathVariable String groupId) throws NotFoundException{
+        return groupService.getGroupById(menuId,groupId);
     }
 
-    /**
-     * 更新菜单分组详情
-     * @param groupId 菜单分组id
-     * @param data 数据
-     */
-    @PutMapping("/menu/group/{groupId:\\d+}")
-    public ApiResponse updateGroupInfo(
-            @PathVariable Long groupId,
-            @Valid @RequestBody GroupEditDTO data){
-        return groupService.updateGroupInfo(groupId, data);
+    @GetMapping("/menu/{menuId:\\d+}/group/{groupId}/base")
+    public ApiResponse getGroupBase(
+            @PathVariable Long menuId,
+            @PathVariable String groupId) throws NotFoundException {
+        return groupService.getGroupBase(menuId,groupId);
     }
+
+    @PutMapping("/menu/{menuId:\\d+}/group/{groupId}/base")
+    public ApiResponse updateGroupBase(
+            @PathVariable Long menuId,
+            @PathVariable String groupId,
+            @Valid @RequestBody GroupUpdateBaseDTO data) throws NotFoundException {
+        return groupService.updateGroupBase(menuId,groupId,data);
+    }
+
 }

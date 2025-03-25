@@ -12,7 +12,6 @@ import java.util.Objects;
  */
 @Getter
 @RequiredArgsConstructor
-@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum ProductStatus {
     GLOBAL_FORBIDDEN(0,"全局禁售"),
     AVAILABLE(1,"可售"),
@@ -32,11 +31,11 @@ public enum ProductStatus {
         throw new IllegalArgumentException("未知的商品状态码");
     }
 
-    public static ProductStatus getStatus(ProductStatus globalStafus, ProductStatus storeStatus) {
-        if(globalStafus.equals(ProductStatus.GLOBAL_FORBIDDEN)){
-            return ProductStatus.GLOBAL_FORBIDDEN;
+    public static Integer getStatus(Integer globalStatus, Integer storeStatus) {
+        if(globalStatus.equals(ProductStatus.GLOBAL_FORBIDDEN.getValue())){
+            return ProductStatus.GLOBAL_FORBIDDEN.getValue();
         }else{
-            return Objects.isNull(storeStatus)?globalStafus:storeStatus;
+            return Objects.isNull(storeStatus)?globalStatus:storeStatus;
         }
     }
 }

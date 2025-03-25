@@ -21,11 +21,11 @@ public class ProductListDTO {
     private BigDecimal price;
     private Long categoryId;
     private String categoryName;
-    private ProductStatus globalStatus;
-    private ProductStatus storeStatus;
-    private ProductStatus status;
+    private Integer globalStatus;
+    private Integer storeStatus;
+    private Integer status;
 
-    public ProductStatus getStatus() {
+    public Integer getStatus() {
         return ProductStatus.getStatus(globalStatus,storeStatus);
     }
 }

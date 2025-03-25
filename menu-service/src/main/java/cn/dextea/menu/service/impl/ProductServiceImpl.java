@@ -1,22 +1,17 @@
 package cn.dextea.menu.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.common.pojo.Product;
-import cn.dextea.common.pojo.ProductStoreStatus;
-import cn.dextea.menu.dto.ProductListDTO;
-import cn.dextea.menu.feign.MenuFeign;
-import cn.dextea.menu.feign.ProductFeign;
-import cn.dextea.menu.mapper.MenuProductMapper;
+import cn.dextea.common.feign.MenuFeign;
+import cn.dextea.common.feign.ProductFeign;
+import cn.dextea.common.pojo.Menu;
+import cn.dextea.common.pojo.MenuGroup;
 import cn.dextea.common.pojo.MenuProduct;
+import cn.dextea.menu.mapper.MenuMapper;
 import cn.dextea.menu.service.ProductService;
 import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
-import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
 import java.util.Objects;
 
 /**
@@ -25,124 +20,91 @@ import java.util.Objects;
 @Service
 public class ProductServiceImpl implements ProductService {
     @Resource
-    private MenuProductMapper menuProductMapper;
-    @Autowired
-    private ProductFeign productFeign;
-    @Autowired
+    private MenuMapper menuMapper;
+    @Resource
     private MenuFeign menuFeign;
+    @Resource
+    private ProductFeign productFeign;
 
     @Override
-    public ApiResponse menuBindProduct(Long groupId, Long productId, Integer sort) {
-        // 校验ID
-        if(!productFeign.isProductIdValid(productId)){
-            return ApiResponse.badRequest("商品不存在");
-        }
-        if(!menuFeign.isGroupIdValid(groupId)){
-            return ApiResponse.badRequest("分组不存在");
-        }
-        // 检查是否已经绑定
-        MPJLambdaWrapper<MenuProduct> wrapper=new MPJLambdaWrapper<MenuProduct>()
-                .eq(MenuProduct::getGroupId,groupId)
-                .eq(MenuProduct::getProductId,productId);
-        if(menuProductMapper.exists(wrapper)){
-            return ApiResponse.badRequest("已绑定");
-        }
-        // 绑定商品
-        MenuProduct menuProduct=MenuProduct.builder()
-                .groupId(groupId)
-                .productId(productId)
-                .sort(sort)
-                .build();
-        menuProductMapper.insert(menuProduct);
-        return ApiResponse.success("绑定成功");
+    public ApiResponse addProduct(Long menuId, String groupId, Long productId, Integer sort){
+        Menu menu=menuFeign.getMenuById(menuId);
+        if(Objects.isNull(menu))
+            throw new IllegalArgumentException("menuId错误");
+        MenuGroup menuGroup=menu.getMenuGroup(groupId);
+        if(Objects.isNull(menuGroup))
+            throw new IllegalArgumentException("groupId错误");
+        if(!productFeign.isProductIdValid(productId))
+            throw new IllegalArgumentException("productId错误");
+        if(menuGroup.hasProduct(productId))
+            return ApiResponse.success("商品已存在");
+        // 添加商品
+        menuGroup.getContent().add(new MenuProduct(productId,sort));
+        // 排序
+        menuGroup.sortContent();
+        // 更新menu
+        menuMapper.updateById(menu);
+        return ApiResponse.success("商品已添加至菜单");
     }
 
     @Override
-    public ApiResponse menuUnbindProduct(Long groupId, Long productId) {
-        // 校验ID
-        if(!productFeign.isProductIdValid(productId)){
-            return ApiResponse.badRequest("商品不存在");
-        }
-        if(!menuFeign.isGroupIdValid(groupId)){
-            return ApiResponse.badRequest("分组不存在");
-        }
-        // 更新db
-        MPJLambdaWrapper<MenuProduct> wrapper=new MPJLambdaWrapper<MenuProduct>()
-                .eq(MenuProduct::getGroupId,groupId)
-                .eq(MenuProduct::getProductId,productId);
-        if(menuProductMapper.delete(wrapper)==0){
-            return ApiResponse.badRequest("未绑定");
-        }
-        return ApiResponse.success("解绑成功");
+    public ApiResponse deleteProduct(Long menuId, String groupId, Long productId) {
+        Menu menu=menuFeign.getMenuById(menuId);
+        if(Objects.isNull(menu))
+            throw new IllegalArgumentException("menuId错误");
+        MenuGroup menuGroup=menu.getMenuGroup(groupId);
+        if(Objects.isNull(menuGroup))
+            throw new IllegalArgumentException("groupId错误");
+        if(!menuGroup.hasProduct(productId))
+            throw new IllegalArgumentException("分组内不存在该商品");
+        // 删除
+        menuGroup.deleteProduct(productId);
+        // 更新menu
+        menuMapper.updateById(menu);
+        return ApiResponse.success("商品已从菜单删除");
     }
 
     @Override
-    public ApiResponse getMenuBindProductInfo(Long groupId, Long productId) {
-        // 校验ID
-        if(!productFeign.isProductIdValid(productId)){
-            return ApiResponse.badRequest("商品不存在");
-        }
-        if(!menuFeign.isGroupIdValid(groupId)){
-            return ApiResponse.badRequest("分组不存在");
-        }
-        // 查询db
-        MPJLambdaWrapper<MenuProduct> wrapper=new MPJLambdaWrapper<MenuProduct>()
-                .eq(MenuProduct::getProductId,productId)
-                .eq(MenuProduct::getGroupId,groupId)
-                .selectAll(MenuProduct.class);
-        MenuProduct menuProduct= menuProductMapper.selectOne(wrapper);
-        if (Objects.isNull(menuProduct)){
-            return ApiResponse.badRequest("未绑定");
-        }
-        return ApiResponse.success(JSONObject.of("bindInfo",menuProduct));
+    public ApiResponse getProductList(Long menuId, String groupId) {
+        Menu menu=menuFeign.getMenuById(menuId);
+        if(Objects.isNull(menu))
+            throw new IllegalArgumentException("menuId错误");
+        MenuGroup menuGroup=menu.getMenuGroup(groupId);
+        if(Objects.isNull(menuGroup))
+            throw new IllegalArgumentException("groupId错误");
+        return ApiResponse.success(JSONObject.of("products",menuGroup.getContent()));
     }
 
     @Override
-    public ApiResponse updateMenuBindProductInfo(Long groupId, Long productId, Integer sort) {
-        // 校验ID
-        if(!productFeign.isProductIdValid(productId)){
-            return ApiResponse.badRequest("商品不存在");
-        }
-        if(!menuFeign.isGroupIdValid(groupId)){
-            return ApiResponse.badRequest("分组不存在");
-        }
-        // 更新db
-        UpdateWrapper<MenuProduct> updateWrapper=new UpdateWrapper<MenuProduct>()
-                .set("sort",sort)
-                .eq("product_id",productId)
-                .eq("group_id",groupId);
-        if (menuProductMapper.update(updateWrapper)==0){
-            return ApiResponse.badRequest("未绑定");
-        }else{
-            return ApiResponse.success("更新成功");
-        }
+    public ApiResponse getProductInfo(Long menuId, String groupId, Long productId) {
+        Menu menu=menuFeign.getMenuById(menuId);
+        if(Objects.isNull(menu))
+            throw new IllegalArgumentException("menuId错误");
+        MenuGroup menuGroup=menu.getMenuGroup(groupId);
+        if(Objects.isNull(menuGroup))
+            throw new IllegalArgumentException("groupId错误");
+        if(!menuGroup.hasProduct(productId))
+            throw new IllegalArgumentException("分组内不存在该商品");
+        return ApiResponse.success(JSONObject.of("product",menuGroup.getProduct(productId)));
     }
 
     @Override
-    public ApiResponse getProductList(Long groupId) {
-        MPJLambdaWrapper<MenuProduct> wrapper=new MPJLambdaWrapper<MenuProduct>()
-                .eq(MenuProduct::getGroupId,groupId)
-                .innerJoin(Product.class,Product::getId,MenuProduct::getProductId)
-                .selectAsClass(Product.class,ProductListDTO.class)
-                .selectAs(MenuProduct::getSort,ProductListDTO::getSort);
-        List<ProductListDTO> products= menuProductMapper.selectJoinList(ProductListDTO.class,wrapper);
-        return ApiResponse.success(JSONObject.of("count",products.size(),"products", products));
-    }
-
-    @Override
-    public ApiResponse getProductList(Long storeId, Long groupId) {
-        MPJLambdaWrapper<MenuProduct> wrapper=new MPJLambdaWrapper<MenuProduct>()
-                .innerJoin(Product.class,Product::getId,MenuProduct::getProductId)
-                .selectAsClass(Product.class,ProductListDTO.class)
-                .selectAs(MenuProduct::getSort,ProductListDTO::getSort)
-                .leftJoin(ProductStoreStatus.class,"ps", on -> on
-                        .eq(ProductStoreStatus::getProductId,Product::getId)
-                        .eq(ProductStoreStatus::getStoreId,storeId))
-                .selectFunc("coalesce(%s,3)",arg ->arg
-                                .accept(ProductStoreStatus::getStatus),
-                        ProductListDTO::getStoreStatus)
-                .eq(MenuProduct::getGroupId,groupId);
-        List<ProductListDTO> products= menuProductMapper.selectJoinList(ProductListDTO.class,wrapper);
-        return ApiResponse.success(JSONObject.of("count",products.size(),"products", products));
+    public ApiResponse updateProductInfo(Long menuId, String groupId, Long productId, Integer sort) {
+        Menu menu=menuFeign.getMenuById(menuId);
+        if(Objects.isNull(menu))
+            throw new IllegalArgumentException("menuId错误");
+        MenuGroup menuGroup=menu.getMenuGroup(groupId);
+        if(Objects.isNull(menuGroup))
+            throw new IllegalArgumentException("groupId错误");
+        if(!menuGroup.hasProduct(productId))
+            throw new IllegalArgumentException("分组内不存在该商品");
+        MenuProduct menuProduct=menuGroup.getProduct(productId);
+        // 更新数据
+        menuProduct.setSort(sort);
+        // 排序
+        menuGroup.sortContent();
+        // 更新menu
+        menuMapper.updateById(menu);
+        return ApiResponse.success("更新成功");
     }
 }

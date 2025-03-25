@@ -28,7 +28,7 @@ public class ProductController {
      * @param data 商品信息
      */
     @PostMapping("/product")
-    public ApiResponse createProduct(@Valid @RequestBody ProductCreateDTO data) throws NotFoundException {
+    public ApiResponse createProduct(@Valid @RequestBody ProductCreateDTO data){
         return productService.createProduct(data);
     }
 
@@ -45,7 +45,7 @@ public class ProductController {
             @Min(value = 1,message = "current不能小于1") int current,
             @Min(value = 1,message = "size不能小于1") int size,
             @Valid ProductQueryDTO filter,
-            @RequestParam(required = false) Long storeId) throws NotFoundException {
+            @RequestParam(required = false) Long storeId){
         if(Objects.isNull(storeId))
             return productService.getProductList(current, size, filter);
         else
@@ -119,8 +119,8 @@ public class ProductController {
             @RequestParam(required = false) Long storeId,
             @RequestParam Integer status) throws NotFoundException {
         if(Objects.isNull(storeId))
-            return productService.updateProductStatus(productId, ProductStatus.fromValue(status));
+            return productService.updateProductStatus(productId, status);
         else
-            return productService.updateProductStatus(productId,storeId,ProductStatus.fromValue(status));
+            return productService.updateProductStatus(productId,storeId,status);
     }
 }

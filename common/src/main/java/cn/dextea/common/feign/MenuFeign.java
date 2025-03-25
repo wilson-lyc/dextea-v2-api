@@ -1,5 +1,7 @@
-package cn.dextea.menu.feign;
+package cn.dextea.common.feign;
 
+import cn.dextea.common.pojo.Menu;
+import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -9,8 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
  */
 @FeignClient("menu-service")
 public interface MenuFeign {
-    @GetMapping("/menu/internal/isMenuIdValid")
-    boolean isMenuIdValid(@RequestParam("id")Long id);
-    @GetMapping("/menu/internal/isGroupIdValid")
-    boolean isGroupIdValid(@RequestParam("id") Long id);
+    @GetMapping("/menu/internal/getMenuById")
+    Menu getMenuById(@RequestParam("id") Long id);
 }

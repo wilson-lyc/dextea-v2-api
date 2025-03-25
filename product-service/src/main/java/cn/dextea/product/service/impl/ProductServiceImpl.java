@@ -43,14 +43,13 @@ public class ProductServiceImpl implements ProductService {
     private StoreFeign storeFeign;
 
     @Override
-    public ApiResponse createProduct(ProductCreateDTO data) throws NotFoundException {
+    public ApiResponse createProduct(ProductCreateDTO data) {
         // 校验商品分类
         if(!productFeign.isCategoryIdValid(data.getCategoryId())){
-            throw new NotFoundException("商品分类不存在");
+            throw new IllegalArgumentException("categoryId错误");
         }
         // 创建商品
         Product product = data.toProduct();
-        product.setGlobalStatus(ProductStatus.GLOBAL_FORBIDDEN);// 默认全局禁售
         productMapper.insert(product);
         return ApiResponse.success("商品创建成功");
     }
@@ -76,8 +75,7 @@ public class ProductServiceImpl implements ProductService {
     }
 
     /**
-     * 获取商品列表 - 公司
-     * 只返回全局状态
+     * 获取商品列表 - 只返回全局状态
      * @param current 当前页码
      * @param size 分页大小
      * @param filter 搜索条件
@@ -102,37 +100,37 @@ public class ProductServiceImpl implements ProductService {
     }
 
     /**
-     * 查询商品列表 - 门店
-     * 返回全局状态和门店状态
+     * 查询商品列表 - 返回全局状态和门店状态
      * @param storeId 门店ID
      * @param current 当前页码
      * @param size 分页大小
      * @param filter 搜索条件
      */
     @Override
-    public ApiResponse getProductList(Long storeId, int current, int size, ProductQueryDTO filter) throws NotFoundException {
+    public ApiResponse getProductList(Long storeId, int current, int size, ProductQueryDTO filter){
         // 校验门店ID
         if(!storeFeign.isStoreIdValid(storeId))
-            throw new NotFoundException("门店不存在");
+            throw new IllegalArgumentException("storeId错误");
         // 构建查询条件
         MPJLambdaWrapper<Product> wrapper = new MPJLambdaWrapper<Product>()
                 .selectAsClass(Product.class, ProductListDTO.class)
-                // 商品分类globalStatus
+                // 商品分类
                 .leftJoin(ProductCategory.class, ProductCategory::getId, Product::getCategoryId)
                 .selectFunc("coalesce(%s,\"未知\")",arg ->arg
                                 .accept(ProductCategory::getName),
                         ProductListDTO::getCategoryName)
-                // 门店状态 - 表内代表禁售
+                // 门店状态 - 无记录代表禁售
                 .leftJoin(ProductStoreStatus.class,"ps", on -> on
                         .eq(ProductStoreStatus::getProductId,Product::getId)
                         .eq(ProductStoreStatus::getStoreId,storeId))
                 .selectFunc("coalesce(%s,3)",arg ->arg
                                 .accept(ProductStoreStatus::getStatus),
                         ProductListDTO::getStoreStatus)
-                // 门店状态的自定义查询
-                .isNull(Objects.nonNull(filter.getStoreStatus()) && filter.getStoreStatus()==3,"ps", ProductStoreStatus::getStatus)
-                .eq(Objects.nonNull(filter.getStoreStatus()) && filter.getStoreStatus()!=3,"ps", ProductStoreStatus::getStatus,filter.getStoreStatus())
                 // 搜索条件
+                // 门店状态的自定义查询
+                .isNull(Objects.nonNull(filter.getStatus()) && filter.getStoreStatus()==3,"ps", ProductStoreStatus::getStatus)
+                .eq(Objects.nonNull(filter.getStatus()) && filter.getStoreStatus()!=3,"ps", ProductStoreStatus::getStatus,filter.getStoreStatus())
+                // 一般搜索条件
                 .eqIfExists(Product::getId, filter.getId())
                 .likeIfExists(Product::getName, filter.getName())
                 .eqIfExists(Product::getCategoryId, filter.getCategoryId())
@@ -143,11 +141,11 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
-    public ApiResponse getProductOption(Integer status) {
+    public ApiResponse getProductOption(Integer globalStatus) {
         MPJLambdaWrapper<Product> wrapper = new MPJLambdaWrapper<Product>()
                 .selectAs(Product::getId, OptionDTO::getValue)
                 .selectAs(Product::getName, OptionDTO::getLabel)
-                .eqIfExists(Product::getGlobalStatus,status);
+                .eqIfExists(Product::getGlobalStatus,globalStatus);
         List<OptionDTO> options = productMapper.selectJoinList(OptionDTO.class,wrapper);
         return ApiResponse.success(JSONObject.of("count",options.size(),"options", options));
     }
@@ -191,23 +189,21 @@ public class ProductServiceImpl implements ProductService {
     }
 
     /**
-     * 获取商品全局状态
+     * 获取商品状态 - 只有全局状态
      * @param productId 商品ID
      */
     @Override
     public ApiResponse getProductStatus(Long productId) throws NotFoundException {
-        MPJLambdaWrapper<Product> wrapper=new MPJLambdaWrapper<Product>()
-                .select(Product::getGlobalStatus)
-                .eq(Product::getId, productId);
-        ProductStatus status = productMapper.selectJoinOne(ProductStatus.class,wrapper);
-        if (Objects.isNull(status)) {
+        Integer globalStatus = productFeign.getProductGlobalStatus(productId);
+        if (Objects.isNull(globalStatus)) {
             throw new NotFoundException("商品不存在");
         }
-        return ApiResponse.success(JSONObject.of("globalStatus", status));
+        ProductStatusDTO status=new ProductStatusDTO(globalStatus);
+        return ApiResponse.success(JSONObject.of("status", status));
     }
 
     /**
-     * 获取商品门店状态
+     * 获取商品状态 - 全局状态+门店状态
      * @param productId 商品ID
      * @param storeId 门店ID
      */
@@ -215,35 +211,25 @@ public class ProductServiceImpl implements ProductService {
     public ApiResponse getProductStatus(Long productId, Long storeId) throws NotFoundException {
         // 校验门店ID
         if(!storeFeign.isStoreIdValid(storeId))
-            throw new NotFoundException("门店不存在");
+            throw new IllegalArgumentException("storeId错误");
         // 全局状态
-        MPJLambdaWrapper<Product> globalWrapper = new MPJLambdaWrapper<Product>()
-                .select(Product::getGlobalStatus)
-                .eq(Product::getId, productId);
-        ProductStatus globalStatus=productMapper.selectJoinOne(ProductStatus.class,globalWrapper);
+        Integer globalStatus = productFeign.getProductGlobalStatus(productId);
+        if (Objects.isNull(globalStatus))
+            throw new NotFoundException("商品不存在");
         // 门店状态
-        MPJLambdaWrapper<Product> storeWrapper = new MPJLambdaWrapper<Product>()
-                .leftJoin(ProductStoreStatus.class,"ps", on -> on
-                        .eq(ProductStoreStatus::getProductId,Product::getId)
-                        .eq(ProductStoreStatus::getStoreId,storeId))
-                .selectFunc("coalesce(%s,3)",arg ->arg
-                                .accept(ProductStoreStatus::getStatus),
-                        ProductStatusDTO::getStoreStatus)
-                .eq(Product::getId,productId);
-        ProductStatus storeStatus=productMapper.selectJoinOne(ProductStatus.class,storeWrapper);
-        return ApiResponse.success(JSONObject.of(
-                "globalStatus", globalStatus,
-                "storeStatus",storeStatus));
+        Integer storeStatus=productFeign.getProductStoreStatus(productId,storeId);
+        // 构建结果
+        ProductStatusDTO status=new ProductStatusDTO(globalStatus,storeStatus);
+        return ApiResponse.success(JSONObject.of("status", status));
     }
 
     @Override
     public ApiResponse updateProductBase(Long id, ProductUpdateBaseDTO data) throws NotFoundException {
         // 校验分类
         if(!productFeign.isCategoryIdValid(data.getCategoryId()))
-            throw new NotFoundException("分类不存在");
+            throw new IllegalArgumentException("categoryId错误");
         // 更新数据
-        Product product=data.toProduct();
-        product.setId(id);
+        Product product=data.toProduct(id);
         if (productMapper.updateById(product) == 0) {
             throw new NotFoundException("商品不存在");
         }
@@ -256,18 +242,17 @@ public class ProductServiceImpl implements ProductService {
      * @param status 状态
      */
     @Override
-    public ApiResponse updateProductStatus(Long productId, ProductStatus status) {
-        //校验状态码
-        if(status!=ProductStatus.GLOBAL_FORBIDDEN&&status!=ProductStatus.AVAILABLE)
+    public ApiResponse updateProductStatus(Long productId, Integer status) throws NotFoundException {
+        // 校验状态码
+        if(status!=ProductStatus.GLOBAL_FORBIDDEN.getValue() && status!=ProductStatus.AVAILABLE.getValue())
             throw new IllegalArgumentException("商品状态码错误");
         // 更新db
         Product product=Product.builder()
                 .id(productId)
                 .globalStatus(status)
                 .build();
-        if (productMapper.updateById(product) == 0) {
-            return ApiResponse.notFound("更新失败，可能是商品不存在");
-        }
+        if (productMapper.updateById(product) == 0)
+            throw new NotFoundException("商品不存在");
         return ApiResponse.success("更新成功");
     }
 
@@ -278,19 +263,19 @@ public class ProductServiceImpl implements ProductService {
      * @param status 状态
      */
     @Override
-    public ApiResponse updateProductStatus(Long productId, Long storeId, ProductStatus status) throws NotFoundException {
+    public ApiResponse updateProductStatus(Long productId, Long storeId, Integer status) throws NotFoundException {
         // 校验门店ID
         if(!storeFeign.isStoreIdValid(storeId))
-            throw new NotFoundException("门店不存在");
+            throw new IllegalArgumentException("storeId错误");
         //校验状态码
-        if(status==ProductStatus.GLOBAL_FORBIDDEN)
+        if(status==ProductStatus.GLOBAL_FORBIDDEN.getValue())
             throw new IllegalArgumentException("商品状态码错误");
         // 更新db
         MPJLambdaWrapper<ProductStoreStatus> wrapper = new MPJLambdaWrapper<ProductStoreStatus>()
                 .eq(ProductStoreStatus::getStoreId,storeId)
                 .eq(ProductStoreStatus::getProductId,productId);
-        ProductStoreStatus productStoreStatus =productStatusMapper.selectOne(wrapper);
-        if(status==ProductStatus.STORE_FORBIDDEN){
+        ProductStoreStatus productStoreStatus =productStatusMapper.selectJoinOne(wrapper);
+        if(status==ProductStatus.STORE_FORBIDDEN.getValue()){
             if(Objects.nonNull(productStoreStatus)){
                 productStatusMapper.delete(wrapper);
             }

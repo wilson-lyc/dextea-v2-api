@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 /**
  * @author Lai Yongchao
  */
@@ -22,6 +24,8 @@ public class ProductQueryDTO {
     private Double maxPrice;// 最大价格
 
     public Integer getGlobalStatus(){
+        if (Objects.isNull(status))
+            return null;
         if(status == ProductStatus.GLOBAL_FORBIDDEN.getValue())
             return ProductStatus.GLOBAL_FORBIDDEN.getValue();
         else
@@ -29,6 +33,8 @@ public class ProductQueryDTO {
     }
 
     public Integer getStoreStatus(){
+        if (Objects.isNull(status))
+            return null;
         if(status == ProductStatus.GLOBAL_FORBIDDEN.getValue())
             return null;
         else
