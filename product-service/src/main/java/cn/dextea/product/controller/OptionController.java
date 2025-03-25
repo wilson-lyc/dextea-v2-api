@@ -1,11 +1,13 @@
 package cn.dextea.product.controller;
 
+import cn.dextea.common.code.CustomizeOptionStatus;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.product.dto.option.OptionCreateDTO;
 import cn.dextea.product.dto.option.OptionUpdateDTO;
 import cn.dextea.product.service.OptionService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
+import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
@@ -52,7 +54,7 @@ public class OptionController {
      * @param id 选项ID
      */
     @GetMapping("/product/customize/option/{id:\\d+}/base")
-    public ApiResponse getOptionBase(@PathVariable Long id) {
+    public ApiResponse getOptionBase(@PathVariable Long id) throws NotFoundException {
         return optionService.getOptionBase(id);
     }
 
@@ -65,7 +67,7 @@ public class OptionController {
     @GetMapping("/product/customize/option/{optionId:\\d+}/status")
     public ApiResponse getOptionGlobalStatus(
             @PathVariable Long optionId,
-            @RequestParam(required = false) Long storeId) {
+            @RequestParam(required = false) Long storeId) throws NotFoundException {
         if (Objects.isNull(storeId))
             return optionService.getOptionStatus(optionId);
         else
@@ -80,7 +82,7 @@ public class OptionController {
     @PutMapping("/product/customize/option/{id:\\d+}/base")
     public ApiResponse updateOptionBase(
             @PathVariable Long id,
-            @Valid @RequestBody OptionUpdateDTO data) {
+            @Valid @RequestBody OptionUpdateDTO data) throws NotFoundException {
         return optionService.updateOptionBase(id, data);
     }
 
@@ -88,10 +90,10 @@ public class OptionController {
     public ApiResponse updateOptionStatus(
             @PathVariable Long optionId,
             @RequestParam(required = false) Long storeId,
-            @RequestParam Integer status) {
+            @RequestParam Integer status) throws NotFoundException {
         if (Objects.isNull(storeId))
-            return optionService.updateOptionStatus(optionId, status);
+            return optionService.updateOptionStatus(optionId, CustomizeOptionStatus.fromValue(status));
         else
-            return optionService.updateOptionStatus(optionId, storeId, status);
+            return optionService.updateOptionStatus(optionId, storeId, CustomizeOptionStatus.fromValue(status));
     }
 }

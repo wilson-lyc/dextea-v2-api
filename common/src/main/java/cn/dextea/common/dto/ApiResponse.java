@@ -1,5 +1,6 @@
 package cn.dextea.common.dto;
 
+import cn.dextea.common.code.ResultCode;
 import com.alibaba.fastjson2.JSONObject;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

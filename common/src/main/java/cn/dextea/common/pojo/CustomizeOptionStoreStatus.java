@@ -1,5 +1,6 @@
 package cn.dextea.common.pojo;
 
+import cn.dextea.common.code.CustomizeOptionStatus;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -17,7 +18,7 @@ import lombok.NoArgsConstructor;
 public class CustomizeOptionStoreStatus {
     private Long optionId;
     private Long storeId;
-    private Integer status;
+    private CustomizeOptionStatus status;
     private String createTime;
     private String updateTime;
 }

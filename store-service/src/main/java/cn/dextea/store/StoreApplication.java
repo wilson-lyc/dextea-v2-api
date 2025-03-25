@@ -14,7 +14,7 @@ import org.springframework.context.annotation.ComponentScan;
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = {"cn.dextea.common.feign"})
 @ComponentScan(basePackages = {"cn.dextea.common", "cn.dextea.store"})
-@MapperScan(basePackages = {"cn.dextea.store"})
+@MapperScan(basePackages = {"cn.dextea.store.mapper"})
 public class StoreApplication {
     public static void main(String[] args) {
         SpringApplication.run(StoreApplication.class, args);

@@ -23,16 +23,20 @@
             <artifactId>spring-cloud-starter-openfeign</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- druid -->
+        <!-- MySQL -->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- MyBatis-Plus-Join -->
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-jsqlparser</artifactId>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.github.yulichang</groupId>
+            <artifactId>mybatis-plus-join-boot-starter</artifactId>
             <scope>provided</scope>
         </dependency>
         <!-- Redis -->
