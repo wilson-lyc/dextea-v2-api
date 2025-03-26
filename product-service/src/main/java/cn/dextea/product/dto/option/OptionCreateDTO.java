@@ -26,7 +26,7 @@ public class OptionCreateDTO {
 
     public CustomizeOption toCustomizeOption(Long itemId){
         return CustomizeOption.builder()
-                .id(itemId)
+                .itemId(itemId)
                 .name(name)
                 .price(price)
                 .sort(sort)

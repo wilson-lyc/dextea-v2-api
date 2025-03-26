@@ -77,4 +77,15 @@ public class ItemServiceImpl implements ItemService {
             throw new NotFoundException("客制化项目不存在");
         return ApiResponse.success("更新成功");
     }
+
+    @Override
+    public ApiResponse updateItemStatus(Long id, Integer status) throws NotFoundException {
+        CustomizeItem customizeItem = CustomizeItem.builder()
+                .id(id)
+                .status(status)
+                .build();
+        if(itemMapper.updateById(customizeItem)==0)
+            throw new NotFoundException("客制化项目不存在");
+        return ApiResponse.success("状态更新成功");
+    }
 }

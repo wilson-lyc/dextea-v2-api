@@ -7,6 +7,7 @@ import cn.dextea.common.pojo.Product;
 import cn.dextea.product.service.UploadService;
 import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -46,11 +47,10 @@ public class UploadServiceImpl implements UploadService {
             return ResponseEntity.badRequest().body(ApiResponse.badRequest("上传失败"));
         }
         // 更新db
-        Product store=Product.builder()
-                    .id(id)
-                    .cover(url)
-                    .build();
-        productMapper.updateById(store);
+        UpdateWrapper<Product> updateWrapper=new UpdateWrapper<Product>()
+                .eq("id",id)
+                .set("cover",url);
+        productMapper.update(updateWrapper);
         return ResponseEntity.ok(ApiResponse.success("上传成功", JSONObject.of("url",url)));
     }
 
@@ -73,11 +73,10 @@ public class UploadServiceImpl implements UploadService {
             return ResponseEntity.badRequest().body(ApiResponse.badRequest("上传失败"));
         }
         // 更新db
-        Product store=Product.builder()
-                .id(id)
-                .detailHeaderImg(url)
-                .build();
-        productMapper.updateById(store);
+        UpdateWrapper<Product> updateWrapper=new UpdateWrapper<Product>()
+                .eq("id",id)
+                .set("detail_header_img",url);
+        productMapper.update(updateWrapper);
         return ResponseEntity.ok(ApiResponse.success("上传成功", JSONObject.of("url",url)));
     }
 }

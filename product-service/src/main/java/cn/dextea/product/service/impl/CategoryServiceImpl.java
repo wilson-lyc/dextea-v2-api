@@ -36,11 +36,11 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public ApiResponse getCategoryById(Long id) {
-        ProductCategory productCategory = categoryMapper.selectById(id);
-        if (productCategory == null) {
+        ProductCategory category = categoryMapper.selectById(id);
+        if (category == null) {
             return ApiResponse.notFound(String.format("不存在ID=%d的分类",id));
         }
-        return ApiResponse.success(JSONObject.of("productCategory", productCategory));
+        return ApiResponse.success(JSONObject.of("category", category));
     }
 
     @Override

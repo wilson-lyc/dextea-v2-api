@@ -128,8 +128,8 @@ public class ProductServiceImpl implements ProductService {
                         ProductListDTO::getStoreStatus)
                 // 搜索条件
                 // 门店状态的自定义查询
-                .isNull(Objects.nonNull(filter.getStatus()) && filter.getStoreStatus()==3,"ps", ProductStoreStatus::getStatus)
-                .eq(Objects.nonNull(filter.getStatus()) && filter.getStoreStatus()!=3,"ps", ProductStoreStatus::getStatus,filter.getStoreStatus())
+                .isNull(Objects.nonNull(filter.getStoreStatus()) && filter.getStoreStatus()==3,"ps", ProductStoreStatus::getStatus)
+                .eq(Objects.nonNull(filter.getStoreStatus()) && filter.getStoreStatus()!=3,"ps", ProductStoreStatus::getStatus,filter.getStoreStatus())
                 // 一般搜索条件
                 .eqIfExists(Product::getId, filter.getId())
                 .likeIfExists(Product::getName, filter.getName())
@@ -154,6 +154,8 @@ public class ProductServiceImpl implements ProductService {
     public ApiResponse getProductBase(Long id) throws NotFoundException {
         MPJLambdaWrapper<Product> wrapper=new MPJLambdaWrapper<Product>()
                 .selectAsClass(Product.class, ProductBaseDTO.class)
+                .leftJoin(ProductCategory.class,ProductCategory::getId,Product::getCategoryId)
+                .selectAs(ProductCategory::getName,ProductBaseDTO::getCategoryName)
                 .eq(Product::getId,id);
         ProductBaseDTO product = productMapper.selectJoinOne(ProductBaseDTO.class,wrapper);
         if(Objects.isNull(product)) {

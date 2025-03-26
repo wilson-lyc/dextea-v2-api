@@ -13,4 +13,5 @@ public interface ItemService {
     ApiResponse getItemList(Long productId);
     ApiResponse getItemInfo(Long productId) throws NotFoundException;
     ApiResponse updateItemInfo(Long productId, ItemUpdateDTO data) throws NotFoundException;
+    ApiResponse updateItemStatus(Long id, Integer status) throws NotFoundException;
 }

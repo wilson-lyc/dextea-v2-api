@@ -20,6 +20,7 @@ public class ProductBaseDTO {
     private String description;
     private BigDecimal price;
     private Long categoryId;
+    private String categoryName;
     private Integer globalStatus;
     private String createTime;
     private String updateTime;

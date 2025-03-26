@@ -59,4 +59,11 @@ public class ItemController {
             @Valid @RequestBody ItemUpdateDTO data) throws NotFoundException {
         return itemService.updateItemInfo(id,data);
     }
+
+    @PutMapping("/product/customize/{id}/status")
+    public ApiResponse updateItemStatus(
+            @PathVariable Long id,
+            @RequestParam Integer status) throws NotFoundException {
+        return itemService.updateItemStatus(id,status);
+    }
 }
