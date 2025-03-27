@@ -14,4 +14,5 @@ public interface GroupService {
     ApiResponse getGroupById(Long menuId, String groupId) throws NotFoundException;
     ApiResponse getGroupBase(Long menuId, String groupId) throws NotFoundException;
     ApiResponse updateGroupBase(Long menuId, String groupId, GroupUpdateBaseDTO data) throws NotFoundException;
+    ApiResponse deleteGroup(Long menuId, String groupId);
 }

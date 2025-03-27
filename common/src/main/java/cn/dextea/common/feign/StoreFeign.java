@@ -1,7 +1,9 @@
 package cn.dextea.common.feign;
 
+import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 /**
@@ -13,4 +15,6 @@ public interface StoreFeign {
     boolean isStoreIdValid(@RequestParam("id") Long id);
     @GetMapping("/store/internal/getStoreName")
     String getStoreName(@RequestParam("id") Long id);
+    @PutMapping("/store/internal/storeBindMenu")
+    boolean storeBindMenu(@RequestParam("storeId") Long storeId, @RequestParam("menuId") Long menuId);
 }

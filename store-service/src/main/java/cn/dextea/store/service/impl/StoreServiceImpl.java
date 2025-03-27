@@ -1,6 +1,5 @@
 package cn.dextea.store.service.impl;
 
-import cn.dextea.common.code.StoreStatus;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.common.dto.OptionDTO;
 import cn.dextea.common.feign.StoreFeign;
@@ -13,8 +12,10 @@ import cn.dextea.store.service.StoreService;
 import cn.dextea.store.util.RedisUtil;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
+import com.alibaba.fastjson2.JSON;
 import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
@@ -88,13 +89,72 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public ApiResponse getStoreOption(Integer status) {
+    public ApiResponse getStoreOption(String area) {
         MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
-                .selectAs(Store::getId, OptionDTO::getValue)
-                .selectAs(Store::getName, OptionDTO::getLabel)
-                .eqIfExists(Store::getStatus,status);
-        List<OptionDTO> options=storeMapper.selectJoinList(OptionDTO.class,wrapper);
+                .selectAs(Store::getId, StoreOptionDTO::getValue)
+                .selectAs(Store::getName, StoreOptionDTO::getLabel)
+                .eqIfExists(Store::getCity,area)
+                .or(Objects.nonNull(area))
+                .eqIfExists(Store::getDistrict,area);
+        List<StoreOptionDTO> options=storeMapper.selectJoinList(StoreOptionDTO.class,wrapper);
         return ApiResponse.success(JSONObject.of("count",options.size(),"options",options));
+    }
+
+    @Override
+    public ApiResponse getStoreTreeOption() {
+        JSONArray res=new JSONArray();
+        MPJLambdaWrapper<Store> provinceWrapper=new MPJLambdaWrapper<Store>()
+                .select(Store::getProvince)
+                .groupBy(Store::getProvince);
+        List<String> provinceList=storeMapper.selectJoinList(String.class, provinceWrapper);
+        for(String province:provinceList){
+            JSONObject provinceJson=JSONObject.of("value",province,"label",province);
+            MPJLambdaWrapper<Store> cityWrapper=new MPJLambdaWrapper<Store>()
+                    .select(Store::getCity)
+                    .eq(Store::getProvince,province)
+                    .groupBy(Store::getCity);
+            List<String> cityList=storeMapper.selectJoinList(String.class, cityWrapper);
+            JSONArray provinceChildren=new JSONArray();
+            for(String city:cityList){
+                JSONObject cityJson=JSONObject.of("value",city,"label",city);
+                MPJLambdaWrapper<Store> districtWrapper=new MPJLambdaWrapper<Store>()
+                        .select(Store::getDistrict)
+                        .eq(Store::getProvince,province)
+                        .eq(Store::getCity,city)
+                        .groupBy(Store::getDistrict);
+                List<String> districtList=storeMapper.selectJoinList(String.class, districtWrapper);
+                JSONArray cityChildren=new JSONArray();
+                if(Objects.nonNull(districtList.get(0))){
+                    // 分区读取门店
+                    for (String district:districtList){
+                        JSONObject districtJson=JSONObject.of("value",district,"label",district);
+                        MPJLambdaWrapper<Store> storeWrapper=new MPJLambdaWrapper<Store>()
+                                .selectAs(Store::getId, StoreOptionDTO::getValue)
+                                .selectAs(Store::getName, StoreOptionDTO::getLabel)
+                                .eq(Store::getProvince,province)
+                                .eq(Store::getCity,city)
+                                .eq(Store::getDistrict,district);
+                        List<StoreOptionDTO> stores=storeMapper.selectJoinList(StoreOptionDTO.class, storeWrapper);
+                        districtJson.put("children",stores);
+                        cityChildren.add(districtJson);
+                    }
+                }else{
+                    // 直辖市没有区
+                    MPJLambdaWrapper<Store> storeWrapper=new MPJLambdaWrapper<Store>()
+                            .selectAs(Store::getId, StoreOptionDTO::getValue)
+                            .selectAs(Store::getName, StoreOptionDTO::getLabel)
+                            .eq(Store::getProvince,province)
+                            .eq(Store::getCity,city);
+                    List<StoreOptionDTO> stores=storeMapper.selectJoinList(StoreOptionDTO.class, storeWrapper);
+                    cityChildren.addAll(stores);
+                }
+                cityJson.put("children",cityChildren);
+                provinceChildren.add(cityJson);
+            }
+            provinceJson.put("children",provinceChildren);
+            res.add(provinceJson);
+        }
+        return ApiResponse.success(JSONObject.of("options",res));
     }
 
     @Override
@@ -159,9 +219,17 @@ public class StoreServiceImpl implements StoreService {
 
     @Override
     public ApiResponse updateStoreBase(Long id, StoreUpdateBaseDTO data) throws NotFoundException {
-        Store store=data.toStore();
-        store.setId(id);
-        if (storeMapper.updateById(store)==0)
+        UpdateWrapper<Store> updateWrapper=new UpdateWrapper<Store>()
+                .eq("id",id)
+                .set("name",data.getName())
+                .set("province",data.getProvince())
+                .set("city",data.getCity())
+                .set("district",data.getDistrict())
+                .set("address",data.getAddress())
+                .set("linkman",data.getLinkman())
+                .set("phone",data.getPhone())
+                .set("open_time",data.getOpenTime());
+        if (storeMapper.update(updateWrapper)==0)
             throw new NotFoundException("不存在该门店");
         return ApiResponse.success("更新成功");
     }

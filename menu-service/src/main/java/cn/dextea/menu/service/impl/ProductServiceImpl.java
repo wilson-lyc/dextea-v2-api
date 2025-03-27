@@ -6,8 +6,10 @@ import cn.dextea.common.feign.ProductFeign;
 import cn.dextea.common.pojo.Menu;
 import cn.dextea.common.pojo.MenuGroup;
 import cn.dextea.common.pojo.MenuProduct;
+import cn.dextea.common.pojo.Product;
 import cn.dextea.menu.mapper.MenuMapper;
 import cn.dextea.menu.service.ProductService;
+import com.alibaba.fastjson2.JSONArray;
 import com.alibaba.fastjson2.JSONObject;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -37,7 +39,7 @@ public class ProductServiceImpl implements ProductService {
         if(!productFeign.isProductIdValid(productId))
             throw new IllegalArgumentException("productId错误");
         if(menuGroup.hasProduct(productId))
-            return ApiResponse.success("商品已存在");
+            return ApiResponse.badRequest("商品已存在");
         // 添加商品
         menuGroup.getContent().add(new MenuProduct(productId,sort));
         // 排序
@@ -72,7 +74,22 @@ public class ProductServiceImpl implements ProductService {
         MenuGroup menuGroup=menu.getMenuGroup(groupId);
         if(Objects.isNull(menuGroup))
             throw new IllegalArgumentException("groupId错误");
-        return ApiResponse.success(JSONObject.of("products",menuGroup.getContent()));
+        JSONArray products=new JSONArray();
+        JSONArray errors=new JSONArray();
+        for (MenuProduct item:menuGroup.getContent()){
+            Product product=productFeign.getProductById(item.getId());
+            if (Objects.isNull(product))
+                errors.add(String.format("商品id=%d不存在",item.getId()));
+            else
+                products.add(JSONObject.of(
+                        "id",product.getId(),
+                        "name",product.getName(),
+                        "price",product.getPrice(),
+                        "sort",item.getSort()));
+        }
+        return ApiResponse.success(JSONObject.of(
+                "products",products,
+                "errors",errors));
     }
 
     @Override
@@ -85,7 +102,15 @@ public class ProductServiceImpl implements ProductService {
             throw new IllegalArgumentException("groupId错误");
         if(!menuGroup.hasProduct(productId))
             throw new IllegalArgumentException("分组内不存在该商品");
-        return ApiResponse.success(JSONObject.of("product",menuGroup.getProduct(productId)));
+        MenuProduct menuProduct=menuGroup.getProduct(productId);
+        Product product=productFeign.getProductById(productId);
+        JSONObject productJson=JSONObject.of(
+                "id",product.getId(),
+                "name",product.getName(),
+                "price",product.getPrice(),
+                "sort",menuProduct.getSort()
+        );
+        return ApiResponse.success(JSONObject.of("product",productJson));
     }
 
     @Override

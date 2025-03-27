@@ -1,11 +1,10 @@
 package cn.dextea.store.controller;
 
 import cn.dextea.store.service.InternalService;
+import io.lettuce.core.dynamic.annotation.Param;
 import jakarta.annotation.Resource;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.apache.ibatis.javassist.NotFoundException;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * @author Lai Yongchao
@@ -21,5 +20,12 @@ public class InternalController {
     @GetMapping("/store/internal/getStoreName")
     public String getStoreName(@RequestParam Long id) throws IllegalArgumentException {
         return internalService.getStoreName(id);
+    }
+
+    @PutMapping("/store/internal/storeBindMenu")
+    public boolean storeBindMenu(
+            @RequestParam Long storeId,
+            @RequestParam Long menuId) throws NotFoundException {
+        return internalService.storeBindMenu(storeId, menuId);
     }
 }

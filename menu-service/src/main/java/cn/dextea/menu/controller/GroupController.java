@@ -52,4 +52,11 @@ public class GroupController {
         return groupService.updateGroupBase(menuId,groupId,data);
     }
 
+    @DeleteMapping("/menu/{menuId:\\d+}/group/{groupId}")
+    public ApiResponse deleteGroup(
+            @PathVariable Long menuId,
+            @PathVariable String groupId) throws NotFoundException {
+        return groupService.deleteGroup(menuId,groupId);
+    }
+
 }

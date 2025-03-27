@@ -7,4 +7,6 @@ import cn.dextea.common.pojo.Menu;
  */
 public interface InternalService {
     Menu getMenuById(Long id);
+
+    boolean isMenuIdValid(Long id);
 }

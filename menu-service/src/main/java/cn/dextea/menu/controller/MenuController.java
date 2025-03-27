@@ -3,6 +3,7 @@ package cn.dextea.menu.controller;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.menu.dto.menu.MenuCreateDTO;
 import cn.dextea.menu.dto.menu.MenuQueryDTO;
+import cn.dextea.menu.dto.menu.MenuSendDTO;
 import cn.dextea.menu.dto.menu.MenuUpdateBaseDTO;
 import cn.dextea.menu.service.MenuService;
 import jakarta.annotation.Resource;
@@ -10,6 +11,8 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author Lai Yongchao
@@ -49,5 +52,12 @@ public class MenuController {
             @PathVariable Long id,
             @Valid @RequestBody MenuUpdateBaseDTO data) throws NotFoundException {
         return menuService.updateMenuBase(id,data);
+    }
+
+    @PostMapping("/menu/{id:\\d+}/send")
+    public ApiResponse bindMenu(
+            @PathVariable Long id,
+            @RequestBody MenuSendDTO data){
+        return menuService.storeBindMenu(id,data.getStoreIds());
     }
 }

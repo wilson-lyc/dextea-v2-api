@@ -5,10 +5,12 @@ import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.common.pojo.Store;
 import cn.dextea.store.dto.*;
 import cn.dextea.store.service.StoreService;
+import com.google.protobuf.Api;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.apache.ibatis.javassist.NotFoundException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -44,12 +46,19 @@ public class StoreController {
 
     /**
      * 获取门店选项
-     * @param status 状态
+     * @param area 区域
      */
     @GetMapping("/store/option")
-    public ApiResponse getStoreOption(
-            @RequestParam(required = false) Integer status) {
-        return storeService.getStoreOption(status);
+    public ApiResponse getStoreOption(@RequestParam(required = false) String area) {
+        return storeService.getStoreOption(area);
+    }
+
+    /**
+     * 获取门店树选项
+     */
+    @GetMapping("/store/tree-option")
+    public ApiResponse getStoreTreeOption(){
+        return storeService.getStoreTreeOption();
     }
 
     /**

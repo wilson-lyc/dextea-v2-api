@@ -1,7 +1,9 @@
 package cn.dextea.menu.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.feign.MenuFeign;
 import cn.dextea.common.feign.ProductFeign;
+import cn.dextea.common.feign.StoreFeign;
 import cn.dextea.common.pojo.Menu;
 import cn.dextea.common.pojo.MenuGroup;
 import cn.dextea.common.pojo.MenuProduct;
@@ -18,6 +20,7 @@ import jakarta.annotation.Resource;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -29,6 +32,10 @@ public class MenuServiceImpl implements MenuService {
     private MenuMapper menuMapper;
     @Resource
     private ProductFeign productFeign;
+    @Resource
+    private MenuFeign menuFeign;
+    @Resource
+    private StoreFeign storeFeign;
 
     @Override
     public ApiResponse createMenu(MenuCreateDTO data) {
@@ -104,5 +111,22 @@ public class MenuServiceImpl implements MenuService {
         if(menuMapper.updateById(menu)==0)
             throw new NotFoundException("菜单不存在");
         return ApiResponse.success("更新成功");
+    }
+
+    @Override
+    public ApiResponse storeBindMenu(Long menuId, List<Long> storeIds) {
+        JSONArray success=new JSONArray();
+        JSONArray fail=new JSONArray();
+        if(!menuFeign.isMenuIdValid(menuId))
+            throw new IllegalArgumentException("menuId错误");
+        for (Long storeId:storeIds){
+            if(storeFeign.storeBindMenu(storeId,menuId))
+                success.add(String.format("storeId=%d绑定成功",storeId));
+            else
+                fail.add(String.format("storeId=%d绑定失败",storeId));
+        }
+        return ApiResponse.success(JSONObject.of(
+                "success",success,
+                "fail",fail));
     }
 }

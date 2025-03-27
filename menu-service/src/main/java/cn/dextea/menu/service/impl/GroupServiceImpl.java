@@ -94,4 +94,14 @@ public class GroupServiceImpl implements GroupService {
         menuMapper.updateById(menu);
         return ApiResponse.success("更新成功");
     }
+
+    @Override
+    public ApiResponse deleteGroup(Long menuId, String groupId) {
+        Menu menu=menuMapper.selectById(menuId);
+        if (Objects.isNull(menu))
+            throw new IllegalArgumentException("menuId错误");
+        menu.getContent().removeIf(item->item.getId().equals(groupId));
+        menuMapper.updateById(menu);
+        return ApiResponse.success("删除成功");
+    }
 }

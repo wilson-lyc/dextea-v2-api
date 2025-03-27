@@ -6,6 +6,8 @@ import cn.dextea.menu.service.InternalService;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+import java.util.Objects;
+
 /**
  * @author Lai Yongchao
  */
@@ -16,5 +18,10 @@ public class InternalServiceImpl implements InternalService {
     @Override
     public Menu getMenuById(Long id){
         return menuMapper.selectById(id);
+    }
+
+    @Override
+    public boolean isMenuIdValid(Long id) {
+        return Objects.nonNull(menuMapper.selectById(id));
     }
 }

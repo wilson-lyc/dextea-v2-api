@@ -18,4 +18,9 @@ public class InternalController {
     public Menu getMenuById(@RequestParam  Long id) {
         return internalService.getMenuById(id);
     }
+
+    @GetMapping("/menu/internal/isMenuIdValid")
+    public boolean isMenuIdValid(@RequestParam Long id) {
+        return internalService.isMenuIdValid(id);
+    }
 }

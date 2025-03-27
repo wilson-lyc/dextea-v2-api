@@ -12,7 +12,8 @@ public interface StoreService {
     ApiResponse createStore(StoreCreateDTO data);
     // 列表
     ApiResponse getStoreList(int current, int size, StoreFilter filter);
-    ApiResponse getStoreOption(Integer status);
+    ApiResponse getStoreOption(String status);
+    ApiResponse getStoreTreeOption();
     // 单项
     ApiResponse getStoreBase(Long id) throws NotFoundException;
     ApiResponse getStoreLicense(Long id) throws NotFoundException;

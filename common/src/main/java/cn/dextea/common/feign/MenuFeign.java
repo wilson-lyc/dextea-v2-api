@@ -13,4 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 public interface MenuFeign {
     @GetMapping("/menu/internal/getMenuById")
     Menu getMenuById(@RequestParam("id") Long id);
+
+    @GetMapping("/menu/internal/isMenuIdValid")
+    boolean isMenuIdValid(@RequestParam("id") Long id);
 }

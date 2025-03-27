@@ -3,7 +3,9 @@ package cn.dextea.store.service.impl;
 import cn.dextea.store.mapper.StoreMapper;
 import cn.dextea.common.pojo.Store;
 import cn.dextea.store.service.InternalService;
+import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import jakarta.annotation.Resource;
+import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.Objects;
@@ -27,5 +29,14 @@ public class InternalServiceImpl implements InternalService {
             throw new IllegalArgumentException("门店不存在");
         }
         return store.getName();
+    }
+
+    @Override
+    public boolean storeBindMenu(Long storeId, Long menuId) throws NotFoundException {
+        Store store = Store.builder()
+                .id(storeId)
+                .menuId(menuId)
+                .build();
+        return storeMapper.updateById(store) >0;
     }
 }

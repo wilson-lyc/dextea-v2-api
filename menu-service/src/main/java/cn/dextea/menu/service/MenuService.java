@@ -6,6 +6,8 @@ import cn.dextea.menu.dto.menu.MenuQueryDTO;
 import cn.dextea.menu.dto.menu.MenuUpdateBaseDTO;
 import org.apache.ibatis.javassist.NotFoundException;
 
+import java.util.List;
+
 /**
  * @author Lai Yongchao
  */
@@ -15,4 +17,5 @@ public interface MenuService {
     ApiResponse getMenuById(Long id, Long storeId) throws NotFoundException;
     ApiResponse getMenuBase(Long id) throws NotFoundException;
     ApiResponse updateMenuBase(Long id, MenuUpdateBaseDTO data) throws NotFoundException;
+    ApiResponse storeBindMenu(Long id, List<Long> storeIds);
 }

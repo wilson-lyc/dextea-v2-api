@@ -33,8 +33,9 @@ public class StoreUpdateBaseDTO {
     private String openTime;
     @NotNull
     private Integer status;
-    public Store toStore(){
+    public Store toStore(Long id){
         return Store.builder()
+                .id(id)
                 .name(name)
                 .province(province)
                 .city(city)
