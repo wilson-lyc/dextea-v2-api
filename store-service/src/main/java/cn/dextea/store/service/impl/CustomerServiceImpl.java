@@ -10,11 +10,13 @@ import cn.dextea.store.util.RedisUtil;
 import com.alibaba.fastjson2.JSONObject;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
+import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Lai Yongchao
@@ -38,18 +40,19 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public ApiResponse getStoreInfo(Long id, Double longitude, Double latitude) {
+    public ApiResponse getStoreInfo(Long id, Double longitude, Double latitude) throws NotFoundException {
         // 获取门店信息
         MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
                 .selectAsClass(Store.class, StoreInfoDTO.class)
                 .eq(Store::getId,id);
         StoreInfoDTO store=storeMapper.selectJoinOne(StoreInfoDTO.class,wrapper);
-        if (store==null){
-            return ApiResponse.notFound(String.format("不存在ID=%d的门店",id));
-        }
+        if (Objects.isNull(store))
+            throw new NotFoundException("门店不存在");
+
         // 计算距离
-        if(latitude!=null&&longitude!=null){
+        if(Objects.nonNull(latitude)&&Objects.nonNull(longitude)){
             double distance=redisUtil.getDistanceToStore(id,longitude,latitude);
+            // 计算展示单位
             if(distance<1){
                 DecimalFormat df = new DecimalFormat("#");
                 distance = Double.parseDouble(df.format(distance*1000));

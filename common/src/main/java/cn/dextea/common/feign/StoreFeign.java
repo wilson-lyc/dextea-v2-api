@@ -17,4 +17,6 @@ public interface StoreFeign {
     String getStoreName(@RequestParam("id") Long id);
     @PutMapping("/store/internal/storeBindMenu")
     boolean storeBindMenu(@RequestParam("storeId") Long storeId, @RequestParam("menuId") Long menuId);
+    @GetMapping("/store/internal/getStoreMenuId")
+    Long getStoreMenuId(@RequestParam("id") Long id);
 }

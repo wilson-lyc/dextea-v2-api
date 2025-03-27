@@ -28,4 +28,9 @@ public class InternalController {
             @RequestParam Long menuId) throws NotFoundException {
         return internalService.storeBindMenu(storeId, menuId);
     }
+
+    @GetMapping("/store/internal/getStoreMenuId")
+    public Long getStoreMenuId(@RequestParam Long id){
+        return internalService.getStoreMenuId(id);
+    }
 }

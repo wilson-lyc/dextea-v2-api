@@ -39,4 +39,10 @@ public class InternalServiceImpl implements InternalService {
                 .build();
         return storeMapper.updateById(store) >0;
     }
+
+    @Override
+    public Long getStoreMenuId(Long id) {
+        Store store=storeMapper.selectById(id);
+        return store.getMenuId();
+    }
 }
