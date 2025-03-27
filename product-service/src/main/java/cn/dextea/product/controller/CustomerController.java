@@ -3,8 +3,8 @@ package cn.dextea.product.controller;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.product.service.CustomerService;
 import jakarta.annotation.Resource;
+import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -18,13 +18,13 @@ public class CustomerController {
 
     /**
      * 获取商品详情
-     * @param id 商品ID
+     * @param productId 商品ID
      * @param storeId 门店ID
      */
-    @GetMapping("/product/{id:\\d+}")
+    @GetMapping("/product/customer/getProductInfo")
     public ApiResponse getProductInfo(
-            @PathVariable Long id,
-            @RequestParam Long storeId) {
-        return customerService.getProductInfo(id,storeId);
+            @RequestParam Long productId,
+            @RequestParam Long storeId) throws NotFoundException {
+        return customerService.getProductInfo(productId,storeId);
     }
 }
