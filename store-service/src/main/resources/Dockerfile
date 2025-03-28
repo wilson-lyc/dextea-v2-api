@@ -1,0 +1,20 @@
+FROM openjdk:8-jdk-alpine
+VOLUME /tmp
+COPY store-service.jar app.jar
+ENTRYPOINT ["java","-jar","/app.jar"]
+
+# 环境变量
+ENV NACOS_USERNAME=nacos
+ENV NACOS_PASSWORD=LYC1208@nacos
+ENV NACOS_URL=localhost:8848
+ENV NACOS_DISCOVERY_NAMESPACE=dextea
+ENV NACOS_DISCOVERY_GROUP=DEFAULT_GROUP
+ENV NACOS_CONFIG_NAMESPACE=dextea
+ENV NACOS_CONFIG_GROUP=DEFAULT_GROUP
+ENV NACOS_CONFIG_FILE_EXTENSION=yaml
+ENV NACOS_CONFIG_REFRESH=true
+
+# 启动命令
+ENTRYPOINT ["java","-Djava.security.egd=file:/dev/./urandom","-jar","/app.jar"]
+# 暴露端口
+EXPOSE 8082
