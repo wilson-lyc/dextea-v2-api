@@ -1,20 +1,21 @@
 package cn.dextea.staff.service;
 
-import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.dto.DexteaApiResponse;
 import cn.dextea.staff.dto.*;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.javassist.NotFoundException;
 
 /**
  * @author Lai Yongchao
  */
 public interface StaffService {
-    ApiResponse createStaff(StaffCreateDTO data);
-    ApiResponse getStaffList(int current, int size, StaffQueryDTO data);
-    ApiResponse getStaffInfo(Long id) throws NotFoundException;
-    ApiResponse getStaffStatus(Long id) throws NotFoundException;
-    ApiResponse updateStaffInfo(Long id, StaffUpdateDTO data) throws NotFoundException;
-    ApiResponse updateStaffStatus(Long id, Integer status) throws NotFoundException;
-    ApiResponse sysResetPwd(Long id) throws NotFoundException;
-    ApiResponse updateStaffPwd(Long id, StaffUpdatePwdDTO data) throws NotFoundException;
-    ApiResponse login(StaffLoginDTO data) throws IllegalAccessException;
+    DexteaApiResponse<StaffCreateResponse> createStaff(StaffCreateRequest data);
+    DexteaApiResponse<IPage<StaffListResponse>> getStaffList(int current, int size, StaffFilter data);
+    DexteaApiResponse<StaffInfoResponse> getStaffInfo(Long id) throws NotFoundException;
+    DexteaApiResponse<StaffStatusResponse> getStaffStatus(Long id) throws NotFoundException;
+    DexteaApiResponse<StaffInfoResponse> updateStaffInfo(Long id, StaffUpdateRequest data) throws NotFoundException;
+    DexteaApiResponse<StaffInfoResponse> updateStaffStatus(Long id, Integer status) throws NotFoundException;
+    DexteaApiResponse<StaffResetPasswordResponse> sysResetPwd(Long id) throws NotFoundException;
+    DexteaApiResponse<StaffInfoResponse> updateStaffPwd(Long id, StaffUpdatePwdRequest data) throws NotFoundException;
+    DexteaApiResponse<StaffLoginResponse> staffLogin(StaffLoginRequest data) throws IllegalAccessException;
 }

@@ -1,7 +1,5 @@
 package cn.dextea.common.pojo;
 
-import cn.dextea.common.code.StaffIdentity;
-import cn.dextea.common.code.StaffStatus;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;

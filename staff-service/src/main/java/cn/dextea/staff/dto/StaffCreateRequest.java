@@ -1,6 +1,5 @@
 package cn.dextea.staff.dto;
 
-import cn.dextea.common.code.StaffIdentity;
 import cn.dextea.common.code.StaffStatus;
 import cn.dextea.common.pojo.Staff;
 import jakarta.validation.constraints.NotBlank;
@@ -11,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 
 @Data
 @RequiredArgsConstructor
-public class StaffCreateDTO {
+public class StaffCreateRequest {
     @NotBlank(message = "姓名不能为空")
     private String name;
     @NotBlank(message = "手机号不能为空")
@@ -25,7 +24,6 @@ public class StaffCreateDTO {
                 .phone(phone)
                 .identity(identity)
                 .storeId(storeId)
-                .status(StaffStatus.FORBIDDEN.getValue())
                 .build();
     }
 }

@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class StaffLoginDTO {
+public class StaffLoginRequest {
     @NotBlank(message = "账号不能为空")
     private String account;
     @NotBlank(message = "密码不能为空")

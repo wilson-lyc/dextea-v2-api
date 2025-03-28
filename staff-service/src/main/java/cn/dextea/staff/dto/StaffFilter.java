@@ -1,7 +1,5 @@
 package cn.dextea.staff.dto;
 
-import cn.dextea.common.code.StaffIdentity;
-import cn.dextea.common.code.StaffStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class StaffQueryDTO {
+public class StaffFilter {
     private Long id;
     private String name;
     private String account;

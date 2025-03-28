@@ -1,10 +1,11 @@
 package cn.dextea.staff.controller;
 
-import cn.dextea.common.code.StaffStatus;
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.staff.dto.StaffLoginDTO;
+import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.staff.dto.StaffLoginRequest;
 import cn.dextea.staff.dto.*;
 import cn.dextea.staff.service.StaffService;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -24,22 +25,22 @@ public class StaffController {
      * @param data 数据
      */
     @PostMapping("/staff")
-    public ApiResponse createStaff(@Valid @RequestBody StaffCreateDTO data) throws NotFoundException {
+    public DexteaApiResponse<StaffCreateResponse> createStaff(
+            @Valid @RequestBody StaffCreateRequest data) {
         return staffService.createStaff(data);
     }
 
     /**
      * 获取员工列表
-     * @param current 当前页
+     * @param current 当前页码
      * @param size 每页大小
      * @param filter 搜索条件
-     * @return 员工列表
      */
     @GetMapping("/staff")
-    public ApiResponse getStaffList(
+    public DexteaApiResponse<IPage<StaffListResponse>> getStaffList(
             @Valid @Min(value = 1,message = "current不能小于1") @RequestParam(defaultValue = "1") int current,
             @Valid @Min(value = 1,message = "size不能小于1") @RequestParam(defaultValue = "10") int size,
-            @Valid StaffQueryDTO filter){
+            @Valid StaffFilter filter){
         return staffService.getStaffList(current,size,filter);
     }
 
@@ -49,12 +50,12 @@ public class StaffController {
      * @return 员工信息
      */
     @GetMapping("/staff/{id:\\d+}")
-    public ApiResponse getStaffInfo(@Valid @PathVariable("id") Long id) throws NotFoundException {
+    public DexteaApiResponse<StaffInfoResponse> getStaffInfo(@PathVariable("id") Long id) throws NotFoundException {
         return staffService.getStaffInfo(id);
     }
 
     @GetMapping("/staff/{id:\\d+}/status")
-    public ApiResponse getStaffStatus(@PathVariable("id") Long id) throws NotFoundException {
+    public DexteaApiResponse<StaffStatusResponse> getStaffStatus(@PathVariable("id") Long id) throws NotFoundException {
         return staffService.getStaffStatus(id);
     }
 
@@ -64,14 +65,14 @@ public class StaffController {
      * @param data 数据
      */
     @PutMapping("/staff/{id:\\d+}")
-    public ApiResponse updateStaffInfo(
+    public DexteaApiResponse<StaffInfoResponse> updateStaffInfo(
             @PathVariable("id") Long id,
-            @Valid @RequestBody StaffUpdateDTO data) throws NotFoundException {
+            @Valid @RequestBody StaffUpdateRequest data) throws NotFoundException {
         return staffService.updateStaffInfo(id,data);
     }
 
     @PutMapping("/staff/{id:\\d+}/status")
-    public ApiResponse updateStaffStatus(
+    public DexteaApiResponse<StaffInfoResponse> updateStaffStatus(
             @PathVariable Long id,
             @RequestParam Integer status) throws NotFoundException {
         return staffService.updateStaffStatus(id,status);
@@ -82,7 +83,7 @@ public class StaffController {
      * @param id 员工id
      */
     @PutMapping("/staff/{id:\\d+}/password-auto")
-    public ApiResponse sysResetPwd(@PathVariable("id") Long id) throws NotFoundException {
+    public DexteaApiResponse<StaffResetPasswordResponse> sysResetPwd(@PathVariable("id") Long id) throws NotFoundException {
         return staffService.sysResetPwd(id);
     }
 
@@ -92,9 +93,9 @@ public class StaffController {
      * @param data 数据
      */
     @PutMapping("/staff/{id:\\d+}/password")
-    public ApiResponse updateStaffPwd(
+    public DexteaApiResponse<StaffInfoResponse> updateStaffPwd(
             @PathVariable("id") Long id,
-            @Valid @RequestBody StaffUpdatePwdDTO data) throws NotFoundException {
+            @Valid @RequestBody StaffUpdatePwdRequest data) throws NotFoundException {
         return staffService.updateStaffPwd(id,data);
     }
 
@@ -103,7 +104,7 @@ public class StaffController {
      * @param data 数据
      */
     @PostMapping("/staff/login")
-    public ApiResponse login(@Valid @RequestBody StaffLoginDTO data) throws IllegalAccessException {
-        return staffService.login(data);
+    public DexteaApiResponse<StaffLoginResponse> staffLogin(@Valid @RequestBody StaffLoginRequest data) throws IllegalAccessException {
+        return staffService.staffLogin(data);
     }
 }

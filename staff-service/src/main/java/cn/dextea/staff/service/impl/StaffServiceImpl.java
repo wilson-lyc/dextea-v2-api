@@ -5,9 +5,11 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.dextea.common.code.StaffIdentity;
 import cn.dextea.common.code.StaffStatus;
 import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.dto.DexteaApiResponse;
 import cn.dextea.common.feign.StaffFeign;
 import cn.dextea.common.feign.StoreFeign;
 import cn.dextea.common.pojo.Staff;
+import cn.dextea.common.pojo.Store;
 import cn.dextea.staff.dto.*;
 import cn.dextea.staff.mapper.StaffMapper;
 import cn.dextea.staff.service.StaffService;
@@ -42,7 +44,7 @@ public class StaffServiceImpl implements StaffService {
     private StaffFeign staffFeign;
 
     @Override
-    public ApiResponse createStaff(StaffCreateDTO data){
+    public DexteaApiResponse<StaffCreateResponse> createStaff(StaffCreateRequest data){
         // 校验身份和隶属门店
         if (data.getIdentity() == StaffIdentity.STORE.getValue() && Objects.isNull(data.getStoreId()))
             throw new IllegalArgumentException("缺少门店ID");
@@ -62,14 +64,20 @@ public class StaffServiceImpl implements StaffService {
         staff.setStatus(StaffStatus.FORBIDDEN.getValue());
         // 更新db
         staffMapper.updateById(staff);
-        staff.setPassword(password);
-        return ApiResponse.success("员工创建成功",JSONObject.of("staff",staff));
+        return DexteaApiResponse.success(
+                StaffCreateResponse.builder()
+                        .id(staff.getId())
+                        .name(staff.getName())
+                        .account(staff.getAccount())
+                        .password(password)
+                        .build());
     }
 
     @Override
-    public ApiResponse getStaffList(int current, int size, StaffQueryDTO filter) {
+    public DexteaApiResponse<IPage<StaffListResponse>> getStaffList(int current, int size, StaffFilter filter) {
         MPJLambdaWrapper<Staff> wrapper=new MPJLambdaWrapper<Staff>()
-                .selectAsClass(Staff.class,StaffListDTO.class)
+                .selectAsClass(Staff.class, StaffListResponse.class)
+                //搜索条件
                 .eqIfExists(Staff::getId,filter.getId())
                 .likeIfExists(Staff::getName,filter.getName())
                 .eqIfExists(Staff::getAccount,filter.getAccount())
@@ -77,71 +85,65 @@ public class StaffServiceImpl implements StaffService {
                 .eqIfExists(Staff::getStatus,filter.getStatus())
                 .eqIfExists(Staff::getIdentity,filter.getIdentity())
                 .eqIfExists(Staff::getStoreId,filter.getStoreId());
-        IPage<Staff> page=staffMapper.selectJoinPage(
+        IPage<StaffListResponse> page=staffMapper.selectJoinPage(
                 new Page<>(current,size),
-                Staff.class,
+                StaffListResponse.class,
                 wrapper);
         if(page.getCurrent()>page.getPages()){
             page=staffMapper.selectJoinPage(
                     new Page<>(page.getPages(),size),
-                    Staff.class,
+                    StaffListResponse.class,
                     wrapper);
         }
-        return ApiResponse.success(JSONObject.from(page));
+        return DexteaApiResponse.success(page);
     }
 
     @Override
-    public ApiResponse getStaffInfo(Long id) throws NotFoundException {
+    public DexteaApiResponse<StaffInfoResponse> getStaffInfo(Long id) throws NotFoundException {
         MPJLambdaWrapper<Staff> wrapper=new MPJLambdaWrapper<Staff>()
-                .selectAsClass(Staff.class,StaffDTO.class)
-                .eq(Staff::getId,id);
-        StaffDTO staff=staffMapper.selectJoinOne(StaffDTO.class,wrapper);
-        if(Objects.isNull(staff)){
+                .eq(Staff::getId,id)
+                .selectAsClass(Staff.class,StaffInfoResponse.class)
+                .leftJoin(Store.class,Store::getId,Staff::getStoreId)
+                .selectAs(Store::getName,StaffInfoResponse::getStoreName);
+        StaffInfoResponse staff=staffMapper.selectJoinOne(StaffInfoResponse.class,wrapper);
+        if(Objects.isNull(staff))
             throw new NotFoundException("员工不存在");
-        }
-        // 获取门店名
-        if(staff.getIdentity()==StaffIdentity.STORE.getValue()){
-            String storeName=storeFeign.getStoreName(staff.getStoreId());
-            staff.setStoreName(storeName);
-        }
-        return ApiResponse.success(JSONObject.of("staff",staff));
+        return DexteaApiResponse.success(staff);
     }
 
     @Override
-    public ApiResponse getStaffStatus(Long id) throws NotFoundException {
+    public DexteaApiResponse<StaffStatusResponse> getStaffStatus(Long id) throws NotFoundException {
         MPJLambdaWrapper<Staff> wrapper=new MPJLambdaWrapper<Staff>()
                 .select(Staff::getStatus)
                 .eq(Staff::getId,id);
         Integer status=staffMapper.selectJoinOne(Integer.class,wrapper);
         if (Objects.isNull(status))
             throw new NotFoundException("员工不存在");
-        return ApiResponse.success(JSONObject.of("status",status));
+        StaffStatusResponse staffStatus=new StaffStatusResponse(status);
+        return DexteaApiResponse.success(staffStatus);
     }
 
     @Override
-    public ApiResponse updateStaffInfo(Long id, StaffUpdateDTO data) throws NotFoundException {
-        Staff staff=data.toStaff();
-        staff.setId(id);
-        if (staffMapper.updateById(staff)==0){
+    public DexteaApiResponse<StaffInfoResponse> updateStaffInfo(Long id, StaffUpdateRequest data) throws NotFoundException {
+        Staff staff=data.toStaff(id);
+        if (staffMapper.updateById(staff)==0)
             throw new NotFoundException("员工不存在");
-        }
-        return ApiResponse.success("更新成功");
+        return DexteaApiResponse.success();
     }
 
     @Override
-    public ApiResponse updateStaffStatus(Long id, Integer status) throws NotFoundException {
+    public DexteaApiResponse<StaffInfoResponse> updateStaffStatus(Long id, Integer status) throws NotFoundException {
         Staff staff=Staff.builder()
                 .id(id)
                 .status(status)
                 .build();
-        if(staffMapper.updateById(staff)==0){
+        if(staffMapper.updateById(staff)==0)
             throw new NotFoundException("员工不存在");
-        }
-        return ApiResponse.success("状态更新成功");
+        return DexteaApiResponse.success();
     }
 
     @Override
-    public ApiResponse sysResetPwd(Long id) throws NotFoundException {
+    public DexteaApiResponse<StaffResetPasswordResponse> sysResetPwd(Long id) throws NotFoundException {
         String password=passwordUtil.create();
         Staff staff=Staff.builder()
                 .id(id)
@@ -150,11 +152,11 @@ public class StaffServiceImpl implements StaffService {
         if(staffMapper.updateById(staff)==0){
             throw new NotFoundException("员工不存在");
         }
-        return ApiResponse.success("密码已重置",JSONObject.of("password",password));
+        return DexteaApiResponse.success(new StaffResetPasswordResponse(password));
     }
 
     @Override
-    public ApiResponse updateStaffPwd(Long id, StaffUpdatePwdDTO data) throws NotFoundException {
+    public DexteaApiResponse<StaffInfoResponse> updateStaffPwd(Long id, StaffUpdatePwdRequest data) throws NotFoundException {
         // 校验id
         if(!staffFeign.isStaffIdValid(id))
             throw new NotFoundException("员工不存在");
@@ -164,7 +166,7 @@ public class StaffServiceImpl implements StaffService {
                 .eq(Staff::getId,id);
         String dbPwd=staffMapper.selectJoinOne(String.class,wrapper);
         if (!Objects.equals(passwordUtil.encrypt(data.getOldPwd()), dbPwd)){
-            return ApiResponse.badRequest("原密码错误");
+            throw new IllegalArgumentException("原密码错误");
         }
         // 新密码写入db
         Staff staff=Staff.builder()
@@ -172,29 +174,30 @@ public class StaffServiceImpl implements StaffService {
                 .password(passwordUtil.encrypt(data.getNewPwd()))
                 .build();
         staffMapper.updateById(staff);
-        return ApiResponse.success("密码修改成功");
+        return DexteaApiResponse.success();
     }
 
     @Override
-    public ApiResponse login(StaffLoginDTO data) throws IllegalAccessException {
+    public DexteaApiResponse<StaffLoginResponse> staffLogin(StaffLoginRequest data) throws IllegalAccessException {
         MPJLambdaWrapper<Staff> wrapper=new MPJLambdaWrapper<Staff>()
-                .selectAsClass(Staff.class,StaffDTO.class)
+                .selectAsClass(Staff.class,StaffInfoResponse.class)
                 .eq(Staff::getAccount,data.getAccount())
                 .eq(Staff::getPassword,passwordUtil.encrypt(data.getPassword()));
-        Staff staff=staffMapper.selectJoinOne(wrapper);
+        StaffInfoResponse staff=staffMapper.selectJoinOne(StaffInfoResponse.class,wrapper);
         // 账号或密码错误
         if(Objects.isNull(staff)){
             throw new IllegalArgumentException("账号或密码错误");
         }
         // 账号被禁用
-        if(staff.getStatus()==StaffStatus.FORBIDDEN.getValue()){
+        if(staff.getStatus().equals(StaffStatus.FORBIDDEN.getValue())){
             throw new IllegalAccessException("账号被禁用");
         }
         // 创建token
         StpUtil.login(staff.getId());
         SaTokenInfo token=StpUtil.getTokenInfo();
-        return ApiResponse.success("登录成功",JSONObject.of(
-                "staff",staff,
-                "token",token.getTokenValue()));
+        return DexteaApiResponse.success(StaffLoginResponse.builder()
+                .staff(staff)
+                .token(token)
+                .build());
     }
 }

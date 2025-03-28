@@ -12,14 +12,14 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum StaffIdentity {
-    COMPANY(0, "公司"),
-    STORE(1, "门店");
+    COMPANY(0, "公司员工"),
+    STORE(1, "门店员工");
 
     @EnumValue
     private final int value;
     private final String label;
 
-    public static StaffIdentity fromCode(int value) {
+    public static StaffIdentity fromValue(int value) {
         for (StaffIdentity identity : StaffIdentity.values()) {
             if (identity.getValue() == value) {
                 return identity;
