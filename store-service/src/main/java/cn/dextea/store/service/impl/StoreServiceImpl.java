@@ -22,6 +22,8 @@ import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.javassist.NotFoundException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,6 +34,7 @@ import java.util.Objects;
  */
 @Slf4j
 @Service
+@RefreshScope
 public class StoreServiceImpl implements StoreService {
     @Resource
     StoreMapper storeMapper;
@@ -39,13 +42,15 @@ public class StoreServiceImpl implements StoreService {
     RedisUtil redisUtil;
     @Resource
     StoreFeign storeFeign;
+    @Value("${amap.key}")
+    private String AMAP_KEY;
 
     @Override
     public ApiResponse createStore(StoreCreateDTO data) {
         Store store=data.toStore();
         // 获取经纬度坐标
         HttpResponse res = HttpRequest.get("https://restapi.amap.com/v3/geocode/geo")
-                    .form("key", "ba9e3a30dede2dbb9f6f6fd97f1b4fd1")
+                    .form("key", AMAP_KEY)
                     .form("address", store.getAddress())
                     .form("city", store.getCity())
                     .execute();
