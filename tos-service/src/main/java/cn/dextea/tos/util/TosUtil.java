@@ -4,7 +4,10 @@ import com.volcengine.tos.TOSV2;
 import com.volcengine.tos.TOSV2ClientBuilder;
 import com.volcengine.tos.model.object.DeleteObjectInput;
 import com.volcengine.tos.model.object.PutObjectInput;
+import jakarta.annotation.PostConstruct;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -14,24 +17,25 @@ import java.time.Instant;
 
 @Slf4j
 @Component
+@RefreshScope
 public class TosUtil {
+    @Value("${tos.access_key}")
+    private String ACCESS_KEY;
+    @Value("${tos.secret_key}")
+    private String SECRET_KEY;
     private final String BUCKET_NAME = "dextea";
     private final String BASE_URL = "https://dextea.tos-cn-guangzhou.volces.com";
-    private final TOSV2 tos;
+    private TOSV2 tos;
 
-    public TosUtil() {
+    @PostConstruct  // 替代构造函数初始化
+    public void init() {
+        if (ACCESS_KEY == null || SECRET_KEY == null) {
+            throw new IllegalStateException("TOS 密钥未正确配置");
+        }
         String ENDPOINT = "tos-cn-guangzhou.volces.com";
         String REGION = "cn-guangzhou";
-        String ACCESS_KEY = System.getenv("TOS_ACCESS_KEY");
-        String SECRET_KEY = System.getenv("TOS_SECRET_KEY");
-        this.tos=new TOSV2ClientBuilder().build(REGION, ENDPOINT, ACCESS_KEY, SECRET_KEY);
-    }
-
-    public String uploadMultipartFile(String folder, MultipartFile file){
-        String originalFilename = file.getOriginalFilename(); // 获取文件原名
-        String timestamp = String.valueOf(Instant.now().toEpochMilli()); // 获取当前时间戳
-        String key = String.format("%s/%s_%s", folder, timestamp, originalFilename); // 拼接文件名
-        return uploadFileStream(key,file);
+        this.tos = new TOSV2ClientBuilder().build(REGION, ENDPOINT, ACCESS_KEY, SECRET_KEY);
+        log.info("TOS客户端初始化完成");
     }
 
     public String uploadMultipartFile(String folder,String fileName, MultipartFile file){

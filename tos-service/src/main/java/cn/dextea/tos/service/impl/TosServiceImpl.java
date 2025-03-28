@@ -14,15 +14,6 @@ public class TosServiceImpl implements TosService {
     private TosUtil tosUtil;
 
     @Override
-    public ApiResponse uploadFile(String folder, MultipartFile file) {
-        String url = tosUtil.uploadMultipartFile(folder,file);
-        if (url != null) {
-            return ApiResponse.success(JSONObject.of("url",url));
-        }
-        return ApiResponse.badRequest("文件上传失败");
-    }
-
-    @Override
     public String uploadFile(String folder, String filename, MultipartFile file) {
         try{
             return tosUtil.uploadMultipartFile(folder,filename,file);

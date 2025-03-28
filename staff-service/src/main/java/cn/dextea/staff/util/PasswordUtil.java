@@ -9,6 +9,8 @@ import org.passay.CharacterData;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.PasswordGenerator;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Component;
 
 
@@ -17,8 +19,8 @@ import java.util.Arrays;
 import java.util.List;
 
 @Component
+@RefreshScope
 public class PasswordUtil {
-
     private static final CharacterData PUNCTUATION = new CharacterData() {
         @Override
         public String getErrorCode() {
@@ -29,6 +31,9 @@ public class PasswordUtil {
             return "!@#$%&*()_+";
         }
     };
+
+    @Value("${password.secret_key}")
+    private String SECRET_KEY;
 
     /**
      * 生成密码
@@ -51,9 +56,7 @@ public class PasswordUtil {
      * @return 加密后的密码
      */
     public String encrypt(String password){
-        // 从环境变量读取密钥
-        String key=System.getenv("secret_key");
-        SM4 sm4 = SmUtil.sm4(HexUtil.decodeHex(key));
+        SM4 sm4 = SmUtil.sm4(HexUtil.decodeHex(SECRET_KEY));
         return sm4.encryptHex(password);
     }
 
