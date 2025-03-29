@@ -9,8 +9,7 @@
         <version>2.0</version>
     </parent>
 
-    <artifactId>customer-service</artifactId>
-
+    <artifactId>order-service</artifactId>
     <dependencies>
         <!-- common -->
         <dependency>
@@ -70,10 +69,6 @@
         <dependency>
             <groupId>cn.hutool</groupId>
             <artifactId>hutool-core</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-jwt</artifactId>
         </dependency>
         <!-- Alipay -->
         <dependency>

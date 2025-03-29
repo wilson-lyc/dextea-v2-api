@@ -1,4 +1,4 @@
-package cn.dextea.customer.dto;
+package cn.dextea.order.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CustomerLoginDTO {
-    private String authCode;
+public class PayCreateResponse {
+    private String orderId;
+    private String tradeNo;
 }

@@ -1,23 +1,17 @@
-package cn.dextea.common.pojo;
+package cn.dextea.customer.dto;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.jetbrains.annotations.Nls;
 
 /**
  * @author Lai Yongchao
  */
 @Data
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("s_customer")
-public class Customer {
-    @TableId(type = IdType.AUTO)
+public class CustomerListResponse {
     private Long id;
     private String openId;
     private String name;

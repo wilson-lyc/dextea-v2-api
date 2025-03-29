@@ -2,6 +2,8 @@ package cn.dextea.product.service;
 
 import cn.dextea.common.pojo.Product;
 
+import java.math.BigDecimal;
+
 /**
  * @author Lai Yongchao
  */
@@ -18,4 +20,7 @@ public interface InternalService {
     boolean isCustomizeOptionIdValid(Long id);
     Integer getCustomizeOptionGlobalStatus(Long optionId);
     Integer getCustomizeOptionStoreStatus(Long optionId, Long storeId);
+
+    BigDecimal getCustomizeOptionPrice(Long id);
+    BigDecimal getProductPrice(Long id);
 }

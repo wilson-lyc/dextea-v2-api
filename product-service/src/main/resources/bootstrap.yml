@@ -13,7 +13,7 @@ spring:
       server-addr: ${NACOS_URL:localhost:8848}
       # 服务注册
       discovery:
-        namespace: ${NACOS_DISCOVERY_NAMESPACE:dexte} # 命名空间
+        namespace: ${NACOS_DISCOVERY_NAMESPACE:dextea} # 命名空间
         group: ${NACOS_DISCOVERY_GROUP:DEFAULT_GROUP}  # 分组
       # 配置中心
       config:

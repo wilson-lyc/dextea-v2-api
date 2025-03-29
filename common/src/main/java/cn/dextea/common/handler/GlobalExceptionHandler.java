@@ -44,19 +44,23 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 资源不存在
+     * 404 - NotFound
      * @param e 异常信息
      */
     @ExceptionHandler(NotFoundException.class)
     public DexteaApiResponse<Object> handleNotFoundException(NotFoundException e) {
-        log.error("资源不存在: {}", e.getMessage());
+        log.error("404 NotFound: {}", e.getMessage());
         return DexteaApiResponse.notFound(e.getMessage());
     }
 
+    /**
+     * 请求参数异常
+     * @param e 异常信息
+     */
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public DexteaApiResponse<Object> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         log.error("请求参数错误: {}", e.getMessage());
-        return DexteaApiResponse.fail("请求参数错误");
+        return DexteaApiResponse.fail("参数错误");
     }
 
     /**

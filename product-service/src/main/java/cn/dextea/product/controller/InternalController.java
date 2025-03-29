@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 /**
@@ -68,5 +69,15 @@ public class InternalController {
             @RequestParam Long optionId,
             @RequestParam Long storeId){
         return internalService.getCustomizeOptionStoreStatus(optionId,storeId);
+    }
+
+    @GetMapping("/product/internal/getCustomizeOptionPrice")
+    public BigDecimal getCustomizeOptionPrice(@RequestParam Long id){
+        return internalService.getCustomizeOptionPrice(id);
+    }
+
+    @GetMapping("/product/internal/getProductPrice")
+    public BigDecimal getProductPrice(@RequestParam Long id){
+        return internalService.getProductPrice(id);
     }
 }

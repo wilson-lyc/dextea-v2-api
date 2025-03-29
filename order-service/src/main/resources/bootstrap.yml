@@ -1,13 +1,15 @@
 server:
-  port: ${SERVER_PORT:8086} # 端口
+  port: ${SERVER_PORT:8088} # 端口
 
 spring:
   application:
-    name: menu-service # 应用名称
+    name: order-service # 应用名称
+  jackson:
+    default-property-inclusion: always
   cloud:
     nacos:
       # 鉴权配置
-      username: ${NACOS_USERNAME:nacos}  # 账号
+      username: ${NACOS_USERNAME:nacos} # 账号
       password: ${NACOS_PASSWORD:LYC1208@nacos}  # 密码
       # nacos地址
       server-addr: ${NACOS_URL:localhost:8848}

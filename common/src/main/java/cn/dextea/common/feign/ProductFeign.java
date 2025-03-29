@@ -5,6 +5,8 @@ import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
+import java.math.BigDecimal;
+
 /**
  * @author Lai Yongchao
  */
@@ -43,4 +45,10 @@ public interface ProductFeign {
     Integer getOptionStoreStatus(
             @RequestParam("optionId") Long optionId,
             @RequestParam("storeId") Long storeId);
+
+    @GetMapping("/product/internal/getCustomizeOptionPrice")
+    BigDecimal getCustomizeOptionPrice(@RequestParam("id") Long id);
+
+    @GetMapping("/product/internal/getProductPrice")
+    BigDecimal getProductPrice(@RequestParam("id") Long id);
 }

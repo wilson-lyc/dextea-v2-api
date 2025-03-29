@@ -1,13 +1,16 @@
 package cn.dextea.customer.service;
 
-import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.customer.dto.CustomerLoginDTO;
+import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.customer.dto.CustomerListResponse;
+import cn.dextea.customer.dto.CustomerLoginRequest;
+import cn.dextea.customer.dto.CustomerLoginResponse;
 import com.alipay.api.AlipayApiException;
-import jakarta.validation.Valid;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 
 /**
  * @author Lai Yongchao
  */
 public interface CustomerService {
-    ApiResponse customerLogin(CustomerLoginDTO data) throws AlipayApiException;
+    DexteaApiResponse<CustomerLoginResponse> customerLogin(CustomerLoginRequest data) throws AlipayApiException;
+    DexteaApiResponse<IPage<CustomerListResponse>> getCustomerList(int current, int size);
 }

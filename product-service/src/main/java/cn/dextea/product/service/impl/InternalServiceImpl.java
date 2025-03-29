@@ -12,6 +12,7 @@ import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.util.Objects;
 
 /**
@@ -99,5 +100,21 @@ public class InternalServiceImpl implements InternalService {
                 .eq(CustomizeOptionStoreStatus::getStoreId,storeId);
         Integer status=optionStatusMapper.selectJoinOne(Integer.class,wrapper);
         return Objects.isNull(status)?CustomizeOptionStatus.AVAILABLE.getValue():status;
+    }
+
+    @Override
+    public BigDecimal getCustomizeOptionPrice(Long id) {
+        MPJLambdaWrapper<CustomizeOption> wrapper=new MPJLambdaWrapper<CustomizeOption>()
+                .select(CustomizeOption::getPrice)
+                .eq(CustomizeOption::getId,id);
+        return optionMapper.selectJoinOne(BigDecimal.class,wrapper);
+    }
+
+    @Override
+    public BigDecimal getProductPrice(Long id) {
+        MPJLambdaWrapper<Product> wrapper=new MPJLambdaWrapper<Product>()
+                .select(Product::getPrice)
+                .eq(Product::getId,id);
+        return productMapper.selectJoinOne(BigDecimal.class,wrapper);
     }
 }
