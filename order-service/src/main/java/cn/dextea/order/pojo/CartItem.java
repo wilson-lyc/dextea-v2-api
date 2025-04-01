@@ -1,4 +1,4 @@
-package cn.dextea.common.pojo;
+package cn.dextea.order.pojo;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

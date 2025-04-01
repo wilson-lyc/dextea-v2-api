@@ -3,10 +3,12 @@ package cn.dextea.order.service.impl;
 import cn.dextea.common.code.OrderStatus;
 import cn.dextea.common.dto.DexteaApiResponse;
 import cn.dextea.common.feign.ProductFeign;
-import cn.dextea.common.pojo.CustomizeSelected;
-import cn.dextea.common.pojo.Order;
-import cn.dextea.common.pojo.OrderProduct;
-import cn.dextea.common.pojo.CartItem;
+import cn.dextea.order.model.OrderCreateProductModel;
+import cn.dextea.order.model.ProductCustomizeModel;
+import cn.dextea.order.pojo.CustomizeSelected;
+import cn.dextea.order.pojo.Order;
+import cn.dextea.order.pojo.OrderProduct;
+import cn.dextea.order.pojo.CartItem;
 import cn.dextea.order.dto.OrderCreateRequest;
 import cn.dextea.order.dto.OrderCreateResponse;
 import cn.dextea.order.dto.OrderListResponse;
@@ -40,45 +42,47 @@ public class OrderServiceImpl implements OrderService {
     public DexteaApiResponse<OrderCreateResponse> createOrder(OrderCreateRequest data) {
         // 创建订单
         Order order=Order.builder()
-                .id(snowflake.nextIdStr())
-                .storeId(data.getStoreId())
-                .customerId(data.getCustomerId())
-                .dineMode(data.getDineMode())
-                .tableNo(data.getTableNo())
-                .status(OrderStatus.PAY_PENDING.getValue())
+                .id(snowflake.nextIdStr())// 生成订单ID
+                .storeId(data.getStoreId())// 用餐门店ID
+                .customerId(data.getCustomerId())// 顾客ID
+                .dineMode(data.getDineMode())// 用餐方式
+                .tableNo(data.getTableNo())// 餐桌号
+                .status(OrderStatus.PAY_PENDING.getValue())// 订单状态，默认待支付
                 .build();
-        // 计算订单总价和商品总数量
-        BigDecimal totalPrice= new BigDecimal(0);
-        int totalCount = 0;
-        // 遍历购物车项目
-        for(CartItem cartItem:data.getCart()){
+        // 计算订单总价和商品数量
+        BigDecimal totalPrice= new BigDecimal(0);// 订单总价
+        int totalCount = 0;// 商品总数量
+        // 遍历商品
+        for(OrderCreateProductModel product:data.getProducts()){
+            // 保存商品购买信息到db
             OrderProduct orderProduct=OrderProduct.builder()
-                    .orderId(order.getId())
-                    .skuId(cartItem.getSkuId())
-                    .productId(cartItem.getId())
-                    .customize(cartItem.getCustomize())
-                    .count(cartItem.getCount())
+                    .id(product.getId())// 商品ID
+                    .count(product.getCount())// 购买数量
+                    .orderId(order.getId())// 订单ID
+                    .skuId(product.getSkuId())// 商品SKU
                     .build();
-            // 累加商品总数量
-            totalCount+=cartItem.getCount();
-            // 计算购买价
-            BigDecimal productPrice=productFeign.getProductPrice(cartItem.getId());
+            // 累加商品数量
+            totalCount+=product.getCount();
+            // 计算商品购买价=基础售价+客制化加价
+            // 商品基础售价
+            BigDecimal buyPrice=productFeign.getProductPrice(product.getId());
             // 计算客制化加价
-            for(CustomizeSelected customize:cartItem.getCustomize()){
+            for(ProductCustomizeModel customize:product.getCustomize()){
                 BigDecimal price=productFeign.getCustomizeOptionPrice(customize.getOptionId());
-                productPrice=productPrice.add(price);
+                customize.setPrice(price);
+                buyPrice = buyPrice.add(price);
             }
-            // 保存购买价
-            orderProduct.setPrice(productPrice);
+            // 设置商品购买价
+            orderProduct.setPrice(buyPrice);
             // 写入db
             orderProductMapper.insert(orderProduct);
             // 累加订单总价
-            totalPrice=totalPrice.add(productPrice.multiply(new BigDecimal(cartItem.getCount())));
+            totalPrice=totalPrice.add(buyPrice.multiply(new BigDecimal(product.getCount())));
         }
-        // 保存订单总价和总数量
+        // 设置订单总价和商品数量
         order.setTotalPrice(totalPrice);
         order.setTotalCount(totalCount);
-        // 写入数据库
+        // 写入db
         orderMapper.insert(order);
         // TODO:创建支付单号
         return DexteaApiResponse.success(OrderCreateResponse.builder()

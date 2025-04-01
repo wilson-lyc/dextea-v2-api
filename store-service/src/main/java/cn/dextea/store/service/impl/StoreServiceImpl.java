@@ -233,6 +233,7 @@ public class StoreServiceImpl implements StoreService {
                 .set("address",data.getAddress())
                 .set("linkman",data.getLinkman())
                 .set("phone",data.getPhone())
+                .set("status",data.getStatus())
                 .set("open_time",data.getOpenTime());
         if (storeMapper.update(updateWrapper)==0)
             throw new NotFoundException("不存在该门店");

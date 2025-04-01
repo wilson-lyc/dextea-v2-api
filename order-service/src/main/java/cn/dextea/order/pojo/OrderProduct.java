@@ -1,5 +1,6 @@
-package cn.dextea.common.pojo;
+package cn.dextea.order.pojo;
 
+import cn.dextea.order.model.ProductCustomizeModel;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.Fastjson2TypeHandler;
@@ -20,11 +21,11 @@ import java.util.List;
 @AllArgsConstructor
 @TableName("r_order_product")
 public class OrderProduct {
-    private String orderId;
-    private String skuId;
-    private Long productId;
+    private Long id;
     @TableField(value = "customize",typeHandler = Fastjson2TypeHandler.class)
-    private List<CustomizeSelected> customize;
+    private List<ProductCustomizeModel> customize;
     private Integer count;
     private BigDecimal price;
+    private String skuId;
+    private String orderId;
 }

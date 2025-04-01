@@ -1,4 +1,4 @@
-package cn.dextea.common.pojo;
+package cn.dextea.order.pojo;
 
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;

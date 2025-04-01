@@ -1,5 +1,6 @@
-package cn.dextea.common.pojo;
+package cn.dextea.order.model;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,9 +13,11 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class CustomizeSelected {
+public class ProductCustomizeModel {
+    @NotNull(message = "itemId不能为空")
     private Long itemId;
     private String itemName;
+    @NotNull(message = "optionId不能为空")
     private Long optionId;
     private String optionName;
     private BigDecimal price;
