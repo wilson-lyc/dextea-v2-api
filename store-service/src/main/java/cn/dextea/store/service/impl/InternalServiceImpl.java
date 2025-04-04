@@ -3,7 +3,7 @@ package cn.dextea.store.service.impl;
 import cn.dextea.store.mapper.StoreMapper;
 import cn.dextea.common.pojo.Store;
 import cn.dextea.store.service.InternalService;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import cn.dextea.store.util.RedisUtil;
 import jakarta.annotation.Resource;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
@@ -17,6 +17,8 @@ import java.util.Objects;
 public class InternalServiceImpl implements InternalService {
     @Resource
     private StoreMapper storeMapper;
+    @Resource
+    private RedisUtil redisUtil;
     @Override
     public boolean isStoreIdValid(Long id) {
         return Objects.nonNull(storeMapper.selectById(id));
@@ -44,5 +46,10 @@ public class InternalServiceImpl implements InternalService {
     public Long getStoreMenuId(Long id) {
         Store store=storeMapper.selectById(id);
         return store.getMenuId();
+    }
+
+    @Override
+    public Double getStoreDistance(Long storeId, Double longitude, Double latitude) {
+        return redisUtil.getDistanceToStore(storeId,longitude,latitude);
     }
 }

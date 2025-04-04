@@ -11,12 +11,12 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum OrderStatus {
     PAY_PENDING(0,"待支付"),
-    PAY_DONE(1,"已支付"),
-    PAY_TIMEOUT(2, "支付超时"),
-    MAKING(3,"制作中"),
-    WAIT_PICK(4,"待取餐"),
-    DONE(5,"已完成"),
-    CANCEL(9,"订单取消");
+    MAKING(1,"制作中"),
+    WAIT_PICK(2,"待取餐"),
+    DONE(3,"已完成"),
+    PAY_TIMEOUT(90,"支付超时"),
+    CANCEL(91,"订单取消"),
+    REFUND(92,"退款");
 
     @EnumValue
     private final int value;

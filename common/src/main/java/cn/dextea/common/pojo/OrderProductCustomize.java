@@ -1,7 +1,7 @@
-package cn.dextea.order.model;
+package cn.dextea.common.pojo;
 
-import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,15 +9,15 @@ import java.math.BigDecimal;
 
 /**
  * @author Lai Yongchao
+ * 订单中商品的客制化信息
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductCustomizeModel {
-    @NotNull(message = "itemId不能为空")
+public class OrderProductCustomize {
     private Long itemId;
     private String itemName;
-    @NotNull(message = "optionId不能为空")
     private Long optionId;
     private String optionName;
     private BigDecimal price;

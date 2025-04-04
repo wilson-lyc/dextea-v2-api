@@ -12,8 +12,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum DineMode {
-    DINE_IN(1,"堂食"),
-    TO_GO(2,"外带");
+    DINE_IN(0,"堂食"),
+    TO_GO(1,"外带");
 
     @EnumValue
     private final int value;

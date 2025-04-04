@@ -4,6 +4,8 @@ server:
 spring:
   application:
     name: store-service # 应用名称
+  jackson:
+    default-property-inclusion: always
   cloud:
     nacos:
       # 鉴权配置

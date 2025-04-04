@@ -2,11 +2,13 @@ package cn.dextea.order.dto;
 
 import cn.dextea.common.code.DineMode;
 import cn.dextea.common.code.OrderStatus;
+import cn.dextea.common.pojo.OrderProduct;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  * @author Lai Yongchao
@@ -14,7 +16,7 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderListResponse {
+public class OrderItemCustomerResponse {
     private String id;// 订单ID
     private Long storeId;// 门店ID
     private String storeName;// 门店名称
@@ -31,7 +33,7 @@ public class OrderListResponse {
     private String createTime;// 创建时间
     private String payTime;// 支付时间
     private String payExpireTime;// 支付过期时间
-
+    private List<OrderProduct> products;
     public String getDineModeName() {
         return DineMode.fromValue(dineMode).getLabel();
     }

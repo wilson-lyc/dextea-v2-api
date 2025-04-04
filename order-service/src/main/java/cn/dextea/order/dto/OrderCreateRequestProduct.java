@@ -1,4 +1,4 @@
-package cn.dextea.order.model;
+package cn.dextea.order.dto;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
@@ -15,14 +15,15 @@ import java.util.List;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class OrderCreateProductModel {
+public class OrderCreateRequestProduct {
     @NotNull(message = "productId不能为空")
     private Long id;
+    @NotNull(message = "productName不能为空")
     private String name;
-    @Valid
-    private List<ProductCustomizeModel> customize;
-    @NotNull(message = "count不能为空")
+    @NotBlank(message = "productCover不能为空")
+    private String cover;
+    @Valid @NotNull(message = "productCustomize不能为空")
+    private List<OrderCreateRequestProductCustomize> customize;
+    @NotNull(message = "productCount不能为空")
     private Integer count;
-    @NotBlank(message = "skuId不能为空")
-    private String skuId;
 }

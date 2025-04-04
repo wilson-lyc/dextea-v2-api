@@ -7,11 +7,9 @@ import cn.dextea.customer.dto.CustomerLoginRequest;
 import cn.dextea.customer.dto.CustomerLoginResponse;
 import cn.dextea.customer.mapper.CustomerMapper;
 import cn.dextea.customer.service.CustomerService;
+import cn.dextea.customer.util.AlipayUtil;
 import cn.dextea.customer.util.JWTUtil;
-import com.alibaba.fastjson2.JSONObject;
 import com.alipay.api.AlipayApiException;
-import com.alipay.api.AlipayClient;
-import com.alipay.api.request.AlipaySystemOauthTokenRequest;
 import com.alipay.api.response.AlipaySystemOauthTokenResponse;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -29,18 +27,15 @@ public class CustomerServiceImpl implements CustomerService {
     @Resource
     private CustomerMapper customerMapper;
     @Resource
-    private AlipayClient alipayClient;
+    private AlipayUtil alipayUtil;
     @Resource
     private JWTUtil jwtUtil;
     @Override
     public DexteaApiResponse<CustomerLoginResponse> customerLogin(CustomerLoginRequest data) throws AlipayApiException {
-        // 请求支付宝换取open_id
-        AlipaySystemOauthTokenRequest request = new AlipaySystemOauthTokenRequest();
-        request.setGrantType("authorization_code");
-        request.setCode(data.getAuthCode());
-        AlipaySystemOauthTokenResponse response = alipayClient.execute(request);
+        // 获取openId
+        AlipaySystemOauthTokenResponse response=alipayUtil.getSystemOauthToken(data.getAuthCode());
         String openId= response.getOpenId();
-        // 用户登录
+        // 注册登录
         MPJLambdaWrapper<Customer> wrapper=new MPJLambdaWrapper<Customer>().eq(Customer::getOpenId,openId);
         Customer customer=customerMapper.selectJoinOne(wrapper);
         if (Objects.isNull(customer)){

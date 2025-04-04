@@ -30,14 +30,6 @@ public class UploadServiceImpl implements UploadService {
 
     @Override
     public ResponseEntity<ApiResponse> uploadCover(Long id, MultipartFile file) {
-        // 删除旧封面
-        QueryWrapper<Product> wrapper=new QueryWrapper<Product>().eq("id",id);
-        String oldUrl=productMapper.selectOne(wrapper).getCover();
-        if(Objects.nonNull(oldUrl)) {
-            if (!tosFeign.delete(oldUrl))
-                return ResponseEntity.internalServerError().body(ApiResponse.serverError("上传服务异常"));
-        }
-        // 上传新封面
         String folder=String.format("product/%d",id);
         String filename=String.format("%d_cover",id);
         String url=null;
@@ -56,13 +48,6 @@ public class UploadServiceImpl implements UploadService {
 
     @Override
     public ResponseEntity<ApiResponse> uploadDetailHeaderImg(Long id, MultipartFile file) {
-        // 删除旧图
-        QueryWrapper<Product> wrapper=new QueryWrapper<Product>().eq("id",id);
-        String oldUrl=productMapper.selectOne(wrapper).getDetailHeaderImg();
-        if(Objects.nonNull(oldUrl)) {
-            if (!tosFeign.delete(oldUrl))
-                return ResponseEntity.internalServerError().body(ApiResponse.serverError("上传服务异常"));
-        }
         // 上传新图
         String folder=String.format("product/%d",id);
         String filename=String.format("%d_detail_header_img",id);

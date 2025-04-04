@@ -1,0 +1,194 @@
+package cn.dextea.order.service.impl;
+
+import cn.dextea.common.code.OrderStatus;
+import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.common.feign.CustomerFeign;
+import cn.dextea.common.feign.ProductFeign;
+import cn.dextea.common.pojo.OrderProductCustomize;
+import cn.dextea.order.dto.*;
+import cn.dextea.common.pojo.Order;
+import cn.dextea.common.pojo.OrderProduct;
+import cn.dextea.order.mapper.OrderMapper;
+import cn.dextea.order.mapper.OrderProductMapper;
+import cn.dextea.order.service.CustomerService;
+import cn.dextea.order.util.AlipayUtil;
+import cn.dextea.order.util.PickUpNoUtil;
+import cn.hutool.core.date.DateTime;
+import cn.hutool.core.date.DateUtil;
+import cn.hutool.core.lang.Snowflake;
+import com.alipay.api.AlipayApiException;
+import com.alipay.api.response.AlipayTradeCreateResponse;
+import com.alipay.api.response.AlipayTradeQueryResponse;
+import com.github.yulichang.wrapper.MPJLambdaWrapper;
+import jakarta.annotation.Resource;
+import org.apache.ibatis.javassist.NotFoundException;
+import org.springframework.stereotype.Service;
+
+import java.math.BigDecimal;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Objects;
+
+/**
+ * @author Lai Yongchao
+ */
+@Service
+public class CustomerServiceImpl implements CustomerService {
+    @Resource
+    private Snowflake snowflake;
+    @Resource
+    private OrderMapper orderMapper;
+    @Resource
+    private OrderProductMapper orderProductMapper;
+    @Resource
+    private ProductFeign productFeign;
+    @Resource
+    private CustomerFeign customerFeign;
+    @Resource
+    private AlipayUtil alipayUtil;
+    @Resource
+    private PickUpNoUtil pickUpNoUtil;
+
+    @Override
+    public DexteaApiResponse<OrderCreateResponse> createOrder(OrderCreateRequest data) {
+        // 创建订单
+        Order order=Order.builder()
+                .id(snowflake.nextIdStr())// 订单ID
+                .storeId(data.getStoreId())// 门店ID
+                .storeName(data.getStoreName())// 门店名称
+                .customerId(data.getCustomerId())// 顾客ID
+                .dineMode(data.getDineMode())// 用餐方式
+                .tableNo(data.getTableNo())// 餐桌号
+                .status(OrderStatus.PAY_PENDING.getValue())// 订单状态，默认待支付
+                .build();
+        // 计算订单总价和商品数量
+        BigDecimal totalPrice= new BigDecimal(0);// 订单总价
+        int totalCount = 0;// 商品总数量
+        // 遍历商品
+        for(OrderCreateRequestProduct product:data.getProducts()){
+            // 创建订单商品记录
+            OrderProduct orderProduct=OrderProduct.builder()
+                    .orderId(order.getId())// 订单ID
+                    .id(product.getId())// 商品ID
+                    .name(product.getName())// 商品名称
+                    .count(product.getCount())// 购买数量
+                    .cover(product.getCover())// 商品封面
+                    .build();
+            // 累加商品数量
+            totalCount+=product.getCount();
+            // 计算购买价=基础售价+客制化加价
+            // 商品售价
+            BigDecimal buyPrice=productFeign.getProductPrice(product.getId());
+            // 计算客制化加价
+            List<OrderProductCustomize> customizeList=new ArrayList<>();
+            for(OrderCreateRequestProductCustomize customize:product.getCustomize()){
+                BigDecimal price=productFeign.getCustomizeOptionPrice(customize.getOptionId());
+                OrderProductCustomize productCustomize=OrderProductCustomize.builder()
+                        .itemId(customize.getItemId())
+                        .itemName(customize.getItemName())
+                        .optionId(customize.getOptionId())
+                        .optionName(customize.getOptionName())
+                        .price(price)
+                        .build();
+                buyPrice = buyPrice.add(price);
+                customizeList.add(productCustomize);
+            }
+            // 设置商品购买价
+            orderProduct.setPrice(buyPrice);
+            // 设置商品客制化
+            orderProduct.setCustomize(customizeList);
+            // 写入数据库
+            orderProductMapper.insert(orderProduct);
+            // 累加订单总价
+            totalPrice=totalPrice.add(buyPrice.multiply(new BigDecimal(product.getCount())));
+        }
+        // 设置订单总价和商品数量
+        order.setTotalPrice(totalPrice);
+        order.setTotalCount(totalCount);
+        // 获取顾客openId
+        String customerOpenId=customerFeign.getCustomerOpenId(order.getCustomerId());
+        // 创建交易
+        AlipayTradeCreateResponse response;
+        try {
+            response=alipayUtil.tradeCreate(order.getId(),customerOpenId,order.getTotalPrice());
+        } catch (AlipayApiException e) {
+            throw new RuntimeException(e);
+        }
+        order.setTradeNo(response.getTradeNo());
+        // 设置过期时间
+        Date date = DateUtil.date();
+        DateTime payExpireTime = DateUtil.offsetMinute(date, 10);// 10min有效期
+        order.setPayExpireTime(payExpireTime.toString());
+        // 写入数据库
+        orderMapper.insert(order);
+        return DexteaApiResponse.success(OrderCreateResponse.builder()
+                        .id(order.getId())
+                        .totalCount(order.getTotalCount())
+                        .totalPrice(order.getTotalPrice())
+                        .tradeNo(order.getTradeNo())
+                        .build());
+    }
+
+    @Override
+    public DexteaApiResponse<OrderPayDoneResponse> validPayDone(OrderPayDoneRequest data) throws AlipayApiException, NotFoundException {
+        MPJLambdaWrapper<Order> wrapper=new MPJLambdaWrapper<Order>()
+                .eq(Order::getId,data.getOrderId())
+                .eq(Order::getTradeNo,data.getTradeNo())
+                .selectAll(Order.class);
+        Order order=orderMapper.selectJoinOne(Order.class,wrapper);
+        if(Objects.isNull(order)){
+            throw new NotFoundException("订单不存在");
+        }
+        OrderPayDoneResponse payDoneResponse=new OrderPayDoneResponse();
+        // 请求支付宝查询交易状态
+        AlipayTradeQueryResponse aliResponse=alipayUtil.tradeQuery(data.getTradeNo());
+        // 交易交易状态
+        if(aliResponse.getTradeStatus().equals("TRADE_SUCCESS")){
+            // 生成取餐号
+            String pickUpNo=pickUpNoUtil.getPickUpNo(order.getStoreId());
+            order.setPickUpNo(pickUpNo);
+            // 更新订单状态为制作中
+            order.setStatus(OrderStatus.MAKING.getValue());
+            // 更新订单
+            orderMapper.updateById(order);
+            // 确认支付完成
+            payDoneResponse.setPayDone(true);
+        }else{
+            payDoneResponse.setPayDone(false);
+        }
+        return DexteaApiResponse.success(payDoneResponse);
+    }
+
+    @Override
+    public DexteaApiResponse<List<OrderItemCustomerResponse>> getOrderList(Long id) {
+        MPJLambdaWrapper<Order> orderWrapper=new MPJLambdaWrapper<Order>()
+                .eq(Order::getCustomerId,id)
+                .selectAsClass(Order.class, OrderItemCustomerResponse.class);
+        List<OrderItemCustomerResponse> orders=orderMapper.selectJoinList(OrderItemCustomerResponse.class,orderWrapper);
+        for(OrderItemCustomerResponse order:orders){
+            MPJLambdaWrapper<OrderProduct> productWrapper=new MPJLambdaWrapper<OrderProduct>()
+                    .eq(OrderProduct::getOrderId,order.getId())
+                    .selectAll(OrderProduct.class)
+                    .last("limit 3");
+            order.setProducts(orderProductMapper.selectJoinList(productWrapper));
+        }
+        return DexteaApiResponse.success(orders);
+    }
+
+    @Override
+    public DexteaApiResponse<OrderItemCustomerResponse> getOrderDetail(String id) throws NotFoundException {
+        MPJLambdaWrapper<Order> orderWrapper=new MPJLambdaWrapper<Order>()
+                .eq(Order::getId,id)
+                .selectAsClass(Order.class, OrderItemCustomerResponse.class);
+        OrderItemCustomerResponse order=orderMapper.selectJoinOne(OrderItemCustomerResponse.class,orderWrapper);
+        if(Objects.isNull(order)){
+            throw new NotFoundException("订单不存在");
+        }
+        MPJLambdaWrapper<OrderProduct> productWrapper=new MPJLambdaWrapper<OrderProduct>()
+                .eq(OrderProduct::getOrderId,id)
+                .selectAll(OrderProduct.class);
+        order.setProducts(orderProductMapper.selectJoinList(productWrapper));
+        return DexteaApiResponse.success(order);
+    }
+}

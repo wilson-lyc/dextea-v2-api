@@ -5,6 +5,7 @@ import com.alipay.api.AlipayClient;
 import com.alipay.api.AlipayConfig;
 import com.alipay.api.DefaultAlipayClient;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -12,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
  * @author Lai Yongchao
  */
 @Configuration
+@RefreshScope
 public class AlipayClientConfig {
     @Value("${alipay.serverUrl}")
     String SERVER_URL;
@@ -19,14 +21,8 @@ public class AlipayClientConfig {
     String APP_ID;
     @Value("${alipay.privateKey}")
     String PRIVATE_KEY;
-    @Value("${alipay.format}")
-    String FORMAT;
     @Value("${alipay.alipayPublicKey}")
     String ALIPAY_PUBLIC_KEY;
-    @Value("${alipay.charset}")
-    String CHARSET;
-    @Value("${alipay.signType}")
-    String SIGN_TYPE;
 
     @Bean
     public AlipayClient alipayClient() throws AlipayApiException {

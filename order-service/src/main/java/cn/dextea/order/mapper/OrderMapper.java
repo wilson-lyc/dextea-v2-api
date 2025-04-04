@@ -1,6 +1,6 @@
 package cn.dextea.order.mapper;
 
-import cn.dextea.order.pojo.Order;
+import cn.dextea.common.pojo.Order;
 import com.github.yulichang.base.MPJBaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 

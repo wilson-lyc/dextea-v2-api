@@ -1,4 +1,4 @@
-package cn.dextea.common.config;
+package cn.dextea.store.config;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.databind.ObjectMapper;

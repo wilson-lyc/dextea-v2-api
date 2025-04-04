@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Configuration;
  * @author Lai Yongchao
  */
 @Configuration
-@RefreshScope
 public class AlipayClientConfig {
     @Value("${alipay.serverUrl}")
     String SERVER_URL;

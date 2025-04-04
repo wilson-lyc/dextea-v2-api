@@ -1,7 +1,8 @@
 package cn.dextea.store.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.store.dto.StoreInfoDTO;
+import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.store.dto.GetStoreDetailResponse;
 import cn.dextea.store.dto.StoreNearbyDTO;
 import cn.dextea.store.mapper.StoreMapper;
 import cn.dextea.common.pojo.Store;
@@ -40,15 +41,14 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public ApiResponse getStoreInfo(Long id, Double longitude, Double latitude) throws NotFoundException {
+    public DexteaApiResponse<GetStoreDetailResponse> getStoreDetail(Long id, Double longitude, Double latitude) throws NotFoundException {
         // 获取门店信息
         MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
-                .selectAsClass(Store.class, StoreInfoDTO.class)
+                .selectAsClass(Store.class, GetStoreDetailResponse.class)
                 .eq(Store::getId,id);
-        StoreInfoDTO store=storeMapper.selectJoinOne(StoreInfoDTO.class,wrapper);
+        GetStoreDetailResponse store=storeMapper.selectJoinOne(GetStoreDetailResponse.class,wrapper);
         if (Objects.isNull(store))
             throw new NotFoundException("门店不存在");
-
         // 计算距离
         if(Objects.nonNull(latitude)&&Objects.nonNull(longitude)){
             double distance=redisUtil.getDistanceToStore(id,longitude,latitude);
@@ -64,6 +64,6 @@ public class CustomerServiceImpl implements CustomerService {
             }
             store.setDistance(distance);
         }
-        return ApiResponse.success(JSONObject.of("store",store));
+        return DexteaApiResponse.success(store);
     }
 }

@@ -3,8 +3,11 @@ package cn.dextea.order.util;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
 import com.alipay.api.domain.AlipayTradeCreateModel;
+import com.alipay.api.domain.AlipayTradeQueryModel;
 import com.alipay.api.request.AlipayTradeCreateRequest;
+import com.alipay.api.request.AlipayTradeQueryRequest;
 import com.alipay.api.response.AlipayTradeCreateResponse;
+import com.alipay.api.response.AlipayTradeQueryResponse;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -37,12 +40,27 @@ public class AlipayUtil {
         // 设置订单总金额
         model.setTotalAmount(totalPrice.toString());
         model.setSubject("德贤茶庄");
+        // 设置过期时间
+        model.setTimeoutExpress("10m");
         request.setBizModel(model);
         AlipayTradeCreateResponse response = alipayClient.execute(request);
         if(response.isSuccess()){
             return response;
         }else {
             throw new RuntimeException("支付宝交易创建失败:"+response.getSubMsg()+"("+response.getSubCode()+")");
+        }
+    }
+
+    public AlipayTradeQueryResponse tradeQuery(String tradeNo) throws AlipayApiException {
+        AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
+        AlipayTradeQueryModel model = new AlipayTradeQueryModel();
+        model.setTradeNo(tradeNo);
+        request.setBizModel(model);
+        AlipayTradeQueryResponse response = alipayClient.execute(request);
+        if(response.isSuccess()){
+            return response;
+        }else {
+            throw new RuntimeException("支付宝交易查询失败:"+response.getSubMsg()+"("+response.getSubCode()+")");
         }
     }
 }

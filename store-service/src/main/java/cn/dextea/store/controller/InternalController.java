@@ -33,4 +33,9 @@ public class InternalController {
     public Long getStoreMenuId(@RequestParam Long id){
         return internalService.getStoreMenuId(id);
     }
+
+    @GetMapping("/store/internal/getStoreDistance")
+    public Double getStoreDistance(@RequestParam Long storeId,@RequestParam Double longitude, @RequestParam Double latitude){
+        return internalService.getStoreDistance(storeId,longitude, latitude);
+    }
 }
