@@ -1,6 +1,8 @@
 package cn.dextea.product.controller;
 
 import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.product.dto.UploadResponse;
 import cn.dextea.product.service.UploadService;
 import jakarta.annotation.Resource;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +25,7 @@ public class UploadController {
      * @param file 封面图
      */
     @PostMapping(value = "/product/upload/cover", consumes = "multipart/form-data")
-    public ResponseEntity<ApiResponse> uploadCover(
+    public ResponseEntity<DexteaApiResponse<UploadResponse>> uploadCover(
             @RequestParam Long id,
             @RequestPart MultipartFile file) {
         return uploadService.uploadCover(id, file);
@@ -35,7 +37,7 @@ public class UploadController {
      * @param file 文件
      */
     @PostMapping(value="/product/upload/detail-header-img", consumes = "multipart/form-data")
-    public ResponseEntity<ApiResponse> uploadDetailHeaderImg(
+    public ResponseEntity<DexteaApiResponse<UploadResponse>> uploadDetailHeaderImg(
             @RequestParam Long id,
             @RequestPart MultipartFile file) {
         return uploadService.uploadDetailHeaderImg(id, file);

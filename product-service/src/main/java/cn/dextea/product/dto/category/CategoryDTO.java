@@ -1,6 +1,6 @@
 package cn.dextea.product.dto.category;
 
-import cn.dextea.common.pojo.ProductCategory;
+import cn.dextea.product.pojo.ProductCategory;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;

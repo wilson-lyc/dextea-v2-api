@@ -1,21 +1,24 @@
 package cn.dextea.menu.service.impl;
 
 import cn.dextea.common.code.ProductStatus;
-import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.dto.DexteaApiResponse;
 import cn.dextea.common.feign.ProductFeign;
 import cn.dextea.common.feign.StoreFeign;
-import cn.dextea.common.pojo.Menu;
-import cn.dextea.common.pojo.MenuGroup;
-import cn.dextea.common.pojo.MenuProduct;
-import cn.dextea.common.pojo.Product;
+import cn.dextea.common.model.menu.MenuGroupModel;
+import cn.dextea.common.model.menu.MenuModel;
+import cn.dextea.common.model.menu.MenuProductModel;
+import cn.dextea.common.model.product.ProductModel;
+import cn.dextea.menu.pojo.Menu;
+import cn.dextea.menu.pojo.MenuGroup;
+import cn.dextea.menu.pojo.MenuProduct;
 import cn.dextea.menu.mapper.MenuMapper;
 import cn.dextea.menu.service.CustomerService;
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
 import jakarta.annotation.Resource;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -31,37 +34,59 @@ public class CustomerServiceImpl implements CustomerService {
     private ProductFeign productFeign;
 
     @Override
-    public ApiResponse getStoreMenu(Long id) throws NotFoundException {
-        Long menuId=storeFeign.getStoreMenuId(id);
+    public DexteaApiResponse<MenuModel> getStoreMenu(Long storeId) throws NotFoundException {
+        // 获取menuId
+        Long menuId=storeFeign.getStoreMenuId(storeId);
         if (Objects.isNull(menuId))
             throw new IllegalArgumentException("门店未绑定菜单");
+        // 获取菜单
         Menu menu=menuMapper.selectById(menuId);
         if (Objects.isNull(menu))
             throw new NotFoundException("菜单不存在");
-        JSONArray menuContent=new JSONArray();
+        // 获取商品详情
+        MenuModel menuModel=MenuModel.builder()
+                .id(menu.getId())
+                .name(menu.getName())
+                .description(menu.getDescription())
+                .createTime(menu.getCreateTime())
+                .updateTime(menu.getUpdateTime())
+                .build();
+        // 遍历分组
+        List<MenuGroupModel> menuGroups=new ArrayList<>();
         for (MenuGroup group:menu.getContent()){
-            JSONArray productArray=new JSONArray();
+            MenuGroupModel menuGroupModel=MenuGroupModel.builder()
+                    .id(group.getId())
+                    .name(group.getName())
+                    .sort(group.getSort())
+                    .build();
+            // 遍历商品
+            List<MenuProductModel> menuProductModels=new ArrayList<>();
             for (MenuProduct menuProduct:group.getContent()){
-                Product product=productFeign.getProductById(menuProduct.getId(),id);
+                ProductModel product=productFeign.getProductDetail(menuProduct.getId(),storeId);
                 if (Objects.nonNull(product) &&
-                        product.getStatus()!=ProductStatus.GLOBAL_FORBIDDEN.getValue()&&
-                        product.getStatus()!= ProductStatus.STORE_FORBIDDEN.getValue()){
-                    productArray.add(product);
+                        product.getStatus()!=ProductStatus.GLOBAL_FORBIDDEN.getValue() &&
+                        product.getStatus()!=ProductStatus.STORE_FORBIDDEN.getValue()) {
+                    MenuProductModel menuProductModel = MenuProductModel.builder()
+                            .id(product.getId())
+                            .name(product.getName())
+                            .description(product.getDescription())
+                            .price(product.getPrice())
+                            .cover(product.getCover())
+                            .globalStatus(product.getGlobalStatus())
+                            .storeStatus(product.getStoreStatus())
+                            .sort(menuProduct.getSort())
+                            .createTime(product.getCreateTime())
+                            .updateTime(product.getUpdateTime())
+                            .build();
+                    menuProductModels.add(menuProductModel);
                 }
             }
-            if (productArray.size() > 0){
-                JSONObject groupJson=JSONObject.of(
-                        "id",group.getId(),
-                        "name",group.getName(),
-                        "content",productArray
-                );
-                menuContent.add(groupJson);
+            if (!menuProductModels.isEmpty()){
+                menuGroupModel.setContent(menuProductModels);
+                menuGroups.add(menuGroupModel);
             }
         }
-        JSONObject menuJson=JSONObject.of(
-                "id",menu.getId(),
-                "name",menu.getName(),
-                "content",menuContent);
-        return ApiResponse.success(JSONObject.of("menu",menuJson));
+        menuModel.setContent(menuGroups);
+        return DexteaApiResponse.success(menuModel);
     }
 }

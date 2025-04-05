@@ -1,15 +1,12 @@
 package cn.dextea.menu.dto.menu;
 
-import cn.dextea.common.pojo.Menu;
-import cn.dextea.common.pojo.MenuGroup;
-import com.alibaba.fastjson2.JSONArray;
+import cn.dextea.menu.pojo.Menu;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Lai Yongchao

@@ -1,7 +1,7 @@
 package cn.dextea.store.service.impl;
 
 import cn.dextea.store.mapper.StoreMapper;
-import cn.dextea.common.pojo.Store;
+import cn.dextea.store.pojo.Store;
 import cn.dextea.store.service.InternalService;
 import cn.dextea.store.util.RedisUtil;
 import jakarta.annotation.Resource;
@@ -46,10 +46,5 @@ public class InternalServiceImpl implements InternalService {
     public Long getStoreMenuId(Long id) {
         Store store=storeMapper.selectById(id);
         return store.getMenuId();
-    }
-
-    @Override
-    public Double getStoreDistance(Long storeId, Double longitude, Double latitude) {
-        return redisUtil.getDistanceToStore(storeId,longitude,latitude);
     }
 }

@@ -1,8 +1,7 @@
 package cn.dextea.store.controller;
 
 import cn.dextea.common.dto.DexteaApiResponse;
-import cn.dextea.store.dto.GetStoreDetailResponse;
-import cn.dextea.store.dto.StoreDetailResponse;
+import cn.dextea.common.model.store.StoreModel;
 import cn.dextea.store.service.CustomerService;
 import jakarta.annotation.Resource;
 import org.apache.ibatis.javassist.NotFoundException;
@@ -26,7 +25,7 @@ public class CustomerController {
      * @param limit 数量
      */
     @GetMapping("/store/customer/getNearbyStore")
-    public DexteaApiResponse<List<StoreDetailResponse>> getNearbyStore(
+    public DexteaApiResponse<List<StoreModel>> getNearbyStore(
             @RequestParam Double longitude,
             @RequestParam Double latitude,
             @RequestParam Integer radius,
@@ -41,9 +40,9 @@ public class CustomerController {
      * @param longitude 经度
      * @param latitude 纬度
      */
-    @GetMapping("/store/{id:\\d+}")
-    public DexteaApiResponse<GetStoreDetailResponse> getStoreDetail(
-            @PathVariable Long id,
+    @GetMapping("/store/customer/getStoreDetail")
+    public DexteaApiResponse<StoreModel> getStoreDetail(
+            @RequestParam Long id,
             @RequestParam(required = false) Double longitude,
             @RequestParam(required = false) Double latitude) throws NotFoundException {
         return customerService.getStoreDetail(id, longitude, latitude);

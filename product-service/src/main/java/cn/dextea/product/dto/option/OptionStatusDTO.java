@@ -5,8 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.Objects;
-
 /**
  * @author Lai Yongchao
  */
@@ -28,6 +26,6 @@ public class OptionStatusDTO {
     }
 
     public Integer getStatus() {
-        return CustomizeOptionStatus.getStatus(globalStatus,storeStatus);
+        return CustomizeOptionStatus.getStatusValue(globalStatus,storeStatus);
     }
 }

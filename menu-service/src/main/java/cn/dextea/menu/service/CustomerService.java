@@ -1,11 +1,12 @@
 package cn.dextea.menu.service;
 
-import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.common.model.menu.MenuModel;
 import org.apache.ibatis.javassist.NotFoundException;
 
 /**
  * @author Lai Yongchao
  */
 public interface CustomerService {
-    ApiResponse getStoreMenu(Long id) throws NotFoundException;
+    DexteaApiResponse<MenuModel> getStoreMenu(Long id) throws NotFoundException;
 }

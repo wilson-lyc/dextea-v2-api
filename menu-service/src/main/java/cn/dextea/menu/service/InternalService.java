@@ -1,6 +1,6 @@
 package cn.dextea.menu.service;
 
-import cn.dextea.common.pojo.Menu;
+import cn.dextea.menu.pojo.Menu;
 
 /**
  * @author Lai Yongchao

@@ -1,7 +1,6 @@
 package cn.dextea.staff.dto;
 
-import cn.dextea.common.code.StaffStatus;
-import cn.dextea.common.pojo.Staff;
+import cn.dextea.staff.pojo.Staff;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 

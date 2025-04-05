@@ -15,7 +15,6 @@
         <module>common</module>
         <module>store-service</module>
         <module>auth-service</module>
-        <module>tos-service</module>
         <module>product-service</module>
         <module>menu-service</module>
         <module>customer-service</module>
@@ -43,6 +42,10 @@
         <fastjson.version>2.0.53</fastjson.version>
         <!-- sa-token -->
         <sa-token.version>1.39.0</sa-token.version>
+        <!-- alipay SDK -->
+        <alipay.version>4.40.112.ALL</alipay.version>
+        <!-- tos SDK -->
+        <tos.version>2.6.6</tos.version>
     </properties>
     <!-- 依赖 -->
     <dependencies>
@@ -145,10 +148,17 @@
                 <artifactId>sa-token-redis-jackson</artifactId>
                 <version>${sa-token.version}</version>
             </dependency>
+            <!-- Alipay SDK -->
             <dependency>
                 <groupId>com.alipay.sdk</groupId>
                 <artifactId>alipay-sdk-java</artifactId>
-                <version>4.40.112.ALL</version>
+                <version>${alipay.version}</version>
+            </dependency>
+            <!-- TOS SDK -->
+            <dependency>
+                <groupId>com.volcengine</groupId>
+                <artifactId>ve-tos-java-sdk</artifactId>
+                <version>${tos.version}</version>
             </dependency>
         </dependencies>
     </dependencyManagement>

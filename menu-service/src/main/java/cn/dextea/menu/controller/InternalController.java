@@ -1,6 +1,6 @@
 package cn.dextea.menu.controller;
 
-import cn.dextea.common.pojo.Menu;
+import cn.dextea.menu.pojo.Menu;
 import cn.dextea.menu.service.InternalService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;

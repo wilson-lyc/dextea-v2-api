@@ -4,18 +4,15 @@ import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dextea.common.code.StaffIdentity;
 import cn.dextea.common.code.StaffStatus;
-import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.common.dto.DexteaApiResponse;
 import cn.dextea.common.feign.StaffFeign;
 import cn.dextea.common.feign.StoreFeign;
-import cn.dextea.common.pojo.Staff;
-import cn.dextea.common.pojo.Store;
+import cn.dextea.staff.pojo.Staff;
 import cn.dextea.staff.dto.*;
 import cn.dextea.staff.mapper.StaffMapper;
 import cn.dextea.staff.service.StaffService;
 import cn.dextea.staff.util.AccountUtil;
 import cn.dextea.staff.util.PasswordUtil;
-import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
@@ -102,9 +99,7 @@ public class StaffServiceImpl implements StaffService {
     public DexteaApiResponse<StaffInfoResponse> getStaffInfo(Long id) throws NotFoundException {
         MPJLambdaWrapper<Staff> wrapper=new MPJLambdaWrapper<Staff>()
                 .eq(Staff::getId,id)
-                .selectAsClass(Staff.class,StaffInfoResponse.class)
-                .leftJoin(Store.class,Store::getId,Staff::getStoreId)
-                .selectAs(Store::getName,StaffInfoResponse::getStoreName);
+                .selectAsClass(Staff.class,StaffInfoResponse.class);
         StaffInfoResponse staff=staffMapper.selectJoinOne(StaffInfoResponse.class,wrapper);
         if(Objects.isNull(staff))
             throw new NotFoundException("员工不存在");

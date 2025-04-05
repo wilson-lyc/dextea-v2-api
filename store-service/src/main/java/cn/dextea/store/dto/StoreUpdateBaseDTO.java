@@ -1,7 +1,6 @@
 package cn.dextea.store.dto;
 
-import cn.dextea.common.code.StoreStatus;
-import cn.dextea.common.pojo.Store;
+import cn.dextea.store.pojo.Store;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

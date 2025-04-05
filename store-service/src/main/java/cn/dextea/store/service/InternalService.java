@@ -10,5 +10,4 @@ public interface InternalService {
     String getStoreName(Long id) throws IllegalArgumentException;
     boolean storeBindMenu(Long storeId, Long menuId) throws NotFoundException;
     Long getStoreMenuId(Long id);
-    Double getStoreDistance(Long storeId, Double longitude, Double latitude);
 }

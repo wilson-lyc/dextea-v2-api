@@ -23,13 +23,11 @@ public class RedisConfig {
         return template;
     }
 
-    // 新增专门用于Long类型操作的RedisTemplate
     @Bean
     public RedisTemplate<String, Long> longRedisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Long> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
         template.setKeySerializer(new StringRedisSerializer());
-        // 使用GenericToStringSerializer来序列化Long值
         template.setValueSerializer(new GenericToStringSerializer<>(Long.class));
         template.setHashKeySerializer(new StringRedisSerializer());
         template.setHashValueSerializer(new GenericToStringSerializer<>(Long.class));

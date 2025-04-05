@@ -1,6 +1,6 @@
 package cn.dextea.product.mapper;
 
-import cn.dextea.common.pojo.CustomizeOptionStoreStatus;
+import cn.dextea.product.pojo.CustomizeOptionStoreStatus;
 import com.github.yulichang.base.MPJBaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 

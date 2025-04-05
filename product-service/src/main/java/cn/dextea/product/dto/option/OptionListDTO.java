@@ -6,7 +6,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.Objects;
 
 /**
  * @author Lai Yongchao
@@ -24,6 +23,6 @@ public class OptionListDTO {
     private Integer status;
 
     public Integer getStatus() {
-        return CustomizeOptionStatus.getStatus(globalStatus,storeStatus);
+        return CustomizeOptionStatus.getStatusValue(globalStatus,storeStatus);
     }
 }

@@ -1,6 +1,8 @@
 package cn.dextea.store.controller;
 
 import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.store.dto.UploadResponse;
 import cn.dextea.store.service.UploadService;
 import jakarta.annotation.Resource;
 import org.springframework.http.ResponseEntity;
@@ -24,7 +26,7 @@ public class UploadController {
      * @param file 营业执照文件
      */
     @PostMapping(value = "/store/upload/business-license", consumes = "multipart/form-data")
-    public ResponseEntity<ApiResponse> uploadBusinessLicense(
+    public ResponseEntity<DexteaApiResponse<UploadResponse>> uploadBusinessLicense(
             @RequestParam Long id,
             @RequestPart MultipartFile file) {
         return uploadService.uploadBusinessLicense(id, file);
@@ -36,7 +38,7 @@ public class UploadController {
      * @param file 食品经营许可证
      */
     @PostMapping(value = "/store/upload/food-license", consumes = "multipart/form-data")
-    public ResponseEntity<ApiResponse> uploadFoodLicense(
+    public ResponseEntity<DexteaApiResponse<UploadResponse>> uploadFoodLicense(
             @RequestParam Long id,
             @RequestPart MultipartFile file) {
         return uploadService.uploadFoodLicense(id, file);

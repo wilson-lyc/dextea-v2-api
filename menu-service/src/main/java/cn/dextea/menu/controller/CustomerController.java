@@ -1,11 +1,12 @@
 package cn.dextea.menu.controller;
 
 import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.common.model.menu.MenuModel;
 import cn.dextea.menu.service.CustomerService;
 import jakarta.annotation.Resource;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -21,8 +22,8 @@ public class CustomerController {
      * 获取门店的菜单
      * @param id 门店ID
      */
-    @GetMapping("/store/{id:\\d+}/menu")
-    public ApiResponse getStoreMenu(@PathVariable Long id) throws NotFoundException {
+    @GetMapping("/menu/customer/getStoreMenu")
+    public DexteaApiResponse<MenuModel> getStoreMenu(@RequestParam Long id) throws NotFoundException {
         return customerService.getStoreMenu(id);
     }
 }

@@ -1,11 +1,10 @@
 package cn.dextea.store.service.impl;
 
 import cn.dextea.common.dto.DexteaApiResponse;
-import cn.dextea.store.dto.GetStoreDetailResponse;
-import cn.dextea.store.dto.StoreDetailResponse;
+import cn.dextea.common.model.store.StoreModel;
 import cn.dextea.store.mapper.StoreMapper;
-import cn.dextea.common.pojo.Store;
-import cn.dextea.store.pojo.NearbyStore;
+import cn.dextea.store.pojo.Store;
+import cn.dextea.store.model.NearbyStoreModel;
 import cn.dextea.store.service.CustomerService;
 import cn.dextea.store.util.RedisUtil;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
@@ -27,22 +26,22 @@ public class CustomerServiceImpl implements CustomerService {
     @Resource
     private StoreMapper storeMapper;
     @Override
-    public DexteaApiResponse<List<StoreDetailResponse>> getNearbyStore(Double longitude, Double latitude, Integer radius, Integer limit) {
+    public DexteaApiResponse<List<cn.dextea.common.model.store.StoreModel>> getNearbyStore(Double longitude, Double latitude, Integer radius, Integer limit) {
         // 获取附近门店
-        List<NearbyStore> nearbyStores=redisUtil.getNearbyStores(longitude,latitude,radius,limit);
+        List<NearbyStoreModel> nearbyStores =redisUtil.getNearbyStores(longitude,latitude,radius,limit);
         // 提取所有门店ID
         List<Long> storeIds = nearbyStores.stream()
-                .map(NearbyStore::getId)
+                .map(NearbyStoreModel::getId)
                 .filter(Objects::nonNull)
                 .toList();
-        // 查询门店
+        // 查询门店详情
         MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
-                .selectAsClass(Store.class, StoreDetailResponse.class)
+                .selectAsClass(Store.class, cn.dextea.common.model.store.StoreModel.class)
                 .in(Store::getId,storeIds);
-        List<StoreDetailResponse> storeDetails=storeMapper.selectJoinList(StoreDetailResponse.class,wrapper);
+        List<cn.dextea.common.model.store.StoreModel> stores=storeMapper.selectJoinList(cn.dextea.common.model.store.StoreModel.class,wrapper);
         // 构建结果集
-        for (StoreDetailResponse store : storeDetails) {
-            NearbyStore nearbyStore = nearbyStores.stream()
+        for (cn.dextea.common.model.store.StoreModel store : stores) {
+            NearbyStoreModel nearbyStore = nearbyStores.stream()
                     .filter(item -> item.getId().equals(store.getId()))
                     .findFirst()
                     .orElse(null);
@@ -51,32 +50,23 @@ public class CustomerServiceImpl implements CustomerService {
                 store.setDistanceUnit(nearbyStore.getDistanceUnit());
             }
         }
-        return DexteaApiResponse.success(storeDetails);
+        return DexteaApiResponse.success(stores);
     }
 
     @Override
-    public DexteaApiResponse<GetStoreDetailResponse> getStoreDetail(Long id, Double longitude, Double latitude) throws NotFoundException {
+    public DexteaApiResponse<StoreModel> getStoreDetail(Long id, Double longitude, Double latitude) throws NotFoundException {
         // 获取门店信息
         MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
-                .selectAsClass(Store.class, GetStoreDetailResponse.class)
+                .selectAsClass(Store.class, StoreModel.class)
                 .eq(Store::getId,id);
-        GetStoreDetailResponse store=storeMapper.selectJoinOne(GetStoreDetailResponse.class,wrapper);
+        StoreModel store=storeMapper.selectJoinOne(StoreModel.class,wrapper);
         if (Objects.isNull(store))
             throw new NotFoundException("门店不存在");
         // 计算距离
         if(Objects.nonNull(latitude)&&Objects.nonNull(longitude)){
-            double distance=redisUtil.getDistanceToStore(id,longitude,latitude);
-            // 计算展示单位
-            if(distance<1){
-                DecimalFormat df = new DecimalFormat("#");
-                distance = Double.parseDouble(df.format(distance*1000));
-                store.setDistanceUnit("m");
-            }else{
-                DecimalFormat df = new DecimalFormat("#.0");
-                distance = Double.parseDouble(df.format(distance));
-                store.setDistanceUnit("km");
-            }
-            store.setDistance(distance);
+            NearbyStoreModel distance=redisUtil.getDistanceToStore(id,longitude,latitude);
+            store.setDistance(distance.getDistance());
+            store.setDistanceUnit(distance.getDistanceUnit());
         }
         return DexteaApiResponse.success(store);
     }

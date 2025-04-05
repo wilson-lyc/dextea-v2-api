@@ -1,6 +1,7 @@
 package cn.dextea.product.service;
 
-import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.product.dto.UploadResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -8,6 +9,6 @@ import org.springframework.web.multipart.MultipartFile;
  * @author Lai Yongchao
  */
 public interface UploadService {
-    ResponseEntity<ApiResponse> uploadCover(Long id, MultipartFile file);
-    ResponseEntity<ApiResponse> uploadDetailHeaderImg(Long id, MultipartFile file);
+    ResponseEntity<DexteaApiResponse<UploadResponse>> uploadCover(Long id, MultipartFile file);
+    ResponseEntity<DexteaApiResponse<UploadResponse>> uploadDetailHeaderImg(Long id, MultipartFile file);
 }

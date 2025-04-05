@@ -1,9 +1,8 @@
 package cn.dextea.menu.dto.group;
 
-import cn.dextea.common.pojo.MenuGroup;
-import cn.dextea.common.pojo.MenuProduct;
+import cn.dextea.menu.pojo.MenuGroup;
+import cn.dextea.menu.pojo.MenuProduct;
 import cn.hutool.core.util.IdUtil;
-import com.alibaba.fastjson2.JSONArray;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

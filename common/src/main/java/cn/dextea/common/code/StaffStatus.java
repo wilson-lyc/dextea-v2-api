@@ -1,7 +1,5 @@
 package cn.dextea.common.code;
 
-import com.baomidou.mybatisplus.annotation.EnumValue;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -10,12 +8,11 @@ import lombok.RequiredArgsConstructor;
  */
 @Getter
 @RequiredArgsConstructor
-@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum StaffStatus {
+    UNKNOWN(-1,"未知"),
     FORBIDDEN(0,"禁用"),
     ACTIVE(1, "激活");
 
-    @EnumValue
     private final int value;
     private final String label;
 
@@ -25,6 +22,6 @@ public enum StaffStatus {
                 return item;
             }
         }
-        throw new IllegalArgumentException("未知的员工状态码");
+        return UNKNOWN;
     }
 }

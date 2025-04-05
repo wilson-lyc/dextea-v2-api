@@ -4,7 +4,7 @@ import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.common.dto.OptionDTO;
 import cn.dextea.product.dto.category.CategoryDTO;
 import cn.dextea.product.mapper.CategoryMapper;
-import cn.dextea.common.pojo.ProductCategory;
+import cn.dextea.product.pojo.ProductCategory;
 import cn.dextea.product.service.CategoryService;
 import com.alibaba.fastjson2.JSONObject;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;

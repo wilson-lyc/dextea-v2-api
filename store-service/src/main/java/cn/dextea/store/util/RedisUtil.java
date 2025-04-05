@@ -1,6 +1,6 @@
 package cn.dextea.store.util;
 
-import cn.dextea.store.pojo.NearbyStore;
+import cn.dextea.store.model.NearbyStoreModel;
 import cn.hutool.core.util.IdUtil;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
@@ -41,7 +41,7 @@ public class RedisUtil {
      * @param radius 半径
      * @param limit 数量
      */
-    public List<NearbyStore> getNearbyStores(double longitude, double latitude, double radius, int limit) {
+    public List<NearbyStoreModel> getNearbyStores(double longitude, double latitude, double radius, int limit) {
         Point center = new Point(longitude, latitude);
         Distance distance = new Distance(radius, Metrics.KILOMETERS);
         Circle circle = new Circle(center, distance);
@@ -64,7 +64,7 @@ public class RedisUtil {
                 .map(result -> {
                     Long tempId = Long.parseLong(result.getContent().getName());
                     Distance tempDistance = result.getDistance();
-                    return NearbyStore.builder()
+                    return NearbyStoreModel.builder()
                             .id(tempId)
                             .distance(tempDistance.getValue())
                             .build();
@@ -79,7 +79,7 @@ public class RedisUtil {
      * @param latitude 纬度
      * @return 距离
      */
-    public double getDistanceToStore(Long id, Double longitude, Double latitude) {
+    public NearbyStoreModel getDistanceToStore(Long id, Double longitude, Double latitude) {
         Point point = new Point(longitude, latitude);
         String userKey = IdUtil.fastSimpleUUID();
         redisTemplate.opsForGeo().add(LOCATION_KEY, point, userKey);// 添加用户位置
@@ -89,6 +89,9 @@ public class RedisUtil {
                 userKey,
                 Metrics.KILOMETERS);
         redisTemplate.opsForGeo().remove(LOCATION_KEY, userKey);
-        return distance.getValue();
+        return NearbyStoreModel.builder()
+                .id(id)
+                .distance(distance.getValue())
+                .build();
     }
 }

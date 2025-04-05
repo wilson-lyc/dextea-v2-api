@@ -13,10 +13,12 @@ import org.springframework.web.bind.annotation.*;
 public class InternalController {
     @Resource
     private InternalService internalService;
+
     @GetMapping("/store/internal/isStoreIdValid")
     public boolean isStoreIdValid(@RequestParam Long id) {
         return internalService.isStoreIdValid(id);
     }
+
     @GetMapping("/store/internal/getStoreName")
     public String getStoreName(@RequestParam Long id) throws IllegalArgumentException {
         return internalService.getStoreName(id);
@@ -32,10 +34,5 @@ public class InternalController {
     @GetMapping("/store/internal/getStoreMenuId")
     public Long getStoreMenuId(@RequestParam Long id){
         return internalService.getStoreMenuId(id);
-    }
-
-    @GetMapping("/store/internal/getStoreDistance")
-    public Double getStoreDistance(@RequestParam Long storeId,@RequestParam Double longitude, @RequestParam Double latitude){
-        return internalService.getStoreDistance(storeId,longitude, latitude);
     }
 }

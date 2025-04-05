@@ -1,6 +1,6 @@
 package cn.dextea.auth.mapper;
 
-import cn.dextea.common.pojo.Role;
+import cn.dextea.auth.pojo.Role;
 import com.github.yulichang.base.MPJBaseMapper;
 
 /**

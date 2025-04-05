@@ -1,7 +1,6 @@
 package cn.dextea.common.code;
 
 import cn.hutool.core.date.DateUtil;
-import com.baomidou.mybatisplus.annotation.EnumValue;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -14,15 +13,15 @@ import java.util.Objects;
 @Getter
 @RequiredArgsConstructor
 public enum OrderStatus {
+    UNKNOWN(-1,"未知"),
     PAY_PENDING(0,"待支付"),
     MAKING(1,"制作中"),
     WAIT_PICK(2,"待取餐"),
     DONE(3,"已完成"),
     PAY_TIMEOUT(90,"交易关闭"),
-    CANCEL(91,"订单取消"),
-    REFUND(92,"订单退款");
+    CANCEL(91,"已取消"),
+    REFUND(92,"已退款");
 
-    @EnumValue
     private final int value;
     private final String label;
 
@@ -32,7 +31,7 @@ public enum OrderStatus {
                 return item;
             }
         }
-        throw new IllegalArgumentException("未知的订单状态码");
+        return UNKNOWN;
     }
 
     public static OrderStatus fromValue(int value,String payExpireTime){

@@ -4,10 +4,10 @@ import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.common.feign.MenuFeign;
 import cn.dextea.common.feign.ProductFeign;
 import cn.dextea.common.feign.StoreFeign;
-import cn.dextea.common.pojo.Menu;
-import cn.dextea.common.pojo.MenuGroup;
-import cn.dextea.common.pojo.MenuProduct;
-import cn.dextea.common.pojo.Product;
+import cn.dextea.common.model.product.ProductModel;
+import cn.dextea.menu.pojo.Menu;
+import cn.dextea.menu.pojo.MenuGroup;
+import cn.dextea.menu.pojo.MenuProduct;
 import cn.dextea.menu.dto.menu.*;
 import cn.dextea.menu.mapper.MenuMapper;
 import cn.dextea.menu.service.MenuService;
@@ -78,7 +78,7 @@ public class MenuServiceImpl implements MenuService {
             groupJson.put("name",group.getName());
             JSONArray contentJson=new JSONArray();
             for(MenuProduct product:group.getContent()){
-                Product productInfo=productFeign.getProductById(product.getId(),storeId);
+                ProductModel productInfo=productFeign.getProductDetail(product.getId(),storeId);
                 if (Objects.isNull(productInfo)){
                     errJson.add(String.format("商品id=%d不存在",product.getId()));
                 }

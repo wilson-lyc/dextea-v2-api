@@ -1,6 +1,5 @@
 package cn.dextea.common.code;
 
-import com.baomidou.mybatisplus.annotation.EnumValue;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -12,13 +11,13 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum StoreStatus {
-    NOT_ACTIVE(0,"未激活"),
-    OPEN(1,"营业"),
-    CLOSE(2, "闭店"),
-    BUSY(3, "繁忙"),
-    DELETE(9, "删除");
+    UNKNOWN(-1,"未知"),
+    NOT_ACTIVE(0,"筹备中"),
+    OPEN(1,"营业中"),
+    CLOSE(2, "休息中"),
+    BUSY(3, "门店繁忙"),
+    DELETE(9, "已注销");
 
-    @EnumValue
     private final int value;
     private final String label;
 
@@ -28,6 +27,6 @@ public enum StoreStatus {
                 return item;
             }
         }
-        throw new IllegalArgumentException("未知的门店状态码");
+        return UNKNOWN;
     }
 }

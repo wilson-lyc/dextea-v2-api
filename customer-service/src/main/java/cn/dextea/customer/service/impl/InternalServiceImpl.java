@@ -1,8 +1,9 @@
 package cn.dextea.customer.service.impl;
 
-import cn.dextea.common.pojo.Customer;
+import cn.dextea.customer.pojo.Customer;
 import cn.dextea.customer.mapper.CustomerMapper;
 import cn.dextea.customer.service.InternalService;
+import cn.dextea.customer.util.JWTUtil;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -14,6 +15,8 @@ import org.springframework.stereotype.Service;
 public class InternalServiceImpl implements InternalService {
     @Resource
     private CustomerMapper customerMapper;
+    @Resource
+    private JWTUtil jwtUtil;
 
     @Override
     public String getCustomerOpenId(Long id) {
@@ -21,5 +24,10 @@ public class InternalServiceImpl implements InternalService {
                 .select(Customer::getOpenId)
                 .eq(Customer::getId,id);
         return customerMapper.selectJoinOne(String.class,wrapper);
+    }
+
+    @Override
+    public boolean verifyCustomerToken(String token) {
+        return jwtUtil.verifyToken(token);
     }
 }

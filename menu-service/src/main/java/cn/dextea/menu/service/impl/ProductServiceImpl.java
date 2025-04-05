@@ -3,10 +3,10 @@ package cn.dextea.menu.service.impl;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.common.feign.MenuFeign;
 import cn.dextea.common.feign.ProductFeign;
-import cn.dextea.common.pojo.Menu;
-import cn.dextea.common.pojo.MenuGroup;
-import cn.dextea.common.pojo.MenuProduct;
-import cn.dextea.common.pojo.Product;
+import cn.dextea.common.model.product.ProductModel;
+import cn.dextea.menu.pojo.Menu;
+import cn.dextea.menu.pojo.MenuGroup;
+import cn.dextea.menu.pojo.MenuProduct;
 import cn.dextea.menu.mapper.MenuMapper;
 import cn.dextea.menu.service.ProductService;
 import com.alibaba.fastjson2.JSONArray;
@@ -30,7 +30,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ApiResponse addProduct(Long menuId, String groupId, Long productId, Integer sort){
-        Menu menu=menuFeign.getMenuById(menuId);
+        Menu menu=menuMapper.selectById(menuId);
         if(Objects.isNull(menu))
             throw new IllegalArgumentException("menuId错误");
         MenuGroup menuGroup=menu.getMenuGroup(groupId);
@@ -51,7 +51,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ApiResponse deleteProduct(Long menuId, String groupId, Long productId) {
-        Menu menu=menuFeign.getMenuById(menuId);
+        Menu menu=menuMapper.selectById(menuId);
         if(Objects.isNull(menu))
             throw new IllegalArgumentException("menuId错误");
         MenuGroup menuGroup=menu.getMenuGroup(groupId);
@@ -68,7 +68,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ApiResponse getProductList(Long menuId, String groupId) {
-        Menu menu=menuFeign.getMenuById(menuId);
+        Menu menu=menuMapper.selectById(menuId);
         if(Objects.isNull(menu))
             throw new IllegalArgumentException("menuId错误");
         MenuGroup menuGroup=menu.getMenuGroup(groupId);
@@ -77,7 +77,7 @@ public class ProductServiceImpl implements ProductService {
         JSONArray products=new JSONArray();
         JSONArray errors=new JSONArray();
         for (MenuProduct item:menuGroup.getContent()){
-            Product product=productFeign.getProductById(item.getId());
+            ProductModel product=productFeign.getProductDetail(item.getId());
             if (Objects.isNull(product))
                 errors.add(String.format("商品id=%d不存在",item.getId()));
             else
@@ -94,7 +94,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ApiResponse getProductInfo(Long menuId, String groupId, Long productId) {
-        Menu menu=menuFeign.getMenuById(menuId);
+        Menu menu=menuMapper.selectById(menuId);
         if(Objects.isNull(menu))
             throw new IllegalArgumentException("menuId错误");
         MenuGroup menuGroup=menu.getMenuGroup(groupId);
@@ -103,7 +103,7 @@ public class ProductServiceImpl implements ProductService {
         if(!menuGroup.hasProduct(productId))
             throw new IllegalArgumentException("分组内不存在该商品");
         MenuProduct menuProduct=menuGroup.getProduct(productId);
-        Product product=productFeign.getProductById(productId);
+        ProductModel product=productFeign.getProductDetail(productId);
         JSONObject productJson=JSONObject.of(
                 "id",product.getId(),
                 "name",product.getName(),
@@ -115,7 +115,7 @@ public class ProductServiceImpl implements ProductService {
 
     @Override
     public ApiResponse updateProductInfo(Long menuId, String groupId, Long productId, Integer sort) {
-        Menu menu=menuFeign.getMenuById(menuId);
+        Menu menu=menuMapper.selectById(menuId);
         if(Objects.isNull(menu))
             throw new IllegalArgumentException("menuId错误");
         MenuGroup menuGroup=menu.getMenuGroup(groupId);

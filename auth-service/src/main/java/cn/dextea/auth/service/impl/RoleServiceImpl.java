@@ -7,14 +7,13 @@ import cn.dextea.auth.dto.role.RoleUpdateDTO;
 import cn.dextea.auth.mapper.RoleMapper;
 import cn.dextea.auth.service.RoleService;
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.common.pojo.Role;
+import cn.dextea.auth.pojo.Role;
 import com.alibaba.fastjson2.JSONObject;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
-import javax.management.relation.RoleList;
 import java.util.List;
 import java.util.Objects;
 

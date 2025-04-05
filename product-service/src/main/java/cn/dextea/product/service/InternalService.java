@@ -1,6 +1,6 @@
 package cn.dextea.product.service;
 
-import cn.dextea.common.pojo.Product;
+import cn.dextea.common.model.product.ProductModel;
 
 import java.math.BigDecimal;
 
@@ -12,14 +12,14 @@ public interface InternalService {
     boolean isCategoryIdValid(Long id);
     boolean isCustomizeItemIdValid(Long id);
 
-    Product getProductById(Long productId);
-    Product getProductById(Long productId, Long storeId);
+    ProductModel getProductDetail(Long productId);
+    ProductModel getProductDetail(Long productId, Long storeId);
     Integer getProductStoreStatus(Long productId, Long storeId);
     Integer getProductGlobalStatus(Long productId);
     // 选项
     boolean isCustomizeOptionIdValid(Long id);
-    Integer getCustomizeOptionGlobalStatus(Long optionId);
-    Integer getCustomizeOptionStoreStatus(Long optionId, Long storeId);
+    Integer getOptionGlobalStatus(Long optionId);
+    Integer getOptionStoreStatus(Long optionId, Long storeId);
 
     BigDecimal getCustomizeOptionPrice(Long id);
     BigDecimal getProductPrice(Long id);

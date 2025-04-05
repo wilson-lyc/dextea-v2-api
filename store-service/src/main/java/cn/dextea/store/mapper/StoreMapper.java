@@ -1,6 +1,6 @@
 package cn.dextea.store.mapper;
 
-import cn.dextea.common.pojo.Store;
+import cn.dextea.store.pojo.Store;
 import com.github.yulichang.base.MPJBaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 

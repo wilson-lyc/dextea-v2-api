@@ -1,8 +1,6 @@
 package cn.dextea.menu.dto.group;
 
-import cn.dextea.common.pojo.Menu;
-import cn.dextea.common.pojo.MenuGroup;
-import cn.dextea.menu.dto.menu.MenuBaseDTO;
+import cn.dextea.menu.pojo.MenuGroup;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

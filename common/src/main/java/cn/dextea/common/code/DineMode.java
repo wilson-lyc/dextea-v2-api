@@ -1,7 +1,5 @@
 package cn.dextea.common.code;
 
-import com.baomidou.mybatisplus.annotation.EnumValue;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
@@ -10,12 +8,11 @@ import lombok.RequiredArgsConstructor;
  */
 @Getter
 @RequiredArgsConstructor
-@JsonFormat(shape = JsonFormat.Shape.OBJECT)
 public enum DineMode {
+    UNKNOWN(-1,"未知"),
     DINE_IN(0,"堂食"),
     TO_GO(1,"外带");
 
-    @EnumValue
     private final int value;
     private final String label;
 
@@ -25,6 +22,6 @@ public enum DineMode {
                 return item;
             }
         }
-        throw new IllegalArgumentException("未知的用餐方式");
+        return UNKNOWN;
     }
 }

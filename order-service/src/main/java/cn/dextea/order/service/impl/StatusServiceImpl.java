@@ -2,7 +2,7 @@ package cn.dextea.order.service.impl;
 
 import cn.dextea.common.code.OrderStatus;
 import cn.dextea.common.dto.DexteaApiResponse;
-import cn.dextea.common.pojo.Order;
+import cn.dextea.order.pojo.Order;
 import cn.dextea.order.dto.OrderUpdateStatusRequest;
 import cn.dextea.order.dto.OrderPayDoneResponse;
 import cn.dextea.order.mapper.OrderMapper;

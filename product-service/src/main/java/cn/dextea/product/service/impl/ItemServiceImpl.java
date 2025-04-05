@@ -1,13 +1,12 @@
 package cn.dextea.product.service.impl;
 
-import cn.dextea.common.code.CustomizeItemStatus;
 import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.common.feign.ProductFeign;
 import cn.dextea.product.dto.item.ItemUpdateDTO;
 import cn.dextea.product.dto.item.ItemCreateDTO;
 import cn.dextea.product.mapper.ItemMapper;
 import cn.dextea.product.mapper.ProductMapper;
-import cn.dextea.common.pojo.CustomizeItem;
+import cn.dextea.product.pojo.CustomizeItem;
 import cn.dextea.product.service.ItemService;
 import com.alibaba.fastjson2.JSONObject;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;

@@ -1,13 +1,13 @@
 package cn.dextea.menu.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.common.pojo.Menu;
+import cn.dextea.menu.pojo.Menu;
 import cn.dextea.menu.dto.group.GroupBaseDTO;
 import cn.dextea.menu.dto.group.GroupCreateDTO;
 import cn.dextea.menu.dto.group.GroupListDTO;
 import cn.dextea.menu.dto.group.GroupUpdateBaseDTO;
 import cn.dextea.menu.mapper.MenuMapper;
-import cn.dextea.common.pojo.MenuGroup;
+import cn.dextea.menu.pojo.MenuGroup;
 import cn.dextea.menu.service.GroupService;
 import com.alibaba.fastjson2.JSONObject;
 import jakarta.annotation.Resource;

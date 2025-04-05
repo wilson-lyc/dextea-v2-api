@@ -1,6 +1,6 @@
 package cn.dextea.staff.util;
 
-import cn.dextea.common.pojo.Staff;
+import cn.dextea.staff.pojo.Staff;
 import cn.dextea.staff.mapper.StaffMapper;
 import cn.hutool.extra.pinyin.PinyinUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;

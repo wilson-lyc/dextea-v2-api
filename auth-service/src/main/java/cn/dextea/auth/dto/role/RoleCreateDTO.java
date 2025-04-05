@@ -1,12 +1,11 @@
 package cn.dextea.auth.dto.role;
 
-import cn.dextea.common.pojo.Role;
+import cn.dextea.auth.pojo.Role;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.ArrayList;
-import java.util.List;
 
 /**
  * @author Lai Yongchao

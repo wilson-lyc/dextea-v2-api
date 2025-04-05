@@ -2,17 +2,13 @@ package cn.dextea.order.dto;
 
 import cn.dextea.common.code.DineMode;
 import cn.dextea.common.code.OrderStatus;
-import cn.dextea.common.pojo.OrderProduct;
-import cn.hutool.core.date.DateUtil;
+import cn.dextea.order.pojo.OrderProduct;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Lai Yongchao

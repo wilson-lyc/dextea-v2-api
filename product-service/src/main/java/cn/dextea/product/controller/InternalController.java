@@ -1,6 +1,6 @@
 package cn.dextea.product.controller;
 
-import cn.dextea.common.pojo.Product;
+import cn.dextea.common.model.product.ProductModel;
 import cn.dextea.product.service.InternalService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,14 +17,16 @@ import java.util.Objects;
 public class InternalController {
     @Resource
     private InternalService internalService;
-    @GetMapping("/product/internal/isProductIdValid")
-    public boolean isProductIdValid(@RequestParam Long id) {
-        return internalService.isProductIdValid(id);
-    }
 
+    // ID校验
     @GetMapping("/product/internal/isCategoryIdValid")
     public boolean isCategoryIdValid(@RequestParam Long id) {
         return internalService.isCategoryIdValid(id);
+    }
+
+    @GetMapping("/product/internal/isProductIdValid")
+    public boolean isProductIdValid(@RequestParam Long id) {
+        return internalService.isProductIdValid(id);
     }
 
     @GetMapping("/product/internal/isCustomizeItemIdValid")
@@ -37,6 +39,12 @@ public class InternalController {
         return internalService.isCustomizeOptionIdValid(id);
     }
 
+    // 获取商品状态
+    @GetMapping("/product/internal/getProductGlobalStatus")
+    public Integer getProductGlobalStatus(@RequestParam Long productId) {
+        return internalService.getProductGlobalStatus(productId);
+    }
+
     @GetMapping("/product/internal/getProductStoreStatus")
     public Integer getProductStoreStatus(
             @RequestParam Long productId,
@@ -44,31 +52,23 @@ public class InternalController {
         return internalService.getProductStoreStatus(productId,storeId);
     }
 
-    @GetMapping("/product/internal/getProductGlobalStatus")
-    public Integer getProductGlobalStatus(@RequestParam Long productId) {
-        return internalService.getProductGlobalStatus(productId);
-    }
-
-    @GetMapping("/product/internal/getProductById")
-    public Product getProductById(
-            @RequestParam Long productId,
-            @RequestParam(required = false) Long storeId) {
-        if (Objects.isNull(storeId))
-            return internalService.getProductById(productId);
-        else
-            return internalService.getProductById(productId,storeId);
-    }
-
+    // 获取客制化选项状态
     @GetMapping("/product/internal/getOptionGlobalStatus")
     public Integer getOptionGlobalStatus(@RequestParam Long optionId) {
-        return internalService.getCustomizeOptionGlobalStatus(optionId);
+        return internalService.getOptionGlobalStatus(optionId);
     }
 
     @GetMapping("/product/internal/getOptionStoreStatus")
     public Integer getOptionStoreStatus(
             @RequestParam Long optionId,
             @RequestParam Long storeId){
-        return internalService.getCustomizeOptionStoreStatus(optionId,storeId);
+        return internalService.getOptionStoreStatus(optionId,storeId);
+    }
+
+    // 获取价格
+    @GetMapping("/product/internal/getProductPrice")
+    public BigDecimal getProductPrice(@RequestParam Long id){
+        return internalService.getProductPrice(id);
     }
 
     @GetMapping("/product/internal/getCustomizeOptionPrice")
@@ -76,8 +76,14 @@ public class InternalController {
         return internalService.getCustomizeOptionPrice(id);
     }
 
-    @GetMapping("/product/internal/getProductPrice")
-    public BigDecimal getProductPrice(@RequestParam Long id){
-        return internalService.getProductPrice(id);
+    // 获取商品详情
+    @GetMapping("/product/internal/getProductDetail")
+    public ProductModel getProductById(
+            @RequestParam Long productId,
+            @RequestParam(required = false) Long storeId) {
+        if (Objects.isNull(storeId))
+            return internalService.getProductDetail(productId);
+        else
+            return internalService.getProductDetail(productId,storeId);
     }
 }

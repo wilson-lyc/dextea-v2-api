@@ -14,67 +14,50 @@ import org.springframework.web.multipart.MaxUploadSizeExceededException;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    /**
-     * 参数校验失败异常
-     * @param e 异常信息
-     */
+    // @Valid 参数校验异常
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public DexteaApiResponse<Object> handleValidationException(MethodArgumentNotValidException e) {
+    public DexteaApiResponse<Void> handleValidationException(MethodArgumentNotValidException e) {
         String msg=e.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
-        log.error("请求参数错误: {}", msg);
+        log.error("参数错误: {}", e.getBindingResult().getFieldErrors());
         return DexteaApiResponse.fail(msg);
     }
 
-    /**
-     * 参数错误异常
-     * @param e 异常信息
-     */
+    // 参数错误
     @ExceptionHandler(IllegalArgumentException.class)
     public DexteaApiResponse<Object> handleIllegalArgumentException(IllegalArgumentException e) {
-        log.error("请求参数错误: {}", e.getMessage());
+        log.error("参数错误", e);
         return DexteaApiResponse.fail(e.getMessage());
     }
 
-    /**
-     * 权限异常
-     * @param e 异常信息
-     */
+    // 权限错误
     @ExceptionHandler(IllegalAccessException.class)
     public DexteaApiResponse<Object> handleIllegalAccessException(IllegalAccessException e) {
-        log.error("权限错误: {}", e.getMessage());
-        return DexteaApiResponse.unauthorized(e.getMessage());
+        log.error("权限错误", e);
+        return DexteaApiResponse.forbidden(e.getMessage());
     }
 
-    /**
-     * 404 - NotFound
-     * @param e 异常信息
-     */
-    @ExceptionHandler(NotFoundException.class)
-    public DexteaApiResponse<Object> handleNotFoundException(NotFoundException e) {
-        log.error("404 NotFound: {}", e.getMessage());
-        return DexteaApiResponse.notFound(e.getMessage());
-    }
-
-    /**
-     * 请求参数异常
-     * @param e 异常信息
-     */
+    // 请求参数错误
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public DexteaApiResponse<Object> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
-        log.error("请求参数错误: {}", e.getMessage());
+        log.error("参数错误", e);
         return DexteaApiResponse.fail("参数错误");
     }
 
+    // 文件体积过大
     @ExceptionHandler(MaxUploadSizeExceededException.class)
     public ResponseEntity<DexteaApiResponse<Void>> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
         log.error("文件体积过大：{}", e.getMessage());
         return ResponseEntity.badRequest().body(DexteaApiResponse.fail("文件体积过大"));
     }
 
-    /**
-     * 兜底异常处理
-     * @param e 异常信息
-     */
+    // 资源不存在
+    @ExceptionHandler(NotFoundException.class)
+    public DexteaApiResponse<Object> handleNotFoundException(NotFoundException e) {
+        log.error("资源不存在", e);
+        return DexteaApiResponse.notFound(e.getMessage());
+    }
+
+    // 其他异常
     @ExceptionHandler(Exception.class)
     public DexteaApiResponse<Object> handleException(Exception e) {
         log.error("服务器内部异常", e);

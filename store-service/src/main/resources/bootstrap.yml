@@ -1,11 +1,11 @@
 server:
-  port: 8082 # 端口
+  port: 8082
 
 spring:
   application:
-    name: store-service # 应用名称
+    name: store-service
   jackson:
-    default-property-inclusion: always
+    default-property-inclusion: non_null
   cloud:
     nacos:
       # 鉴权配置
@@ -21,7 +21,5 @@ spring:
       config:
         namespace: ${NACOS_CONFIG_NAMESPACE:dextea} # 命名空间
         group: ${NACOS_CONFIG_GROUP:DEFAULT_GROUP}  # 分组
-        file-extension: ${NACOS_CONFIG_FILE_EXTENSION:yaml} # 配置文件扩展名
-        refresh-enabled: ${NACOS_CONFIG_REFRESH:true} # 是否启用自动刷新
-        shared-configs: ${NACOS_SHARED_CONFIGS:} # 共享配置（可选）
-        extension-configs: ${NACOS_EXTENSION_CONFIGS:} # 扩展配置（可选）
+        file-extension: yaml # 配置文件扩展名
+        refresh-enabled: true # 是否启用自动刷新

@@ -5,4 +5,5 @@ package cn.dextea.customer.service;
  */
 public interface InternalService {
     String getCustomerOpenId(Long id);
+    boolean verifyCustomerToken(String token);
 }
