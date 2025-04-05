@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderPayDoneRequest {
+public class OrderUpdateStatusRequest {
     private String orderId;
     @NotBlank(message = "tradeNo不能为空")
     private String tradeNo;

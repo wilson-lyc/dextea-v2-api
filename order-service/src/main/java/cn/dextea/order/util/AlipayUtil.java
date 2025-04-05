@@ -2,10 +2,13 @@ package cn.dextea.order.util;
 
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
+import com.alipay.api.domain.AlipayTradeCloseModel;
 import com.alipay.api.domain.AlipayTradeCreateModel;
 import com.alipay.api.domain.AlipayTradeQueryModel;
+import com.alipay.api.request.AlipayTradeCloseRequest;
 import com.alipay.api.request.AlipayTradeCreateRequest;
 import com.alipay.api.request.AlipayTradeQueryRequest;
+import com.alipay.api.response.AlipayTradeCloseResponse;
 import com.alipay.api.response.AlipayTradeCreateResponse;
 import com.alipay.api.response.AlipayTradeQueryResponse;
 import jakarta.annotation.Resource;
@@ -61,6 +64,19 @@ public class AlipayUtil {
             return response;
         }else {
             throw new RuntimeException("支付宝交易查询失败:"+response.getSubMsg()+"("+response.getSubCode()+")");
+        }
+    }
+
+    public AlipayTradeCloseResponse tradeClose(String tradeNo) throws AlipayApiException {
+        AlipayTradeCloseRequest request = new AlipayTradeCloseRequest();
+        AlipayTradeCloseModel model = new AlipayTradeCloseModel();
+        model.setTradeNo(tradeNo);
+        request.setBizModel(model);
+        AlipayTradeCloseResponse response = alipayClient.execute(request);
+        if(response.isSuccess()){
+            return response;
+        }else {
+            throw new RuntimeException("支付宝交易关闭失败:"+response.getSubMsg()+"("+response.getSubCode()+")");
         }
     }
 }

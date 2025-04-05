@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 /**
@@ -35,7 +36,8 @@ public class OrderProduct {
     private String updateTime;
 
     public String getSkuId() {
-        return this.id+"-"+this.customize.stream()
+        return Objects.isNull(customize) ? null :
+                this.id+"-"+this.customize.stream()
                 .sorted((a, b) -> a.getItemId().compareTo(b.getItemId()))
                 .map(c -> c.getItemId() + ":" + c.getOptionId())
                 // 用"-"连接所有元素

@@ -1,17 +1,14 @@
 package cn.dextea.store.util;
 
-import cn.dextea.store.dto.StoreNearbyDTO;
+import cn.dextea.store.pojo.NearbyStore;
 import cn.hutool.core.util.IdUtil;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.geo.*;
 import org.springframework.data.redis.connection.RedisGeoCommands;
-import org.springframework.data.redis.core.GeoOperations;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Component;
 
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -44,11 +41,10 @@ public class RedisUtil {
      * @param radius 半径
      * @param limit 数量
      */
-    public List<StoreNearbyDTO> getNearbyStores(double longitude, double latitude, double radius, int limit) {
+    public List<NearbyStore> getNearbyStores(double longitude, double latitude, double radius, int limit) {
         Point center = new Point(longitude, latitude);
         Distance distance = new Distance(radius, Metrics.KILOMETERS);
         Circle circle = new Circle(center, distance);
-
         RedisGeoCommands.GeoRadiusCommandArgs args = RedisGeoCommands.GeoRadiusCommandArgs.newGeoRadiusArgs()
                 .includeDistance()
                 .includeCoordinates()
@@ -66,26 +62,11 @@ public class RedisUtil {
         }
         return results.getContent().stream()
                 .map(result -> {
-                    String storeIdStr = result.getContent().getName();
-                    Long storeId = Long.parseLong(storeIdStr);
-                    Distance storeDistance = result.getDistance();
-                    Double storeDistanceValue;
-                    String distanceUnit;
-                    if (storeDistance.getValue() < 1) {
-                        storeDistanceValue = storeDistance.getValue() * 1000;
-                        DecimalFormat df = new DecimalFormat("#");
-                        storeDistanceValue = Double.parseDouble(df.format(storeDistanceValue));
-                        distanceUnit = "m";
-                    } else {
-                        storeDistanceValue = storeDistance.getValue();
-                        DecimalFormat df = new DecimalFormat("#.0");
-                        storeDistanceValue = Double.parseDouble(df.format(storeDistanceValue));
-                        distanceUnit = "km";
-                    }
-                    return StoreNearbyDTO.builder()
-                            .id(storeId)
-                            .distance(storeDistanceValue)
-                            .distanceUnit(distanceUnit)
+                    Long tempId = Long.parseLong(result.getContent().getName());
+                    Distance tempDistance = result.getDistance();
+                    return NearbyStore.builder()
+                            .id(tempId)
+                            .distance(tempDistance.getValue())
                             .build();
                 })
                 .collect(Collectors.toList());

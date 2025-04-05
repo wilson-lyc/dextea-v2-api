@@ -1,18 +1,16 @@
 package cn.dextea.store.service.impl;
 
-import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.common.dto.DexteaApiResponse;
 import cn.dextea.store.dto.GetStoreDetailResponse;
-import cn.dextea.store.dto.StoreNearbyDTO;
+import cn.dextea.store.dto.StoreDetailResponse;
 import cn.dextea.store.mapper.StoreMapper;
 import cn.dextea.common.pojo.Store;
+import cn.dextea.store.pojo.NearbyStore;
 import cn.dextea.store.service.CustomerService;
 import cn.dextea.store.util.RedisUtil;
-import com.alibaba.fastjson2.JSONObject;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
 import org.apache.ibatis.javassist.NotFoundException;
-import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.text.DecimalFormat;
@@ -29,15 +27,31 @@ public class CustomerServiceImpl implements CustomerService {
     @Resource
     private StoreMapper storeMapper;
     @Override
-    public ApiResponse getNearbyStore(Double longitude, Double latitude, Integer radius, Integer limit) {
-        List<StoreNearbyDTO> nearbyStores=redisUtil.getNearbyStores(longitude,latitude,radius,limit);
-        for(StoreNearbyDTO store:nearbyStores){
-            Store s=storeMapper.selectById(store.getId());
-            BeanUtils.copyProperties(s, store);
+    public DexteaApiResponse<List<StoreDetailResponse>> getNearbyStore(Double longitude, Double latitude, Integer radius, Integer limit) {
+        // 获取附近门店
+        List<NearbyStore> nearbyStores=redisUtil.getNearbyStores(longitude,latitude,radius,limit);
+        // 提取所有门店ID
+        List<Long> storeIds = nearbyStores.stream()
+                .map(NearbyStore::getId)
+                .filter(Objects::nonNull)
+                .toList();
+        // 查询门店
+        MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
+                .selectAsClass(Store.class, StoreDetailResponse.class)
+                .in(Store::getId,storeIds);
+        List<StoreDetailResponse> storeDetails=storeMapper.selectJoinList(StoreDetailResponse.class,wrapper);
+        // 构建结果集
+        for (StoreDetailResponse store : storeDetails) {
+            NearbyStore nearbyStore = nearbyStores.stream()
+                    .filter(item -> item.getId().equals(store.getId()))
+                    .findFirst()
+                    .orElse(null);
+            if (nearbyStore != null) {
+                store.setDistance(nearbyStore.getDistance());
+                store.setDistanceUnit(nearbyStore.getDistanceUnit());
+            }
         }
-        return ApiResponse.success(JSONObject.of(
-                "counts",nearbyStores.size(),
-                "stores",nearbyStores));
+        return DexteaApiResponse.success(storeDetails);
     }
 
     @Override

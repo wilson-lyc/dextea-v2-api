@@ -1,12 +1,14 @@
 package cn.dextea.store.controller;
 
-import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.common.dto.DexteaApiResponse;
 import cn.dextea.store.dto.GetStoreDetailResponse;
+import cn.dextea.store.dto.StoreDetailResponse;
 import cn.dextea.store.service.CustomerService;
 import jakarta.annotation.Resource;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author Lai Yongchao
@@ -23,8 +25,8 @@ public class CustomerController {
      * @param radius 距离
      * @param limit 数量
      */
-    @GetMapping("/store/customer/nearby")
-    public ApiResponse getNearbyStore(
+    @GetMapping("/store/customer/getNearbyStore")
+    public DexteaApiResponse<List<StoreDetailResponse>> getNearbyStore(
             @RequestParam Double longitude,
             @RequestParam Double latitude,
             @RequestParam Integer radius,

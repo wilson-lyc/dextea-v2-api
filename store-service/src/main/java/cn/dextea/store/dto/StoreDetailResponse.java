@@ -1,5 +1,6 @@
 package cn.dextea.store.dto;
 
+import cn.dextea.common.code.StoreStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,12 +11,13 @@ import lombok.NoArgsConstructor;
  */
 @Data
 @Builder
-@AllArgsConstructor
 @NoArgsConstructor
-public class StoreNearbyDTO {
+@AllArgsConstructor
+public class StoreDetailResponse {
     private Long id;
     private String name;
     private Integer status;
+    private String statusName;
     private String province;
     private String city;
     private String district;
@@ -25,4 +27,10 @@ public class StoreNearbyDTO {
     private Double distance;
     private String distanceUnit;
     private String openTime;
+    private String linkman;
+    private String phone;
+
+    public String getStatusName() {
+        return StoreStatus.fromValue(status).getLabel();
+    }
 }

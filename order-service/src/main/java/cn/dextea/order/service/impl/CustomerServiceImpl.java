@@ -18,7 +18,6 @@ import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Snowflake;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.response.AlipayTradeCreateResponse;
-import com.alipay.api.response.AlipayTradeQueryResponse;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
 import org.apache.ibatis.javassist.NotFoundException;
@@ -111,7 +110,7 @@ public class CustomerServiceImpl implements CustomerService {
         // 创建交易
         AlipayTradeCreateResponse response;
         try {
-            response=alipayUtil.tradeCreate(order.getId(),customerOpenId,order.getTotalPrice());
+            response=alipayUtil.tradeCreate(order.getId(),customerOpenId, BigDecimal.valueOf(0.01));
         } catch (AlipayApiException e) {
             throw new RuntimeException(e);
         }
@@ -131,45 +130,16 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public DexteaApiResponse<OrderPayDoneResponse> validPayDone(OrderPayDoneRequest data) throws AlipayApiException, NotFoundException {
-        MPJLambdaWrapper<Order> wrapper=new MPJLambdaWrapper<Order>()
-                .eq(Order::getId,data.getOrderId())
-                .eq(Order::getTradeNo,data.getTradeNo())
-                .selectAll(Order.class);
-        Order order=orderMapper.selectJoinOne(Order.class,wrapper);
-        if(Objects.isNull(order)){
-            throw new NotFoundException("订单不存在");
-        }
-        OrderPayDoneResponse payDoneResponse=new OrderPayDoneResponse();
-        // 请求支付宝查询交易状态
-        AlipayTradeQueryResponse aliResponse=alipayUtil.tradeQuery(data.getTradeNo());
-        // 交易交易状态
-        if(aliResponse.getTradeStatus().equals("TRADE_SUCCESS")){
-            // 生成取餐号
-            String pickUpNo=pickUpNoUtil.getPickUpNo(order.getStoreId());
-            order.setPickUpNo(pickUpNo);
-            // 更新订单状态为制作中
-            order.setStatus(OrderStatus.MAKING.getValue());
-            // 更新订单
-            orderMapper.updateById(order);
-            // 确认支付完成
-            payDoneResponse.setPayDone(true);
-        }else{
-            payDoneResponse.setPayDone(false);
-        }
-        return DexteaApiResponse.success(payDoneResponse);
-    }
-
-    @Override
-    public DexteaApiResponse<List<OrderItemCustomerResponse>> getOrderList(Long id) {
+    public DexteaApiResponse<List<OrderDetailResponse>> getOrderList(Long id) {
         MPJLambdaWrapper<Order> orderWrapper=new MPJLambdaWrapper<Order>()
                 .eq(Order::getCustomerId,id)
-                .selectAsClass(Order.class, OrderItemCustomerResponse.class);
-        List<OrderItemCustomerResponse> orders=orderMapper.selectJoinList(OrderItemCustomerResponse.class,orderWrapper);
-        for(OrderItemCustomerResponse order:orders){
+                .orderByDesc(Order::getCreateTime)
+                .selectAsClass(Order.class, OrderDetailResponse.class);
+        List<OrderDetailResponse> orders=orderMapper.selectJoinList(OrderDetailResponse.class,orderWrapper);
+        for(OrderDetailResponse order:orders){
             MPJLambdaWrapper<OrderProduct> productWrapper=new MPJLambdaWrapper<OrderProduct>()
                     .eq(OrderProduct::getOrderId,order.getId())
-                    .selectAll(OrderProduct.class)
+                    .selectAll(OrderProduct.class,OrderProduct::getCustomize)
                     .last("limit 3");
             order.setProducts(orderProductMapper.selectJoinList(productWrapper));
         }
@@ -177,11 +147,11 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public DexteaApiResponse<OrderItemCustomerResponse> getOrderDetail(String id) throws NotFoundException {
+    public DexteaApiResponse<OrderDetailResponse> getOrderDetail(String id) throws NotFoundException {
         MPJLambdaWrapper<Order> orderWrapper=new MPJLambdaWrapper<Order>()
                 .eq(Order::getId,id)
-                .selectAsClass(Order.class, OrderItemCustomerResponse.class);
-        OrderItemCustomerResponse order=orderMapper.selectJoinOne(OrderItemCustomerResponse.class,orderWrapper);
+                .selectAsClass(Order.class, OrderDetailResponse.class);
+        OrderDetailResponse order=orderMapper.selectJoinOne(OrderDetailResponse.class,orderWrapper);
         if(Objects.isNull(order)){
             throw new NotFoundException("订单不存在");
         }

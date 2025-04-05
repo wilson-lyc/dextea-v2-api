@@ -3,10 +3,12 @@ package cn.dextea.common.handler;
 import cn.dextea.common.dto.DexteaApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.javassist.NotFoundException;
+import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.multipart.MaxUploadSizeExceededException;
 
 @Slf4j
 @RestControllerAdvice
@@ -61,6 +63,12 @@ public class GlobalExceptionHandler {
     public DexteaApiResponse<Object> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
         log.error("请求参数错误: {}", e.getMessage());
         return DexteaApiResponse.fail("参数错误");
+    }
+
+    @ExceptionHandler(MaxUploadSizeExceededException.class)
+    public ResponseEntity<DexteaApiResponse<Void>> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
+        log.error("文件体积过大：{}", e.getMessage());
+        return ResponseEntity.badRequest().body(DexteaApiResponse.fail("文件体积过大"));
     }
 
     /**
