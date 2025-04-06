@@ -1,6 +1,8 @@
 package cn.dextea.gateway.filter;
 
+import cn.dev33.satoken.context.SaHolder;
 import cn.dev33.satoken.reactor.filter.SaReactorFilter;
+import cn.dev33.satoken.router.SaHttpMethod;
 import cn.dev33.satoken.router.SaRouter;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
@@ -36,6 +38,15 @@ public class AdminFilter {
                     res.setCode(401);
                     res.setMsg("token无效");
                     return res;
+                })
+                // 前置操作
+                .setBeforeAuth(obj -> {
+                    SaHolder.getResponse()
+                            .setHeader("Access-Control-Allow-Origin", "*")
+                            .setHeader("Access-Control-Allow-Methods", "*")
+                            .setHeader("Access-Control-Allow-Headers", "*")
+                            .setHeader("Access-Control-Max-Age", "3600");
+                    SaRouter.match(SaHttpMethod.OPTIONS).back();
                 });
     }
 }
