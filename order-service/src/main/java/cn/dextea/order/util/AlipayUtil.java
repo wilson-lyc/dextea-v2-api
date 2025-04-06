@@ -29,54 +29,60 @@ public class AlipayUtil {
     @Value("${alipay.appId}")
     String APP_ID;
 
-    public AlipayTradeCreateResponse tradeCreate(String orderId,String buyerOpenId, BigDecimal totalPrice) throws AlipayApiException {
-        AlipayTradeCreateRequest request = new AlipayTradeCreateRequest();
-        AlipayTradeCreateModel model = new AlipayTradeCreateModel();
-        // 设置商户订单号
-        model.setOutTradeNo(orderId);
-        // 设置产品码
-        model.setProductCode("JSAPI_PAY");
-        // 设置小程序码
-        model.setOpAppId(APP_ID);
-        // 设置买家支付宝用户唯一标识
-        model.setBuyerOpenId(buyerOpenId);
-        // 设置订单总金额
-        model.setTotalAmount(totalPrice.toString());
-        model.setSubject("德贤茶庄");
-        // 设置过期时间
-        model.setTimeoutExpress("10m");
-        request.setBizModel(model);
-        AlipayTradeCreateResponse response = alipayClient.execute(request);
-        if(response.isSuccess()){
-            return response;
-        }else {
-            throw new RuntimeException("支付宝交易创建失败:"+response.getSubMsg()+"("+response.getSubCode()+")");
+    public AlipayTradeCreateResponse tradeCreate(String orderId,String buyerOpenId, BigDecimal totalPrice){
+        try{
+            AlipayTradeCreateRequest request = new AlipayTradeCreateRequest();
+            AlipayTradeCreateModel model = new AlipayTradeCreateModel();
+            model.setOutTradeNo(orderId);
+            model.setProductCode("JSAPI_PAY");
+            model.setOpAppId(APP_ID);
+            model.setBuyerOpenId(buyerOpenId);
+            model.setTotalAmount(totalPrice.toString());
+            model.setSubject("德贤茶庄");
+            model.setTimeoutExpress("10m");
+            request.setBizModel(model);
+            AlipayTradeCreateResponse response = alipayClient.execute(request);
+            if(response.isSuccess()){
+                return response;
+            }else {
+                throw new RuntimeException("支付宝交易创建失败:"+response.getSubMsg()+"("+response.getSubCode()+")");
+            }
+        }catch (AlipayApiException e){
+            throw new RuntimeException("支付宝交易创建失败:"+e.getMessage());
         }
     }
 
-    public AlipayTradeQueryResponse tradeQuery(String tradeNo) throws AlipayApiException {
-        AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
-        AlipayTradeQueryModel model = new AlipayTradeQueryModel();
-        model.setTradeNo(tradeNo);
-        request.setBizModel(model);
-        AlipayTradeQueryResponse response = alipayClient.execute(request);
-        if(response.isSuccess()){
-            return response;
-        }else {
-            throw new RuntimeException("支付宝交易查询失败:"+response.getSubMsg()+"("+response.getSubCode()+")");
+    public AlipayTradeQueryResponse tradeQuery(String tradeNo){
+        try{
+            AlipayTradeQueryRequest request = new AlipayTradeQueryRequest();
+            AlipayTradeQueryModel model = new AlipayTradeQueryModel();
+            model.setTradeNo(tradeNo);
+            request.setBizModel(model);
+            AlipayTradeQueryResponse response = alipayClient.execute(request);
+            if(response.isSuccess()){
+                return response;
+            }else {
+                throw new RuntimeException("支付宝交易查询失败:"+response.getSubMsg()+"("+response.getSubCode()+")");
+            }
+        }catch (AlipayApiException e){
+            throw new RuntimeException("支付宝交易查询失败:"+e.getMessage());
         }
     }
 
-    public AlipayTradeCloseResponse tradeClose(String tradeNo) throws AlipayApiException {
-        AlipayTradeCloseRequest request = new AlipayTradeCloseRequest();
-        AlipayTradeCloseModel model = new AlipayTradeCloseModel();
-        model.setTradeNo(tradeNo);
-        request.setBizModel(model);
-        AlipayTradeCloseResponse response = alipayClient.execute(request);
-        if(response.isSuccess()){
-            return response;
-        }else {
-            throw new RuntimeException("支付宝交易关闭失败:"+response.getSubMsg()+"("+response.getSubCode()+")");
+    public AlipayTradeCloseResponse tradeClose(String tradeNo){
+        try{
+            AlipayTradeCloseRequest request = new AlipayTradeCloseRequest();
+            AlipayTradeCloseModel model = new AlipayTradeCloseModel();
+            model.setTradeNo(tradeNo);
+            request.setBizModel(model);
+            AlipayTradeCloseResponse response = alipayClient.execute(request);
+            if(response.isSuccess()){
+                return response;
+            }else {
+                throw new RuntimeException("支付宝交易关闭失败:"+response.getSubMsg()+"("+response.getSubCode()+")");
+            }
+        }catch (AlipayApiException e) {
+            throw new RuntimeException("支付宝交易关闭失败:" + e.getMessage());
         }
     }
 }

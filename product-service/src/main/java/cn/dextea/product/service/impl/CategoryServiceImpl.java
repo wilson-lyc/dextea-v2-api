@@ -1,7 +1,7 @@
 package cn.dextea.product.service.impl;
 
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.common.dto.OptionDTO;
+import cn.dextea.common.model.SelectOptionModel;
 import cn.dextea.product.dto.category.CategoryDTO;
 import cn.dextea.product.mapper.CategoryMapper;
 import cn.dextea.product.pojo.ProductCategory;
@@ -46,9 +46,9 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     public ApiResponse getCategoryOption() {
         MPJLambdaWrapper<ProductCategory> wrapper = new MPJLambdaWrapper<ProductCategory>()
-                .selectAs(ProductCategory::getName, OptionDTO::getLabel)
-                .selectAs(ProductCategory::getId, OptionDTO::getValue);
-        List<OptionDTO> options = categoryMapper.selectJoinList(OptionDTO.class, wrapper);
+                .selectAs(ProductCategory::getName, SelectOptionModel::getLabel)
+                .selectAs(ProductCategory::getId, SelectOptionModel::getValue);
+        List<SelectOptionModel> options = categoryMapper.selectJoinList(SelectOptionModel.class, wrapper);
         return ApiResponse.success(JSONObject.of("options", options));
     }
 

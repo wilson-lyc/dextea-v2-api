@@ -31,7 +31,7 @@ public class StatusServiceImpl implements StatusService {
     @Resource
     private PickUpNoUtil pickUpNoUtil;
     @Override
-    public DexteaApiResponse<OrderPayDoneResponse> payDone(OrderUpdateStatusRequest data) throws AlipayApiException, NotFoundException {
+    public DexteaApiResponse<OrderPayDoneResponse> payDone(OrderUpdateStatusRequest data) throws NotFoundException {
         MPJLambdaWrapper<Order> wrapper=new MPJLambdaWrapper<Order>()
                 .eq(Order::getId,data.getOrderId())
                 .eq(Order::getTradeNo,data.getTradeNo())
@@ -63,7 +63,7 @@ public class StatusServiceImpl implements StatusService {
     }
 
     @Override
-    public DexteaApiResponse<Void> payCancel(OrderUpdateStatusRequest data) throws NotFoundException, AlipayApiException {
+    public DexteaApiResponse<Void> payCancel(OrderUpdateStatusRequest data) throws NotFoundException{
         MPJLambdaWrapper<Order> wrapper=new MPJLambdaWrapper<Order>()
                 .eq(Order::getId,data.getOrderId())
                 .eq(Order::getTradeNo,data.getTradeNo())
@@ -76,7 +76,7 @@ public class StatusServiceImpl implements StatusService {
         order.setStatus(OrderStatus.CANCEL.getValue());
         orderMapper.updateById(order);
         // 支付宝关闭交易
-        AlipayTradeCloseResponse aliResponse=alipayUtil.tradeClose(data.getTradeNo());
+        alipayUtil.tradeClose(data.getTradeNo());
         return DexteaApiResponse.success();
     }
 }

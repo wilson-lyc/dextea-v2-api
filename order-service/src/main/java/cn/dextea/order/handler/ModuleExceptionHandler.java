@@ -12,6 +12,6 @@ public class ModuleExceptionHandler {
     @ExceptionHandler(AlipayApiException.class)
     public DexteaApiResponse<Void> handleAlipayApiException(AlipayApiException e) {
         log.error("支付宝接口异常");
-        return DexteaApiResponse.serverError("支付宝异常");
+        return DexteaApiResponse.serverError("支付服务异常");
     }
 }

@@ -4,6 +4,8 @@ import cn.dextea.store.mapper.StoreMapper;
 import cn.dextea.store.pojo.Store;
 import cn.dextea.store.service.InternalService;
 import cn.dextea.store.util.RedisUtil;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
@@ -17,34 +19,31 @@ import java.util.Objects;
 public class InternalServiceImpl implements InternalService {
     @Resource
     private StoreMapper storeMapper;
-    @Resource
-    private RedisUtil redisUtil;
+
     @Override
     public boolean isStoreIdValid(Long id) {
         return Objects.nonNull(storeMapper.selectById(id));
     }
 
     @Override
-    public String getStoreName(Long id) throws IllegalArgumentException {
+    public String getStoreName(Long id){
         Store store=storeMapper.selectById(id);
-        if (Objects.isNull(store)){
-            throw new IllegalArgumentException("门店不存在");
-        }
-        return store.getName();
+        return Objects.isNull(store)?null:store.getName();
     }
 
     @Override
-    public boolean storeBindMenu(Long storeId, Long menuId) throws NotFoundException {
-        Store store = Store.builder()
-                .id(storeId)
-                .menuId(menuId)
-                .build();
-        return storeMapper.updateById(store) >0;
+    public boolean storeBindMenu(Long storeId, Long menuId){
+        LambdaUpdateWrapper<Store> wrapper=new LambdaUpdateWrapper<Store>()
+                .eq(Store::getId,storeId)
+                .set(Store::getMenuId,menuId);
+        return storeMapper.update(wrapper)>0;
     }
 
     @Override
     public Long getStoreMenuId(Long id) {
-        Store store=storeMapper.selectById(id);
-        return store.getMenuId();
+        MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
+                .select(Store::getMenuId)
+                .eq(Store::getId,id);
+        return storeMapper.selectJoinOne(Long.class,wrapper);
     }
 }

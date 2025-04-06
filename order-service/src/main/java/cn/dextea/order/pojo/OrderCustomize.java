@@ -1,4 +1,4 @@
-package cn.dextea.common.pojo;
+package cn.dextea.order.pojo;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -15,7 +15,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderProductCustomize {
+public class OrderCustomize {
     private Long itemId;
     private String itemName;
     private Long optionId;

@@ -5,7 +5,7 @@ spring:
   application:
     name: order-service # 应用名称
   jackson:
-    default-property-inclusion: always
+    default-property-inclusion: non_null
   cloud:
     nacos:
       # 鉴权配置

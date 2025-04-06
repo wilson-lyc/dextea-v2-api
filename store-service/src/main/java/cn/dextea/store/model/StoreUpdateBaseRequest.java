@@ -1,8 +1,8 @@
-package cn.dextea.store.dto;
+package cn.dextea.store.model;
 
-import cn.dextea.common.code.StoreStatus;
 import cn.dextea.store.pojo.Store;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -13,25 +13,28 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class StoreCreateDTO {
-    @NotBlank(message = "门店名称不能为空")
+public class StoreUpdateBaseRequest {
+    @NotBlank
     private String name;
-    @NotBlank(message = "省份不能为空")
+    @NotBlank
     private String province;
-    @NotBlank(message = "城市不能为空")
+    @NotBlank
     private String city;
-    @NotBlank(message = "区县不能为空")
+    @NotBlank
     private String district;
-    @NotBlank(message = "详细地址不能为空")
+    @NotBlank
     private String address;
-    @NotBlank(message = "联系人不能为空")
+    @NotBlank
     private String linkman;
-    @NotBlank(message = "联系电话不能为空")
+    @NotBlank
     private String phone;
-    @NotBlank(message = "营业时间不能为空")
+    @NotBlank
     private String openTime;
-    public Store toStore(){
+    @NotNull
+    private Integer status;
+    public Store toStore(Long id){
         return Store.builder()
+                .id(id)
                 .name(name)
                 .province(province)
                 .city(city)
@@ -40,7 +43,7 @@ public class StoreCreateDTO {
                 .linkman(linkman)
                 .phone(phone)
                 .openTime(openTime)
-                .status(StoreStatus.NOT_ACTIVE.getValue())
+                .status(status)
                 .build();
     }
 }

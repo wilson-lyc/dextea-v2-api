@@ -1,13 +1,23 @@
 package cn.dextea.store.controller;
 
-import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.store.dto.*;
+import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.common.model.ImageModel;
+import cn.dextea.common.model.SelectOptionModel;
+import cn.dextea.common.model.store.StoreModel;
+import cn.dextea.store.model.StoreCreateRequest;
+import cn.dextea.store.model.StoreFilter;
+import cn.dextea.store.model.StoreUpdateBaseRequest;
+import cn.dextea.store.model.StoreUpdateLocationRequest;
 import cn.dextea.store.service.StoreService;
+import com.alibaba.fastjson2.JSONArray;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author Lai Yongchao
@@ -22,7 +32,7 @@ public class StoreController {
      * @param data 门店信息
      */
     @PostMapping("/store")
-    public ApiResponse createStore(@Valid @RequestBody StoreCreateDTO data) {
+    public DexteaApiResponse<Void> createStore(@Valid @RequestBody StoreCreateRequest data) {
         return storeService.createStore(data);
     }
 
@@ -33,7 +43,7 @@ public class StoreController {
      * @param filter 过滤条件
      */
     @GetMapping("/store")
-    public ApiResponse getStoreList(
+    public DexteaApiResponse<IPage<StoreModel>> getStoreList(
             @Valid @Min(value = 1,message = "current不能小于1") @RequestParam(defaultValue = "1") int current,
             @Valid @Min(value = 1,message = "size不能小于1") @RequestParam(defaultValue = "10") int size,
             @Valid StoreFilter filter) {
@@ -42,18 +52,17 @@ public class StoreController {
 
     /**
      * 获取门店选项
-     * @param area 区域
      */
     @GetMapping("/store/option")
-    public ApiResponse getStoreOption(@RequestParam(required = false) String area) {
-        return storeService.getStoreOption(area);
+    public DexteaApiResponse<List<SelectOptionModel>> getStoreOption() {
+        return storeService.getStoreOption();
     }
 
     /**
      * 获取门店树选项
      */
     @GetMapping("/store/tree-option")
-    public ApiResponse getStoreTreeOption(){
+    public DexteaApiResponse<JSONArray> getStoreTreeOption(){
         return storeService.getStoreTreeOption();
     }
 
@@ -62,7 +71,7 @@ public class StoreController {
      * @param id 门店ID
      */
     @GetMapping("/store/{id:\\d+}/base")
-    public ApiResponse getStoreBase(@PathVariable Long id) throws NotFoundException {
+    public DexteaApiResponse<StoreModel> getStoreBase(@PathVariable Long id) throws NotFoundException {
         return storeService.getStoreBase(id);
     }
 
@@ -71,7 +80,7 @@ public class StoreController {
      * @param id 门店ID
      */
     @GetMapping("/store/{id:\\d+}/license")
-    public ApiResponse getStoreLicense(@PathVariable Long id) throws NotFoundException {
+    public DexteaApiResponse<List<ImageModel>> getStoreLicense(@PathVariable Long id) throws NotFoundException {
         return storeService.getStoreLicense(id);
     }
 
@@ -80,7 +89,7 @@ public class StoreController {
      * @param id 门店id
      */
     @GetMapping("/store/{id:\\d+}/status")
-    public ApiResponse getStoreStatus(@PathVariable Long id) throws NotFoundException {
+    public DexteaApiResponse<StoreModel> getStoreStatus(@PathVariable Long id) throws NotFoundException {
         return storeService.getStoreStatus(id);
     }
 
@@ -89,7 +98,7 @@ public class StoreController {
      * @param id 门店id
      */
     @GetMapping("/store/{id:\\d+}/location")
-    public ApiResponse getStoreLocation(@PathVariable Long id) throws NotFoundException {
+    public DexteaApiResponse<StoreModel> getStoreLocation(@PathVariable Long id) throws NotFoundException {
         return storeService.getStoreLocation(id);
     }
 
@@ -99,7 +108,7 @@ public class StoreController {
      * @param data 门店基础信息
      */
     @PutMapping("/store/{id:\\d+}/base")
-    public ApiResponse updateStoreBase(@PathVariable Long id, @RequestBody StoreUpdateBaseDTO data) throws NotFoundException {
+    public DexteaApiResponse<Void> updateStoreBase(@PathVariable Long id, @RequestBody StoreUpdateBaseRequest data) throws NotFoundException {
         return storeService.updateStoreBase(id, data);
     }
 
@@ -109,9 +118,9 @@ public class StoreController {
      * @param data 经度,纬度
      */
     @PutMapping("/store/{id:\\d+}/location")
-    public ApiResponse updateStoreLocation(
+    public DexteaApiResponse<Void> updateStoreLocation(
             @PathVariable Long id,
-            @RequestBody StoreUpdateLocationDTO data) throws NotFoundException {
+            @RequestBody StoreUpdateLocationRequest data) throws NotFoundException {
         return storeService.updateStoreLocation(id, data);
     }
 
@@ -121,7 +130,7 @@ public class StoreController {
      * @param status 状态
      */
     @PutMapping("/store/{id:\\d+}/status")
-    public ApiResponse updateStoreStatus(
+    public DexteaApiResponse<Void> updateStoreStatus(
             @PathVariable Long id,
             @RequestParam Integer status) throws NotFoundException {
         return storeService.updateStoreStatus(id, status);

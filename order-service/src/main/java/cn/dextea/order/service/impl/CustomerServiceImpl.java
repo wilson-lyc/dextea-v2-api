@@ -4,7 +4,9 @@ import cn.dextea.common.code.OrderStatus;
 import cn.dextea.common.dto.DexteaApiResponse;
 import cn.dextea.common.feign.CustomerFeign;
 import cn.dextea.common.feign.ProductFeign;
-import cn.dextea.common.pojo.OrderProductCustomize;
+import cn.dextea.common.model.order.OrderModel;
+import cn.dextea.common.model.order.OrderProductModel;
+import cn.dextea.order.pojo.OrderCustomize;
 import cn.dextea.order.dto.*;
 import cn.dextea.order.pojo.Order;
 import cn.dextea.order.pojo.OrderProduct;
@@ -12,7 +14,6 @@ import cn.dextea.order.mapper.OrderMapper;
 import cn.dextea.order.mapper.OrderProductMapper;
 import cn.dextea.order.service.CustomerService;
 import cn.dextea.order.util.AlipayUtil;
-import cn.dextea.order.util.PickUpNoUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Snowflake;
@@ -20,14 +21,12 @@ import com.alipay.api.AlipayApiException;
 import com.alipay.api.response.AlipayTradeCreateResponse;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
-import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Lai Yongchao
@@ -46,8 +45,6 @@ public class CustomerServiceImpl implements CustomerService {
     private CustomerFeign customerFeign;
     @Resource
     private AlipayUtil alipayUtil;
-    @Resource
-    private PickUpNoUtil pickUpNoUtil;
 
     @Override
     public DexteaApiResponse<OrderCreateResponse> createOrder(OrderCreateRequest data) {
@@ -58,7 +55,6 @@ public class CustomerServiceImpl implements CustomerService {
                 .storeName(data.getStoreName())// 门店名称
                 .customerId(data.getCustomerId())// 顾客ID
                 .dineMode(data.getDineMode())// 用餐方式
-                .tableNo(data.getTableNo())// 餐桌号
                 .status(OrderStatus.PAY_PENDING.getValue())// 订单状态，默认待支付
                 .build();
         // 计算订单总价和商品数量
@@ -80,10 +76,10 @@ public class CustomerServiceImpl implements CustomerService {
             // 商品售价
             BigDecimal buyPrice=productFeign.getProductPrice(product.getId());
             // 计算客制化加价
-            List<OrderProductCustomize> customizeList=new ArrayList<>();
-            for(OrderCreateRequestProductCustomize customize:product.getCustomize()){
+            List<OrderCustomize> customizeList=new ArrayList<>();
+            for(OrderCreateRequestCustomize customize:product.getCustomize()){
                 BigDecimal price=productFeign.getCustomizeOptionPrice(customize.getOptionId());
-                OrderProductCustomize productCustomize=OrderProductCustomize.builder()
+                OrderCustomize productCustomize= OrderCustomize.builder()
                         .itemId(customize.getItemId())
                         .itemName(customize.getItemName())
                         .optionId(customize.getOptionId())
@@ -109,11 +105,7 @@ public class CustomerServiceImpl implements CustomerService {
         String customerOpenId=customerFeign.getCustomerOpenId(order.getCustomerId());
         // 创建交易
         AlipayTradeCreateResponse response;
-        try {
-            response=alipayUtil.tradeCreate(order.getId(),customerOpenId, BigDecimal.valueOf(0.01));
-        } catch (AlipayApiException e) {
-            throw new RuntimeException(e);
-        }
+        response=alipayUtil.tradeCreate(order.getId(),customerOpenId, BigDecimal.valueOf(0.01));
         order.setTradeNo(response.getTradeNo());
         // 设置过期时间
         Date date = DateUtil.date();
@@ -130,35 +122,22 @@ public class CustomerServiceImpl implements CustomerService {
     }
 
     @Override
-    public DexteaApiResponse<List<OrderDetailResponse>> getOrderList(Long id) {
+    public DexteaApiResponse<List<OrderModel>> getCustomerOrderList(Long id) {
+        // 获取订单列表
         MPJLambdaWrapper<Order> orderWrapper=new MPJLambdaWrapper<Order>()
                 .eq(Order::getCustomerId,id)
-                .orderByDesc(Order::getCreateTime)
-                .selectAsClass(Order.class, OrderDetailResponse.class);
-        List<OrderDetailResponse> orders=orderMapper.selectJoinList(OrderDetailResponse.class,orderWrapper);
-        for(OrderDetailResponse order:orders){
+                .selectAsClass(Order.class, OrderModel.class);
+        List<OrderModel> orderList=orderMapper.selectJoinList(OrderModel.class,orderWrapper);
+        // 获取商品列表
+        for(OrderModel order:orderList){
             MPJLambdaWrapper<OrderProduct> productWrapper=new MPJLambdaWrapper<OrderProduct>()
                     .eq(OrderProduct::getOrderId,order.getId())
-                    .selectAll(OrderProduct.class,OrderProduct::getCustomize)
-                    .last("limit 3");
-            order.setProducts(orderProductMapper.selectJoinList(productWrapper));
+                    .selectAs(OrderProduct::getId,OrderProductModel::getId)
+                    .selectAs(OrderProduct::getName,OrderProductModel::getName)
+                    .selectAs(OrderProduct::getCover,OrderProductModel::getCover);
+            List<OrderProductModel> products=orderProductMapper.selectJoinList(OrderProductModel.class,productWrapper);
+            order.setProducts(products);
         }
-        return DexteaApiResponse.success(orders);
-    }
-
-    @Override
-    public DexteaApiResponse<OrderDetailResponse> getOrderDetail(String id) throws NotFoundException {
-        MPJLambdaWrapper<Order> orderWrapper=new MPJLambdaWrapper<Order>()
-                .eq(Order::getId,id)
-                .selectAsClass(Order.class, OrderDetailResponse.class);
-        OrderDetailResponse order=orderMapper.selectJoinOne(OrderDetailResponse.class,orderWrapper);
-        if(Objects.isNull(order)){
-            throw new NotFoundException("订单不存在");
-        }
-        MPJLambdaWrapper<OrderProduct> productWrapper=new MPJLambdaWrapper<OrderProduct>()
-                .eq(OrderProduct::getOrderId,id)
-                .selectAll(OrderProduct.class);
-        order.setProducts(orderProductMapper.selectJoinList(productWrapper));
-        return DexteaApiResponse.success(order);
+        return DexteaApiResponse.success(orderList);
     }
 }

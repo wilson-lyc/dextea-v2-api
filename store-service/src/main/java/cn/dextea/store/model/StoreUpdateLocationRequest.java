@@ -1,7 +1,6 @@
-package cn.dextea.store.pojo;
+package cn.dextea.store.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,14 +8,9 @@ import lombok.NoArgsConstructor;
  * @author Lai Yongchao
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class Location {
+public class StoreUpdateLocationRequest {
     private Double longitude;
     private Double latitude;
-    private String province;
-    private String city;
-    private String district;
-    private String address;
 }

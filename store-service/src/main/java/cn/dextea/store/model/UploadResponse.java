@@ -1,4 +1,4 @@
-package cn.dextea.common.dto;
+package cn.dextea.store.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,9 +8,8 @@ import lombok.NoArgsConstructor;
  * @author Lai Yongchao
  */
 @Data
-@AllArgsConstructor
 @NoArgsConstructor
-public class OptionDTO {
-    private Long value;
-    private String label;
+@AllArgsConstructor
+public class UploadResponse {
+    private String url;
 }

@@ -1,7 +1,6 @@
 package cn.dextea.store.controller;
 
 import cn.dextea.store.service.InternalService;
-import io.lettuce.core.dynamic.annotation.Param;
 import jakarta.annotation.Resource;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.web.bind.annotation.*;

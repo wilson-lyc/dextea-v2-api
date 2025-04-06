@@ -5,19 +5,17 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
-
 /**
  * @author Lai Yongchao
  */
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderCreateRequestProductCustomize {
-    @NotNull(message = "itemId不能为空")
+public class OrderCreateRequestCustomize {
+    @NotNull(message = "缺少项目ID")
     private Long itemId;
     private String itemName;
-    @NotNull(message = "optionId不能为空")
+    @NotNull(message = "缺少选项ID")
     private Long optionId;
     private String optionName;
 }

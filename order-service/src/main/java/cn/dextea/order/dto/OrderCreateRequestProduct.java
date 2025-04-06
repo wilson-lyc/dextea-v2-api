@@ -16,14 +16,14 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderCreateRequestProduct {
-    @NotNull(message = "productId不能为空")
+    @NotNull(message = "缺少商品ID")
     private Long id;
-    @NotNull(message = "productName不能为空")
+    @NotNull(message = "缺少商品名称")
     private String name;
-    @NotBlank(message = "productCover不能为空")
+    @NotBlank(message = "缺少封面图")
     private String cover;
-    @Valid @NotNull(message = "productCustomize不能为空")
-    private List<OrderCreateRequestProductCustomize> customize;
-    @NotNull(message = "productCount不能为空")
+    @Valid @NotNull(message = "缺少客制化信息")
+    private List<OrderCreateRequestCustomize> customize;
+    @NotNull(message = "缺少商品购买数量")
     private Integer count;
 }

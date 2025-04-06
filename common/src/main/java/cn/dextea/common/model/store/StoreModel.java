@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 /**
  * @author Lai Yongchao
  */
@@ -51,6 +53,6 @@ public class StoreModel {
     private String updateTime;
 
     public String getStatusText() {
-        return StoreStatus.fromValue(status).getLabel();
+        return Objects.isNull(status)?null:StoreStatus.fromValue(status).getLabel();
     }
 }

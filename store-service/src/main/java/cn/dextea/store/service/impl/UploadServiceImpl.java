@@ -3,7 +3,7 @@ package cn.dextea.store.service.impl;
 import cn.dextea.common.dto.DexteaApiResponse;
 import cn.dextea.common.exception.TosUtilException;
 import cn.dextea.common.util.TosUtil;
-import cn.dextea.store.dto.UploadResponse;
+import cn.dextea.store.model.UploadResponse;
 import cn.dextea.store.mapper.StoreMapper;
 import cn.dextea.store.pojo.Store;
 import cn.dextea.store.service.UploadService;

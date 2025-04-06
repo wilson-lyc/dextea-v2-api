@@ -1,10 +1,10 @@
 package cn.dextea.common.code;
 
-import cn.hutool.core.date.DateUtil;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-import java.util.Date;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 
 /**
@@ -34,17 +34,18 @@ public enum OrderStatus {
         return UNKNOWN;
     }
 
-    public static OrderStatus fromValue(int value,String payExpireTime){
-        if(Objects.isNull(payExpireTime)||value!=PAY_PENDING.getValue()){
+    public static OrderStatus fromValue(int value,String time){
+        // 非待支付
+        if(value!=PAY_PENDING.getValue()||Objects.isNull(time)){
             return OrderStatus.fromValue(value);
+        }
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        LocalDateTime expireTime = LocalDateTime.parse(time, formatter);
+        // 判断超时
+        if(expireTime.isBefore(LocalDateTime.now())){
+            return PAY_TIMEOUT;
         }else{
-            Date payExpireDate = DateUtil.parse(payExpireTime);
-            Date nowDate = DateUtil.date();
-            if(nowDate.after(payExpireDate)){
-                return PAY_TIMEOUT;
-            }else{
-                return OrderStatus.fromValue(value);
-            }
+            return OrderStatus.fromValue(value);
         }
     }
 }

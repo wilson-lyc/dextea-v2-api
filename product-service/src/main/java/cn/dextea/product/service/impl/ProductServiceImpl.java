@@ -2,7 +2,7 @@ package cn.dextea.product.service.impl;
 
 import cn.dextea.common.code.ProductStatus;
 import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.common.dto.OptionDTO;
+import cn.dextea.common.model.SelectOptionModel;
 import cn.dextea.common.feign.ProductFeign;
 import cn.dextea.common.feign.StoreFeign;
 import cn.dextea.product.pojo.Product;
@@ -143,10 +143,10 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public ApiResponse getProductOption(Integer globalStatus) {
         MPJLambdaWrapper<Product> wrapper = new MPJLambdaWrapper<Product>()
-                .selectAs(Product::getId, OptionDTO::getValue)
-                .selectAs(Product::getName, OptionDTO::getLabel)
+                .selectAs(Product::getId, SelectOptionModel::getValue)
+                .selectAs(Product::getName, SelectOptionModel::getLabel)
                 .eqIfExists(Product::getGlobalStatus,globalStatus);
-        List<OptionDTO> options = productMapper.selectJoinList(OptionDTO.class,wrapper);
+        List<SelectOptionModel> options = productMapper.selectJoinList(SelectOptionModel.class,wrapper);
         return ApiResponse.success(JSONObject.of("count",options.size(),"options", options));
     }
 

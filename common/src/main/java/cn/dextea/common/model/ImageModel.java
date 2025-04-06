@@ -1,6 +1,5 @@
-package cn.dextea.store.pojo;
+package cn.dextea.common.model;
 
-import com.alibaba.fastjson2.annotation.JSONField;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,12 +9,12 @@ import lombok.NoArgsConstructor;
  * @author Lai Yongchao
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
-public class License {
+public class ImageModel {
+    private String key;
+    private String name;
     private String url;
     private String action;
-    private String name;
-    private String key;
 }

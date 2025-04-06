@@ -20,7 +20,7 @@ import java.math.BigDecimal;
 @TableName("s_order")
 public class Order {
     @TableId(type = IdType.INPUT)
-    private String id;
+    private String id;// 订单ID
     private Long storeId;// 门店ID
     private String storeName;// 门店名称
     private Long customerId;// 顾客ID

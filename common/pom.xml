@@ -29,12 +29,6 @@
             <artifactId>druid</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- hutool -->
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-core</artifactId>
-            <scope>provided</scope>
-        </dependency>
         <!-- TOS SDK -->
         <dependency>
             <groupId>com.volcengine</groupId>

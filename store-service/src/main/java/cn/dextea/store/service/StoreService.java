@@ -1,26 +1,36 @@
 package cn.dextea.store.service;
 
-import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.store.dto.*;
+import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.common.model.ImageModel;
+import cn.dextea.common.model.SelectOptionModel;
+import cn.dextea.common.model.store.StoreModel;
+import cn.dextea.store.model.StoreCreateRequest;
+import cn.dextea.store.model.StoreFilter;
+import cn.dextea.store.model.StoreUpdateBaseRequest;
+import cn.dextea.store.model.StoreUpdateLocationRequest;
+import com.alibaba.fastjson2.JSONArray;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.javassist.NotFoundException;
+
+import java.util.List;
 
 /**
  * @author Lai Yongchao
  */
 public interface StoreService {
     // 创建
-    ApiResponse createStore(StoreCreateDTO data);
+    DexteaApiResponse<Void> createStore(StoreCreateRequest data);
     // 列表
-    ApiResponse getStoreList(int current, int size, StoreFilter filter);
-    ApiResponse getStoreOption(String status);
-    ApiResponse getStoreTreeOption();
+    DexteaApiResponse<IPage<StoreModel>> getStoreList(int current, int size, StoreFilter filter);
+    DexteaApiResponse<List<SelectOptionModel>> getStoreOption();
+    DexteaApiResponse<JSONArray> getStoreTreeOption();
     // 单项
-    ApiResponse getStoreBase(Long id) throws NotFoundException;
-    ApiResponse getStoreLicense(Long id) throws NotFoundException;
-    ApiResponse getStoreStatus(Long id) throws NotFoundException;
-    ApiResponse getStoreLocation(Long id) throws NotFoundException;
+    DexteaApiResponse<StoreModel> getStoreBase(Long id) throws NotFoundException;
+    DexteaApiResponse<List<ImageModel>> getStoreLicense(Long id) throws NotFoundException;
+    DexteaApiResponse<StoreModel> getStoreStatus(Long id) throws NotFoundException;
+    DexteaApiResponse<StoreModel> getStoreLocation(Long id) throws NotFoundException;
     // 更新
-    ApiResponse updateStoreBase(Long id, StoreUpdateBaseDTO data) throws NotFoundException;
-    ApiResponse updateStoreLocation(Long id, StoreUpdateLocationDTO body) throws NotFoundException;
-    ApiResponse updateStoreStatus(Long id, Integer status) throws NotFoundException;
+    DexteaApiResponse<Void> updateStoreBase(Long id, StoreUpdateBaseRequest data) throws NotFoundException;
+    DexteaApiResponse<Void> updateStoreLocation(Long id, StoreUpdateLocationRequest body) throws NotFoundException;
+    DexteaApiResponse<Void> updateStoreStatus(Long id, Integer status) throws NotFoundException;
 }

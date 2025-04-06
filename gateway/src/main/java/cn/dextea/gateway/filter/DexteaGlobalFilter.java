@@ -33,6 +33,7 @@ public class DexteaGlobalFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         String token=exchange.getRequest().getHeaders().getFirst("Authorization");
         String path=exchange.getRequest().getPath().value();
+        log.info("path={}",path);
         // 白名单放行
         if (isWhiteListPath(path)) {
             log.info("白名单放行 path={}",path);

@@ -1,8 +1,7 @@
 package cn.dextea.store.controller;
 
-import cn.dextea.common.dto.ApiResponse;
 import cn.dextea.common.dto.DexteaApiResponse;
-import cn.dextea.store.dto.UploadResponse;
+import cn.dextea.store.model.UploadResponse;
 import cn.dextea.store.service.UploadService;
 import jakarta.annotation.Resource;
 import org.springframework.http.ResponseEntity;

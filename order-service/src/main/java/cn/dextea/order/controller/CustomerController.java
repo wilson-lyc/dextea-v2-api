@@ -1,8 +1,10 @@
 package cn.dextea.order.controller;
 
 import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.common.model.order.OrderModel;
 import cn.dextea.order.dto.*;
 import cn.dextea.order.service.CustomerService;
+import cn.dextea.order.service.OrderService;
 import cn.dextea.order.service.StatusService;
 import com.alipay.api.AlipayApiException;
 import jakarta.annotation.Resource;
@@ -19,6 +21,8 @@ import java.util.List;
 @RestController
 public class CustomerController {
     @Resource
+    private OrderService orderService;
+    @Resource
     private CustomerService customerService;
     @Resource
     private StatusService statusService;
@@ -30,13 +34,13 @@ public class CustomerController {
     }
 
     /**
-     * 获取订单列表
+     * 获取顾客订单记录
      * @param id 顾客ID
      */
     @GetMapping("/order/customer/getOrderList")
-    public DexteaApiResponse<List<OrderDetailResponse>> getOrderList(@RequestParam Long id){
+    public DexteaApiResponse<List<OrderModel>> getCustomerOrderList(@RequestParam Long id){
         // TODO:鉴权 - 判断传入的ID与token的ID是否一致
-        return customerService.getOrderList(id);
+        return customerService.getCustomerOrderList(id);
     }
 
     /**
@@ -44,9 +48,9 @@ public class CustomerController {
      * @param id 订单ID
      */
     @GetMapping("/order/customer/getOrderDetail")
-    public DexteaApiResponse<OrderDetailResponse> getOrderDetail(@RequestParam("id") String id) throws NotFoundException {
+    public DexteaApiResponse<OrderModel> getOrderDetail(@RequestParam String id) throws NotFoundException {
         // TODO:鉴权 - 判断订单的顾客ID是否与token的ID是否一致
-        return customerService.getOrderDetail(id);
+        return orderService.getOrderDetail(id);
     }
 
     @PutMapping("/order/customer/payDone")
