@@ -1,6 +1,7 @@
 package cn.dextea.customer.service.impl;
 
-import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.common.model.common.DexteaApiResponse;
+import cn.dextea.common.util.DexteaJWTUtil;
 import cn.dextea.customer.pojo.Customer;
 import cn.dextea.customer.dto.CustomerListResponse;
 import cn.dextea.customer.dto.CustomerLoginRequest;
@@ -8,7 +9,6 @@ import cn.dextea.customer.dto.CustomerLoginResponse;
 import cn.dextea.customer.mapper.CustomerMapper;
 import cn.dextea.customer.service.CustomerService;
 import cn.dextea.customer.util.AlipayUtil;
-import cn.dextea.customer.util.JWTUtil;
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.response.AlipaySystemOauthTokenResponse;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -29,7 +29,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Resource
     private AlipayUtil alipayUtil;
     @Resource
-    private JWTUtil jwtUtil;
+    private DexteaJWTUtil jwtUtil;
     @Override
     public DexteaApiResponse<CustomerLoginResponse> customerLogin(CustomerLoginRequest data) throws AlipayApiException {
         // 获取openId

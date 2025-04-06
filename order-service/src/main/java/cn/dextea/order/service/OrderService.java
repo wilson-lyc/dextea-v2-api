@@ -1,6 +1,6 @@
 package cn.dextea.order.service;
 
-import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.order.OrderModel;
 import cn.dextea.order.dto.OrderQueryRequest;
 import com.baomidou.mybatisplus.core.metadata.IPage;

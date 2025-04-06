@@ -1,5 +1,6 @@
-package cn.dextea.staff.dto;
+package cn.dextea.staff.model;
 
+import cn.dev33.satoken.stp.SaTokenInfo;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,9 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class StaffCreateResponse {
-    private Long id;
-    private String name;
-    private String account;
-    private String password;
+public class StaffLoginResponse {
+    private StaffInfoResponse staff;
+    private SaTokenInfo token;
 }

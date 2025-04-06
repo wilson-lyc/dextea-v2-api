@@ -1,6 +1,6 @@
 package cn.dextea.product.controller;
 
-import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.model.common.ApiResponse;
 import cn.dextea.product.dto.category.CategoryDTO;
 import cn.dextea.product.service.CategoryService;
 import jakarta.annotation.Resource;

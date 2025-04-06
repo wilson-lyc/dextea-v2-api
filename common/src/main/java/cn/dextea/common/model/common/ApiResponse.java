@@ -1,4 +1,4 @@
-package cn.dextea.common.dto;
+package cn.dextea.common.model.common;
 
 import cn.dextea.common.code.ResultCode;
 import com.alibaba.fastjson2.JSONObject;

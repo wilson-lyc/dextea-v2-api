@@ -27,7 +27,7 @@
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
-            <scope>provided</scope>
+            <optional>true</optional>
         </dependency>
         <!-- TOS SDK -->
         <dependency>
@@ -35,11 +35,21 @@
             <artifactId>ve-tos-java-sdk</artifactId>
             <optional>true</optional>
         </dependency>
+        <!-- hutool -->
         <dependency>
-            <groupId>org.mybatis</groupId>
-            <artifactId>mybatis</artifactId>
-            <version>3.5.16</version>
-            <scope>compile</scope>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-core</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>cn.hutool</groupId>
+            <artifactId>hutool-jwt</artifactId>
+            <optional>true</optional>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
+            <scope>provided</scope>
         </dependency>
     </dependencies>
 </project>

@@ -1,7 +1,7 @@
 package cn.dextea.product.service.impl;
 
 import cn.dextea.common.code.CustomizeOptionStatus;
-import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.model.common.ApiResponse;
 import cn.dextea.common.feign.ProductFeign;
 import cn.dextea.common.feign.StoreFeign;
 import cn.dextea.product.dto.option.*;

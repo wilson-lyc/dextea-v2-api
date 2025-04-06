@@ -13,16 +13,16 @@ import lombok.*;
 @TableName("s_staff")
 public class Staff {
     @TableId(type = IdType.AUTO)
-    Long id;//员工ID
-    String name;//姓名
-    String namePinyin;//姓名拼音
-    String account;//账号
+    private Long id;//员工ID
+    private String name;//姓名
+    private String namePinyin;//姓名拼音
+    private String account;//账号
     @TableField(select = false)
-    String password;//密码
-    String phone;//手机号
-    Integer status;//状态
-    Integer identity;//身份
-    Long storeId;//隶属门店ID
-    String createTime;//创建时间
-    String updateTime;//更新时间
+    private String password;//密码
+    private String phone;//手机号
+    private Integer status;//状态
+    private Integer identity;//身份
+    private Long storeId;//隶属门店ID
+    private String createTime;//创建时间
+    private String updateTime;//更新时间
 }

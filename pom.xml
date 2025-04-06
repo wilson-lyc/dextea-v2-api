@@ -41,7 +41,7 @@
         <!-- fastjson -->
         <fastjson.version>2.0.53</fastjson.version>
         <!-- sa-token -->
-        <sa-token.version>1.39.0</sa-token.version>
+        <sa-token.version>1.41.0</sa-token.version>
         <!-- alipay SDK -->
         <alipay.version>4.40.112.ALL</alipay.version>
         <!-- tos SDK -->
@@ -146,6 +146,11 @@
             <dependency>
                 <groupId>cn.dev33</groupId>
                 <artifactId>sa-token-redis-jackson</artifactId>
+                <version>${sa-token.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>cn.dev33</groupId>
+                <artifactId>sa-token-redis-template</artifactId>
                 <version>${sa-token.version}</version>
             </dependency>
             <!-- Alipay SDK -->

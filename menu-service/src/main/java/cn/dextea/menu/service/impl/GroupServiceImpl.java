@@ -1,6 +1,6 @@
 package cn.dextea.menu.service.impl;
 
-import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.model.common.ApiResponse;
 import cn.dextea.menu.pojo.Menu;
 import cn.dextea.menu.dto.group.GroupBaseDTO;
 import cn.dextea.menu.dto.group.GroupCreateDTO;

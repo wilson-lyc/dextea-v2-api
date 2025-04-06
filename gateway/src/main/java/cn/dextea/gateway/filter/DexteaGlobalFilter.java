@@ -31,17 +31,14 @@ public class DexteaGlobalFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
-        String token=exchange.getRequest().getHeaders().getFirst("Authorization");
+        String token=exchange.getRequest().getHeaders().getFirst("DexteaToken");
         String path=exchange.getRequest().getPath().value();
-        log.info("path={}",path);
         // 白名单放行
-        if (isWhiteListPath(path)) {
-            log.info("白名单放行 path={}",path);
+        if (WHITE_LIST.contains(path)) {
             return chain.filter(exchange);
         }
         // 校验token
-        log.info("token={}",token);
-        if(Objects.isNull(token)){
+        if(Objects.isNull(token)||token.isBlank()){
             log.error("Header缺少token");
             JSONObject res=JSONObject.of(
                     "code",401,
@@ -57,10 +54,5 @@ public class DexteaGlobalFilter implements GlobalFilter, Ordered {
     @Override
     public int getOrder() {
         return 0;
-    }
-
-    private boolean isWhiteListPath(String path) {
-        return WHITE_LIST.stream()
-                .anyMatch(whitePath -> path.matches(whitePath.replace("**", ".*")));
     }
 }

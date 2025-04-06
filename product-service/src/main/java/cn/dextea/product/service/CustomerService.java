@@ -1,6 +1,6 @@
 package cn.dextea.product.service;
 
-import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.model.common.ApiResponse;
 import org.apache.ibatis.javassist.NotFoundException;
 
 /**

@@ -1,20 +1,17 @@
-package cn.dextea.customer.util;
+package cn.dextea.common.util;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.jwt.JWT;
-import cn.hutool.jwt.JWTValidator;
-import cn.hutool.jwt.signers.JWTSignerUtil;
-import org.springframework.stereotype.Component;
-
-import java.util.HashMap;
-import java.util.Map;
 
 /**
  * @author Lai Yongchao
  */
-@Component
-public class JWTUtil {
-    private static final String SECRET_KEY = "w#ils/o+n@de%xta&e.cn";
+public class DexteaJWTUtil {
+    private final String SECRET_KEY;
+
+    public DexteaJWTUtil(String SECRET_KEY) {
+        this.SECRET_KEY = SECRET_KEY;
+    }
     public String createToken(Long id) {
         return JWT.create()
                 .setPayload("id", id)
@@ -22,8 +19,11 @@ public class JWTUtil {
                 .setKey(SECRET_KEY.getBytes())
                 .sign();
     }
-
     public boolean verifyToken(String token) {
-        return JWT.of(token).setKey(SECRET_KEY.getBytes()).validate(0);
+        try{
+            return JWT.of(token).setKey(SECRET_KEY.getBytes()).validate(0);
+        }catch (Exception e){
+            return false;
+        }
     }
 }

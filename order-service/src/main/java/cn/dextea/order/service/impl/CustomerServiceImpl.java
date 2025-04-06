@@ -1,7 +1,7 @@
 package cn.dextea.order.service.impl;
 
 import cn.dextea.common.code.OrderStatus;
-import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.feign.CustomerFeign;
 import cn.dextea.common.feign.ProductFeign;
 import cn.dextea.common.model.order.OrderModel;
@@ -17,7 +17,6 @@ import cn.dextea.order.util.AlipayUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.core.lang.Snowflake;
-import com.alipay.api.AlipayApiException;
 import com.alipay.api.response.AlipayTradeCreateResponse;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;

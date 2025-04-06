@@ -1,4 +1,4 @@
-package cn.dextea.common.model;
+package cn.dextea.common.model.common;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

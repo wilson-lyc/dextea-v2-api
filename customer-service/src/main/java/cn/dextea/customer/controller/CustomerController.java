@@ -1,6 +1,6 @@
 package cn.dextea.customer.controller;
 
-import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.customer.dto.CustomerListResponse;
 import cn.dextea.customer.dto.CustomerLoginRequest;
 import cn.dextea.customer.dto.CustomerLoginResponse;

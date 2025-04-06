@@ -1,6 +1,6 @@
 package cn.dextea.menu.controller;
 
-import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.model.common.ApiResponse;
 import cn.dextea.menu.service.ProductService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.*;

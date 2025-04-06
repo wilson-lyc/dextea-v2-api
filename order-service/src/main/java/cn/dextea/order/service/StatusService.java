@@ -1,6 +1,6 @@
 package cn.dextea.order.service;
 
-import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.order.dto.OrderUpdateStatusRequest;
 import cn.dextea.order.dto.OrderPayDoneResponse;
 import com.alipay.api.AlipayApiException;

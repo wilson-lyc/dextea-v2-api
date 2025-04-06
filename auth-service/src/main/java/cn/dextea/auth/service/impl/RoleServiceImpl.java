@@ -6,7 +6,7 @@ import cn.dextea.auth.dto.role.RoleListDTO;
 import cn.dextea.auth.dto.role.RoleUpdateDTO;
 import cn.dextea.auth.mapper.RoleMapper;
 import cn.dextea.auth.service.RoleService;
-import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.model.common.ApiResponse;
 import cn.dextea.auth.pojo.Role;
 import com.alibaba.fastjson2.JSONObject;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;

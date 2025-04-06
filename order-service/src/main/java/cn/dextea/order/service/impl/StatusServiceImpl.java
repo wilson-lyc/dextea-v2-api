@@ -1,7 +1,7 @@
 package cn.dextea.order.service.impl;
 
 import cn.dextea.common.code.OrderStatus;
-import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.order.pojo.Order;
 import cn.dextea.order.dto.OrderUpdateStatusRequest;
 import cn.dextea.order.dto.OrderPayDoneResponse;
@@ -9,8 +9,6 @@ import cn.dextea.order.mapper.OrderMapper;
 import cn.dextea.order.service.StatusService;
 import cn.dextea.order.util.AlipayUtil;
 import cn.dextea.order.util.PickUpNoUtil;
-import com.alipay.api.AlipayApiException;
-import com.alipay.api.response.AlipayTradeCloseResponse;
 import com.alipay.api.response.AlipayTradeQueryResponse;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;

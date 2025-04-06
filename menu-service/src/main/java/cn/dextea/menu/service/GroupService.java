@@ -1,6 +1,6 @@
 package cn.dextea.menu.service;
 
-import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.model.common.ApiResponse;
 import cn.dextea.menu.dto.group.GroupCreateDTO;
 import cn.dextea.menu.dto.group.GroupUpdateBaseDTO;
 import org.apache.ibatis.javassist.NotFoundException;

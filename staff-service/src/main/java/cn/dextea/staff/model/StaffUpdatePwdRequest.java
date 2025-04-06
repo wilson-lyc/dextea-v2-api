@@ -1,4 +1,4 @@
-package cn.dextea.staff.dto;
+package cn.dextea.staff.model;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.Data;

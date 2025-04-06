@@ -1,9 +1,8 @@
 package cn.dextea.order.service;
 
-import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.order.OrderModel;
 import cn.dextea.order.dto.*;
-import org.apache.ibatis.javassist.NotFoundException;
 
 import java.util.List;
 

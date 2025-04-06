@@ -1,4 +1,4 @@
-package cn.dextea.staff.dto;
+package cn.dextea.staff.model;
 
 import cn.dextea.common.code.StaffIdentity;
 import cn.dextea.common.code.StaffStatus;

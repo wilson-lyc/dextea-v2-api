@@ -1,9 +1,8 @@
 package cn.dextea.staff.controller;
 
-import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.common.dto.DexteaApiResponse;
-import cn.dextea.staff.dto.StaffLoginRequest;
-import cn.dextea.staff.dto.*;
+import cn.dextea.common.model.common.DexteaApiResponse;
+import cn.dextea.common.model.staff.StaffModel;
+import cn.dextea.staff.model.*;
 import cn.dextea.staff.service.StaffService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.annotation.Resource;
@@ -37,7 +36,7 @@ public class StaffController {
      * @param filter 搜索条件
      */
     @GetMapping("/staff")
-    public DexteaApiResponse<IPage<StaffListResponse>> getStaffList(
+    public DexteaApiResponse<IPage<StaffModel>> getStaffList(
             @Valid @Min(value = 1,message = "current不能小于1") @RequestParam(defaultValue = "1") int current,
             @Valid @Min(value = 1,message = "size不能小于1") @RequestParam(defaultValue = "10") int size,
             @Valid StaffFilter filter){
@@ -50,12 +49,16 @@ public class StaffController {
      * @return 员工信息
      */
     @GetMapping("/staff/{id:\\d+}")
-    public DexteaApiResponse<StaffInfoResponse> getStaffInfo(@PathVariable("id") Long id) throws NotFoundException {
-        return staffService.getStaffInfo(id);
+    public DexteaApiResponse<StaffModel> getStaffDetail(@PathVariable("id") Long id) throws NotFoundException {
+        return staffService.getStaffDetail(id);
     }
 
+    /**
+     * 获取员工状态
+     * @param id 员工ID
+     */
     @GetMapping("/staff/{id:\\d+}/status")
-    public DexteaApiResponse<StaffStatusResponse> getStaffStatus(@PathVariable("id") Long id) throws NotFoundException {
+    public DexteaApiResponse<StaffModel> getStaffStatus(@PathVariable("id") Long id) throws NotFoundException {
         return staffService.getStaffStatus(id);
     }
 
@@ -65,14 +68,19 @@ public class StaffController {
      * @param data 数据
      */
     @PutMapping("/staff/{id:\\d+}")
-    public DexteaApiResponse<StaffInfoResponse> updateStaffInfo(
+    public DexteaApiResponse<Void> updateStaffDetail(
             @PathVariable("id") Long id,
-            @Valid @RequestBody StaffUpdateRequest data) throws NotFoundException {
-        return staffService.updateStaffInfo(id,data);
+            @Valid @RequestBody StaffUpdateDetailRequest data) throws NotFoundException {
+        return staffService.updateStaffDetail(id,data);
     }
 
+    /**
+     * 更新员工状态
+     * @param id 员工id
+     * @param status 状态
+     */
     @PutMapping("/staff/{id:\\d+}/status")
-    public DexteaApiResponse<StaffInfoResponse> updateStaffStatus(
+    public DexteaApiResponse<Void> updateStaffStatus(
             @PathVariable Long id,
             @RequestParam Integer status) throws NotFoundException {
         return staffService.updateStaffStatus(id,status);
@@ -93,18 +101,9 @@ public class StaffController {
      * @param data 数据
      */
     @PutMapping("/staff/{id:\\d+}/password")
-    public DexteaApiResponse<StaffInfoResponse> updateStaffPwd(
+    public DexteaApiResponse<Void> updateStaffPwd(
             @PathVariable("id") Long id,
             @Valid @RequestBody StaffUpdatePwdRequest data) throws NotFoundException {
         return staffService.updateStaffPwd(id,data);
-    }
-
-    /**
-     * 登录
-     * @param data 数据
-     */
-    @PostMapping("/staff/login")
-    public DexteaApiResponse<StaffLoginResponse> staffLogin(@Valid @RequestBody StaffLoginRequest data) throws IllegalAccessException {
-        return staffService.staffLogin(data);
     }
 }

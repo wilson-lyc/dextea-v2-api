@@ -1,6 +1,6 @@
 package cn.dextea.menu.controller;
 
-import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.model.common.ApiResponse;
 import cn.dextea.menu.dto.menu.MenuCreateDTO;
 import cn.dextea.menu.dto.menu.MenuQueryDTO;
 import cn.dextea.menu.dto.menu.MenuSendDTO;
@@ -11,8 +11,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 /**
  * @author Lai Yongchao

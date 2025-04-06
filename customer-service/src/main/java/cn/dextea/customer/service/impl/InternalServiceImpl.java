@@ -1,9 +1,9 @@
 package cn.dextea.customer.service.impl;
 
+import cn.dextea.common.util.DexteaJWTUtil;
 import cn.dextea.customer.pojo.Customer;
 import cn.dextea.customer.mapper.CustomerMapper;
 import cn.dextea.customer.service.InternalService;
-import cn.dextea.customer.util.JWTUtil;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
@@ -16,7 +16,7 @@ public class InternalServiceImpl implements InternalService {
     @Resource
     private CustomerMapper customerMapper;
     @Resource
-    private JWTUtil jwtUtil;
+    private DexteaJWTUtil jwtUtil;
 
     @Override
     public String getCustomerOpenId(Long id) {

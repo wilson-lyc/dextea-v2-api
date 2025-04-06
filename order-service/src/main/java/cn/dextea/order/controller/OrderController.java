@@ -1,6 +1,6 @@
 package cn.dextea.order.controller;
 
-import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.order.OrderModel;
 import cn.dextea.order.dto.OrderQueryRequest;
 import cn.dextea.order.service.OrderService;

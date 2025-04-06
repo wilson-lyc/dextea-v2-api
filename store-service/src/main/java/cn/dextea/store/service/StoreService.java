@@ -1,8 +1,8 @@
 package cn.dextea.store.service;
 
-import cn.dextea.common.dto.DexteaApiResponse;
-import cn.dextea.common.model.ImageModel;
-import cn.dextea.common.model.SelectOptionModel;
+import cn.dextea.common.model.common.DexteaApiResponse;
+import cn.dextea.common.model.common.ImageModel;
+import cn.dextea.common.model.common.SelectOptionModel;
 import cn.dextea.common.model.store.StoreModel;
 import cn.dextea.store.model.StoreCreateRequest;
 import cn.dextea.store.model.StoreFilter;

@@ -1,8 +1,8 @@
 package cn.dextea.product.service.impl;
 
 import cn.dextea.common.code.ProductStatus;
-import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.common.model.SelectOptionModel;
+import cn.dextea.common.model.common.ApiResponse;
+import cn.dextea.common.model.common.SelectOptionModel;
 import cn.dextea.common.feign.ProductFeign;
 import cn.dextea.common.feign.StoreFeign;
 import cn.dextea.product.pojo.Product;

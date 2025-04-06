@@ -1,4 +1,4 @@
-package cn.dextea.staff.dto;
+package cn.dextea.staff.model;
 
 import cn.dextea.staff.pojo.Staff;
 import jakarta.validation.constraints.NotBlank;

@@ -1,6 +1,7 @@
 package cn.dextea.common.handler;
 
-import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.common.model.common.DexteaApiResponse;
+import cn.dextea.common.exception.UnauthorizedException;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.http.ResponseEntity;
@@ -55,6 +56,12 @@ public class GlobalExceptionHandler {
     public DexteaApiResponse<Object> handleNotFoundException(NotFoundException e) {
         log.error("资源不存在", e);
         return DexteaApiResponse.notFound(e.getMessage());
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public DexteaApiResponse<Object> handleUnauthorizedException(UnauthorizedException e) {
+        log.error("登录过期", e);
+        return DexteaApiResponse.unauthorized(e.getMessage());
     }
 
     // 其他异常

@@ -3,7 +3,7 @@ package cn.dextea.auth.controller;
 import cn.dextea.auth.dto.role.RoleCreateDTO;
 import cn.dextea.auth.dto.role.RoleUpdateDTO;
 import cn.dextea.auth.service.RoleService;
-import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.model.common.ApiResponse;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.apache.ibatis.javassist.NotFoundException;

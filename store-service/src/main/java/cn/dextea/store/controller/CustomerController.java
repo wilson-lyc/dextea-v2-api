@@ -1,6 +1,6 @@
 package cn.dextea.store.controller;
 
-import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.store.StoreModel;
 import cn.dextea.store.service.CustomerService;
 import jakarta.annotation.Resource;

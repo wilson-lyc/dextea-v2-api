@@ -1,7 +1,7 @@
 package cn.dextea.menu.service.impl;
 
 import cn.dextea.common.code.ProductStatus;
-import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.feign.ProductFeign;
 import cn.dextea.common.feign.StoreFeign;
 import cn.dextea.common.model.menu.MenuGroupModel;

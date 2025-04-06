@@ -1,6 +1,6 @@
 package cn.dextea.product.service.impl;
 
-import cn.dextea.common.dto.ApiResponse;
+import cn.dextea.common.model.common.ApiResponse;
 import cn.dextea.common.feign.ProductFeign;
 import cn.dextea.common.model.product.ProductModel;
 import cn.dextea.product.mapper.ItemMapper;

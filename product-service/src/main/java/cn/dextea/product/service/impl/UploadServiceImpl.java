@@ -1,6 +1,6 @@
 package cn.dextea.product.service.impl;
 
-import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.util.TosUtil;
 import cn.dextea.product.dto.UploadResponse;
 import cn.dextea.product.mapper.ProductMapper;

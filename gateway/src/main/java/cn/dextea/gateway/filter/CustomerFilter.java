@@ -1,6 +1,8 @@
 package cn.dextea.gateway.filter;
 
+import cn.dextea.common.util.DexteaJWTUtil;
 import com.alibaba.fastjson2.JSONObject;
+import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
@@ -11,7 +13,6 @@ import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 /**
  * @author Lai Yongchao
@@ -19,9 +20,11 @@ import java.util.Objects;
 @Slf4j
 @Component
 public class CustomerFilter extends AbstractGatewayFilterFactory<CustomerFilter.Config> implements Ordered {
+    @Resource
+    private DexteaJWTUtil jwtUtil;
 
     // 白名单
-    private static final List<String> WHITE_LIST = Arrays.asList("/customer");
+    private static final List<String> WHITE_LIST = Arrays.asList("/customer/login");
 
     public CustomerFilter() {
         super(Config.class);
@@ -29,15 +32,22 @@ public class CustomerFilter extends AbstractGatewayFilterFactory<CustomerFilter.
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
-            String token=exchange.getRequest().getHeaders().getFirst("Authorization");
+            String token=exchange.getRequest().getHeaders().getFirst("DexteaToken");
             String path=exchange.getRequest().getPath().value();
             // 白名单放行
-            if (isWhiteListPath(path)) {
-                log.info("白名单放行 path={}",path);
+            if (WHITE_LIST.contains(path)) {
                 return chain.filter(exchange);
             }
-            // 校验token合法性
-
+            if(!jwtUtil.verifyToken(token)) {
+                log.error("toke无效:{}",token);
+                JSONObject res=JSONObject.of(
+                        "code",401,
+                        "message","token无效");
+                exchange.getResponse().setStatusCode(org.springframework.http.HttpStatus.UNAUTHORIZED);
+                exchange.getResponse().getHeaders().add("Content-Type", "application/json");
+                DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(res.toJSONString().getBytes());
+                return exchange.getResponse().writeWith(Mono.just(buffer));
+            }
             return chain.filter(exchange);
         };
     }
@@ -47,11 +57,6 @@ public class CustomerFilter extends AbstractGatewayFilterFactory<CustomerFilter.
 
     @Override
     public int getOrder() {
-        return 1;
-    }
-
-    private boolean isWhiteListPath(String path) {
-        return WHITE_LIST.stream()
-                .anyMatch(whitePath -> path.matches(whitePath.replace("**", ".*")));
+        return 2;
     }
 }

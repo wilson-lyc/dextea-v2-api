@@ -1,7 +1,7 @@
-package cn.dextea.staff.dto;
+package cn.dextea.staff.model;
 
-import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,11 +9,12 @@ import lombok.NoArgsConstructor;
  * @author Lai Yongchao
  */
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class StaffLoginRequest {
-    @NotBlank(message = "账号不能为空")
+public class StaffCreateResponse {
+    private Long id;
+    private String name;
     private String account;
-    @NotBlank(message = "密码不能为空")
     private String password;
 }

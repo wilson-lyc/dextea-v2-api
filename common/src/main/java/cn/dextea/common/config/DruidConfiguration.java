@@ -10,7 +10,6 @@ import org.springframework.context.annotation.Configuration;
 /**
  * @author Lai Yongchao
  */
-@Configuration
 public class DruidConfiguration {
     @Bean
     public ServletRegistrationBean druidStatViewServlet() {

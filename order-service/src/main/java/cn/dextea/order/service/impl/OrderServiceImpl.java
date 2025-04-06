@@ -1,7 +1,7 @@
 package cn.dextea.order.service.impl;
 
 import cn.dextea.common.code.OrderStatus;
-import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.order.OrderModel;
 import cn.dextea.common.model.order.OrderProductModel;
 import cn.dextea.order.dto.OrderQueryRequest;

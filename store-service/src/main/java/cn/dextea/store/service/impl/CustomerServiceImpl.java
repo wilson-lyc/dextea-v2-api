@@ -1,6 +1,6 @@
 package cn.dextea.store.service.impl;
 
-import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.store.StoreModel;
 import cn.dextea.store.mapper.StoreMapper;
 import cn.dextea.store.pojo.Store;
@@ -12,7 +12,6 @@ import jakarta.annotation.Resource;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.text.DecimalFormat;
 import java.util.List;
 import java.util.Objects;
 

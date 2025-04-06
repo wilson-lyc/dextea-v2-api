@@ -1,7 +1,6 @@
 package cn.dextea.product.controller;
 
-import cn.dextea.common.dto.ApiResponse;
-import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.product.dto.UploadResponse;
 import cn.dextea.product.service.UploadService;
 import jakarta.annotation.Resource;

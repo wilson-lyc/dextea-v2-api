@@ -1,10 +1,10 @@
 package cn.dextea.store.service.impl;
 
 import cn.dextea.common.code.StoreStatus;
-import cn.dextea.common.dto.DexteaApiResponse;
+import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.feign.StoreFeign;
-import cn.dextea.common.model.ImageModel;
-import cn.dextea.common.model.SelectOptionModel;
+import cn.dextea.common.model.common.ImageModel;
+import cn.dextea.common.model.common.SelectOptionModel;
 import cn.dextea.common.model.store.StoreModel;
 import cn.dextea.store.mapper.StoreMapper;
 import cn.dextea.store.model.*;
