@@ -16,19 +16,35 @@ import java.util.List;
 public class StaffController {
     @Resource
     private StaffService staffService;
-    @PostMapping("/staff/{staffId:\\d+}/role/{roleId:\\d+}")
+
+    /**
+     * 员工绑定角色
+     * @param roleId 角色ID
+     * @param staffId 员工ID
+     */
+    @PostMapping("/role/{roleId:\\d+}/staff/{staffId:\\d+}")
     public DexteaApiResponse<Void> addStaffToRole(
             @PathVariable Long roleId,
             @PathVariable Long staffId){
         return staffService.addStaffToRole(roleId,staffId);
     }
-    @DeleteMapping("/staff/{staffId:\\d+}/role/{roleId:\\d+}")
+
+    /**
+     * 员工解绑角色
+     * @param roleId 角色ID
+     * @param staffId 员工ID
+     */
+    @DeleteMapping("/role/{roleId:\\d+}/staff/{staffId:\\d+}")
     public DexteaApiResponse<Void> deleteStaffFromRole(
             @PathVariable Long roleId,
             @PathVariable Long staffId){
         return staffService.deleteStaffFromRole(roleId,staffId);
     }
 
+    /**
+     * 获取员工的角色列表
+     * @param staffId 员工ID
+     */
     @GetMapping("/staff/{staffId:\\d+}/role")
     public DexteaApiResponse<List<RoleModel>> getStaffRoleList(
             @PathVariable Long staffId){

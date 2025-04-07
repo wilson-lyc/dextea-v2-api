@@ -16,6 +16,7 @@ import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -103,13 +104,31 @@ public class StaffServiceImpl implements StaffService {
         }
         // 获取角色列表
         MPJLambdaWrapper<StaffRole> wrapper = new MPJLambdaWrapper<StaffRole>()
-                .selectAs(Role::getId, RoleModel::getId)
-                .selectAs(Role::getName, RoleModel::getName)
-                .selectAs(Role::getDescription, RoleModel::getDescription)
+                .selectAll(Role.class)
                 .innerJoin(Role.class, Role::getId, StaffRole::getRoleId)
                 .eq(StaffRole::getStaffId, staffId);
-        List<RoleModel> roles = staffRoleMapper.selectJoinList(RoleModel.class, wrapper);
-        return DexteaApiResponse.success(roles);
+        List<Role> roles = staffRoleMapper.selectJoinList(Role.class, wrapper);
+        List<RoleModel> roleModelList=new ArrayList<>();
+        // 遍历每个角色
+        for(Role role:roles){
+            RoleModel roleModel=RoleModel.builder()
+                    .id(role.getId())
+                    .name(role.getName())
+                    .description(role.getDescription())
+                    .build();
+            if(!role.getPermissions().isEmpty()){
+                // 获取权限列表
+                MPJLambdaWrapper<Permission> permissionWrapper=new MPJLambdaWrapper<Permission>()
+                        .selectAsClass(Permission.class,PermissionModel.class)
+                        .in(Permission::getId,role.getPermissions());
+                List<PermissionModel> permissions = permissionMapper.selectJoinList(PermissionModel.class, permissionWrapper);
+                roleModel.setPermissions(permissions);
+            }else{
+                roleModel.setPermissions(List.of());
+            }
+            roleModelList.add(roleModel);
+        }
+        return DexteaApiResponse.success(roleModelList);
     }
 
     @Override

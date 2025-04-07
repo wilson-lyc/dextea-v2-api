@@ -3,8 +3,10 @@ package cn.dextea.auth.controller;
 import cn.dextea.auth.model.RoleCreateRequest;
 import cn.dextea.auth.model.RoleUpdateRequest;
 import cn.dextea.auth.service.RoleService;
+import cn.dextea.common.model.auth.PermissionModel;
 import cn.dextea.common.model.auth.RoleModel;
 import cn.dextea.common.model.common.DexteaApiResponse;
+import cn.dextea.common.model.staff.StaffModel;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -55,5 +57,22 @@ public class RoleController {
             @PathVariable Long id,
             @Valid @RequestBody RoleUpdateRequest data){
         return roleService.updateRoleDetail(id, data);
+    }
+
+    /**
+     * 获取权限列表
+     */
+    @GetMapping("/permission")
+    public DexteaApiResponse<List<PermissionModel>> getPermissionList() {
+        return roleService.getPermissionList();
+    }
+
+    /**
+     * 获取角色下的所有员工
+     * @param id 角色ID
+     */
+    @GetMapping("/role/{id:\\d+}/staff")
+    public DexteaApiResponse<List<StaffModel>> getRoleStaffList(@PathVariable Long id) {
+        return roleService.getRoleStaffList(id);
     }
 }
