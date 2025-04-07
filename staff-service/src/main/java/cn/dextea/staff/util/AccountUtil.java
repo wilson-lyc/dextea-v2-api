@@ -26,7 +26,7 @@ public class AccountUtil {
      * @return 账号
      */
     @Transactional(rollbackFor = Exception.class)
-    public Staff create(String name) {
+    public Staff create(String name) throws Exception {
         // 姓名转拼音
         String namePinyin = PinyinUtil.getPinyin(name, "");
         // 生成账号
@@ -35,13 +35,16 @@ public class AccountUtil {
             lock.lock();
             Long samePinYinCount = staffMapper.selectCount(wrapper);
             String account = samePinYinCount > 0 ? namePinyin + (samePinYinCount + 1) : namePinyin;
-            Staff staff =Staff.builder()
+            Staff staff = Staff.builder()
                     .name(name)
                     .namePinyin(namePinyin)
                     .account(account)
                     .build();
             staffMapper.insert(staff);
             return staff;
+        }catch (Exception e){
+            log.error("创建账号失败", e);
+            throw new Exception("创建账号失败");
         } finally {
             lock.unlock();
         }

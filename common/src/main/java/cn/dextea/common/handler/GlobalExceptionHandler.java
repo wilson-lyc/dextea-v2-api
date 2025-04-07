@@ -1,9 +1,7 @@
 package cn.dextea.common.handler;
 
 import cn.dextea.common.model.common.DexteaApiResponse;
-import cn.dextea.common.exception.UnauthorizedException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -38,13 +36,6 @@ public class GlobalExceptionHandler {
         return DexteaApiResponse.fail(e.getMessage());
     }
 
-    // 权限错误
-    @ExceptionHandler(IllegalAccessException.class)
-    public DexteaApiResponse<Object> handleIllegalAccessException(IllegalAccessException e) {
-        log.error("权限错误", e);
-        return DexteaApiResponse.forbidden(e.getMessage());
-    }
-
     // 请求参数错误
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public DexteaApiResponse<Object> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
@@ -57,12 +48,6 @@ public class GlobalExceptionHandler {
     public ResponseEntity<DexteaApiResponse<Void>> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
         log.error("文件体积过大：{}", e.getMessage());
         return ResponseEntity.badRequest().body(DexteaApiResponse.fail("文件体积过大"));
-    }
-
-    @ExceptionHandler(UnauthorizedException.class)
-    public DexteaApiResponse<Object> handleUnauthorizedException(UnauthorizedException e) {
-        log.error("登录过期", e);
-        return DexteaApiResponse.unauthorized(e.getMessage());
     }
 
     // 其他异常

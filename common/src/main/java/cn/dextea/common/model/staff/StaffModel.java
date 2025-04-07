@@ -22,6 +22,7 @@ public class StaffModel {
     private String name;
     private String namePinyin;
     private String account;
+    private String phone;
     //状态
     private Integer status;
     private String statusText;

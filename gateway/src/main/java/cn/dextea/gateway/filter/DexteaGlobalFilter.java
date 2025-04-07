@@ -46,7 +46,7 @@ public class DexteaGlobalFilter implements GlobalFilter, Ordered {
             log.error("Header缺少token");
             JSONObject res=JSONObject.of(
                     "code",401,
-                    "message","请提供认证信息");
+                    "msg","请提供认证信息");
             exchange.getResponse().setStatusCode(org.springframework.http.HttpStatus.UNAUTHORIZED);
             exchange.getResponse().getHeaders().add("Content-Type", "application/json");
             DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(res.toJSONString().getBytes());

@@ -45,7 +45,7 @@ public class CustomerFilter extends AbstractGatewayFilterFactory<CustomerFilter.
                 log.error("toke无效:{}",token);
                 JSONObject res=JSONObject.of(
                         "code",401,
-                        "message","token无效");
+                        "msg","token无效");
                 exchange.getResponse().setStatusCode(org.springframework.http.HttpStatus.UNAUTHORIZED);
                 exchange.getResponse().getHeaders().add("Content-Type", "application/json");
                 DataBuffer buffer = exchange.getResponse().bufferFactory().wrap(res.toJSONString().getBytes());

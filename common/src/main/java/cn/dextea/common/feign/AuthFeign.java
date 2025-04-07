@@ -14,5 +14,5 @@ public interface AuthFeign {
     @GetMapping("/auth/internal/getStaffRoleKeys")
     List<String> getStaffRoleKeys(@RequestParam("id") Long id);
     @GetMapping("/auth/internal/getStaffPermissionKeys")
-    List<String> getStaffPermissionKeys(@RequestParam Long id);
+    List<String> getStaffPermissionKeys(@RequestParam("id") Long id);
 }

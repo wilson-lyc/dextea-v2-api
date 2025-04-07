@@ -9,5 +9,5 @@ import jakarta.validation.Valid;
  * @author Lai Yongchao
  */
 public interface LoginService {
-    DexteaApiResponse<StaffModel> staffLogin(@Valid StaffLoginRequest data) throws IllegalAccessException;
+    DexteaApiResponse<StaffModel> staffLogin(@Valid StaffLoginRequest data);
 }

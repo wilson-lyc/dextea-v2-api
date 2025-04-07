@@ -23,7 +23,7 @@ public class LoginController {
      * @param data 数据
      */
     @PostMapping("/staff/login")
-    public DexteaApiResponse<StaffModel> staffLogin(@Valid @RequestBody StaffLoginRequest data) throws IllegalAccessException {
+    public DexteaApiResponse<StaffModel> staffLogin(@Valid @RequestBody StaffLoginRequest data){
         return loginService.staffLogin(data);
     }
 }

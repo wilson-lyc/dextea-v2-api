@@ -5,6 +5,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.dextea.common.code.StaffStatus;
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.staff.StaffModel;
+import cn.dextea.staff.code.StaffErrorCode;
 import cn.dextea.staff.model.StaffLoginRequest;
 import cn.dextea.staff.mapper.StaffMapper;
 import cn.dextea.staff.pojo.Staff;
@@ -26,22 +27,23 @@ public class LoginServiceImpl implements LoginService {
     @Resource
     private StaffMapper staffMapper;
     @Override
-    public DexteaApiResponse<StaffModel> staffLogin(StaffLoginRequest data) throws IllegalAccessException {
+    public DexteaApiResponse<StaffModel> staffLogin(StaffLoginRequest data){
         MPJLambdaWrapper<Staff> wrapper=new MPJLambdaWrapper<Staff>()
                 .selectAs(Staff::getId, StaffModel::getId)
                 .selectAs(Staff::getName, StaffModel::getName)
                 .selectAs(Staff::getStatus,StaffModel::getStatus)
                 .selectAs(Staff::getIdentity,StaffModel::getIdentity)
+                .selectAs(Staff::getStoreId,StaffModel::getStoreId)
                 .eq(Staff::getAccount,data.getAccount())
                 .eq(Staff::getPassword,passwordUtil.encrypt(data.getPassword()));
         StaffModel staff=staffMapper.selectJoinOne(StaffModel.class,wrapper);
         // 账号或密码错误
         if(Objects.isNull(staff)){
-            throw new IllegalArgumentException("账号或密码错误");
+            return DexteaApiResponse.fail(StaffErrorCode.LOGIN_FAIL.getCode(),StaffErrorCode.LOGIN_FAIL.getMsg());
         }
         // 账号被禁用
         if(staff.getStatus().equals(StaffStatus.FORBIDDEN.getValue())){
-            throw new IllegalAccessException("账号被禁用");
+            return DexteaApiResponse.fail(StaffErrorCode.ACCOUNT_FORBIDDEN.getCode(),StaffErrorCode.ACCOUNT_FORBIDDEN.getMsg());
         }
         // 创建token
         StpUtil.login(staff.getId());
