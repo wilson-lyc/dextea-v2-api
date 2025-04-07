@@ -22,8 +22,10 @@ public class AdminFilter {
                 .addInclude("/**")
                 // 白名单
                 .addExclude(
+                        // 登录接口
                         "/staff/login",
                         "/customer/login",
+                        // 顾客端接口
                         "/store/customer/**",
                         "/product/customer",
                         "/menu/customer/**",

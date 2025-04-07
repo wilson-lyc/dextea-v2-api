@@ -1,17 +1,22 @@
-package cn.dextea.auth.dto.role;
+package cn.dextea.common.model.auth;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.util.List;
 
 /**
  * @author Lai Yongchao
  */
 @Data
-@NoArgsConstructor
+@Builder
 @AllArgsConstructor
-public class RoleBaseDTO {
+@NoArgsConstructor
+public class RoleModel {
     private Long id;
     private String name;
     private String description;
+    private List<PermissionModel> permissions;
 }

@@ -1,17 +1,15 @@
 package cn.dextea.auth.service.impl;
 
-import cn.dextea.auth.dto.role.RoleBaseDTO;
-import cn.dextea.auth.dto.role.RoleCreateDTO;
-import cn.dextea.auth.dto.role.RoleListDTO;
-import cn.dextea.auth.dto.role.RoleUpdateDTO;
+import cn.dextea.auth.code.AuthErrorCode;
+import cn.dextea.auth.model.RoleCreateRequest;
+import cn.dextea.auth.model.RoleUpdateRequest;
 import cn.dextea.auth.mapper.RoleMapper;
 import cn.dextea.auth.service.RoleService;
-import cn.dextea.common.model.common.ApiResponse;
+import cn.dextea.common.model.auth.RoleModel;
 import cn.dextea.auth.pojo.Role;
-import com.alibaba.fastjson2.JSONObject;
+import cn.dextea.common.model.common.DexteaApiResponse;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
-import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,44 +24,50 @@ public class RoleServiceImpl implements RoleService {
     private RoleMapper roleMapper;
 
     @Override
-    public ApiResponse createRole(RoleCreateDTO data) {
+    public DexteaApiResponse<Void> createRole(RoleCreateRequest data) {
         Role role=data.toRole();
+        // 校验角色名
+        String regex = "^[a-zA-Z0-9_]+$";
+        if (!data.getName().matches(regex)){
+            return DexteaApiResponse.fail("参数错误", AuthErrorCode.ROLE_NAME_ILLEGAL.getCode(), AuthErrorCode.ROLE_NAME_ILLEGAL.getMsg());
+        }
         roleMapper.insert(role);
-        return ApiResponse.success("角色创建成功", JSONObject.of("role",role));
+        return DexteaApiResponse.success("角色创建成功");
     }
 
     @Override
-    public ApiResponse getRoleList() {
+    public DexteaApiResponse<List<RoleModel>> getRoleList() {
         MPJLambdaWrapper<Role> wrapper=new MPJLambdaWrapper<Role>()
-                .selectAsClass(Role.class, RoleListDTO.class);
-        List<RoleListDTO> roles=roleMapper.selectJoinList(RoleListDTO.class,wrapper);
-        return ApiResponse.success(JSONObject.of("roles",roles));
+                .selectAs(Role::getId, RoleModel::getId)
+                .selectAs(Role::getName, RoleModel::getName)
+                .selectAs(Role::getDescription, RoleModel::getDescription);
+        List<RoleModel> roles=roleMapper.selectJoinList(RoleModel.class,wrapper);
+        return DexteaApiResponse.success(roles);
     }
 
     @Override
-    public ApiResponse getRoleById(Long id) throws NotFoundException {
-        Role role=roleMapper.selectById(id);
-        if (Objects.isNull(role))
-            throw new NotFoundException("角色不存在");
-        return ApiResponse.success(JSONObject.of("role",role));
-    }
-
-    @Override
-    public ApiResponse getRoleBase(Long id) throws NotFoundException {
+    public DexteaApiResponse<RoleModel> getRoleDetail(Long id){
         MPJLambdaWrapper<Role> wrapper=new MPJLambdaWrapper<Role>()
-                .selectAsClass(Role.class, RoleBaseDTO.class)
+                .selectAsClass(Role.class, RoleModel.class)
                 .eq(Role::getId,id);
-        RoleBaseDTO role=roleMapper.selectJoinOne(RoleBaseDTO.class,wrapper);
-        if (Objects.isNull(role))
-            throw new NotFoundException("角色不存在");
-        return ApiResponse.success(JSONObject.of("role",role));
+        RoleModel role=roleMapper.selectJoinOne(RoleModel.class,wrapper);
+        if (Objects.isNull(role)){
+            return DexteaApiResponse.notFound(AuthErrorCode.ROLE_NOT_FOUND.getCode(), AuthErrorCode.ROLE_NOT_FOUND.getMsg());
+        }
+        return DexteaApiResponse.success(role);
     }
 
     @Override
-    public ApiResponse updateRoleBase(Long id, RoleUpdateDTO data) throws NotFoundException {
+    public DexteaApiResponse<Void> updateRoleDetail(Long id, RoleUpdateRequest data){
         Role role=data.toRole(id);
-        if (roleMapper.updateById(role)==0)
-            throw new NotFoundException("角色不存在");
-        return ApiResponse.success("更新成功");
+        // 校验角色名
+        String regex = "^[a-zA-Z0-9_]+$";
+        if (!data.getName().matches(regex)){
+            return DexteaApiResponse.fail("参数错误", AuthErrorCode.ROLE_NAME_ILLEGAL.getCode(), AuthErrorCode.ROLE_NAME_ILLEGAL.getMsg());
+        }
+        if (roleMapper.updateById(role)==0){
+            return DexteaApiResponse.fail("更新失败", AuthErrorCode.ROLE_NOT_FOUND.getCode(), AuthErrorCode.ROLE_NOT_FOUND.getMsg());
+        }
+        return DexteaApiResponse.success("更新成功");
     }
 }

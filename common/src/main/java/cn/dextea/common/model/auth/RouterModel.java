@@ -1,6 +1,7 @@
-package cn.dextea.auth.dto.role;
+package cn.dextea.common.model.auth;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -8,10 +9,9 @@ import lombok.NoArgsConstructor;
  * @author Lai Yongchao
  */
 @Data
-@NoArgsConstructor
+@Builder
 @AllArgsConstructor
-public class RoleListDTO {
+@NoArgsConstructor
+public class RouterModel {
     private Long id;
-    private String name;
-    private String description;
 }

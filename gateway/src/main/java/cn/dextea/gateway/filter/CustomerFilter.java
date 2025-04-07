@@ -4,6 +4,7 @@ import cn.dextea.common.util.DexteaJWTUtil;
 import com.alibaba.fastjson2.JSONObject;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.gateway.filter.GatewayFilter;
 import org.springframework.cloud.gateway.filter.factory.AbstractGatewayFilterFactory;
 import org.springframework.core.Ordered;
@@ -22,6 +23,8 @@ import java.util.List;
 public class CustomerFilter extends AbstractGatewayFilterFactory<CustomerFilter.Config> implements Ordered {
     @Resource
     private DexteaJWTUtil jwtUtil;
+    @Value("${sa-token.token-name}")
+    private String TOKEN_NAME;
 
     // 白名单
     private static final List<String> WHITE_LIST = Arrays.asList("/customer/login");
@@ -32,7 +35,7 @@ public class CustomerFilter extends AbstractGatewayFilterFactory<CustomerFilter.
     @Override
     public GatewayFilter apply(Config config) {
         return (exchange, chain) -> {
-            String token=exchange.getRequest().getHeaders().getFirst("DexteaToken");
+            String token=exchange.getRequest().getHeaders().getFirst(TOKEN_NAME);
             String path=exchange.getRequest().getPath().value();
             // 白名单放行
             if (WHITE_LIST.contains(path)) {

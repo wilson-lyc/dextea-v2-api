@@ -1,7 +1,7 @@
-package cn.dextea.auth.pojo;
+package cn.dextea.common.model.auth;
 
-import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,10 +9,10 @@ import lombok.NoArgsConstructor;
  * @author Lai Yongchao
  */
 @Data
+@Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("d_permission")
-public class Permission {
+public class PermissionModel {
     private Long id;
     private String name;
     private String description;

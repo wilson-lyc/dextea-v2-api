@@ -1,17 +1,18 @@
 package cn.dextea.auth.service;
 
-import cn.dextea.auth.dto.role.RoleCreateDTO;
-import cn.dextea.auth.dto.role.RoleUpdateDTO;
-import cn.dextea.common.model.common.ApiResponse;
-import org.apache.ibatis.javassist.NotFoundException;
+import cn.dextea.auth.model.RoleCreateRequest;
+import cn.dextea.auth.model.RoleUpdateRequest;
+import cn.dextea.common.model.auth.RoleModel;
+import cn.dextea.common.model.common.DexteaApiResponse;
+
+import java.util.List;
 
 /**
  * @author Lai Yongchao
  */
 public interface RoleService {
-    ApiResponse createRole(RoleCreateDTO data);
-    ApiResponse getRoleList();
-    ApiResponse getRoleById(Long id) throws NotFoundException;
-    ApiResponse getRoleBase(Long id) throws NotFoundException;
-    ApiResponse updateRoleBase(Long id,RoleUpdateDTO data) throws NotFoundException;
+    DexteaApiResponse<Void> createRole(RoleCreateRequest data);
+    DexteaApiResponse<List<RoleModel>> getRoleList();
+    DexteaApiResponse<RoleModel> getRoleDetail(Long id);
+    DexteaApiResponse<Void> updateRoleDetail(Long id, RoleUpdateRequest data);
 }

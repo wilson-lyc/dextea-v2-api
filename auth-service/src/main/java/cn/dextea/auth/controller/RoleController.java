@@ -1,13 +1,15 @@
 package cn.dextea.auth.controller;
 
-import cn.dextea.auth.dto.role.RoleCreateDTO;
-import cn.dextea.auth.dto.role.RoleUpdateDTO;
+import cn.dextea.auth.model.RoleCreateRequest;
+import cn.dextea.auth.model.RoleUpdateRequest;
 import cn.dextea.auth.service.RoleService;
-import cn.dextea.common.model.common.ApiResponse;
+import cn.dextea.common.model.auth.RoleModel;
+import cn.dextea.common.model.common.DexteaApiResponse;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author Lai Yongchao
@@ -16,30 +18,42 @@ import org.springframework.web.bind.annotation.*;
 public class RoleController {
     @Resource
     private RoleService roleService;
+
+    /**
+     * 创建角色
+     * @param data 数据
+     */
     @PostMapping("/role")
-    public ApiResponse createRole(@Valid @RequestBody RoleCreateDTO data){
+    public DexteaApiResponse<Void> createRole(@Valid @RequestBody RoleCreateRequest data){
         return roleService.createRole(data);
     }
 
+    /**
+     * 获取角色列表
+     */
     @GetMapping("/role")
-    public ApiResponse getRoleList(){
+    public DexteaApiResponse<List<RoleModel>> getRoleList(){
         return roleService.getRoleList();
     }
 
+    /**
+     * 获取角色详情
+     * @param id 角色ID
+     */
     @GetMapping("/role/{id:\\d+}")
-    public ApiResponse getRoleById(@PathVariable Long id) throws NotFoundException {
-        return roleService.getRoleById(id);
+    public DexteaApiResponse<RoleModel> getRoleDetail(@PathVariable Long id){
+        return roleService.getRoleDetail(id);
     }
 
-    @GetMapping("/role/{id:\\d+}/base")
-    public ApiResponse getRoleBase(@PathVariable Long id) throws NotFoundException {
-        return roleService.getRoleBase(id);
-    }
-
-    @PutMapping("/role/{id:\\d+}/base")
-    public ApiResponse updateRoleBase(
+    /**
+     * 更新角色基础信息
+     * @param id 角色ID
+     * @param data 数据
+     */
+    @PutMapping("/role/{id:\\d+}")
+    public DexteaApiResponse<Void> updateRoleDetail(
             @PathVariable Long id,
-            @Valid @RequestBody RoleUpdateDTO data) throws NotFoundException {
-        return roleService.updateRoleBase(id, data);
+            @Valid @RequestBody RoleUpdateRequest data){
+        return roleService.updateRoleDetail(id, data);
     }
 }

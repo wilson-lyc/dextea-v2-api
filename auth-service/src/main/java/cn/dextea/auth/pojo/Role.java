@@ -26,9 +26,9 @@ public class Role {
     private String name;
     private String description;
     @TableField(typeHandler = Fastjson2TypeHandler.class)
-    private List<Integer> routers;
+    private List<Long> permissions;
     @TableField(typeHandler = Fastjson2TypeHandler.class)
-    private List<Integer> permissions;
+    private List<Long> routers;
     private String createTime;
     private String updateTime;
 }
