@@ -44,6 +44,7 @@ public class OrderModel {
     private String createTime;
     private String payTime;
     private String payExpireTime;
+    private String refundTime;
     private String updateTime;
 
     public String getDineModeText() {

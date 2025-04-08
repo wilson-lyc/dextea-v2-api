@@ -1,21 +1,22 @@
-package cn.dextea.order.dto;
+package cn.dextea.order.model;
 
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.math.BigDecimal;
 
 /**
  * @author Lai Yongchao
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderQueryRequest {
+public class OrderCreateResponse {
     private String id;
+    private Integer totalCount;
+    private BigDecimal totalPrice;
     private String tradeNo;
-    private Long customerId;
-    private Long storeId;
-    private Integer dineMode;
-    private String pickUpNo;
-    private Integer status;
 }

@@ -1,4 +1,4 @@
-package cn.dextea.order.dto;
+package cn.dextea.order.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

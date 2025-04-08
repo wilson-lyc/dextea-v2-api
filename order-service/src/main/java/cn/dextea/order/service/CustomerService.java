@@ -2,7 +2,7 @@ package cn.dextea.order.service;
 
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.order.OrderModel;
-import cn.dextea.order.dto.*;
+import cn.dextea.order.model.*;
 
 import java.util.List;
 

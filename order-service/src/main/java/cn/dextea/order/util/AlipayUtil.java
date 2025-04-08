@@ -2,15 +2,9 @@ package cn.dextea.order.util;
 
 import com.alipay.api.AlipayApiException;
 import com.alipay.api.AlipayClient;
-import com.alipay.api.domain.AlipayTradeCloseModel;
-import com.alipay.api.domain.AlipayTradeCreateModel;
-import com.alipay.api.domain.AlipayTradeQueryModel;
-import com.alipay.api.request.AlipayTradeCloseRequest;
-import com.alipay.api.request.AlipayTradeCreateRequest;
-import com.alipay.api.request.AlipayTradeQueryRequest;
-import com.alipay.api.response.AlipayTradeCloseResponse;
-import com.alipay.api.response.AlipayTradeCreateResponse;
-import com.alipay.api.response.AlipayTradeQueryResponse;
+import com.alipay.api.domain.*;
+import com.alipay.api.request.*;
+import com.alipay.api.response.*;
 import jakarta.annotation.Resource;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cloud.context.config.annotation.RefreshScope;
@@ -83,6 +77,42 @@ public class AlipayUtil {
             }
         }catch (AlipayApiException e) {
             throw new RuntimeException("支付宝交易关闭失败:" + e.getMessage());
+        }
+    }
+
+    public AlipayTradeRefundResponse tradeRefund(String tradeNo,BigDecimal price){
+        try{
+            AlipayTradeRefundRequest request = new AlipayTradeRefundRequest();
+            AlipayTradeRefundModel model = new AlipayTradeRefundModel();
+            model.setTradeNo(tradeNo);
+            model.setRefundAmount(price.toString());
+            request.setBizModel(model);
+            AlipayTradeRefundResponse response= alipayClient.execute(request);
+            if(response.isSuccess()){
+                return response;
+            }else{
+                throw new RuntimeException("支付宝交易退款失败:"+response.getSubMsg()+"("+response.getSubCode()+")");
+            }
+        }catch (AlipayApiException e) {
+            throw new RuntimeException("支付宝交易退款失败:" + e.getMessage());
+        }
+    }
+
+    public AlipayTradeFastpayRefundQueryResponse tradeRefundQuery(String orderId,String tradeNo){
+        try{
+            AlipayTradeFastpayRefundQueryRequest request = new AlipayTradeFastpayRefundQueryRequest();
+            AlipayTradeFastpayRefundQueryModel model = new AlipayTradeFastpayRefundQueryModel();
+            model.setTradeNo(tradeNo);
+            model.setOutRequestNo(orderId);
+            request.setBizModel(model);
+            AlipayTradeFastpayRefundQueryResponse response = alipayClient.execute(request);
+            if(response.isSuccess()){
+                return response;
+            }else{
+                throw new RuntimeException("支付宝退款进度查询失败:"+response.getSubMsg()+"("+response.getSubCode()+")");
+            }
+        }catch (AlipayApiException e){
+            throw new RuntimeException("支付宝退款进度查询失败:"+e.getMessage());
         }
     }
 }

@@ -7,7 +7,7 @@ import cn.dextea.common.feign.ProductFeign;
 import cn.dextea.common.model.order.OrderModel;
 import cn.dextea.common.model.order.OrderProductModel;
 import cn.dextea.order.pojo.OrderCustomize;
-import cn.dextea.order.dto.*;
+import cn.dextea.order.model.*;
 import cn.dextea.order.pojo.Order;
 import cn.dextea.order.pojo.OrderProduct;
 import cn.dextea.order.mapper.OrderMapper;

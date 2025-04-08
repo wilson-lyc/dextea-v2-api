@@ -10,4 +10,5 @@ import java.util.List;
 public interface InternalService {
     boolean isStaffIdValid(Long id);
     List<StaffModel> getStaffInIds(List<Long> ids);
+    boolean isPasswordValid(Long id, String password);
 }

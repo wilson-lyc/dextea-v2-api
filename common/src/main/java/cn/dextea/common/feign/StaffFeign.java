@@ -16,4 +16,6 @@ public interface StaffFeign {
     boolean isStaffIdValid(@RequestParam("id") Long id);
     @GetMapping("/staff/internal/getStaffInIds")
     List<StaffModel> getStaffInIds(@RequestParam("ids") List<Long> ids);
+    @GetMapping("/staff/internal/isPasswordValid")
+    boolean isPasswordValid(@RequestParam("id") Long id, @RequestParam("password") String password);
 }

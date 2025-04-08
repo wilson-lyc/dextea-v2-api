@@ -4,7 +4,7 @@ import cn.dextea.common.code.OrderStatus;
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.order.OrderModel;
 import cn.dextea.common.model.order.OrderProductModel;
-import cn.dextea.order.dto.OrderQueryRequest;
+import cn.dextea.order.model.OrderFilter;
 import cn.dextea.order.mapper.OrderMapper;
 import cn.dextea.order.mapper.OrderProductMapper;
 import cn.dextea.order.pojo.Order;
@@ -31,7 +31,7 @@ public class OrderServiceImpl implements OrderService {
     @Resource
     private OrderProductMapper orderProductMapper;
     @Override
-    public DexteaApiResponse<IPage<OrderModel>> getOrderList(int current, int size, OrderQueryRequest filter) {
+    public DexteaApiResponse<IPage<OrderModel>> getOrderList(int current, int size, OrderFilter filter) {
         // 当前时间
         String nowTime=DateUtil.now();
         // 构建SQL

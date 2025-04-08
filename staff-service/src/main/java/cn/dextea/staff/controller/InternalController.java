@@ -21,6 +21,11 @@ public class InternalController {
         return internalService.isStaffIdValid(id);
     }
 
+    @GetMapping("/staff/internal/isPasswordValid")
+    public boolean isPasswordValid(@RequestParam Long id, @RequestParam String password){
+        return internalService.isPasswordValid(id, password);
+    }
+
     @GetMapping("/staff/internal/getStaffInIds")
     public List<StaffModel> getStaffInIds(@RequestParam List<Long> ids){
         return internalService.getStaffInIds(ids);

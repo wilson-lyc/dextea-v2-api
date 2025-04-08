@@ -34,5 +34,6 @@ public class Order {
     private String createTime;// 创建时间
     private String payTime;// 支付时间
     private String payExpireTime;// 支付过期时间
+    private String refundTime;// 退款时间
     private String updateTime;// 更新时间
 }

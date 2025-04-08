@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 public class CustomerController {
     @Resource
     private CustomerService customerService;
-    @PostMapping("/customer")
+    @PostMapping("/customer/login")
     public DexteaApiResponse<CustomerLoginResponse> customerLogin(@Valid @RequestBody CustomerLoginRequest data)
             throws AlipayApiException {
         return customerService.customerLogin(data);

@@ -2,7 +2,7 @@ package cn.dextea.order.controller;
 
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.order.OrderModel;
-import cn.dextea.order.dto.*;
+import cn.dextea.order.model.*;
 import cn.dextea.order.service.CustomerService;
 import cn.dextea.order.service.OrderService;
 import cn.dextea.order.service.StatusService;
@@ -55,7 +55,7 @@ public class CustomerController {
 
     @PutMapping("/order/customer/payDone")
     public DexteaApiResponse<OrderPayDoneResponse> payDone(
-            @RequestBody OrderUpdateStatusRequest data) throws AlipayApiException, NotFoundException {
+            @RequestBody OrderPayDoneRequest data) throws AlipayApiException, NotFoundException {
         return statusService.payDone(data);
     }
 
@@ -64,7 +64,7 @@ public class CustomerController {
      * @param data 数据
      */
     @PutMapping("/order/customer/payCancel")
-    public DexteaApiResponse<Void> payCancel(@RequestBody OrderUpdateStatusRequest data) throws NotFoundException, AlipayApiException {
+    public DexteaApiResponse<Void> payCancel(@RequestBody OrderPayDoneRequest data) throws NotFoundException, AlipayApiException {
         return statusService.payCancel(data);
     }
 }

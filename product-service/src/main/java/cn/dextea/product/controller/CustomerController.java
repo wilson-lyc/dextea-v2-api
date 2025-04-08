@@ -21,7 +21,7 @@ public class CustomerController {
      * @param productId 商品ID
      * @param storeId 门店ID
      */
-    @GetMapping("/product/customer/getProductInfo")
+    @GetMapping("/product/customer/getProductDetail")
     public ApiResponse getProductInfo(
             @RequestParam Long productId,
             @RequestParam Long storeId) throws NotFoundException {

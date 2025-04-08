@@ -27,7 +27,7 @@ public class AdminFilter {
                         "/customer/login",
                         // 顾客端接口
                         "/store/customer/**",
-                        "/product/customer",
+                        "/product/customer/**",
                         "/menu/customer/**",
                         "/order/customer/**")
                 // 鉴权方法

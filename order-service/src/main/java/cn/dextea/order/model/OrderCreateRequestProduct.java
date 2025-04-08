@@ -1,4 +1,4 @@
-package cn.dextea.order.dto;
+package cn.dextea.order.model;
 
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
