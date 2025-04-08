@@ -15,4 +15,6 @@ public interface StatusService {
     DexteaApiResponse<OrderPayDoneResponse> payDone(OrderPayDoneRequest data) throws AlipayApiException, NotFoundException;
     DexteaApiResponse<Void> payCancel(OrderPayDoneRequest data) throws NotFoundException, AlipayApiException;
     DexteaApiResponse<OrderPayRefundResponse> orderRefund(Long staffId, OrderPayRefundRequest data);
+
+    DexteaApiResponse<Void> sendNewOrder(String id);
 }

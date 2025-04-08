@@ -1,7 +1,7 @@
 package cn.dextea.order.model;
 
+import com.alibaba.fastjson2.JSONObject;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,10 +9,9 @@ import lombok.NoArgsConstructor;
  * @author Lai Yongchao
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderPayRefundRequest {
-    private String id;// 订单ID
-    private String password;// 操作者登录密码
+public class WSMsgModel {
+    private Integer type;
+    private JSONObject data;
 }

@@ -6,7 +6,6 @@ import cn.dextea.common.model.order.OrderModel;
 import cn.dextea.order.model.OrderPayRefundRequest;
 import cn.dextea.order.model.OrderPayRefundResponse;
 import cn.dextea.order.model.OrderFilter;
-import cn.dextea.order.model.OrderPayDoneRequest;
 import cn.dextea.order.service.OrderService;
 import cn.dextea.order.service.StatusService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -47,5 +46,10 @@ public class OrderController {
             @RequestBody OrderPayRefundRequest data){
         Long staffId= StpUtil.getLoginIdAsLong();
         return statusService.orderRefund(staffId,data);
+    }
+
+    @GetMapping("/order/temp/sendNewOrder")
+    public DexteaApiResponse<Void> sendNewOrder(@RequestParam String id){
+        return statusService.sendNewOrder(id);
     }
 }
