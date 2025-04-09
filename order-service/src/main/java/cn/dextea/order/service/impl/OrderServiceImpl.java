@@ -1,16 +1,19 @@
 package cn.dextea.order.service.impl;
 
 import cn.dextea.common.code.OrderStatus;
+import cn.dextea.common.feign.OrderFeign;
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.order.OrderModel;
 import cn.dextea.common.model.order.OrderProductModel;
 import cn.dextea.order.code.OrderErrorCode;
+import cn.dextea.common.model.order.CounterOrderListModel;
 import cn.dextea.order.model.OrderFilter;
 import cn.dextea.order.mapper.OrderMapper;
 import cn.dextea.order.mapper.OrderProductMapper;
 import cn.dextea.order.pojo.Order;
 import cn.dextea.order.pojo.OrderProduct;
 import cn.dextea.order.service.OrderService;
+import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -18,6 +21,7 @@ import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -30,6 +34,8 @@ public class OrderServiceImpl implements OrderService {
     private OrderMapper orderMapper;
     @Resource
     private OrderProductMapper orderProductMapper;
+    @Resource
+    private OrderFeign orderFeign;
     @Override
     public DexteaApiResponse<IPage<OrderModel>> getOrderList(int current, int size, OrderFilter filter) {
         // 当前时间
@@ -89,5 +95,11 @@ public class OrderServiceImpl implements OrderService {
         List<OrderProductModel> products=orderProductMapper.selectJoinList(OrderProductModel.class,productWrapper);
         order.setProducts(products);
         return DexteaApiResponse.success(order);
+    }
+
+    @Override
+    public DexteaApiResponse<CounterOrderListModel> getOrderListForCounter(Long storeId) {
+        CounterOrderListModel res=orderFeign.getCounterOrderList(storeId);
+        return DexteaApiResponse.success(res);
     }
 }

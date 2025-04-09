@@ -3,6 +3,7 @@ package cn.dextea.order.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.order.OrderModel;
+import cn.dextea.common.model.order.CounterOrderListModel;
 import cn.dextea.order.model.OrderRefundRequest;
 import cn.dextea.order.model.OrderFilter;
 import cn.dextea.order.service.OrderService;
@@ -63,5 +64,14 @@ public class OrderController {
             @RequestBody OrderRefundRequest data){
         Long staffId= StpUtil.getLoginIdAsLong();
         return statusService.orderRefund(staffId,data.getPassword(),data.getOrderId());
+    }
+
+    /**
+     * 获取订单列表（柜台）
+     * @param storeId 门店ID
+     */
+    @GetMapping("/order/counter")
+    public DexteaApiResponse<CounterOrderListModel> getOrderListForCounter(@RequestParam Long storeId){
+        return orderService.getOrderListForCounter(storeId);
     }
 }

@@ -1,5 +1,6 @@
 package cn.dextea.order.service;
 
+import cn.dextea.common.model.order.CounterOrderListModel;
 import cn.dextea.common.model.order.OrderModel;
 
 /**
@@ -8,4 +9,5 @@ import cn.dextea.common.model.order.OrderModel;
 public interface InternalService {
     OrderModel getOrderDetail(String id);
     void callPickUp(Long storeId, String pickUpNo);
+    CounterOrderListModel getCounterOrderList(Long storeId);
 }

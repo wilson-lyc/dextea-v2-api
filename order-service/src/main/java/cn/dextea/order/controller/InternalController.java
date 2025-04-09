@@ -1,6 +1,7 @@
 package cn.dextea.order.controller;
 
 import cn.dextea.common.model.order.OrderModel;
+import cn.dextea.common.model.order.CounterOrderListModel;
 import cn.dextea.order.service.InternalService;
 import jakarta.annotation.Resource;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,5 +24,10 @@ public class InternalController {
             @RequestParam Long storeId,
             @RequestParam String pickUpNo) {
         internalService.callPickUp(storeId,pickUpNo);
+    }
+
+    @GetMapping("/order/internal/getCounterOrderList")
+    public CounterOrderListModel getCounterOrderList(@RequestParam Long storeId){
+        return internalService.getCounterOrderList(storeId);
     }
 }
