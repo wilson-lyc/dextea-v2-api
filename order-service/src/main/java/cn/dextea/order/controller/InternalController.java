@@ -18,4 +18,10 @@ public class InternalController {
     public OrderModel getOrderDetail(@RequestParam String id) {
         return internalService.getOrderDetail(id);
     }
+    @GetMapping("/order/internal/callPickUp")
+    public void callPickUp(
+            @RequestParam Long storeId,
+            @RequestParam String pickUpNo) {
+        internalService.callPickUp(storeId,pickUpNo);
+    }
 }

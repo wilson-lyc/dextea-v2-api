@@ -11,8 +11,9 @@ import lombok.RequiredArgsConstructor;
 public enum WSMsgType {
     PING(0, "ping"),
     PONG(1, "pong"),
-    TEXT(2, "文本消息"),
-    NEW_ORDER(3, "新订单");
+    CONNECT_SUCCESS(2, "连接成功"),
+    NEW_ORDER(3, "新订单"),
+    CALL_PICK_UP(4, "取餐叫号");
 
     private final int value;
     private final String label;

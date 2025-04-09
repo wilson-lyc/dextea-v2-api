@@ -12,6 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class WSMsgModel {
-    private Integer type;
+    private Integer code;
     private JSONObject data;
 }

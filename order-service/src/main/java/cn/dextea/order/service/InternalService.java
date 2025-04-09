@@ -7,4 +7,5 @@ import cn.dextea.common.model.order.OrderModel;
  */
 public interface InternalService {
     OrderModel getOrderDetail(String id);
+    void callPickUp(Long storeId, String pickUpNo);
 }

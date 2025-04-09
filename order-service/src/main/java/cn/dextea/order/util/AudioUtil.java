@@ -18,7 +18,7 @@ public class AudioUtil {
     @Resource
     private AudioMapper audioMapper;
 
-    public String getAudio(Integer... ids) {
+    public byte[] getAudioByte(Integer... ids) {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         for (Integer id : ids){
             Audio audio=audioMapper.selectById(id);
@@ -32,7 +32,11 @@ public class AudioUtil {
                 throw new RuntimeException(e);
             }
         }
-        byte[] combinedBytes = outputStream.toByteArray();
-        return Base64.getEncoder().encodeToString(combinedBytes);
+       return outputStream.toByteArray();
+    }
+
+    public String getAudioBase64(Integer... ids){
+        byte[] bytes = getAudioByte(ids);
+        return Base64.getEncoder().encodeToString(bytes);
     }
 }

@@ -61,7 +61,7 @@ public class StatusServiceImpl implements StatusService {
         // 更新交易状态
         if(aliResponse.getTradeStatus().equals("TRADE_SUCCESS")){
             // 交易成功 - 更新订单数据
-            String pickUpNo=pickUpNoUtil.getPickUpNo(order.getStoreId());
+            String pickUpNo= pickUpNoUtil.getPickUpNo(order.getStoreId());
             LambdaUpdateWrapper<Order> wrapper=new LambdaUpdateWrapper<Order>()
                     .set(Order::getPickUpNo,pickUpNo)
                     .set(Order::getStatus,OrderStatus.MAKING.getValue())
@@ -143,8 +143,8 @@ public class StatusServiceImpl implements StatusService {
     public DexteaApiResponse<Void> sendNewOrder(String id) {
         OrderModel order=orderFeign.getOrderDetail(id);
         newOrderUtil.sendMsg(order.getStoreId(),new WSMsgModel(WSMsgType.NEW_ORDER.getValue(), JSONObject.from(order)));
-        String aduio=audioUtil.getAudio(101,102,8,0,0,1,103);
-        newOrderUtil.sendMsg(order.getStoreId(),new WSMsgModel(WSMsgType.NEW_ORDER.getValue(), JSONObject.of("audio",aduio)));
-        return DexteaApiResponse.success(aduio);
+
+        newOrderUtil.sendMsg(order.getStoreId(),new WSMsgModel(WSMsgType.NEW_ORDER.getValue(), JSONObject.of("audio", audioUtil.getAudioBase64(101,102,8,0,0,1,103))));
+        return DexteaApiResponse.success();
     }
 }
