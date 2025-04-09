@@ -14,4 +14,5 @@ public interface OrderService {
     DexteaApiResponse<OrderModel> getOrderBase(Long id);
     DexteaApiResponse<OrderModel> getOrderDetail(String id);
     DexteaApiResponse<CounterOrderListModel> getOrderListForCounter(Long id);
+    DexteaApiResponse<Void> callPickUp(String id);
 }

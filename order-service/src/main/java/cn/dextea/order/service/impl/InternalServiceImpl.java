@@ -1,7 +1,6 @@
 package cn.dextea.order.service.impl;
 
 import cn.dextea.common.code.OrderStatus;
-import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.order.CounterOrderListModel;
 import cn.dextea.common.model.order.OrderModel;
 import cn.dextea.common.model.order.OrderProductModel;
@@ -10,7 +9,7 @@ import cn.dextea.order.mapper.OrderProductMapper;
 import cn.dextea.order.pojo.Order;
 import cn.dextea.order.pojo.OrderProduct;
 import cn.dextea.order.service.InternalService;
-import cn.dextea.order.websocket.util.CallServer;
+import cn.dextea.order.websocket.util.PickUpCallUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
@@ -31,7 +30,7 @@ public class InternalServiceImpl implements InternalService {
     @Resource
     private OrderProductMapper orderProductMapper;
     @Resource
-    private CallServer callServer;
+    private PickUpCallUtil pickUpCallUtil;
     @Override
     public OrderModel getOrderDetail(String id) {
         // 获取订单基础信息
@@ -54,7 +53,7 @@ public class InternalServiceImpl implements InternalService {
 
     @Override
     public void callPickUp(Long storeId, String pickUpNo) {
-        callServer.call(storeId,pickUpNo);
+        pickUpCallUtil.call(storeId,pickUpNo);
     }
 
     @Override

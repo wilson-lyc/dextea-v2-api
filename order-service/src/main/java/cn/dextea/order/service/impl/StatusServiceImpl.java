@@ -11,6 +11,7 @@ import cn.dextea.order.mapper.OrderMapper;
 import cn.dextea.order.service.StatusService;
 import cn.dextea.order.util.AlipayUtil;
 import cn.dextea.order.util.PickUpNoUtil;
+import cn.dextea.order.websocket.util.PickUpCallUtil;
 import cn.hutool.core.date.DateUtil;
 import com.alipay.api.response.AlipayTradeFastpayRefundQueryResponse;
 import com.alipay.api.response.AlipayTradeQueryResponse;
@@ -35,6 +36,8 @@ public class StatusServiceImpl implements StatusService {
     private PickUpNoUtil pickUpNoUtil;
     @Resource
     private StaffFeign staffFeign;
+    @Resource
+    private PickUpCallUtil pickUpCallUtil;
 
     @Override
     public DexteaApiResponse<Void> payDone(OrderPayDoneRequest data) {
@@ -136,5 +139,31 @@ public class StatusServiceImpl implements StatusService {
             return DexteaApiResponse.fail("退款失败",
                     OrderErrorCode.ORDER_REFUND_FAIL.getCode(),OrderErrorCode.ORDER_REFUND_FAIL.getMsg());
         }
+    }
+
+    @Override
+    public DexteaApiResponse<Void> makeDone(OrderMakeDoneRequest data) {
+        // 查询订单
+        MPJLambdaWrapper<Order> wrapper=new MPJLambdaWrapper<Order>()
+                .eq(Order::getId,data.getOrderId());
+        Order order=orderMapper.selectJoinOne(Order.class,wrapper);
+        if(Objects.isNull(order)){
+            return DexteaApiResponse.fail(OrderErrorCode.ORDER_NOT_FOUND.getCode(),
+                    OrderErrorCode.ORDER_NOT_FOUND.getCode(),OrderErrorCode.ORDER_NOT_FOUND.getMsg()
+            );
+        }
+        // 校验状态
+        if(order.getStatus()!=OrderStatus.MAKING.getValue()){
+            return DexteaApiResponse.fail("订单状态错误",
+                    OrderErrorCode.ORDER_STATUS_NOT_MAKING.getCode(),OrderErrorCode.ORDER_STATUS_NOT_MAKING.getMsg());
+        }
+        // 更新数据库
+        LambdaUpdateWrapper<Order> updateWrapper=new LambdaUpdateWrapper<Order>()
+                .set(Order::getStatus,OrderStatus.WAIT_PICK.getValue())
+                .eq(Order::getId,data.getOrderId());
+        orderMapper.update(updateWrapper);
+        // 取餐叫号
+        pickUpCallUtil.call(order.getStoreId(),order.getPickUpNo());
+        return DexteaApiResponse.success();
     }
 }

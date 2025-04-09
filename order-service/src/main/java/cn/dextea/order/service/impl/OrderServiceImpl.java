@@ -13,7 +13,7 @@ import cn.dextea.order.mapper.OrderProductMapper;
 import cn.dextea.order.pojo.Order;
 import cn.dextea.order.pojo.OrderProduct;
 import cn.dextea.order.service.OrderService;
-import cn.hutool.core.date.DateTime;
+import cn.dextea.order.websocket.util.PickUpCallUtil;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -36,6 +36,8 @@ public class OrderServiceImpl implements OrderService {
     private OrderProductMapper orderProductMapper;
     @Resource
     private OrderFeign orderFeign;
+    @Resource
+    private PickUpCallUtil pickUpCallUtil;
     @Override
     public DexteaApiResponse<IPage<OrderModel>> getOrderList(int current, int size, OrderFilter filter) {
         // 当前时间
@@ -101,5 +103,23 @@ public class OrderServiceImpl implements OrderService {
     public DexteaApiResponse<CounterOrderListModel> getOrderListForCounter(Long storeId) {
         CounterOrderListModel res=orderFeign.getCounterOrderList(storeId);
         return DexteaApiResponse.success(res);
+    }
+
+    @Override
+    public DexteaApiResponse<Void> callPickUp(String id) {
+        // 查找订单
+        MPJLambdaWrapper<Order> wrapper=new MPJLambdaWrapper<Order>()
+                .eq(Order::getId,id)
+                .selectAll(Order.class);
+        Order order=orderMapper.selectJoinOne(wrapper);
+        if(Objects.isNull(order))
+            return DexteaApiResponse.notFound("订单不存在",
+                    OrderErrorCode.ORDER_NOT_FOUND.getCode(),OrderErrorCode.ORDER_NOT_FOUND.getMsg());
+        if (order.getStatus()!=OrderStatus.WAIT_PICK.getValue() && order.getStatus()!=OrderStatus.DONE.getValue()){
+            return DexteaApiResponse.fail("订单状态错误",
+                    OrderErrorCode.ORDER_PICK_UP_CALL_FORBIDDEN.getCode(),OrderErrorCode.ORDER_PICK_UP_CALL_FORBIDDEN.getMsg());
+        }
+        pickUpCallUtil.callOnly(order.getStoreId(),order.getPickUpNo());
+        return DexteaApiResponse.success();
     }
 }

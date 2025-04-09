@@ -4,6 +4,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.order.OrderModel;
 import cn.dextea.common.model.order.CounterOrderListModel;
+import cn.dextea.order.model.OrderMakeDoneRequest;
 import cn.dextea.order.model.OrderRefundRequest;
 import cn.dextea.order.model.OrderFilter;
 import cn.dextea.order.service.OrderService;
@@ -73,5 +74,15 @@ public class OrderController {
     @GetMapping("/order/counter")
     public DexteaApiResponse<CounterOrderListModel> getOrderListForCounter(@RequestParam Long storeId){
         return orderService.getOrderListForCounter(storeId);
+    }
+
+    @PutMapping("/order/status/makeDone")
+    public DexteaApiResponse<Void> makeDone(@RequestBody OrderMakeDoneRequest data){
+        return statusService.makeDone(data);
+    }
+
+    @GetMapping("/order/{id}/call")
+    public DexteaApiResponse<Void> callPickUp(@PathVariable String id){
+        return orderService.callPickUp(id);
     }
 }
