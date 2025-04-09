@@ -48,9 +48,9 @@ public class CustomerController {
     public DexteaApiResponse<List<OrderModel>> getCustomerOrderList(
             @RequestParam Long id,
             @RequestHeader("DexteaToken") String token){
-        if(!jwtUtil.getCustomerId(token).equals(id)){
-            return DexteaApiResponse.forbidden("ID不一致");
-        }
+//        if(!jwtUtil.getCustomerId(token).equals(id)){
+//            return DexteaApiResponse.forbidden("ID不一致");
+//        }
         return customerService.getCustomerOrderList(id);
     }
 

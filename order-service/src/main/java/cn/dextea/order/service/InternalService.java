@@ -10,4 +10,6 @@ public interface InternalService {
     OrderModel getOrderDetail(String id);
     void callPickUp(Long storeId, String pickUpNo);
     CounterOrderListModel getCounterOrderList(Long storeId);
+    void callNewOrder(Long storeId);
+    void sendNewOrder(Long storeId);
 }

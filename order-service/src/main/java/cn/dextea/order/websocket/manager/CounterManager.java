@@ -13,7 +13,7 @@ import java.util.concurrent.CopyOnWriteArraySet;
  * 订单推送服务 - session池
  */
 @Slf4j
-public class NewOrderManager {
+public class CounterManager {
     private static final Map<Object, Set<WebSocketSession>> SESSION_POOL = new ConcurrentHashMap<>();
 
     /**

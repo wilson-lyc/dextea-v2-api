@@ -128,6 +128,7 @@ public class CustomerServiceImpl implements CustomerService {
         // 获取订单列表
         MPJLambdaWrapper<Order> orderWrapper=new MPJLambdaWrapper<Order>()
                 .eq(Order::getCustomerId,id)
+                .orderByDesc(Order::getCreateTime)
                 .selectAsClass(Order.class, OrderModel.class);
         List<OrderModel> orderList=orderMapper.selectJoinList(OrderModel.class,orderWrapper);
         // 获取商品列表

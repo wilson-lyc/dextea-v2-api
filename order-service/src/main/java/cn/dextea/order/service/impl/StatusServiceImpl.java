@@ -11,6 +11,7 @@ import cn.dextea.order.mapper.OrderMapper;
 import cn.dextea.order.service.StatusService;
 import cn.dextea.order.util.AlipayUtil;
 import cn.dextea.order.util.PickUpNoUtil;
+import cn.dextea.order.websocket.util.CounterUtil;
 import cn.dextea.order.websocket.util.PickUpCallUtil;
 import cn.hutool.core.date.DateUtil;
 import com.alipay.api.response.AlipayTradeFastpayRefundQueryResponse;
@@ -38,6 +39,8 @@ public class StatusServiceImpl implements StatusService {
     private StaffFeign staffFeign;
     @Resource
     private PickUpCallUtil pickUpCallUtil;
+    @Resource
+    private CounterUtil counterUtil;
 
     @Override
     public DexteaApiResponse<Void> payDone(OrderPayDoneRequest data) {
@@ -67,6 +70,9 @@ public class StatusServiceImpl implements StatusService {
                     .eq(Order::getId,data.getOrderId());
             orderMapper.update(updateWrapper);
             // 保存结果
+            // 发送提醒和订单
+            counterUtil.newOrder(order.getStoreId());
+            counterUtil.sendOrder(order.getStoreId());
             return DexteaApiResponse.success();
         }else{
             return DexteaApiResponse.fail("支付失败",
@@ -86,7 +92,7 @@ public class StatusServiceImpl implements StatusService {
                     OrderErrorCode.ORDER_NOT_FOUND.getMsg());
         }
         // 校验订单状态
-        if(!order.getStatus().equals(OrderStatus.PAY_TIMEOUT.getValue())){
+        if(!order.getStatus().equals(OrderStatus.PAY_PENDING.getValue())){
             return DexteaApiResponse.fail("订单取消失败",
                     OrderErrorCode.ORDER_PAY_NOT_PENDING.getCode(),OrderErrorCode.ORDER_PAY_NOT_PENDING.getMsg());
         }

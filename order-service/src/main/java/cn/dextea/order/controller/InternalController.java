@@ -25,6 +25,14 @@ public class InternalController {
             @RequestParam String pickUpNo) {
         internalService.callPickUp(storeId,pickUpNo);
     }
+    @GetMapping("/order/internal/callNewOrder")
+    public void callNewOrder(@RequestParam Long storeId) {
+        internalService.callNewOrder(storeId);
+    }
+    @GetMapping("/order/internal/sendNewOrder")
+    public void sendNewOrder(@RequestParam Long storeId){
+        internalService.sendNewOrder(storeId);
+    }
 
     @GetMapping("/order/internal/getCounterOrderList")
     public CounterOrderListModel getCounterOrderList(@RequestParam Long storeId){

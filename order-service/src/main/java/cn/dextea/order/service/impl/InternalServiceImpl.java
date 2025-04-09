@@ -9,6 +9,7 @@ import cn.dextea.order.mapper.OrderProductMapper;
 import cn.dextea.order.pojo.Order;
 import cn.dextea.order.pojo.OrderProduct;
 import cn.dextea.order.service.InternalService;
+import cn.dextea.order.websocket.util.CounterUtil;
 import cn.dextea.order.websocket.util.PickUpCallUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
@@ -31,6 +32,8 @@ public class InternalServiceImpl implements InternalService {
     private OrderProductMapper orderProductMapper;
     @Resource
     private PickUpCallUtil pickUpCallUtil;
+    @Resource
+    private CounterUtil counterUtil;
     @Override
     public OrderModel getOrderDetail(String id) {
         // 获取订单基础信息
@@ -78,10 +81,20 @@ public class InternalServiceImpl implements InternalService {
         // 已完成订单
         MPJLambdaWrapper<Order> doneWrapper=new MPJLambdaWrapper<Order>()
                 .eq(Order::getStoreId,storeId)
-                .eq(Order::getStatus,OrderStatus.WAIT_PICK.getValue())
+                .eq(Order::getStatus,OrderStatus.DONE.getValue())
                 .ge(Order::getCreateTime,dateTime.toString())
                 .selectAsClass(Order.class,OrderModel.class);
         List<OrderModel> doneList=orderMapper.selectJoinList(OrderModel.class,doneWrapper);
         return new CounterOrderListModel(makingList,waitPickList,doneList);
+    }
+
+    @Override
+    public void callNewOrder(Long storeId) {
+        counterUtil.newOrder(storeId);
+    }
+
+    @Override
+    public void sendNewOrder(Long storeId) {
+        counterUtil.sendOrder(storeId);
     }
 }

@@ -14,7 +14,8 @@ public enum WSMsgType {
     CONNECT_SUCCESS(2, "连接成功"),
     NEW_ORDER(3, "新订单"),
     CALL_PICK_UP(4, "取餐叫号"),
-    CALL_ONLY(5, "只叫号");
+    CALL_ONLY(5, "只叫号"),
+    ORDER_LIST(6, "订单列表");
 
     private final int value;
     private final String label;

@@ -7,12 +7,14 @@ import cn.dev33.satoken.router.SaRouter;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
 import com.alibaba.fastjson2.JSONObject;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
 /**
  * @author Lai Yongchao
  */
+@Slf4j
 @Configuration
 public class AdminFilter {
     @Bean
@@ -36,6 +38,7 @@ public class AdminFilter {
                 })
                 // 异常处理
                 .setError(e -> {
+                    log.error("鉴权失败：{}", e.getMessage());
                     SaResult res=new SaResult();
                     res.setCode(401);
                     res.setMsg("token无效");
