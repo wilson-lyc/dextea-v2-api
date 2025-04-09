@@ -3,8 +3,7 @@ package cn.dextea.order.controller;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.order.OrderModel;
-import cn.dextea.order.model.OrderPayRefundRequest;
-import cn.dextea.order.model.OrderPayRefundResponse;
+import cn.dextea.order.model.OrderRefundRequest;
 import cn.dextea.order.model.OrderFilter;
 import cn.dextea.order.service.OrderService;
 import cn.dextea.order.service.StatusService;
@@ -23,6 +22,12 @@ public class OrderController {
     @Resource
     private StatusService statusService;
 
+    /**
+     * 获取订单列表
+     * @param current 当前页码
+     * @param size 分页大小
+     * @param filter 搜索条件
+     */
     @GetMapping("/order")
     public DexteaApiResponse<IPage<OrderModel>> getOrderList(
             @RequestParam(defaultValue = "1") int current,
@@ -31,25 +36,32 @@ public class OrderController {
         return orderService.getOrderList(current,size,filter);
     }
 
+    /**
+     * 获取订单基础信息
+     * @param id 订单id
+     */
     @GetMapping("/order/{id}/base")
     public DexteaApiResponse<OrderModel> getOrderBase(@PathVariable Long id) throws NotFoundException {
         return orderService.getOrderBase(id);
     }
 
+    /**
+     * 获取订单详情
+     * @param id 订单ID
+     */
     @GetMapping("/order/{id}")
     public DexteaApiResponse<OrderModel> getOrderDetail(@PathVariable String id) throws NotFoundException {
         return orderService.getOrderDetail(id);
     }
 
+    /**
+     * 订单全额退款
+     * @param data 数据
+     */
     @PutMapping("/order/status/refund")
-    public DexteaApiResponse<OrderPayRefundResponse> orderRefund(
-            @RequestBody OrderPayRefundRequest data){
+    public DexteaApiResponse<Void> orderRefund(
+            @RequestBody OrderRefundRequest data){
         Long staffId= StpUtil.getLoginIdAsLong();
-        return statusService.orderRefund(staffId,data);
-    }
-
-    @GetMapping("/order/temp/sendNewOrder")
-    public DexteaApiResponse<Void> sendNewOrder(@RequestParam String id){
-        return statusService.sendNewOrder(id);
+        return statusService.orderRefund(staffId,data.getPassword(),data.getOrderId());
     }
 }

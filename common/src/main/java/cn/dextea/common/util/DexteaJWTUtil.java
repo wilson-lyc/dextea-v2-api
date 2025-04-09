@@ -2,6 +2,7 @@ package cn.dextea.common.util;
 
 import cn.hutool.core.date.DateUtil;
 import cn.hutool.jwt.JWT;
+import cn.hutool.jwt.JWTUtil;
 
 /**
  * @author Lai Yongchao
@@ -25,5 +26,10 @@ public class DexteaJWTUtil {
         }catch (Exception e){
             return false;
         }
+    }
+
+    public Long getCustomerId(String token){
+        String idStr=JWT.of(token).setKey(SECRET_KEY.getBytes()).getPayload("id").toString();
+        return Long.valueOf(idStr);
     }
 }

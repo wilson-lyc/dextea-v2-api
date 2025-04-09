@@ -16,13 +16,14 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderCreateRequest {
-    private Long customerId;// 顾客ID
-    @NotNull(message = "缺少门店ID")
-    private Long storeId;// 门店ID
-    @NotBlank(message = "缺少门店名称")
-    private String storeName;// 门店名称
-    @NotNull(message = "缺少用餐方式")
-    private Integer dineMode;// 用餐方式
-    @Valid @NotNull(message = "缺少商品列表")
-    private List<OrderCreateRequestProduct> products;// 商品列表
+    @NotNull(message = "customerId不能为空")
+    private Long customerId;
+    @NotNull(message = "storeId不能为空")
+    private Long storeId;
+    @NotBlank(message = "storeName不能为空")
+    private String storeName;
+    @NotNull(message = "dineMode不能为空")
+    private Integer dineMode;
+    @Valid @NotNull(message = "products不能为空")
+    private List<OrderCreateRequestProduct> products;
 }

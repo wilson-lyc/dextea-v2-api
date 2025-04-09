@@ -1,28 +1,22 @@
 package cn.dextea.order.service.impl;
 
 import cn.dextea.common.code.OrderStatus;
-import cn.dextea.common.feign.OrderFeign;
 import cn.dextea.common.feign.StaffFeign;
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.order.OrderModel;
 import cn.dextea.order.code.OrderErrorCode;
-import cn.dextea.order.code.WSMsgType;
 import cn.dextea.order.model.*;
 import cn.dextea.order.pojo.Order;
 import cn.dextea.order.mapper.OrderMapper;
 import cn.dextea.order.service.StatusService;
 import cn.dextea.order.util.AlipayUtil;
-import cn.dextea.order.util.AudioUtil;
 import cn.dextea.order.util.PickUpNoUtil;
-import cn.dextea.order.websocket.util.NewOrderUtil;
 import cn.hutool.core.date.DateUtil;
-import com.alibaba.fastjson2.JSONObject;
 import com.alipay.api.response.AlipayTradeFastpayRefundQueryResponse;
 import com.alipay.api.response.AlipayTradeQueryResponse;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
-import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -41,79 +35,86 @@ public class StatusServiceImpl implements StatusService {
     private PickUpNoUtil pickUpNoUtil;
     @Resource
     private StaffFeign staffFeign;
-    @Resource
-    private NewOrderUtil newOrderUtil;
-    @Resource
-    private OrderFeign orderFeign;
-    @Resource
-    private AudioUtil audioUtil;
 
     @Override
-    public DexteaApiResponse<OrderPayDoneResponse> payDone(OrderPayDoneRequest data) {
-        OrderModel order=orderFeign.getOrderDetail(data.getOrderId());
+    public DexteaApiResponse<Void> payDone(OrderPayDoneRequest data) {
+        // 查询订单
+        MPJLambdaWrapper<Order> wrapper=new MPJLambdaWrapper<Order>()
+                .selectAsClass(Order.class,OrderModel.class)
+                .eq(Order::getId,data.getOrderId());
+        OrderModel order=orderMapper.selectJoinOne(OrderModel.class,wrapper);
         if(Objects.isNull(order)){
-            return DexteaApiResponse.fail(OrderErrorCode.NOT_FOUND.getCode(),
-                    OrderErrorCode.NOT_FOUND.getMsg());
+            return DexteaApiResponse.fail(OrderErrorCode.ORDER_NOT_FOUND.getCode(),
+                    OrderErrorCode.ORDER_NOT_FOUND.getMsg());
         }
-        OrderPayDoneResponse payDoneResponse=new OrderPayDoneResponse();
+        // 判断订单状态 - 待支付才可以支付
+        if(order.getStatus()!=OrderStatus.PAY_PENDING.getValue()){
+            return DexteaApiResponse.fail("支付失败",
+                    OrderErrorCode.ORDER_PAY_NOT_PENDING.getCode(),OrderErrorCode.ORDER_PAY_NOT_PENDING.getMsg());
+        }
         // 请求支付宝查询交易状态
-        AlipayTradeQueryResponse aliResponse=alipayUtil.tradeQuery(data.getTradeNo());
-        // 更新交易状态
+        AlipayTradeQueryResponse aliResponse=alipayUtil.tradeQuery(order.getTradeNo());
         if(aliResponse.getTradeStatus().equals("TRADE_SUCCESS")){
             // 交易成功 - 更新订单数据
             String pickUpNo= pickUpNoUtil.getPickUpNo(order.getStoreId());
-            LambdaUpdateWrapper<Order> wrapper=new LambdaUpdateWrapper<Order>()
+            LambdaUpdateWrapper<Order> updateWrapper=new LambdaUpdateWrapper<Order>()
                     .set(Order::getPickUpNo,pickUpNo)
                     .set(Order::getStatus,OrderStatus.MAKING.getValue())
                     .set(Order::getPayTime,DateUtil.now())
                     .eq(Order::getId,data.getOrderId());
-            orderMapper.update(wrapper);
+            orderMapper.update(updateWrapper);
             // 保存结果
-            payDoneResponse.setPayDone(true);
+            return DexteaApiResponse.success();
         }else{
-            // 交易失败
-            payDoneResponse.setPayDone(false);
+            return DexteaApiResponse.fail("支付失败",
+                    OrderErrorCode.ORDER_PAY_FAIL.getCode(),OrderErrorCode.ORDER_PAY_FAIL.getMsg());
         }
-        return DexteaApiResponse.success(payDoneResponse);
     }
 
     @Override
-    public DexteaApiResponse<Void> payCancel(OrderPayDoneRequest data) throws NotFoundException{
+    public DexteaApiResponse<Void> payCancel(OrderPayCancelRequest data){
+        // 查询订单
         MPJLambdaWrapper<Order> wrapper=new MPJLambdaWrapper<Order>()
-                .eq(Order::getId,data.getOrderId())
-                .eq(Order::getTradeNo,data.getTradeNo())
-                .selectAll(Order.class);
-        Order order=orderMapper.selectJoinOne(Order.class,wrapper);
+                .selectAsClass(Order.class,OrderModel.class)
+                .eq(Order::getId,data.getOrderId());
+        OrderModel order=orderMapper.selectJoinOne(OrderModel.class,wrapper);
         if(Objects.isNull(order)){
-            throw new NotFoundException("订单不存在");
+            return DexteaApiResponse.fail(OrderErrorCode.ORDER_NOT_FOUND.getCode(),
+                    OrderErrorCode.ORDER_NOT_FOUND.getMsg());
+        }
+        // 校验订单状态
+        if(!order.getStatus().equals(OrderStatus.PAY_TIMEOUT.getValue())){
+            return DexteaApiResponse.fail("订单取消失败",
+                    OrderErrorCode.ORDER_PAY_NOT_PENDING.getCode(),OrderErrorCode.ORDER_PAY_NOT_PENDING.getMsg());
         }
         // 更新订单状态为取消
-        order.setStatus(OrderStatus.CANCEL.getValue());
-        orderMapper.updateById(order);
+        LambdaUpdateWrapper<Order> updateWrapper=new LambdaUpdateWrapper<Order>()
+                .set(Order::getStatus,OrderStatus.CANCEL.getValue())
+                .eq(Order::getId,data.getOrderId());
+        orderMapper.update(updateWrapper);
         // 支付宝关闭交易
         alipayUtil.tradeClose(order.getTradeNo());
         return DexteaApiResponse.success();
     }
 
     @Override
-    public DexteaApiResponse<OrderPayRefundResponse> orderRefund(Long staffId, OrderPayRefundRequest data) {
-        // 验证密码
-        if(!staffFeign.isPasswordValid(staffId,data.getPassword())){
+    public DexteaApiResponse<Void> orderRefund(Long staffId, String password,String orderId) {
+        // 验证操作者密码
+        if(!staffFeign.isPasswordValid(staffId,password))
             return DexteaApiResponse.fail("退款失败",
-                    OrderErrorCode.PASSWORD_INVALID.getCode(),OrderErrorCode.PASSWORD_INVALID.getMsg());
-        }
+                    OrderErrorCode.OPERATOR_PASSWORD_ILLEGAL.getCode(),OrderErrorCode.OPERATOR_PASSWORD_ILLEGAL.getMsg());
         // 查找订单
         MPJLambdaWrapper<Order> wrapper=new MPJLambdaWrapper<Order>()
-                .eq(Order::getId,data.getId());
+                .eq(Order::getId,orderId);
         Order order=orderMapper.selectJoinOne(Order.class,wrapper);
         if (Objects.isNull(order)){
             return DexteaApiResponse.fail("退款失败",
-                    OrderErrorCode.NOT_FOUND.getCode(),OrderErrorCode.NOT_FOUND.getMsg());
+                    OrderErrorCode.ORDER_NOT_FOUND.getCode(),OrderErrorCode.ORDER_NOT_FOUND.getMsg());
         }
         // 判断订单状态
         if(order.getStatus()<1||order.getStatus()>3){
             return DexteaApiResponse.fail("退款失败",
-                    OrderErrorCode.FORBIDDEN_REFUND.getCode(),OrderErrorCode.FORBIDDEN_REFUND.getMsg());
+                    OrderErrorCode.ORDER_REFUND_FORBIDDEN.getCode(),OrderErrorCode.ORDER_REFUND_FORBIDDEN.getMsg());
         }
         // 发起退款
         alipayUtil.tradeRefund(order.getTradeNo(), BigDecimal.valueOf(0.01));
@@ -130,21 +131,10 @@ public class StatusServiceImpl implements StatusService {
             order.setRefundTime(DateUtil.now());
             // 更新数据库 - 状态和退款时间
             orderMapper.updateById(order);
-            return DexteaApiResponse.success(OrderPayRefundResponse.builder()
-                    .refundDone(true)
-                    .build());
+            return DexteaApiResponse.success("退款成功");
         }else{
             return DexteaApiResponse.fail("退款失败",
-                    OrderErrorCode.REFUND_FAIL.getCode(),OrderErrorCode.REFUND_FAIL.getMsg());
+                    OrderErrorCode.ORDER_REFUND_FAIL.getCode(),OrderErrorCode.ORDER_REFUND_FAIL.getMsg());
         }
-    }
-
-    @Override
-    public DexteaApiResponse<Void> sendNewOrder(String id) {
-        OrderModel order=orderFeign.getOrderDetail(id);
-        newOrderUtil.sendMsg(order.getStoreId(),new WSMsgModel(WSMsgType.NEW_ORDER.getValue(), JSONObject.from(order)));
-
-        newOrderUtil.sendMsg(order.getStoreId(),new WSMsgModel(WSMsgType.NEW_ORDER.getValue(), JSONObject.of("audio", audioUtil.getAudioBase64(101,102,8,0,0,1,103))));
-        return DexteaApiResponse.success();
     }
 }

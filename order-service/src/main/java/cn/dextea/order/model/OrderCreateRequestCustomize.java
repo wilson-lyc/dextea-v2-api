@@ -1,5 +1,6 @@
 package cn.dextea.order.model;
 
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -12,10 +13,12 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class OrderCreateRequestCustomize {
-    @NotNull(message = "缺少项目ID")
+    @NotNull(message = "itemId不能为空")
     private Long itemId;
+    @NotBlank(message = "itemName不能为空")
     private String itemName;
-    @NotNull(message = "缺少选项ID")
+    @NotNull(message = "optionId不能为空")
     private Long optionId;
+    @NotBlank(message = "optionName不能为空")
     private String optionName;
 }

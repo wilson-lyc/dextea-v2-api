@@ -2,6 +2,7 @@ package cn.dextea.order.controller;
 
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.order.OrderModel;
+import cn.dextea.common.util.DexteaJWTUtil;
 import cn.dextea.order.model.*;
 import cn.dextea.order.service.CustomerService;
 import cn.dextea.order.service.OrderService;
@@ -26,7 +27,13 @@ public class CustomerController {
     private CustomerService customerService;
     @Resource
     private StatusService statusService;
+    @Resource
+    private DexteaJWTUtil jwtUtil;
 
+    /**
+     * 创建订单
+     * @param data 数据
+     */
     @PostMapping("/order/customer/createOrder")
     public DexteaApiResponse<OrderCreateResponse> createOrder(
             @Valid @RequestBody OrderCreateRequest data){
@@ -38,8 +45,12 @@ public class CustomerController {
      * @param id 顾客ID
      */
     @GetMapping("/order/customer/getOrderList")
-    public DexteaApiResponse<List<OrderModel>> getCustomerOrderList(@RequestParam Long id){
-        // TODO:鉴权 - 判断传入的ID与token的ID是否一致
+    public DexteaApiResponse<List<OrderModel>> getCustomerOrderList(
+            @RequestParam Long id,
+            @RequestHeader("DexteaToken") String token){
+        if(!jwtUtil.getCustomerId(token).equals(id)){
+            return DexteaApiResponse.forbidden("ID不一致");
+        }
         return customerService.getCustomerOrderList(id);
     }
 
@@ -48,23 +59,27 @@ public class CustomerController {
      * @param id 订单ID
      */
     @GetMapping("/order/customer/getOrderDetail")
-    public DexteaApiResponse<OrderModel> getOrderDetail(@RequestParam String id) throws NotFoundException {
-        // TODO:鉴权 - 判断订单的顾客ID是否与token的ID是否一致
+    public DexteaApiResponse<OrderModel> getOrderDetail(@RequestParam String id){
         return orderService.getOrderDetail(id);
     }
 
+    /**
+     * 完成支付 - 校验支付结果和更新数据
+     * @param data 数据
+     */
     @PutMapping("/order/customer/payDone")
-    public DexteaApiResponse<OrderPayDoneResponse> payDone(
-            @RequestBody OrderPayDoneRequest data) throws AlipayApiException, NotFoundException {
+    public DexteaApiResponse<Void> payDone(
+            @RequestBody OrderPayDoneRequest data){
         return statusService.payDone(data);
     }
 
     /**
-     * 支付取消
+     * 支付取消 - 关闭交易和更新数据
      * @param data 数据
      */
     @PutMapping("/order/customer/payCancel")
-    public DexteaApiResponse<Void> payCancel(@RequestBody OrderPayDoneRequest data) throws NotFoundException, AlipayApiException {
+    public DexteaApiResponse<Void> payCancel(
+            @RequestBody OrderPayCancelRequest data){
         return statusService.payCancel(data);
     }
 }

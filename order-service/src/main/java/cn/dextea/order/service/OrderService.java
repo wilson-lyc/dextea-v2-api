@@ -11,6 +11,6 @@ import org.apache.ibatis.javassist.NotFoundException;
  */
 public interface OrderService {
     DexteaApiResponse<IPage<OrderModel>> getOrderList(int current, int size, OrderFilter filter);
-    DexteaApiResponse<OrderModel> getOrderBase(Long id) throws NotFoundException;
-    DexteaApiResponse<OrderModel> getOrderDetail(String id) throws NotFoundException;
+    DexteaApiResponse<OrderModel> getOrderBase(Long id);
+    DexteaApiResponse<OrderModel> getOrderDetail(String id);
 }

@@ -77,15 +77,15 @@ public class CustomerServiceImpl implements CustomerService {
             // 计算客制化加价
             List<OrderCustomize> customizeList=new ArrayList<>();
             for(OrderCreateRequestCustomize customize:product.getCustomize()){
-                BigDecimal price=productFeign.getCustomizeOptionPrice(customize.getOptionId());
+                BigDecimal optionPrice=productFeign.getCustomizeOptionPrice(customize.getOptionId());
                 OrderCustomize productCustomize= OrderCustomize.builder()
                         .itemId(customize.getItemId())
                         .itemName(customize.getItemName())
                         .optionId(customize.getOptionId())
                         .optionName(customize.getOptionName())
-                        .price(price)
+                        .price(optionPrice)
                         .build();
-                buyPrice = buyPrice.add(price);
+                buyPrice = buyPrice.add(optionPrice);
                 customizeList.add(productCustomize);
             }
             // 设置商品购买价
@@ -103,8 +103,11 @@ public class CustomerServiceImpl implements CustomerService {
         // 获取顾客openId
         String customerOpenId=customerFeign.getCustomerOpenId(order.getCustomerId());
         // 创建交易
-        AlipayTradeCreateResponse response;
-        response=alipayUtil.tradeCreate(order.getId(),customerOpenId, BigDecimal.valueOf(0.01));
+        AlipayTradeCreateResponse response=alipayUtil.tradeCreate(
+                order.getId(),
+                customerOpenId,
+                BigDecimal.valueOf(0.01));
+        // 保存交易编号
         order.setTradeNo(response.getTradeNo());
         // 设置过期时间
         Date date = DateUtil.date();
