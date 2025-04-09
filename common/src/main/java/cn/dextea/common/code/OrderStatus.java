@@ -18,9 +18,9 @@ public enum OrderStatus {
     MAKING(1,"制作中"),
     WAIT_PICK(2,"待取餐"),
     DONE(3,"已完成"),
-    PAY_TIMEOUT(90,"交易关闭"),
-    CANCEL(91,"已取消"),
-    REFUND(92,"已退款");
+    PAY_TIMEOUT(90,"交易超时"),
+    CANCEL(91,"取消"),
+    REFUND(92,"退款");
 
     private final int value;
     private final String label;

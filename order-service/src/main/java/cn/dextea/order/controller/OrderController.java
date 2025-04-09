@@ -4,14 +4,12 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.order.OrderModel;
 import cn.dextea.common.model.order.CounterOrderListModel;
-import cn.dextea.order.model.OrderMakeDoneRequest;
 import cn.dextea.order.model.OrderRefundRequest;
 import cn.dextea.order.model.OrderFilter;
 import cn.dextea.order.service.OrderService;
 import cn.dextea.order.service.StatusService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.annotation.Resource;
-import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -43,7 +41,7 @@ public class OrderController {
      * @param id 订单id
      */
     @GetMapping("/order/{id}/base")
-    public DexteaApiResponse<OrderModel> getOrderBase(@PathVariable Long id) throws NotFoundException {
+    public DexteaApiResponse<OrderModel> getOrderBase(@PathVariable Long id) {
         return orderService.getOrderBase(id);
     }
 
@@ -52,19 +50,8 @@ public class OrderController {
      * @param id 订单ID
      */
     @GetMapping("/order/{id}")
-    public DexteaApiResponse<OrderModel> getOrderDetail(@PathVariable String id) throws NotFoundException {
+    public DexteaApiResponse<OrderModel> getOrderDetail(@PathVariable String id) {
         return orderService.getOrderDetail(id);
-    }
-
-    /**
-     * 订单全额退款
-     * @param data 数据
-     */
-    @PutMapping("/order/status/refund")
-    public DexteaApiResponse<Void> orderRefund(
-            @RequestBody OrderRefundRequest data){
-        Long staffId= StpUtil.getLoginIdAsLong();
-        return statusService.orderRefund(staffId,data.getPassword(),data.getOrderId());
     }
 
     /**
@@ -72,17 +59,49 @@ public class OrderController {
      * @param storeId 门店ID
      */
     @GetMapping("/order/counter")
-    public DexteaApiResponse<CounterOrderListModel> getOrderListForCounter(@RequestParam Long storeId){
-        return orderService.getOrderListForCounter(storeId);
+    public DexteaApiResponse<CounterOrderListModel> getOrderForCounter(@RequestParam Long storeId){
+        return orderService.getOrderForCounter(storeId);
     }
 
-    @PutMapping("/order/status/makeDone")
-    public DexteaApiResponse<Void> makeDone(@RequestBody OrderMakeDoneRequest data){
-        return statusService.makeDone(data);
-    }
-
+    /**
+     * 取餐叫号
+     * @param id 订单ID
+     */
     @GetMapping("/order/{id}/call")
-    public DexteaApiResponse<Void> callPickUp(@PathVariable String id){
-        return orderService.callPickUp(id);
+    public DexteaApiResponse<Void> orderCall(@PathVariable String id){
+        return orderService.orderCall(id);
+    }
+
+    /*******状态*********/
+
+    /**
+     * 更新订单状态为待取餐
+     * @param id 订单ID
+     */
+    @PutMapping("/order/{id}/status/wait-pick")
+    public DexteaApiResponse<Void> waitPick(@PathVariable String id){
+        return statusService.waitPick(id);
+    }
+
+    /**
+     * 更新订单状态为已完成
+     * @param id 订单ID
+     */
+    @PutMapping("/order/{id}/status/done")
+    public DexteaApiResponse<Void> done(@PathVariable String id){
+        return statusService.done(id);
+    }
+
+    /**
+     * 更新订单状态为退款
+     * @param data 退款请求
+     */
+    @PutMapping("/order/status/refund")
+    public DexteaApiResponse<Void> refund(
+            @RequestBody OrderRefundRequest data){
+        // 从token获取StaffId
+        Long staffId= StpUtil.getLoginIdAsLong();
+        data.setStaffId(staffId);
+        return statusService.refund(data);
     }
 }

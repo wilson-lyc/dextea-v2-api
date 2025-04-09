@@ -2,15 +2,12 @@ package cn.dextea.order.controller;
 
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.order.OrderModel;
-import cn.dextea.common.util.DexteaJWTUtil;
 import cn.dextea.order.model.*;
 import cn.dextea.order.service.CustomerService;
 import cn.dextea.order.service.OrderService;
 import cn.dextea.order.service.StatusService;
-import com.alipay.api.AlipayApiException;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,8 +24,6 @@ public class CustomerController {
     private CustomerService customerService;
     @Resource
     private StatusService statusService;
-    @Resource
-    private DexteaJWTUtil jwtUtil;
 
     /**
      * 创建订单
@@ -45,12 +40,7 @@ public class CustomerController {
      * @param id 顾客ID
      */
     @GetMapping("/order/customer/getOrderList")
-    public DexteaApiResponse<List<OrderModel>> getCustomerOrderList(
-            @RequestParam Long id,
-            @RequestHeader("DexteaToken") String token){
-//        if(!jwtUtil.getCustomerId(token).equals(id)){
-//            return DexteaApiResponse.forbidden("ID不一致");
-//        }
+    public DexteaApiResponse<List<OrderModel>> getCustomerOrderList(@RequestParam Long id){
         return customerService.getCustomerOrderList(id);
     }
 
@@ -80,6 +70,6 @@ public class CustomerController {
     @PutMapping("/order/customer/payCancel")
     public DexteaApiResponse<Void> payCancel(
             @RequestBody OrderPayCancelRequest data){
-        return statusService.payCancel(data);
+        return statusService.cancel(data);
     }
 }

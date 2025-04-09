@@ -8,8 +8,8 @@ import cn.dextea.common.model.order.OrderModel;
  */
 public interface InternalService {
     OrderModel getOrderDetail(String id);
-    void callPickUp(Long storeId, String pickUpNo);
-    CounterOrderListModel getCounterOrderList(Long storeId);
-    void callNewOrder(Long storeId);
-    void sendNewOrder(Long storeId);
+    void orderCallTest(Long storeId, String pickUpNo);
+    CounterOrderListModel getOrderForCounter(Long storeId);
+    void newOrderCallTest(Long storeId);
+    void sendOrderToCounterTest(Long storeId);
 }

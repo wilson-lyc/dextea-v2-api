@@ -19,23 +19,22 @@ public class InternalController {
     public OrderModel getOrderDetail(@RequestParam String id) {
         return internalService.getOrderDetail(id);
     }
-    @GetMapping("/order/internal/callPickUp")
-    public void callPickUp(
+    @GetMapping("/order/internal/getOrderForCounter")
+    public CounterOrderListModel getOrderForCounter(@RequestParam Long id){
+        return internalService.getOrderForCounter(id);
+    }
+    @GetMapping("/order/test/orderCall")
+    public void orderCallTest(
             @RequestParam Long storeId,
             @RequestParam String pickUpNo) {
-        internalService.callPickUp(storeId,pickUpNo);
+        internalService.orderCallTest(storeId,pickUpNo);
     }
-    @GetMapping("/order/internal/callNewOrder")
-    public void callNewOrder(@RequestParam Long storeId) {
-        internalService.callNewOrder(storeId);
+    @GetMapping("/order/test/newOrderCall")
+    public void newOrderCallTest(@RequestParam Long storeId) {
+        internalService.newOrderCallTest(storeId);
     }
-    @GetMapping("/order/internal/sendNewOrder")
-    public void sendNewOrder(@RequestParam Long storeId){
-        internalService.sendNewOrder(storeId);
-    }
-
-    @GetMapping("/order/internal/getCounterOrderList")
-    public CounterOrderListModel getCounterOrderList(@RequestParam Long storeId){
-        return internalService.getCounterOrderList(storeId);
+    @GetMapping("/order/test/sendOrderToCounter")
+    public void sendOrderToCounterTest(@RequestParam Long storeId){
+        internalService.sendOrderToCounterTest(storeId);
     }
 }

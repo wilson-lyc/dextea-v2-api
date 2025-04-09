@@ -10,13 +10,17 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum OrderErrorCode {
     ORDER_NOT_FOUND("order.not.found", "订单不存在"),
-    ORDER_PAY_NOT_PENDING("order.pay.not.pending","订单非待支付，禁止支付"),
     ORDER_PAY_FAIL("order.pay.fail", "支付失败"),
-    ORDER_REFUND_FORBIDDEN("order.refund.forbidden", "订单不可退款"),
-    ORDER_REFUND_FAIL("order.refund.fail", "退款失败"),
-    OPERATOR_PASSWORD_ILLEGAL("order.operator.password.illegal", "操作者密码错误"),
-    ORDER_STATUS_NOT_MAKING("order.status.not.making", "订单状态不是待制作"),
-    ORDER_PICK_UP_CALL_FORBIDDEN("order.pick.up.call.forbidden", "订单不可叫号");
+    ORDER_PAY_DONE_FORBIDDEN("order.pay.done.forbidden","此订单不可支付"),
+    ORDER_CANCEL_FORBIDDEN("order.cancel.forbidden", "此订单不可取消"),
+    // 取餐叫号
+    ORDER_CALL_FORBIDDEN("order.call.forbidden", "订单当前状态不可叫号"),
+    // 更新订单状态相关
+    ORDER_STATUS_WAIT_PICK_FORBIDDEN("order.status.wait.pick.forbidden", "此订单不可转为待取餐"),
+    ORDER_STATUS_DONE_FORBIDDEN("order.status.done.forbidden", "此订单不可转为已完成"),
+    ORDER_STATUS_REFUND_PASSWORD_ILLEGAL("order.status.refund.password.illegal", "密码错误"),
+    ORDER_STATUS_REFUND_FORBIDDEN("order.status.refund.forbidden", "此订单不可退款"),
+    ORDER_STATUS_REFUND_FAIL("order.status.refund.fail", "退款失败");
 
     private final String code;
     private final String msg;

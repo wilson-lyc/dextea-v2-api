@@ -10,7 +10,7 @@ import cn.dextea.order.pojo.Order;
 import cn.dextea.order.pojo.OrderProduct;
 import cn.dextea.order.service.InternalService;
 import cn.dextea.order.websocket.util.CounterUtil;
-import cn.dextea.order.websocket.util.PickUpCallUtil;
+import cn.dextea.order.websocket.util.OrderCallUtil;
 import cn.hutool.core.date.DateTime;
 import cn.hutool.core.date.DateUtil;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
@@ -31,7 +31,7 @@ public class InternalServiceImpl implements InternalService {
     @Resource
     private OrderProductMapper orderProductMapper;
     @Resource
-    private PickUpCallUtil pickUpCallUtil;
+    private OrderCallUtil orderCallUtil;
     @Resource
     private CounterUtil counterUtil;
     @Override
@@ -55,12 +55,7 @@ public class InternalServiceImpl implements InternalService {
     }
 
     @Override
-    public void callPickUp(Long storeId, String pickUpNo) {
-        pickUpCallUtil.call(storeId,pickUpNo);
-    }
-
-    @Override
-    public CounterOrderListModel getCounterOrderList(Long storeId) {
+    public CounterOrderListModel getOrderForCounter(Long storeId) {
         // 时间范围 - 查找5h以内的订单
         Date date = DateUtil.date();
         DateTime dateTime = DateUtil.offsetHour(date, -5);
@@ -89,12 +84,17 @@ public class InternalServiceImpl implements InternalService {
     }
 
     @Override
-    public void callNewOrder(Long storeId) {
-        counterUtil.newOrder(storeId);
+    public void orderCallTest(Long storeId, String pickUpNo) {
+        orderCallUtil.callAndAddList(storeId,pickUpNo);
     }
 
     @Override
-    public void sendNewOrder(Long storeId) {
+    public void newOrderCallTest(Long storeId) {
+        counterUtil.callNewOrder(storeId);
+    }
+
+    @Override
+    public void sendOrderToCounterTest(Long storeId) {
         counterUtil.sendOrder(storeId);
     }
 }

@@ -13,6 +13,6 @@ public interface OrderService {
     DexteaApiResponse<IPage<OrderModel>> getOrderList(int current, int size, OrderFilter filter);
     DexteaApiResponse<OrderModel> getOrderBase(Long id);
     DexteaApiResponse<OrderModel> getOrderDetail(String id);
-    DexteaApiResponse<CounterOrderListModel> getOrderListForCounter(Long id);
-    DexteaApiResponse<Void> callPickUp(String id);
+    DexteaApiResponse<CounterOrderListModel> getOrderForCounter(Long id);
+    DexteaApiResponse<Void> orderCall(String id);
 }

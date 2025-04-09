@@ -16,6 +16,7 @@ import lombok.NoArgsConstructor;
 public class OrderRefundRequest {
     @NotBlank(message = "orderId不能为空")
     private String orderId;
+    private Long staffId;
     @NotBlank(message = "操作者密码不能为空")
     private String password;
 }

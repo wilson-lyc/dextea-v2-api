@@ -13,7 +13,7 @@ import cn.dextea.order.mapper.OrderProductMapper;
 import cn.dextea.order.pojo.Order;
 import cn.dextea.order.pojo.OrderProduct;
 import cn.dextea.order.service.OrderService;
-import cn.dextea.order.websocket.util.PickUpCallUtil;
+import cn.dextea.order.websocket.util.OrderCallUtil;
 import cn.hutool.core.date.DateUtil;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -21,7 +21,6 @@ import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
-import java.util.Date;
 import java.util.List;
 import java.util.Objects;
 
@@ -37,7 +36,7 @@ public class OrderServiceImpl implements OrderService {
     @Resource
     private OrderFeign orderFeign;
     @Resource
-    private PickUpCallUtil pickUpCallUtil;
+    private OrderCallUtil orderCallUtil;
     @Override
     public DexteaApiResponse<IPage<OrderModel>> getOrderList(int current, int size, OrderFilter filter) {
         // 当前时间
@@ -100,26 +99,25 @@ public class OrderServiceImpl implements OrderService {
     }
 
     @Override
-    public DexteaApiResponse<CounterOrderListModel> getOrderListForCounter(Long storeId) {
-        CounterOrderListModel res=orderFeign.getCounterOrderList(storeId);
+    public DexteaApiResponse<CounterOrderListModel> getOrderForCounter(Long storeId) {
+        CounterOrderListModel res=orderFeign.getOrderForCounter(storeId);
         return DexteaApiResponse.success(res);
     }
 
     @Override
-    public DexteaApiResponse<Void> callPickUp(String id) {
+    public DexteaApiResponse<Void> orderCall(String id) {
         // 查找订单
-        MPJLambdaWrapper<Order> wrapper=new MPJLambdaWrapper<Order>()
-                .eq(Order::getId,id)
-                .selectAll(Order.class);
-        Order order=orderMapper.selectJoinOne(wrapper);
-        if(Objects.isNull(order))
-            return DexteaApiResponse.notFound("订单不存在",
-                    OrderErrorCode.ORDER_NOT_FOUND.getCode(),OrderErrorCode.ORDER_NOT_FOUND.getMsg());
-        if (order.getStatus()!=OrderStatus.WAIT_PICK.getValue() && order.getStatus()!=OrderStatus.DONE.getValue()){
-            return DexteaApiResponse.fail("订单状态错误",
-                    OrderErrorCode.ORDER_PICK_UP_CALL_FORBIDDEN.getCode(),OrderErrorCode.ORDER_PICK_UP_CALL_FORBIDDEN.getMsg());
+        Order order=orderMapper.selectById(id);
+        if(Objects.isNull(order)) {
+            return DexteaApiResponse.notFound(OrderErrorCode.ORDER_NOT_FOUND.getCode(),
+                    OrderErrorCode.ORDER_NOT_FOUND.getMsg());
         }
-        pickUpCallUtil.callOnly(order.getStoreId(),order.getPickUpNo());
+        // 校验状态 - 待取餐和已完成订单可以叫号
+        if (order.getStatus()!=OrderStatus.WAIT_PICK.getValue() && order.getStatus()!=OrderStatus.DONE.getValue()){
+            return DexteaApiResponse.fail(OrderErrorCode.ORDER_CALL_FORBIDDEN.getCode(),
+                    OrderErrorCode.ORDER_CALL_FORBIDDEN.getMsg());
+        }
+        orderCallUtil.callOnly(order.getStoreId(),order.getPickUpNo());
         return DexteaApiResponse.success();
     }
 }
