@@ -24,8 +24,6 @@ public class ProductServiceImpl implements ProductService {
     @Resource
     private MenuMapper menuMapper;
     @Resource
-    private MenuFeign menuFeign;
-    @Resource
     private ProductFeign productFeign;
 
     @Override

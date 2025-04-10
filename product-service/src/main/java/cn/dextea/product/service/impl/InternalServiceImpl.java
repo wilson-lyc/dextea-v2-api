@@ -1,11 +1,11 @@
 package cn.dextea.product.service.impl;
 
+import cn.dextea.common.code.CustomizeItemStatus;
 import cn.dextea.common.code.CustomizeOptionStatus;
 import cn.dextea.common.code.ProductStatus;
 import cn.dextea.common.model.product.CustomizeItemModel;
 import cn.dextea.common.model.product.CustomizeOptionModel;
 import cn.dextea.common.model.product.ProductModel;
-import cn.dextea.product.dto.product.ProductListDTO;
 import cn.dextea.product.mapper.*;
 import cn.dextea.product.pojo.*;
 import cn.dextea.product.service.InternalService;
@@ -125,10 +125,11 @@ public class InternalServiceImpl implements InternalService {
                                 .accept(ProductCategory::getName),
                         ProductModel::getCategoryText);
         ProductModel product=productMapper.selectJoinOne(ProductModel.class,productWrapper);
-        // 获取客制化项目
+        // 获取客制化项目 - 只返回可用项目
         MPJLambdaWrapper<CustomizeItem> itemWrapper=new MPJLambdaWrapper<CustomizeItem>()
                 .selectAsClass(CustomizeItem.class, CustomizeItemModel.class)
                 .eq(CustomizeItem::getProductId,productId)
+                .eq(CustomizeItem::getStatus,CustomizeItemStatus.AVAILABLE.getValue())
                 .orderByAsc(CustomizeItem::getSort);
         List<CustomizeItemModel> items=itemMapper.selectJoinList(CustomizeItemModel.class,itemWrapper);
         // 获取客制化选项
@@ -161,12 +162,13 @@ public class InternalServiceImpl implements InternalService {
                         .eq(ProductStoreStatus::getStoreId,storeId))
                 .selectFunc("coalesce(%s,3)",arg ->arg
                                 .accept(ProductStoreStatus::getStatus),
-                        ProductListDTO::getStoreStatus);
+                        ProductModel::getStoreStatus);
         ProductModel product=productMapper.selectJoinOne(ProductModel.class,productWrapper);
-        // 获取客制化项目
+        // 获取客制化项目 - 只返回可用项目
         MPJLambdaWrapper<CustomizeItem> itemWrapper=new MPJLambdaWrapper<CustomizeItem>()
                 .selectAsClass(CustomizeItem.class, CustomizeItemModel.class)
                 .eq(CustomizeItem::getProductId,productId)
+                .eq(CustomizeItem::getStatus, CustomizeItemStatus.AVAILABLE.getValue())
                 .orderByAsc(CustomizeItem::getSort);
         List<CustomizeItemModel> items=itemMapper.selectJoinList(CustomizeItemModel.class,itemWrapper);
         // 获取客制化选项
