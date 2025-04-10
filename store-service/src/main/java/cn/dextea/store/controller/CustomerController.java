@@ -33,6 +33,11 @@ public class CustomerController {
         return customerService.getNearbyStore(longitude, latitude, radius,limit);
     }
 
+    @GetMapping("/store/customer/searchStore")
+    public DexteaApiResponse<List<StoreModel>> searchStore(@RequestParam String name){
+        return customerService.searchStore(name);
+    }
+
     /**
      * 获取门店详情
      * 携带经纬度则额外返回距离

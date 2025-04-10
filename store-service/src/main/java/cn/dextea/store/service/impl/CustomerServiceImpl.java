@@ -2,6 +2,7 @@ package cn.dextea.store.service.impl;
 
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.store.StoreModel;
+import cn.dextea.store.code.StoreErrorCode;
 import cn.dextea.store.mapper.StoreMapper;
 import cn.dextea.store.pojo.Store;
 import cn.dextea.store.model.NearbyStoreModel;
@@ -68,5 +69,18 @@ public class CustomerServiceImpl implements CustomerService {
             store.setDistanceUnit(distance.getDistanceUnit());
         }
         return DexteaApiResponse.success(store);
+    }
+
+    @Override
+    public DexteaApiResponse<List<StoreModel>> searchStore(String name) {
+        MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
+                .selectAsClass(Store.class, StoreModel.class)
+                .like(Store::getName,name);
+        List<StoreModel> list=storeMapper.selectJoinList(StoreModel.class,wrapper);
+        if(list.isEmpty()){
+            return DexteaApiResponse.notFound(StoreErrorCode.STORE_CUSTOMER_SEARCH_NULL.getCode(),
+                    StoreErrorCode.STORE_CUSTOMER_SEARCH_NULL.getMsg());
+        }
+        return DexteaApiResponse.success(list);
     }
 }

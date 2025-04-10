@@ -12,4 +12,5 @@ import java.util.List;
 public interface CustomerService {
     DexteaApiResponse<List<StoreModel>> getNearbyStore(Double longitude, Double latitude, Integer radius, Integer limit);
     DexteaApiResponse<StoreModel> getStoreDetail(Long id, Double longitude, Double latitude) throws NotFoundException;
+    DexteaApiResponse<List<StoreModel>> searchStore(String name);
 }
