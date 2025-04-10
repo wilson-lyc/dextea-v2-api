@@ -6,6 +6,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Objects;
+
 /**
  * @author Lai Yongchao
  */
@@ -24,6 +26,6 @@ public class CustomerModel {
     private String token;
 
     public String getStatusText() {
-        return CustomerStatus.fromValue(status).getLabel();
+        return Objects.nonNull(status)?CustomerStatus.fromValue(status).getLabel():null;
     }
 }

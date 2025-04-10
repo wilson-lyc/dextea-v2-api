@@ -11,13 +11,7 @@ import cn.dextea.order.model.OrderRefundRequest;
 public interface StatusService {
     DexteaApiResponse<Void> payDone(OrderPayDoneRequest data);
     DexteaApiResponse<Void> cancel(OrderPayCancelRequest data);
-    DexteaApiResponse<Void> waitPick(String id);
-    DexteaApiResponse<Void> done(String id);
-    DexteaApiResponse<Void> refund(OrderRefundRequest data);
-
-    DexteaApiResponse<Void> waitPickSilent(String id);
-
-    DexteaApiResponse<Void> doneSilent(String id);
-
-    DexteaApiResponse<Void> refundSilent(OrderRefundRequest data);
+    DexteaApiResponse<Void> waitPick(String id, String mode);
+    DexteaApiResponse<Void> done(String id, String mode);
+    DexteaApiResponse<Void> refund(OrderRefundRequest data, String mode);
 }
