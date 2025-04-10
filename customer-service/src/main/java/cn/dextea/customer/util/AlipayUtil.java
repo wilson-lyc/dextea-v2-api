@@ -21,8 +21,8 @@ public class AlipayUtil {
         AlipaySystemOauthTokenResponse response = alipayClient.execute(request);
         if(response.isSuccess()){
             return response;
-        }else{
-            throw new RuntimeException("获取用户授权失败:"+response.getSubMsg()+"("+response.getSubCode()+")");
+        }else {
+            throw new AlipayApiException("授权失败:"+response.getSubMsg()+"("+response.getSubCode()+")");
         }
     }
 }

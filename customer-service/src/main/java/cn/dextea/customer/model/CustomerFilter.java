@@ -1,7 +1,6 @@
-package cn.dextea.customer.dto;
+package cn.dextea.customer.model;
 
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -9,11 +8,10 @@ import lombok.NoArgsConstructor;
  * @author Lai Yongchao
  */
 @Data
-@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CustomerLoginResponse {
+public class CustomerFilter {
     private Long id;
-    private String name;
-    private String token;
+    private String openId;
+    private Integer status;
 }

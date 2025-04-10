@@ -73,7 +73,6 @@ public class OrderController {
     }
 
     /*******状态*********/
-
     /**
      * 更新订单状态为待取餐
      * @param id 订单ID
@@ -83,6 +82,11 @@ public class OrderController {
         return statusService.waitPick(id);
     }
 
+    @PutMapping("/order/{id}/status/wait-pick-silent")
+    public DexteaApiResponse<Void> waitPickSilent(@PathVariable String id){
+        return statusService.waitPickSilent(id);
+    }
+
     /**
      * 更新订单状态为已完成
      * @param id 订单ID
@@ -90,6 +94,11 @@ public class OrderController {
     @PutMapping("/order/{id}/status/done")
     public DexteaApiResponse<Void> done(@PathVariable String id){
         return statusService.done(id);
+    }
+
+    @PutMapping("/order/{id}/status/done-silent")
+    public DexteaApiResponse<Void> doneSilent(@PathVariable String id){
+        return statusService.doneSilent(id);
     }
 
     /**
@@ -103,5 +112,14 @@ public class OrderController {
         Long staffId= StpUtil.getLoginIdAsLong();
         data.setStaffId(staffId);
         return statusService.refund(data);
+    }
+
+    @PutMapping("/order/status/refund-silent")
+    public DexteaApiResponse<Void> refundSilent(
+            @RequestBody OrderRefundRequest data){
+        // 从token获取StaffId
+        Long staffId= StpUtil.getLoginIdAsLong();
+        data.setStaffId(staffId);
+        return statusService.refundSilent(data);
     }
 }

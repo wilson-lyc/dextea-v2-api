@@ -4,6 +4,7 @@ import cn.dextea.common.model.common.DexteaApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -29,13 +30,6 @@ public class GlobalExceptionHandler {
         return DexteaApiResponse.fail("缺少参数");
     }
 
-    // 参数错误
-    @ExceptionHandler(IllegalArgumentException.class)
-    public DexteaApiResponse<Object> handleIllegalArgumentException(IllegalArgumentException e) {
-        log.error("参数错误", e);
-        return DexteaApiResponse.fail(e.getMessage());
-    }
-
     // 请求参数错误
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public DexteaApiResponse<Object> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
@@ -48,6 +42,12 @@ public class GlobalExceptionHandler {
     public ResponseEntity<DexteaApiResponse<Void>> handleMaxUploadSizeExceededException(MaxUploadSizeExceededException e) {
         log.error("文件体积过大：{}", e.getMessage());
         return ResponseEntity.badRequest().body(DexteaApiResponse.fail("文件体积过大"));
+    }
+
+    @ExceptionHandler(HttpRequestMethodNotSupportedException.class)
+    public DexteaApiResponse<Object> handleHttpRequestMethodNotSupportedException(HttpRequestMethodNotSupportedException e) {
+        log.error("请求方法不支持：{}", e.getMessage());
+        return DexteaApiResponse.fail("global.request.method.not.supported","请求方法错误");
     }
 
     // 其他异常

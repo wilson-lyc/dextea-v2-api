@@ -1,4 +1,4 @@
-package cn.dextea.customer.dto;
+package cn.dextea.customer.model;
 
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;

@@ -14,4 +14,10 @@ public interface StatusService {
     DexteaApiResponse<Void> waitPick(String id);
     DexteaApiResponse<Void> done(String id);
     DexteaApiResponse<Void> refund(OrderRefundRequest data);
+
+    DexteaApiResponse<Void> waitPickSilent(String id);
+
+    DexteaApiResponse<Void> doneSilent(String id);
+
+    DexteaApiResponse<Void> refundSilent(OrderRefundRequest data);
 }
