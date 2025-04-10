@@ -2,6 +2,7 @@ package cn.dextea.order.service.impl;
 
 import cn.dextea.common.code.OrderStatus;
 import cn.dextea.common.feign.OrderFeign;
+import cn.dextea.common.feign.StoreFeign;
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.order.OrderModel;
 import cn.dextea.common.model.order.OrderProductModel;
@@ -37,6 +38,8 @@ public class OrderServiceImpl implements OrderService {
     private OrderFeign orderFeign;
     @Resource
     private OrderCallUtil orderCallUtil;
+    @Resource
+    private StoreFeign storeFeign;
     @Override
     public DexteaApiResponse<IPage<OrderModel>> getOrderList(int current, int size, OrderFilter filter) {
         // 当前时间
@@ -85,9 +88,15 @@ public class OrderServiceImpl implements OrderService {
                 .eq(Order::getId,id)
                 .selectAsClass(Order.class, OrderModel.class);
         OrderModel order=orderMapper.selectJoinOne(OrderModel.class,orderWrapper);
-        if(Objects.isNull(order))
+        if(Objects.isNull(order)) {
             return DexteaApiResponse.notFound("订单不存在",
-                    OrderErrorCode.ORDER_NOT_FOUND.getCode(),OrderErrorCode.ORDER_NOT_FOUND.getMsg());
+                    OrderErrorCode.ORDER_NOT_FOUND.getCode(), OrderErrorCode.ORDER_NOT_FOUND.getMsg());
+        }
+        // 获取门店电话
+        String phone=storeFeign.getStorePhone(order.getStoreId());
+        if(Objects.nonNull(phone)){
+            order.setStorePhone(phone);
+        }
         // 获取订单商品
         MPJLambdaWrapper<OrderProduct> productWrapper=new MPJLambdaWrapper<OrderProduct>()
                 .eq(OrderProduct::getOrderId,id)
