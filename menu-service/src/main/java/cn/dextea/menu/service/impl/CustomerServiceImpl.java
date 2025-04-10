@@ -34,15 +34,17 @@ public class CustomerServiceImpl implements CustomerService {
     private ProductFeign productFeign;
 
     @Override
-    public DexteaApiResponse<MenuModel> getStoreMenu(Long storeId) throws NotFoundException {
+    public DexteaApiResponse<MenuModel> getStoreMenu(Long storeId){
         // 获取menuId
         Long menuId=storeFeign.getStoreMenuId(storeId);
-        if (Objects.isNull(menuId))
-            throw new IllegalArgumentException("门店未绑定菜单");
+        if (Objects.isNull(menuId)){
+            return DexteaApiResponse.fail("该店铺没有菜单");
+        }
         // 获取菜单
         Menu menu=menuMapper.selectById(menuId);
-        if (Objects.isNull(menu))
-            throw new NotFoundException("菜单不存在");
+        if (Objects.isNull(menu)) {
+            return DexteaApiResponse.notFound("菜单不存在");
+        }
         // 获取商品详情
         MenuModel menuModel=MenuModel.builder()
                 .id(menu.getId())
@@ -52,7 +54,7 @@ public class CustomerServiceImpl implements CustomerService {
                 .updateTime(menu.getUpdateTime())
                 .build();
         // 遍历分组
-        List<MenuGroupModel> menuGroups=new ArrayList<>();
+        List<MenuGroupModel> groupModelList=new ArrayList<>();
         for (MenuGroup group:menu.getContent()){
             MenuGroupModel menuGroupModel=MenuGroupModel.builder()
                     .id(group.getId())
@@ -60,9 +62,10 @@ public class CustomerServiceImpl implements CustomerService {
                     .sort(group.getSort())
                     .build();
             // 遍历商品
-            List<MenuProductModel> menuProductModels=new ArrayList<>();
+            List<MenuProductModel> productModelList=new ArrayList<>();
             for (MenuProduct menuProduct:group.getContent()){
                 ProductModel product=productFeign.getProductDetail(menuProduct.getId(),storeId);
+                // 商品存在且不是全局或门店禁售，则可以返回给前端
                 if (Objects.nonNull(product) &&
                         product.getStatus()!=ProductStatus.GLOBAL_FORBIDDEN.getValue() &&
                         product.getStatus()!=ProductStatus.STORE_FORBIDDEN.getValue()) {
@@ -78,15 +81,16 @@ public class CustomerServiceImpl implements CustomerService {
                             .createTime(product.getCreateTime())
                             .updateTime(product.getUpdateTime())
                             .build();
-                    menuProductModels.add(menuProductModel);
+                    productModelList.add(menuProductModel);
                 }
             }
-            if (!menuProductModels.isEmpty()){
-                menuGroupModel.setContent(menuProductModels);
-                menuGroups.add(menuGroupModel);
+            // 分组内有商品，可返回前端
+            if (!productModelList.isEmpty()){
+                menuGroupModel.setContent(productModelList);
+                groupModelList.add(menuGroupModel);
             }
         }
-        menuModel.setContent(menuGroups);
+        menuModel.setContent(groupModelList);
         return DexteaApiResponse.success(menuModel);
     }
 }

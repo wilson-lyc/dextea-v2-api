@@ -1,15 +1,12 @@
 package cn.dextea.common.model.menu;
 
 import cn.dextea.common.code.ProductStatus;
-import cn.dextea.common.model.product.CustomizeItemModel;
-import cn.dextea.common.model.product.ProductModel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.List;
 
 /**
  * @author Lai Yongchao
