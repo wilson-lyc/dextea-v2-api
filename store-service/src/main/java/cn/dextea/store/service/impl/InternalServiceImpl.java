@@ -46,4 +46,12 @@ public class InternalServiceImpl implements InternalService {
                 .eq(Store::getId,id);
         return storeMapper.selectJoinOne(Long.class,wrapper);
     }
+
+    @Override
+    public String getStorePhone(Long id) {
+        MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
+                .select(Store::getPhone)
+                .eq(Store::getId,id);
+        return storeMapper.selectJoinOne(String.class,wrapper);
+    }
 }

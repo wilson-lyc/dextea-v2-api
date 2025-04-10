@@ -24,6 +24,7 @@ public class OrderModel {
     // 门店
     private Long storeId;
     private String storeName;
+    private String storePhone;
     // 顾客
     private Long customerId;
     // 用餐方式

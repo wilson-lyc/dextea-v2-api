@@ -34,4 +34,9 @@ public class InternalController {
     public Long getStoreMenuId(@RequestParam Long id){
         return internalService.getStoreMenuId(id);
     }
+
+    @GetMapping("/store/internal/getStorePhone")
+    public String getStorePhone(@RequestParam Long id){
+        return internalService.getStorePhone(id);
+    }
 }

@@ -1,6 +1,7 @@
 package cn.dextea.order.service.impl;
 
 import cn.dextea.common.code.OrderStatus;
+import cn.dextea.common.feign.StoreFeign;
 import cn.dextea.common.model.order.CounterOrderListModel;
 import cn.dextea.common.model.order.OrderModel;
 import cn.dextea.common.model.order.OrderProductModel;
@@ -34,6 +35,8 @@ public class InternalServiceImpl implements InternalService {
     private OrderCallUtil orderCallUtil;
     @Resource
     private CounterUtil counterUtil;
+    @Resource
+    private StoreFeign storeFeign;
     @Override
     public OrderModel getOrderDetail(String id) {
         // 获取订单基础信息
@@ -43,6 +46,11 @@ public class InternalServiceImpl implements InternalService {
         OrderModel order=orderMapper.selectJoinOne(OrderModel.class,orderWrapper);
         if(Objects.isNull(order)){
             return null;
+        }
+        // 获取门店电话
+        String phone=storeFeign.getStorePhone(order.getStoreId());
+        if(Objects.nonNull(phone)){
+            order.setStorePhone(phone);
         }
         // 获取订单商品
         MPJLambdaWrapper<OrderProduct> productWrapper=new MPJLambdaWrapper<OrderProduct>()
