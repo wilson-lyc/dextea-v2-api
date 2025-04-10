@@ -52,4 +52,5 @@ public class CustomerController {
             @RequestParam(required = false) Double latitude) throws NotFoundException {
         return customerService.getStoreDetail(id, longitude, latitude);
     }
+
 }
