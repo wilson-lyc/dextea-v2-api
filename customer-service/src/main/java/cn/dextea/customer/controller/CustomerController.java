@@ -18,12 +18,23 @@ import org.springframework.web.bind.annotation.*;
 public class CustomerController {
     @Resource
     private CustomerService customerService;
+
+    /**
+     * 顾客登录
+     * @param data 数据
+     */
     @PostMapping("/customer/login")
     public DexteaApiResponse<CustomerModel> customerLogin(@Valid @RequestBody CustomerLoginRequest data)
             throws AlipayApiException {
         return customerService.customerLogin(data);
     }
 
+    /**
+     * 获取顾客列表
+     * @param current 当前页码
+     * @param size 分页大小
+     * @param filter 搜索条件
+     */
     @GetMapping("/customer")
     public DexteaApiResponse<IPage<CustomerModel>> getCustomerList(
             @RequestParam(defaultValue = "1") int current,
@@ -32,11 +43,20 @@ public class CustomerController {
         return customerService.getCustomerList(current,size,filter);
     }
 
+    /**
+     * 获取顾客详情
+     * @param id 顾客ID
+     */
     @GetMapping("/customer/{id:\\d+}")
     public DexteaApiResponse<CustomerModel> getCustomerDetail(@PathVariable Long id){
         return customerService.getCustomerDetail(id);
     }
 
+    /**
+     * 更新顾客状态
+     * @param id 顾客ID
+     * @param status 状态
+     */
     @PutMapping("/customer/{id:\\d+}/status")
     public DexteaApiResponse<Void> updateCustomerStatus(@PathVariable Long id, @RequestParam Integer status){
         return customerService.updateCustomerStatus(id,status);
