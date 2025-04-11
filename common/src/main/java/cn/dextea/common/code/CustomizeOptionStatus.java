@@ -29,6 +29,8 @@ public enum CustomizeOptionStatus {
     }
 
     public static Integer getStatusValue(Integer globalStatus, Integer storeStatus) {
+        if(Objects.isNull(globalStatus))
+            return null;
         if(globalStatus.equals(CustomizeOptionStatus.GLOBAL_FORBIDDEN.getValue())){
             return CustomizeOptionStatus.GLOBAL_FORBIDDEN.getValue();
         }else{

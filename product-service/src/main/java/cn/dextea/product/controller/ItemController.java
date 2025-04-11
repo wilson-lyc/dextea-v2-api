@@ -1,14 +1,12 @@
 package cn.dextea.product.controller;
 
-import cn.dextea.common.model.common.ApiResponse;
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.product.CustomizeItemModel;
-import cn.dextea.product.model.item.ItemUpdateDTO;
+import cn.dextea.product.model.item.ItemUpdateRequest;
 import cn.dextea.product.model.item.ItemCreateRequest;
 import cn.dextea.product.service.ItemService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
-import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -60,7 +58,7 @@ public class ItemController {
     @PutMapping("/product/customize/{id}")
     public DexteaApiResponse<Void> updateItemDetail(
             @PathVariable Long id,
-            @Valid @RequestBody ItemUpdateDTO data) {
+            @Valid @RequestBody ItemUpdateRequest data) {
         return itemService.updateItemDetail(id,data);
     }
 

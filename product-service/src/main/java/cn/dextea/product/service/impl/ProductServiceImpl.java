@@ -249,8 +249,8 @@ public class ProductServiceImpl implements ProductService {
     public DexteaApiResponse<VPKCRequestBuilder> updateProductStatus(Long productId, Integer status){
         // 校验状态码 - 全局只有1和0
         if(status!=ProductStatus.GLOBAL_FORBIDDEN.getValue() && status!=ProductStatus.AVAILABLE.getValue()){
-            return DexteaApiResponse.fail(ProductErrorCode.PRODUCT_GLOBAL_STATUS_ERROR.getCode(),
-                    ProductErrorCode.PRODUCT_GLOBAL_STATUS_ERROR.getMsg());
+            return DexteaApiResponse.fail(ProductErrorCode.GLOBAL_STATUS_ERROR.getCode(),
+                    ProductErrorCode.GLOBAL_STATUS_ERROR.getMsg());
         }
         // 更新db
         LambdaUpdateWrapper<Product> wrapper=new LambdaUpdateWrapper<Product>()
@@ -279,8 +279,8 @@ public class ProductServiceImpl implements ProductService {
         }
         //校验状态码
         if(status==ProductStatus.GLOBAL_FORBIDDEN.getValue()){
-            return DexteaApiResponse.fail(ProductErrorCode.PRODUCT_STORE_STATUS_ERROR.getCode(),
-                    ProductErrorCode.PRODUCT_STORE_STATUS_ERROR.getMsg());
+            return DexteaApiResponse.fail(ProductErrorCode.STORE_STATUS_ERROR.getCode(),
+                    ProductErrorCode.STORE_STATUS_ERROR.getMsg());
         }
         // 更新db
         MPJLambdaWrapper<ProductStoreStatus> wrapper = new MPJLambdaWrapper<ProductStoreStatus>()

@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ItemUpdateDTO {
+public class ItemUpdateRequest {
     @NotBlank(message = "项目名不能为空")
     private String name;
     @NotNull(message = "排序不能为空")

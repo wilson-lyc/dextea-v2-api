@@ -1,14 +1,16 @@
 package cn.dextea.product.controller;
 
-import cn.dextea.common.model.common.ApiResponse;
-import cn.dextea.product.model.option.OptionCreateDTO;
-import cn.dextea.product.model.option.OptionUpdateDTO;
+import cn.dextea.common.model.common.DexteaApiResponse;
+import cn.dextea.common.model.product.CustomizeOptionModel;
+import cn.dextea.product.model.option.OptionCreateRequest;
+import cn.dextea.product.model.option.OptionUpdateRequest;
 import cn.dextea.product.service.OptionService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -25,9 +27,9 @@ public class OptionController {
      * @param data 创建数据
      */
     @PostMapping("/product/customize/{itemId:\\d+}/option")
-    public ApiResponse createOption(
+    public DexteaApiResponse<Void> createOption(
             @PathVariable Long itemId,
-            @Valid @RequestBody OptionCreateDTO data) {
+            @Valid @RequestBody OptionCreateRequest data) {
         return optionService.createOption(itemId,data);
     }
 
@@ -35,10 +37,10 @@ public class OptionController {
      * 获取客制化选项列表
      * 携带storeId则额外返回门店状态
      * @param itemId 项目ID
-     * @param storeId 门店ID
+     * @param storeId 门店ID,非空额外返回门店状态
      */
     @GetMapping("/product/customize/{itemId:\\d+}/option")
-    public ApiResponse getOptionList(
+    public DexteaApiResponse<List<CustomizeOptionModel>> getOptionList(
             @PathVariable Long itemId,
             @RequestParam(required = false) Long storeId) {
         if(Objects.isNull(storeId))
@@ -53,7 +55,7 @@ public class OptionController {
      * @param id 选项ID
      */
     @GetMapping("/product/customize/option/{id:\\d+}/base")
-    public ApiResponse getOptionBase(@PathVariable Long id) throws NotFoundException {
+    public DexteaApiResponse<CustomizeOptionModel> getOptionBase(@PathVariable Long id) throws NotFoundException {
         return optionService.getOptionBase(id);
     }
 
@@ -64,7 +66,7 @@ public class OptionController {
      * @param storeId 门店ID
      */
     @GetMapping("/product/customize/option/{optionId:\\d+}/status")
-    public ApiResponse getOptionGlobalStatus(
+    public DexteaApiResponse<CustomizeOptionModel> getOptionStatus(
             @PathVariable Long optionId,
             @RequestParam(required = false) Long storeId) throws NotFoundException {
         if (Objects.isNull(storeId))
@@ -79,14 +81,14 @@ public class OptionController {
      * @param data 更新数据
      */
     @PutMapping("/product/customize/option/{id:\\d+}/base")
-    public ApiResponse updateOptionBase(
+    public DexteaApiResponse<Void> updateOptionBase(
             @PathVariable Long id,
-            @Valid @RequestBody OptionUpdateDTO data) throws NotFoundException {
+            @Valid @RequestBody OptionUpdateRequest data) throws NotFoundException {
         return optionService.updateOptionBase(id, data);
     }
 
     @PutMapping("/product/customize/option/{optionId:\\d+}/status")
-    public ApiResponse updateOptionStatus(
+    public DexteaApiResponse<Void> updateOptionStatus(
             @PathVariable Long optionId,
             @RequestParam(required = false) Long storeId,
             @RequestParam Integer status) throws NotFoundException {

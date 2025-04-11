@@ -1,6 +1,5 @@
 package cn.dextea.product.model.option;
 
-import cn.dextea.common.code.CustomizeOptionStatus;
 import cn.dextea.product.pojo.CustomizeOption;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -16,21 +15,22 @@ import java.math.BigDecimal;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class OptionCreateDTO {
+public class OptionUpdateRequest {
     @NotBlank(message = "选项名不能为空")
     private String name;
-    @NotNull(message = "价格不能为空")
     private BigDecimal price;
     @NotNull(message = "排序不能为空")
     private Integer sort;
+    @NotNull(message = "全局状态不能为空")
+    private Integer globalStatus;
 
-    public CustomizeOption toCustomizeOption(Long itemId){
+    public CustomizeOption toCustomizeOption(Long id){
         return CustomizeOption.builder()
-                .itemId(itemId)
+                .id(id)
                 .name(name)
                 .price(price)
                 .sort(sort)
-                .globalStatus(CustomizeOptionStatus.GLOBAL_FORBIDDEN.getValue())
+                .globalStatus(globalStatus)
                 .build();
     }
 }

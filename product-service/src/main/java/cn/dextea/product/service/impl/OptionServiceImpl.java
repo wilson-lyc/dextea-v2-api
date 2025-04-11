@@ -1,20 +1,21 @@
 package cn.dextea.product.service.impl;
 
 import cn.dextea.common.code.CustomizeOptionStatus;
-import cn.dextea.common.model.common.ApiResponse;
 import cn.dextea.common.feign.ProductFeign;
 import cn.dextea.common.feign.StoreFeign;
-import cn.dextea.product.model.option.*;
+import cn.dextea.common.model.common.DexteaApiResponse;
+import cn.dextea.common.model.product.CustomizeOptionModel;
+import cn.dextea.product.code.ProductErrorCode;
 import cn.dextea.product.mapper.OptionMapper;
 import cn.dextea.product.mapper.OptionStatusMapper;
+import cn.dextea.product.model.option.OptionCreateRequest;
+import cn.dextea.product.model.option.OptionUpdateRequest;
 import cn.dextea.product.pojo.CustomizeOption;
 import cn.dextea.product.pojo.CustomizeOptionStoreStatus;
 import cn.dextea.product.service.OptionService;
-import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
-import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -35,54 +36,51 @@ public class OptionServiceImpl implements OptionService {
     private OptionStatusMapper optionStatusMapper;
 
     @Override
-    public ApiResponse createOption(Long itemId, OptionCreateDTO data) {
+    public DexteaApiResponse<Void> createOption(Long itemId, OptionCreateRequest data) {
         // 校验项目ID
-        if(!productFeign.isCustomizeItemIdValid(itemId))
-            throw new IllegalArgumentException("itemId错误");
+        if(!productFeign.isCustomizeItemIdValid(itemId)) {
+            return DexteaApiResponse.fail(ProductErrorCode.CUSTOMIZE_ITEM_ID_ERROR.getCode(),
+                    ProductErrorCode.CUSTOMIZE_ITEM_ID_ERROR.getMsg());
+        }
         // 添加选项
         CustomizeOption option = data.toCustomizeOption(itemId);
         optionMapper.insert(option);
-        return ApiResponse.success("选项创建成功");
+        return DexteaApiResponse.success();
     }
 
-    /**
-     * 获取选项列表 - 公司
-     * 只返回全局状态
-     * @param itemId 项目ID
-     */
+    // 获取选项列表 - 仅公司状态
     @Override
-    public ApiResponse getOptionList(Long itemId) {
+    public DexteaApiResponse<List<CustomizeOptionModel>> getOptionList(Long itemId) {
         // 校验项目ID
-        if(!productFeign.isCustomizeItemIdValid(itemId))
-            throw new IllegalArgumentException("itemId错误");
+        if(!productFeign.isCustomizeItemIdValid(itemId)){
+            return DexteaApiResponse.fail(ProductErrorCode.CUSTOMIZE_ITEM_ID_ERROR.getCode(),
+                    ProductErrorCode.CUSTOMIZE_ITEM_ID_ERROR.getMsg());
+        }
         // 查询
         MPJLambdaWrapper<CustomizeOption> wrapper = new MPJLambdaWrapper<CustomizeOption>()
-                .selectAsClass(CustomizeOption.class, OptionListDTO.class)
+                .selectAsClass(CustomizeOption.class, CustomizeOptionModel.class)
                 .eq(CustomizeOption::getItemId, itemId)
                 .orderByAsc(CustomizeOption::getSort);
-        List<OptionListDTO> list = optionMapper.selectJoinList(OptionListDTO.class,wrapper);
-        return ApiResponse.success(JSONObject.of(
-                "count",list.size(),
-                "options", list));
+        List<CustomizeOptionModel> list = optionMapper.selectJoinList(CustomizeOptionModel.class,wrapper);
+        return DexteaApiResponse.success(list);
     }
 
-    /**
-     * 获取选项列表 - 门店
-     * 返回门店状态和全局状态
-     * @param itemId 项目ID
-     * @param storeId 门店ID
-     */
+    // 获取选项列表 - 全局+门店状态
     @Override
-    public ApiResponse getOptionList(Long itemId, Long storeId){
+    public DexteaApiResponse<List<CustomizeOptionModel>> getOptionList(Long itemId, Long storeId){
         // 校验项目ID
-        if(!productFeign.isCustomizeItemIdValid(itemId))
-            throw new IllegalArgumentException("itemId错误");
+        if(!productFeign.isCustomizeItemIdValid(itemId)){
+            return DexteaApiResponse.fail(ProductErrorCode.CUSTOMIZE_ITEM_ID_ERROR.getCode(),
+                    ProductErrorCode.CUSTOMIZE_ITEM_ID_ERROR.getMsg());
+        }
         // 校验门店ID
-        if(!storeFeign.isStoreIdValid(storeId))
-            throw new IllegalArgumentException("storeId错误");
+        if(!storeFeign.isStoreIdValid(storeId)) {
+            return DexteaApiResponse.fail(ProductErrorCode.STORE_ID_ERROR.getCode(),
+                    ProductErrorCode.STORE_ID_ERROR.getMsg());
+        }
         // 查询
         MPJLambdaWrapper<CustomizeOption> wrapper=new MPJLambdaWrapper<CustomizeOption>()
-                .selectAsClass(CustomizeOption.class, OptionListDTO.class)
+                .selectAsClass(CustomizeOption.class, CustomizeOptionModel.class)
                 .eq(CustomizeOption::getItemId,itemId)
                 // 门店状态 - 表内无记录说明可用
                 .leftJoin(CustomizeOptionStoreStatus.class,"os", on -> on
@@ -90,100 +88,108 @@ public class OptionServiceImpl implements OptionService {
                         .eq(CustomizeOptionStoreStatus::getStoreId,storeId))
                 .selectFunc("coalesce(%s,1)",arg ->arg
                                 .accept(CustomizeOptionStoreStatus::getStatus),
-                        OptionListDTO::getStoreStatus);
-        List<OptionListDTO> options=optionMapper.selectJoinList(OptionListDTO.class,wrapper);
-        return ApiResponse.success(JSONObject.of("options",options));
+                        CustomizeOptionModel::getStoreStatus);
+        List<CustomizeOptionModel> list=optionMapper.selectJoinList(CustomizeOptionModel.class,wrapper);
+        return DexteaApiResponse.success(list);
     }
 
     @Override
-    public ApiResponse getOptionBase(Long id) throws NotFoundException {
+    public DexteaApiResponse<CustomizeOptionModel> getOptionBase(Long id){
         MPJLambdaWrapper<CustomizeOption> wrapper=new MPJLambdaWrapper<CustomizeOption>()
                 .eq(CustomizeOption::getId,id)
-                .selectAsClass(CustomizeOption.class, OptionBaseDTO.class);
-        OptionBaseDTO option = optionMapper.selectJoinOne(OptionBaseDTO.class,wrapper);
-        if (Objects.isNull(option))
-            throw new NotFoundException("客制化选项不存在");
-        return ApiResponse.success(JSONObject.of("option", option));
+                .selectAsClass(CustomizeOption.class, CustomizeOptionModel.class);
+        CustomizeOptionModel option = optionMapper.selectJoinOne(CustomizeOptionModel.class,wrapper);
+        if (Objects.isNull(option)) {
+            return DexteaApiResponse.notFound(ProductErrorCode.CUSTOMIZE_OPTION_NOT_FOUND.getCode(),
+                    ProductErrorCode.CUSTOMIZE_OPTION_NOT_FOUND.getMsg());
+        }
+        return DexteaApiResponse.success(option);
     }
 
-    /**
-     * 获取全局状态
-     * @param optionId 选项ID
-     */
+    // 获取全局状态
     @Override
-    public ApiResponse getOptionStatus(Long optionId) throws NotFoundException {
+    public DexteaApiResponse<CustomizeOptionModel> getOptionStatus(Long optionId){
         Integer globalStatus= productFeign.getOptionGlobalStatus(optionId);
-        if (Objects.isNull(globalStatus))
-            throw new NotFoundException("客制化选项不存在");
-        OptionStatusDTO status=new OptionStatusDTO(globalStatus);
-        return ApiResponse.success(JSONObject.of("status", status));
+        if (Objects.isNull(globalStatus)) {
+            return DexteaApiResponse.notFound(ProductErrorCode.CUSTOMIZE_OPTION_NOT_FOUND.getCode(),
+                    ProductErrorCode.CUSTOMIZE_OPTION_NOT_FOUND.getMsg());
+        }
+        CustomizeOptionModel status=CustomizeOptionModel.builder()
+                .globalStatus(globalStatus)
+                .build();
+        return DexteaApiResponse.success(status);
     }
 
-    /**
-     * 获取门店状态
-     * @param optionId 选项ID
-     * @param storeId 门店ID
-     */
+    // 获取门店状态
     @Override
-    public ApiResponse getOptionStatus(Long optionId, Long storeId) throws NotFoundException {
-        if(!storeFeign.isStoreIdValid(storeId))
-            throw new IllegalArgumentException("storeId错误");
+    public DexteaApiResponse<CustomizeOptionModel> getOptionStatus(Long optionId, Long storeId){
+        // 校验门店ID
+        if(!storeFeign.isStoreIdValid(storeId)) {
+            return DexteaApiResponse.fail(ProductErrorCode.STORE_ID_ERROR.getCode(),
+                    ProductErrorCode.STORE_ID_ERROR.getMsg());
+        }
         // 全局状态
         Integer globalStatus= productFeign.getOptionGlobalStatus(optionId);
-        if (Objects.isNull(globalStatus))
-            throw new NotFoundException("客制化选项不存在");
+        if (Objects.isNull(globalStatus)) {
+            return DexteaApiResponse.notFound(ProductErrorCode.CUSTOMIZE_OPTION_NOT_FOUND.getCode(),
+                    ProductErrorCode.CUSTOMIZE_OPTION_NOT_FOUND.getMsg());
+        }
         // 门店状态
         Integer storeStatus= productFeign.getOptionStoreStatus(optionId,storeId);
-        OptionStatusDTO status=new OptionStatusDTO(globalStatus,storeStatus);
-        return ApiResponse.success(JSONObject.of("status",status));
+        CustomizeOptionModel status=CustomizeOptionModel.builder()
+                .globalStatus(globalStatus)
+                .storeStatus(storeStatus)
+                .build();
+        return DexteaApiResponse.success(status);
     }
 
-    /**
-     * 更新选项详情
-     * 可以修改全局状态
-     * @param optionId 选项ID
-     * @param data 数据
-     */
     @Override
-    public ApiResponse updateOptionBase(Long optionId,OptionUpdateDTO data) throws NotFoundException {
+    public DexteaApiResponse<Void> updateOptionBase(Long optionId, OptionUpdateRequest data){
         CustomizeOption option=data.toCustomizeOption(optionId);
         // 校验状态
-        if(option.getGlobalStatus()!=CustomizeOptionStatus.GLOBAL_FORBIDDEN.getValue() &&
-                option.getGlobalStatus()!=CustomizeOptionStatus.AVAILABLE.getValue())
-            throw new IllegalArgumentException("客制化选项状态码有误");
+        if(option.getGlobalStatus()!= CustomizeOptionStatus.GLOBAL_FORBIDDEN.getValue() &&
+                option.getGlobalStatus()!=CustomizeOptionStatus.AVAILABLE.getValue()) {
+            return DexteaApiResponse.fail(ProductErrorCode.GLOBAL_STATUS_ERROR.getCode(),
+                    ProductErrorCode.GLOBAL_STATUS_ERROR.getMsg());
+        }
         // 更新db
-        if (optionMapper.updateById(option) == 0)
-            throw new NotFoundException("客制化选项不存在");
-        return ApiResponse.success("更新成功");
+        if (optionMapper.updateById(option) == 0) {
+            return DexteaApiResponse.notFound(ProductErrorCode.CUSTOMIZE_OPTION_NOT_FOUND.getCode(),
+                    ProductErrorCode.CUSTOMIZE_OPTION_NOT_FOUND.getMsg());
+        }
+        return DexteaApiResponse.success();
     }
 
-    /**
-     * 更新选项全局状态
-     * @param optionId 选项ID
-     * @param status 状态
-     */
+    // 更新选项全局状态
     @Override
-    public ApiResponse updateOptionStatus(Long optionId, Integer status) throws NotFoundException {
+    public DexteaApiResponse<Void> updateOptionStatus(Long optionId, Integer status){
         // 校验状态
-        if(status!=CustomizeOptionStatus.GLOBAL_FORBIDDEN.getValue() && status!=CustomizeOptionStatus.AVAILABLE.getValue())
-            throw new IllegalArgumentException("客制化选项状态码有误");
-        CustomizeOption option=CustomizeOption.builder()
-                .id(optionId)
-                .globalStatus(status)
-                .build();
-        if (optionMapper.updateById(option) == 0)
-            throw new NotFoundException("客制化选项不存在");
-        return ApiResponse.success("更新成功");
+        if(status!=CustomizeOptionStatus.GLOBAL_FORBIDDEN.getValue() && status!=CustomizeOptionStatus.AVAILABLE.getValue()){
+            return DexteaApiResponse.fail(ProductErrorCode.GLOBAL_STATUS_ERROR.getCode(),
+                    ProductErrorCode.GLOBAL_STATUS_ERROR.getMsg());
+        }
+        LambdaUpdateWrapper<CustomizeOption> wrapper=new LambdaUpdateWrapper<CustomizeOption>()
+                .eq(CustomizeOption::getId,optionId)
+                .set(CustomizeOption::getGlobalStatus,status);
+        if (optionMapper.update(wrapper) == 0) {
+            return DexteaApiResponse.notFound(ProductErrorCode.CUSTOMIZE_OPTION_NOT_FOUND.getCode(),
+                    ProductErrorCode.CUSTOMIZE_OPTION_NOT_FOUND.getMsg());
+        }
+        return DexteaApiResponse.success();
     }
 
     @Override
-    public ApiResponse updateOptionStatus(Long optionId, Long storeId, Integer status) {
+    public DexteaApiResponse<Void> updateOptionStatus(Long optionId, Long storeId, Integer status) {
         // 校验状态
-        if(status==CustomizeOptionStatus.GLOBAL_FORBIDDEN.getValue())
-            throw new IllegalArgumentException("客制化选项状态码有误");
+        if(status==CustomizeOptionStatus.GLOBAL_FORBIDDEN.getValue()) {
+            return DexteaApiResponse.fail(ProductErrorCode.GLOBAL_STATUS_ERROR.getCode(),
+                    ProductErrorCode.GLOBAL_STATUS_ERROR.getMsg());
+        }
         // 校验门店ID
-        if(!storeFeign.isStoreIdValid(storeId))
-            throw new IllegalArgumentException("storeId错误");
+        if(!storeFeign.isStoreIdValid(storeId)) {
+            return DexteaApiResponse.fail(ProductErrorCode.STORE_ID_ERROR.getCode(),
+                    ProductErrorCode.STORE_ID_ERROR.getMsg());
+        }
         // 更新db
         MPJLambdaWrapper<CustomizeOptionStoreStatus> wrapper = new MPJLambdaWrapper<CustomizeOptionStoreStatus>()
                 .eq(CustomizeOptionStoreStatus::getStoreId,storeId)
@@ -203,13 +209,13 @@ public class OptionServiceImpl implements OptionService {
                         .build();
                 optionStatusMapper.insert(status1);
             }else {
-                UpdateWrapper<CustomizeOptionStoreStatus> updateWrapper=new UpdateWrapper<CustomizeOptionStoreStatus>()
-                        .set("status",status)
-                        .eq("store_id",storeId)
-                        .eq("option_id",optionId);
+                LambdaUpdateWrapper<CustomizeOptionStoreStatus> updateWrapper=new LambdaUpdateWrapper<CustomizeOptionStoreStatus>()
+                        .set(CustomizeOptionStoreStatus::getStatus,status)
+                        .eq(CustomizeOptionStoreStatus::getStoreId,storeId)
+                        .eq(CustomizeOptionStoreStatus::getOptionId,optionId);
                 optionStatusMapper.update(updateWrapper);
             }
         }
-        return ApiResponse.success("更新成功");
+        return DexteaApiResponse.success();
     }
 }

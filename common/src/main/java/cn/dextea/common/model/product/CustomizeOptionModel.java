@@ -2,15 +2,18 @@ package cn.dextea.common.model.product;
 
 import cn.dextea.common.code.CustomizeOptionStatus;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * @author Lai Yongchao
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CustomizeOptionModel {
@@ -38,6 +41,7 @@ public class CustomizeOptionModel {
     }
 
     public String getStatusText() {
-        return CustomizeOptionStatus.fromValue(getStatus()).getLabel();
+        return Objects.nonNull(getStatus())?
+                CustomizeOptionStatus.fromValue(getStatus()).getLabel():null;
     }
 }

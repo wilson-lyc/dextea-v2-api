@@ -1,12 +1,11 @@
 package cn.dextea.product.service.impl;
 
 import cn.dextea.common.code.CustomizeItemStatus;
-import cn.dextea.common.model.common.ApiResponse;
 import cn.dextea.common.feign.ProductFeign;
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.product.CustomizeItemModel;
 import cn.dextea.product.code.ProductErrorCode;
-import cn.dextea.product.model.item.ItemUpdateDTO;
+import cn.dextea.product.model.item.ItemUpdateRequest;
 import cn.dextea.product.model.item.ItemCreateRequest;
 import cn.dextea.product.mapper.ItemMapper;
 import cn.dextea.product.mapper.ProductMapper;
@@ -15,7 +14,6 @@ import cn.dextea.product.service.ItemService;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
-import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -78,7 +76,7 @@ public class ItemServiceImpl implements ItemService {
     }
 
     @Override
-    public DexteaApiResponse<Void> updateItemDetail(Long id, ItemUpdateDTO data){
+    public DexteaApiResponse<Void> updateItemDetail(Long id, ItemUpdateRequest data){
         CustomizeItem customizeItem =data.toCustomize();
         customizeItem.setId(id);
         if(itemMapper.updateById(customizeItem)==0){
