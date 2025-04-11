@@ -1,15 +1,15 @@
 package cn.dextea.menu.service.impl;
 
-import cn.dextea.common.model.common.ApiResponse;
+import cn.dextea.common.model.common.DexteaApiResponse;
+import cn.dextea.menu.code.MenuErrorCode;
 import cn.dextea.menu.pojo.Menu;
-import cn.dextea.menu.dto.group.GroupBaseDTO;
-import cn.dextea.menu.dto.group.GroupCreateDTO;
-import cn.dextea.menu.dto.group.GroupListDTO;
-import cn.dextea.menu.dto.group.GroupUpdateBaseDTO;
+import cn.dextea.menu.model.group.GroupBaseModel;
+import cn.dextea.menu.model.group.GroupCreateRequest;
+import cn.dextea.menu.model.group.GroupListModel;
+import cn.dextea.menu.model.group.GroupUpdateBaseRequest;
 import cn.dextea.menu.mapper.MenuMapper;
 import cn.dextea.menu.pojo.MenuGroup;
 import cn.dextea.menu.service.GroupService;
-import com.alibaba.fastjson2.JSONObject;
 import jakarta.annotation.Resource;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
@@ -27,11 +27,13 @@ public class GroupServiceImpl implements GroupService {
     private MenuMapper menuMapper;
 
     @Override
-    public ApiResponse createGroup(Long menuId, GroupCreateDTO data) {
+    public DexteaApiResponse<Void> createGroup(Long menuId, GroupCreateRequest data) {
         // 读取menu
         Menu menu=menuMapper.selectById(menuId);
-        if (Objects.isNull(menu))
-            throw new IllegalArgumentException("menuId错误");
+        if (Objects.isNull(menu)) {
+            return DexteaApiResponse.fail(MenuErrorCode.MENU_ID_ILLEGAL.getCode(),
+                    MenuErrorCode.MENU_ID_ILLEGAL.getMsg());
+        }
         // 创建分组
         MenuGroup menuGroup = data.toMenuGroup();
         menu.getContent().add(menuGroup);
@@ -39,52 +41,65 @@ public class GroupServiceImpl implements GroupService {
         menu.sortContent();
         // 更新menu
         menuMapper.updateById(menu);
-        return ApiResponse.success("创建成功");
+        return DexteaApiResponse.success();
     }
 
     @Override
-    public ApiResponse getGroupList(Long menuId) {
+    public DexteaApiResponse<List<GroupListModel>> getGroupList(Long menuId) {
         Menu menu=menuMapper.selectById(menuId);
-        if (Objects.isNull(menu))
-            throw new IllegalArgumentException("menuId错误");
-        List<GroupListDTO> groupList = menu.getContent().stream()
-                .map(GroupListDTO::fromMenuGroup)
+        if (Objects.isNull(menu)) {
+            return DexteaApiResponse.fail(MenuErrorCode.MENU_ID_ILLEGAL.getCode(),
+                    MenuErrorCode.MENU_ID_ILLEGAL.getMsg());
+        }
+        List<GroupListModel> groupList = menu.getContent().stream()
+                .map(GroupListModel::fromMenuGroup)
                 .collect(Collectors.toList());
-        return ApiResponse.success(JSONObject.of("groups", groupList));
+        return DexteaApiResponse.success(groupList);
     }
 
     @Override
-    public ApiResponse getGroupById(Long menuId, String groupId) throws NotFoundException {
+    public DexteaApiResponse<MenuGroup> getGroupById(Long menuId, String groupId) {
         Menu menu=menuMapper.selectById(menuId);
-        if (Objects.isNull(menu))
-            throw new IllegalArgumentException("menuId错误");
+        if (Objects.isNull(menu)) {
+            return DexteaApiResponse.fail(MenuErrorCode.MENU_ID_ILLEGAL.getCode(),
+                    MenuErrorCode.MENU_ID_ILLEGAL.getMsg());
+        }
         MenuGroup menuGroup=menu.getMenuGroup(groupId);
-        if (Objects.isNull(menuGroup))
-            throw new NotFoundException("分组不存在");
-        return ApiResponse.success(JSONObject.of("group",menuGroup));
+        if (Objects.isNull(menuGroup)) {
+            return DexteaApiResponse.notFound(MenuErrorCode.GROUP_NOT_FOUND.getCode(),
+                    MenuErrorCode.GROUP_NOT_FOUND.getMsg());
+        }
+        return DexteaApiResponse.success(menuGroup);
     }
 
     @Override
-    public ApiResponse getGroupBase(Long menuId, String groupId) throws NotFoundException {
+    public DexteaApiResponse<GroupBaseModel> getGroupBase(Long menuId, String groupId) {
         Menu menu=menuMapper.selectById(menuId);
-        if (Objects.isNull(menu))
-            throw new IllegalArgumentException("menuId错误");
+        if (Objects.isNull(menu)) {
+            return DexteaApiResponse.fail(MenuErrorCode.MENU_ID_ILLEGAL.getCode(),
+                    MenuErrorCode.MENU_ID_ILLEGAL.getMsg());
+        }
         MenuGroup group=menu.getMenuGroup(groupId);
-        if (Objects.isNull(group))
-            throw new NotFoundException("分组不存在");
-        return ApiResponse.success(JSONObject.of("group", GroupBaseDTO.fromMenuGroup(group)));
+        if (Objects.isNull(group)) {
+            return DexteaApiResponse.notFound(MenuErrorCode.GROUP_NOT_FOUND.getCode(),
+                    MenuErrorCode.GROUP_NOT_FOUND.getMsg());
+        }
+        return DexteaApiResponse.success(GroupBaseModel.fromMenuGroup(group));
     }
 
     @Override
-    public ApiResponse updateGroupBase(Long menuId, String groupId, GroupUpdateBaseDTO data) throws NotFoundException {
-        // 获取菜单
+    public DexteaApiResponse<Void> updateGroupBase(Long menuId, String groupId, GroupUpdateBaseRequest data)  {
         Menu menu=menuMapper.selectById(menuId);
-        if (Objects.isNull(menu))
-            throw new IllegalArgumentException("menuId错误");
+        if (Objects.isNull(menu)) {
+            return DexteaApiResponse.fail(MenuErrorCode.MENU_ID_ILLEGAL.getCode(),
+                    MenuErrorCode.MENU_ID_ILLEGAL.getMsg());
+        }
         // 获取分组
         MenuGroup group=menu.getMenuGroup(groupId);
-        if (Objects.isNull(group))
-            throw new NotFoundException("分组不存在");
+        if (Objects.isNull(group)) {
+            return DexteaApiResponse.notFound(MenuErrorCode.GROUP_NOT_FOUND.getCode(),
+                MenuErrorCode.GROUP_NOT_FOUND.getMsg());
+        }
         // 修改分组数据
         group.setName(data.getName());
         group.setSort(data.getSort());
@@ -92,16 +107,18 @@ public class GroupServiceImpl implements GroupService {
         menu.sortContent();
         // 更新menu
         menuMapper.updateById(menu);
-        return ApiResponse.success("更新成功");
+        return DexteaApiResponse.success();
     }
 
     @Override
-    public ApiResponse deleteGroup(Long menuId, String groupId) {
+    public DexteaApiResponse<Void> deleteGroup(Long menuId, String groupId) {
         Menu menu=menuMapper.selectById(menuId);
-        if (Objects.isNull(menu))
-            throw new IllegalArgumentException("menuId错误");
+        if (Objects.isNull(menu)) {
+            return DexteaApiResponse.fail(MenuErrorCode.MENU_ID_ILLEGAL.getCode(),
+                    MenuErrorCode.MENU_ID_ILLEGAL.getMsg());
+        }
         menu.getContent().removeIf(item->item.getId().equals(groupId));
         menuMapper.updateById(menu);
-        return ApiResponse.success("删除成功");
+        return DexteaApiResponse.success();
     }
 }

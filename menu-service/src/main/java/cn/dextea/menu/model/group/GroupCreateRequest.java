@@ -1,4 +1,4 @@
-package cn.dextea.menu.dto.group;
+package cn.dextea.menu.model.group;
 
 import cn.dextea.menu.pojo.MenuGroup;
 import cn.dextea.menu.pojo.MenuProduct;
@@ -17,7 +17,7 @@ import java.util.ArrayList;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class GroupCreateDTO {
+public class GroupCreateRequest {
     @NotBlank(message = "分组名不能为空")
     private String name;
     @NotNull(message = "排序不能为空")

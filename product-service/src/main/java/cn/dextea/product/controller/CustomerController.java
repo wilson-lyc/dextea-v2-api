@@ -1,6 +1,9 @@
 package cn.dextea.product.controller;
 
 import cn.dextea.common.model.common.ApiResponse;
+import cn.dextea.common.model.common.DexteaApiResponse;
+import cn.dextea.common.model.menu.MenuProductModel;
+import cn.dextea.common.model.product.ProductModel;
 import cn.dextea.product.service.CustomerService;
 import jakarta.annotation.Resource;
 import org.apache.ibatis.javassist.NotFoundException;
@@ -22,7 +25,7 @@ public class CustomerController {
      * @param storeId 门店ID
      */
     @GetMapping("/product/customer/getProductDetail")
-    public ApiResponse getProductInfo(
+    public DexteaApiResponse<ProductModel> getProductInfo(
             @RequestParam Long productId,
             @RequestParam Long storeId) throws NotFoundException {
         return customerService.getProductInfo(productId,storeId);

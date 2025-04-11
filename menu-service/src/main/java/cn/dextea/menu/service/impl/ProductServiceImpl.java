@@ -1,19 +1,20 @@
 package cn.dextea.menu.service.impl;
 
-import cn.dextea.common.model.common.ApiResponse;
-import cn.dextea.common.feign.MenuFeign;
 import cn.dextea.common.feign.ProductFeign;
+import cn.dextea.common.model.common.DexteaApiResponse;
+import cn.dextea.common.model.menu.MenuProductModel;
 import cn.dextea.common.model.product.ProductModel;
+import cn.dextea.menu.code.MenuErrorCode;
 import cn.dextea.menu.pojo.Menu;
 import cn.dextea.menu.pojo.MenuGroup;
 import cn.dextea.menu.pojo.MenuProduct;
 import cn.dextea.menu.mapper.MenuMapper;
 import cn.dextea.menu.service.ProductService;
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
 import jakarta.annotation.Resource;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -27,100 +28,128 @@ public class ProductServiceImpl implements ProductService {
     private ProductFeign productFeign;
 
     @Override
-    public ApiResponse addProduct(Long menuId, String groupId, Long productId, Integer sort){
+    public DexteaApiResponse<Void> addProduct(Long menuId, String groupId, Long productId, Integer sort){
         Menu menu=menuMapper.selectById(menuId);
-        if(Objects.isNull(menu))
-            throw new IllegalArgumentException("menuId错误");
+        if (Objects.isNull(menu)) {
+            return DexteaApiResponse.fail(MenuErrorCode.MENU_ID_ILLEGAL.getCode(),
+                    MenuErrorCode.MENU_ID_ILLEGAL.getMsg());
+        }
         MenuGroup menuGroup=menu.getMenuGroup(groupId);
-        if(Objects.isNull(menuGroup))
-            throw new IllegalArgumentException("groupId错误");
-        if(!productFeign.isProductIdValid(productId))
-            throw new IllegalArgumentException("productId错误");
-        if(menuGroup.hasProduct(productId))
-            return ApiResponse.badRequest("商品已存在");
+        if(Objects.isNull(menuGroup)){
+            return DexteaApiResponse.fail(MenuErrorCode.GROUP_ID_ILLEGAL.getCode(),
+                    MenuErrorCode.GROUP_ID_ILLEGAL.getMsg());
+        }
+        if(!productFeign.isProductIdValid(productId)){
+            return DexteaApiResponse.fail(MenuErrorCode.PRODUCT_ID_ILLEGAL.getCode(),
+                    MenuErrorCode.PRODUCT_ID_ILLEGAL.getMsg());
+        }
+        if(menuGroup.hasProduct(productId)){
+            return DexteaApiResponse.fail(MenuErrorCode.PRODUCT_EXISTED.getCode(),
+                    MenuErrorCode.PRODUCT_EXISTED.getMsg());
+        }
         // 添加商品
         menuGroup.getContent().add(new MenuProduct(productId,sort));
         // 排序
         menuGroup.sortContent();
         // 更新menu
         menuMapper.updateById(menu);
-        return ApiResponse.success("商品已添加至菜单");
+        return DexteaApiResponse.success();
     }
 
     @Override
-    public ApiResponse deleteProduct(Long menuId, String groupId, Long productId) {
+    public DexteaApiResponse<Void> deleteProduct(Long menuId, String groupId, Long productId) {
         Menu menu=menuMapper.selectById(menuId);
-        if(Objects.isNull(menu))
-            throw new IllegalArgumentException("menuId错误");
+        if (Objects.isNull(menu)) {
+            return DexteaApiResponse.fail(MenuErrorCode.MENU_ID_ILLEGAL.getCode(),
+                    MenuErrorCode.MENU_ID_ILLEGAL.getMsg());
+        }
         MenuGroup menuGroup=menu.getMenuGroup(groupId);
-        if(Objects.isNull(menuGroup))
-            throw new IllegalArgumentException("groupId错误");
-        if(!menuGroup.hasProduct(productId))
-            throw new IllegalArgumentException("分组内不存在该商品");
+        if(Objects.isNull(menuGroup)){
+            return DexteaApiResponse.fail(MenuErrorCode.GROUP_ID_ILLEGAL.getCode(),
+                    MenuErrorCode.GROUP_ID_ILLEGAL.getMsg());
+        }
+        if(!menuGroup.hasProduct(productId)){
+            return DexteaApiResponse.fail(MenuErrorCode.PRODUCT_MISSED.getCode(),
+                    MenuErrorCode.PRODUCT_MISSED.getMsg());
+        }
         // 删除
         menuGroup.deleteProduct(productId);
         // 更新menu
         menuMapper.updateById(menu);
-        return ApiResponse.success("商品已从菜单删除");
+        return DexteaApiResponse.success();
     }
 
     @Override
-    public ApiResponse getProductList(Long menuId, String groupId) {
+    public DexteaApiResponse<List<MenuProductModel>> getProductList(Long menuId, String groupId) {
         Menu menu=menuMapper.selectById(menuId);
-        if(Objects.isNull(menu))
-            throw new IllegalArgumentException("menuId错误");
+        if (Objects.isNull(menu)) {
+            return DexteaApiResponse.fail(MenuErrorCode.MENU_ID_ILLEGAL.getCode(),
+                    MenuErrorCode.MENU_ID_ILLEGAL.getMsg());
+        }
         MenuGroup menuGroup=menu.getMenuGroup(groupId);
-        if(Objects.isNull(menuGroup))
-            throw new IllegalArgumentException("groupId错误");
-        JSONArray products=new JSONArray();
-        JSONArray errors=new JSONArray();
+        if(Objects.isNull(menuGroup)){
+            return DexteaApiResponse.fail(MenuErrorCode.GROUP_ID_ILLEGAL.getCode(),
+                    MenuErrorCode.GROUP_ID_ILLEGAL.getMsg());
+        }
+        List<MenuProductModel> productList=new ArrayList<>();
         for (MenuProduct item:menuGroup.getContent()){
             ProductModel product=productFeign.getProductDetail(item.getId());
-            if (Objects.isNull(product))
-                errors.add(String.format("商品id=%d不存在",item.getId()));
-            else
-                products.add(JSONObject.of(
-                        "id",product.getId(),
-                        "name",product.getName(),
-                        "price",product.getPrice(),
-                        "sort",item.getSort()));
+            if (Objects.nonNull(product)){
+                MenuProductModel productModel=MenuProductModel.builder()
+                                .id(product.getId())
+                                .name(product.getName())
+                                .price(product.getPrice())
+                                .sort(item.getSort())
+                                .build();
+                productList.add(productModel);
+            }
         }
-        return ApiResponse.success(JSONObject.of(
-                "products",products,
-                "errors",errors));
+        return DexteaApiResponse.success(productList);
     }
 
     @Override
-    public ApiResponse getProductInfo(Long menuId, String groupId, Long productId) {
+    public DexteaApiResponse<MenuProductModel> getProductInfo(Long menuId, String groupId, Long productId) {
         Menu menu=menuMapper.selectById(menuId);
-        if(Objects.isNull(menu))
-            throw new IllegalArgumentException("menuId错误");
+        if (Objects.isNull(menu)) {
+            return DexteaApiResponse.fail(MenuErrorCode.MENU_ID_ILLEGAL.getCode(),
+                    MenuErrorCode.MENU_ID_ILLEGAL.getMsg());
+        }
         MenuGroup menuGroup=menu.getMenuGroup(groupId);
-        if(Objects.isNull(menuGroup))
-            throw new IllegalArgumentException("groupId错误");
-        if(!menuGroup.hasProduct(productId))
-            throw new IllegalArgumentException("分组内不存在该商品");
+        if(Objects.isNull(menuGroup)){
+            return DexteaApiResponse.fail(MenuErrorCode.GROUP_ID_ILLEGAL.getCode(),
+                    MenuErrorCode.GROUP_ID_ILLEGAL.getMsg());
+        }
+        if(!menuGroup.hasProduct(productId)) {
+            return DexteaApiResponse.fail(MenuErrorCode.PRODUCT_MISSED.getCode(),
+                    MenuErrorCode.PRODUCT_MISSED.getMsg());
+        }
         MenuProduct menuProduct=menuGroup.getProduct(productId);
         ProductModel product=productFeign.getProductDetail(productId);
-        JSONObject productJson=JSONObject.of(
-                "id",product.getId(),
-                "name",product.getName(),
-                "price",product.getPrice(),
-                "sort",menuProduct.getSort()
-        );
-        return ApiResponse.success(JSONObject.of("product",productJson));
+        MenuProductModel menuProductModel=MenuProductModel.builder()
+                        .id(product.getId())
+                        .name(product.getName())
+                        .price(product.getPrice())
+                        .sort(menuProduct.getSort())
+                        .build();
+        return DexteaApiResponse.success(menuProductModel);
     }
 
     @Override
-    public ApiResponse updateProductInfo(Long menuId, String groupId, Long productId, Integer sort) {
+    public DexteaApiResponse<Void> updateProductInfo(Long menuId, String groupId, Long productId, Integer sort) {
         Menu menu=menuMapper.selectById(menuId);
-        if(Objects.isNull(menu))
-            throw new IllegalArgumentException("menuId错误");
+        if (Objects.isNull(menu)) {
+            return DexteaApiResponse.fail(MenuErrorCode.MENU_ID_ILLEGAL.getCode(),
+                    MenuErrorCode.MENU_ID_ILLEGAL.getMsg());
+        }
         MenuGroup menuGroup=menu.getMenuGroup(groupId);
-        if(Objects.isNull(menuGroup))
-            throw new IllegalArgumentException("groupId错误");
-        if(!menuGroup.hasProduct(productId))
-            throw new IllegalArgumentException("分组内不存在该商品");
+        if(Objects.isNull(menuGroup)){
+            return DexteaApiResponse.fail(MenuErrorCode.GROUP_ID_ILLEGAL.getCode(),
+                    MenuErrorCode.GROUP_ID_ILLEGAL.getMsg());
+        }
+        if(!menuGroup.hasProduct(productId)) {
+            return DexteaApiResponse.fail(MenuErrorCode.PRODUCT_MISSED.getCode(),
+                    MenuErrorCode.PRODUCT_MISSED.getMsg());
+        }
         MenuProduct menuProduct=menuGroup.getProduct(productId);
         // 更新数据
         menuProduct.setSort(sort);
@@ -128,6 +157,6 @@ public class ProductServiceImpl implements ProductService {
         menuGroup.sortContent();
         // 更新menu
         menuMapper.updateById(menu);
-        return ApiResponse.success("更新成功");
+        return DexteaApiResponse.success("更新成功");
     }
 }

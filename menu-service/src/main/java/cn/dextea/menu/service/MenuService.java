@@ -1,9 +1,12 @@
 package cn.dextea.menu.service;
 
-import cn.dextea.common.model.common.ApiResponse;
-import cn.dextea.menu.dto.menu.MenuCreateDTO;
-import cn.dextea.menu.dto.menu.MenuQueryDTO;
-import cn.dextea.menu.dto.menu.MenuUpdateBaseDTO;
+import cn.dextea.common.model.common.DexteaApiResponse;
+import cn.dextea.common.model.menu.MenuModel;
+import cn.dextea.menu.model.menu.MenuBindResponse;
+import cn.dextea.menu.model.menu.MenuCreateRequest;
+import cn.dextea.menu.model.menu.MenuFilter;
+import cn.dextea.menu.model.menu.MenuUpdateBaseRequest;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import org.apache.ibatis.javassist.NotFoundException;
 
 import java.util.List;
@@ -12,10 +15,10 @@ import java.util.List;
  * @author Lai Yongchao
  */
 public interface MenuService {
-    ApiResponse createMenu(MenuCreateDTO data);
-    ApiResponse getMenuList(int current, int size, MenuQueryDTO filter);
-    ApiResponse getMenuById(Long id, Long storeId) throws NotFoundException;
-    ApiResponse getMenuBase(Long id) throws NotFoundException;
-    ApiResponse updateMenuBase(Long id, MenuUpdateBaseDTO data) throws NotFoundException;
-    ApiResponse storeBindMenu(Long id, List<Long> storeIds);
+    DexteaApiResponse<Void> createMenu(MenuCreateRequest data);
+    DexteaApiResponse<IPage<MenuModel>> getMenuList(int current, int size, MenuFilter filter);
+    DexteaApiResponse<MenuModel> getMenuDetail(Long id, Long storeId);
+    DexteaApiResponse<MenuModel> getMenuBase(Long id);
+    DexteaApiResponse<Void> updateMenuBase(Long id, MenuUpdateBaseRequest data);
+    DexteaApiResponse<MenuBindResponse> storeBindMenu(Long id, List<Long> storeIds);
 }

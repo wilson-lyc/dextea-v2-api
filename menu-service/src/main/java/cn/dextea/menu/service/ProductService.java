@@ -1,14 +1,17 @@
 package cn.dextea.menu.service;
 
-import cn.dextea.common.model.common.ApiResponse;
+import cn.dextea.common.model.common.DexteaApiResponse;
+import cn.dextea.common.model.menu.MenuProductModel;
+
+import java.util.List;
 
 /**
  * @author Lai Yongchao
  */
 public interface ProductService {
-    ApiResponse addProduct(Long menuId, String groupId, Long productId, Integer sort);
-    ApiResponse deleteProduct(Long menuId, String groupId, Long productId);
-    ApiResponse getProductList(Long menuId, String groupId);
-    ApiResponse getProductInfo(Long menuId, String groupId, Long productId);
-    ApiResponse updateProductInfo(Long menuId, String groupId, Long productId, Integer sort);
+    DexteaApiResponse<Void> addProduct(Long menuId, String groupId, Long productId, Integer sort);
+    DexteaApiResponse<Void> deleteProduct(Long menuId, String groupId, Long productId);
+    DexteaApiResponse<List<MenuProductModel>> getProductList(Long menuId, String groupId);
+    DexteaApiResponse<MenuProductModel> getProductInfo(Long menuId, String groupId, Long productId);
+    DexteaApiResponse<Void> updateProductInfo(Long menuId, String groupId, Long productId, Integer sort);
 }

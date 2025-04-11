@@ -1,18 +1,20 @@
 package cn.dextea.menu.service.impl;
 
-import cn.dextea.common.model.common.ApiResponse;
 import cn.dextea.common.feign.MenuFeign;
 import cn.dextea.common.feign.ProductFeign;
 import cn.dextea.common.feign.StoreFeign;
+import cn.dextea.common.model.common.DexteaApiResponse;
+import cn.dextea.common.model.menu.MenuGroupModel;
+import cn.dextea.common.model.menu.MenuModel;
+import cn.dextea.common.model.menu.MenuProductModel;
 import cn.dextea.common.model.product.ProductModel;
+import cn.dextea.menu.code.MenuErrorCode;
 import cn.dextea.menu.pojo.Menu;
 import cn.dextea.menu.pojo.MenuGroup;
 import cn.dextea.menu.pojo.MenuProduct;
-import cn.dextea.menu.dto.menu.*;
+import cn.dextea.menu.model.menu.*;
 import cn.dextea.menu.mapper.MenuMapper;
 import cn.dextea.menu.service.MenuService;
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
@@ -20,6 +22,7 @@ import jakarta.annotation.Resource;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -38,95 +41,116 @@ public class MenuServiceImpl implements MenuService {
     private StoreFeign storeFeign;
 
     @Override
-    public ApiResponse createMenu(MenuCreateDTO data) {
+    public DexteaApiResponse<Void> createMenu(MenuCreateRequest data) {
         Menu menu=data.toMenu();
         menuMapper.insert(menu);
-        return ApiResponse.success("菜单创建成功");
+        return DexteaApiResponse.success();
     }
 
-    private IPage<MenuListDTO> getMenuListPage(int current, int size, MPJLambdaWrapper<Menu> wrapper){
-        IPage<MenuListDTO> page=menuMapper.selectJoinPage(
+    @Override
+    public DexteaApiResponse<IPage<MenuModel>> getMenuList(int current, int size, MenuFilter filter) {
+        MPJLambdaWrapper<Menu> wrapper=new MPJLambdaWrapper<Menu>()
+                .selectAsClass(Menu.class,MenuModel.class)
+                .eqIfExists(Menu::getId,filter.getId())
+                .likeIfExists(Menu::getName,filter.getName());
+        IPage<MenuModel> page=menuMapper.selectJoinPage(
                 new Page<>(current, size),
-                MenuListDTO.class,
+                MenuModel.class,
                 wrapper);
         if (current>page.getPages())
             page=menuMapper.selectJoinPage(
                     new Page<>(page.getPages(),size),
-                    MenuListDTO.class,
+                    MenuModel.class,
                     wrapper);
-        return page;
+        return DexteaApiResponse.success(page);
     }
 
     @Override
-    public ApiResponse getMenuList(int current, int size, MenuQueryDTO filter) {
-        MPJLambdaWrapper<Menu> wrapper=new MPJLambdaWrapper<Menu>()
-                .eqIfExists(Menu::getId,filter.getId())
-                .likeIfExists(Menu::getName,filter.getName());
-        return ApiResponse.success(JSONObject.from(getMenuListPage(current,size,wrapper)));
-    }
-
-    @Override
-    public ApiResponse getMenuById(Long id, Long storeId) throws NotFoundException {
+    public DexteaApiResponse<MenuModel> getMenuDetail(Long id, Long storeId){
         Menu menu=menuMapper.selectById(id);
-        if (Objects.isNull(menu))
-            throw new NotFoundException("菜单不存在");
-        JSONArray menuJson=new JSONArray();
-        JSONArray errJson=new JSONArray();
-        for(MenuGroup group:menu.getContent()){
-            JSONObject groupJson=new JSONObject();
-            groupJson.put("id",group.getId());
-            groupJson.put("name",group.getName());
-            JSONArray contentJson=new JSONArray();
-            for(MenuProduct product:group.getContent()){
-                ProductModel productInfo=productFeign.getProductDetail(product.getId(),storeId);
-                if (Objects.isNull(productInfo)){
-                    errJson.add(String.format("商品id=%d不存在",product.getId()));
-                }
-                JSONObject productJson= JSONObject.from(productInfo);
-                productJson.put("sort",product.getSort());
-                contentJson.add(productJson);
-            }
-            groupJson.put("content",contentJson);
-            menuJson.add(groupJson);
+        if (Objects.isNull(menu)) {
+            return DexteaApiResponse.notFound(MenuErrorCode.MENU_NOT_FOUND.getCode(),
+                    MenuErrorCode.MENU_NOT_FOUND.getMsg());
         }
-        return ApiResponse.success(JSONObject.of(
-                "menu",menuJson,
-                "error",errJson));
+        MenuModel menuModel=MenuModel.builder()
+                .id(menu.getId())
+                .name(menu.getName())
+                .description(menu.getDescription())
+                .createTime(menu.getCreateTime())
+                .updateTime(menu.getUpdateTime())
+                .build();
+        List<MenuGroupModel> groupModelList=new ArrayList<>();
+        for (MenuGroup group:menu.getContent()){
+            MenuGroupModel menuGroupModel=MenuGroupModel.builder()
+                    .id(group.getId())
+                    .name(group.getName())
+                    .sort(group.getSort())
+                    .build();
+            // 遍历商品
+            List<MenuProductModel> productModelList=new ArrayList<>();
+            for (MenuProduct menuProduct:group.getContent()){
+                ProductModel product=productFeign.getProductDetail(menuProduct.getId(),storeId);
+                // 商品存在则可以返回给前端
+                if (Objects.nonNull(product)) {
+                    MenuProductModel menuProductModel = MenuProductModel.builder()
+                            .id(product.getId())
+                            .name(product.getName())
+                            .description(product.getDescription())
+                            .price(product.getPrice())
+                            .cover(product.getCover())
+                            .globalStatus(product.getGlobalStatus())
+                            .storeStatus(product.getStoreStatus())
+                            .sort(menuProduct.getSort())
+                            .createTime(product.getCreateTime())
+                            .updateTime(product.getUpdateTime())
+                            .build();
+                    productModelList.add(menuProductModel);
+                }
+            }
+            menuGroupModel.setContent(productModelList);
+            groupModelList.add(menuGroupModel);
+        }
+        return DexteaApiResponse.success(menuModel);
     }
 
     @Override
-    public ApiResponse getMenuBase(Long id) throws NotFoundException {
+    public DexteaApiResponse<MenuModel> getMenuBase(Long id){
         MPJLambdaWrapper<Menu>wrapper=new MPJLambdaWrapper<Menu>()
                 .eq(Menu::getId,id)
-                .selectAsClass(Menu.class, MenuBaseDTO.class);
-        MenuBaseDTO menu=menuMapper.selectJoinOne(MenuBaseDTO.class,wrapper);
-        if (Objects.isNull(menu))
-            throw new NotFoundException("菜单不存在");
-        return ApiResponse.success(JSONObject.of("menu",menu));
+                .selectAsClass(Menu.class, MenuModel.class);
+        MenuModel menu=menuMapper.selectJoinOne(MenuModel.class,wrapper);
+        if (Objects.isNull(menu)) {
+            return DexteaApiResponse.notFound(MenuErrorCode.MENU_NOT_FOUND.getCode(),
+                    MenuErrorCode.MENU_NOT_FOUND.getMsg());
+        }
+        return DexteaApiResponse.success(menu);
     }
 
     @Override
-    public ApiResponse updateMenuBase(Long id, MenuUpdateBaseDTO data) throws NotFoundException {
+    public DexteaApiResponse<Void> updateMenuBase(Long id, MenuUpdateBaseRequest data){
         Menu menu=data.toMenu(id);
-        if(menuMapper.updateById(menu)==0)
-            throw new NotFoundException("菜单不存在");
-        return ApiResponse.success("更新成功");
+        if(menuMapper.updateById(menu)==0){
+            return DexteaApiResponse.notFound(MenuErrorCode.MENU_NOT_FOUND.getCode(),
+                    MenuErrorCode.MENU_NOT_FOUND.getMsg());
+        }
+        return DexteaApiResponse.success();
     }
 
     @Override
-    public ApiResponse storeBindMenu(Long menuId, List<Long> storeIds) {
-        JSONArray success=new JSONArray();
-        JSONArray fail=new JSONArray();
-        if(!menuFeign.isMenuIdValid(menuId))
-            throw new IllegalArgumentException("menuId错误");
+    public DexteaApiResponse<MenuBindResponse> storeBindMenu(Long menuId, List<Long> storeIds) {
+        List<Long> success=new ArrayList<>();
+        List<Long> fail=new ArrayList<>();
+        if(!menuFeign.isMenuIdValid(menuId)) {
+            return DexteaApiResponse.fail(MenuErrorCode.MENU_ID_ILLEGAL.getCode(),
+                    MenuErrorCode.MENU_ID_ILLEGAL.getMsg());
+        }
         for (Long storeId:storeIds){
             if(storeFeign.storeBindMenu(storeId,menuId))
-                success.add(String.format("storeId=%d绑定成功",storeId));
+                success.add(storeId);
             else
-                fail.add(String.format("storeId=%d绑定失败",storeId));
+                fail.add(storeId);
         }
-        return ApiResponse.success(JSONObject.of(
-                "success",success,
-                "fail",fail));
+        MenuBindResponse response=new MenuBindResponse(success,fail);
+        return DexteaApiResponse.success(response);
     }
 }

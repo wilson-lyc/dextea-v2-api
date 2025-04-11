@@ -19,7 +19,6 @@ public class InternalServiceImpl implements InternalService {
     public Menu getMenuById(Long id){
         return menuMapper.selectById(id);
     }
-
     @Override
     public boolean isMenuIdValid(Long id) {
         return Objects.nonNull(menuMapper.selectById(id));

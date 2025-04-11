@@ -1,11 +1,10 @@
 package cn.dextea.menu.controller;
 
-import cn.dextea.common.model.common.ApiResponse;
-import cn.dextea.menu.dto.menu.MenuCreateDTO;
-import cn.dextea.menu.dto.menu.MenuQueryDTO;
-import cn.dextea.menu.dto.menu.MenuSendDTO;
-import cn.dextea.menu.dto.menu.MenuUpdateBaseDTO;
+import cn.dextea.common.model.common.DexteaApiResponse;
+import cn.dextea.common.model.menu.MenuModel;
+import cn.dextea.menu.model.menu.*;
 import cn.dextea.menu.service.MenuService;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
@@ -21,41 +20,41 @@ public class MenuController {
     private MenuService menuService;
 
     @PostMapping("/menu")
-    public ApiResponse createMenu(@Valid @RequestBody MenuCreateDTO data){
+    public DexteaApiResponse<Void> createMenu(@Valid @RequestBody MenuCreateRequest data){
         return menuService.createMenu(data);
     }
 
     @GetMapping("/menu")
-    public ApiResponse getMenuList(
+    public DexteaApiResponse<IPage<MenuModel>> getMenuList(
             @Min(message = "current不能小于1",value = 1) @RequestParam(defaultValue = "1") int current,
             @RequestParam(defaultValue = "10") int size,
-            MenuQueryDTO filter){
+            MenuFilter filter){
         return menuService.getMenuList(current,size,filter);
     }
 
     @GetMapping("/menu/{id:\\d+}")
-    public ApiResponse getMenuById(
+    public DexteaApiResponse<MenuModel> getMenuByDetail(
             @PathVariable Long id,
-            @RequestParam(required = false) Long storeId) throws NotFoundException {
-        return menuService.getMenuById(id,storeId);
+            @RequestParam(required = false) Long storeId){
+        return menuService.getMenuDetail(id,storeId);
     }
 
     @GetMapping("/menu/{id:\\d+}/base")
-    public ApiResponse getMenuBase(@PathVariable Long id) throws NotFoundException {
+    public DexteaApiResponse<MenuModel> getMenuBase(@PathVariable Long id){
         return menuService.getMenuBase(id);
     }
 
     @PutMapping("/menu/{id:\\d+}/base")
-    public ApiResponse updateMenuBase(
+    public DexteaApiResponse<Void> updateMenuBase(
             @PathVariable Long id,
-            @Valid @RequestBody MenuUpdateBaseDTO data) throws NotFoundException {
+            @Valid @RequestBody MenuUpdateBaseRequest data){
         return menuService.updateMenuBase(id,data);
     }
 
     @PostMapping("/menu/{id:\\d+}/send")
-    public ApiResponse bindMenu(
+    public DexteaApiResponse<MenuBindResponse> bindMenu(
             @PathVariable Long id,
-            @RequestBody MenuSendDTO data){
+            @RequestBody MenuBindRequest data){
         return menuService.storeBindMenu(id,data.getStoreIds());
     }
 }

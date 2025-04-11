@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 /**
  * @author Lai Yongchao
@@ -43,6 +44,7 @@ public class MenuProductModel{
     }
 
     public String getStatusText() {
-        return ProductStatus.fromValue(getStatus()).getLabel();
+        return Objects.nonNull(getStatus())?
+                ProductStatus.fromValue(getStatus()).getLabel():null;
     }
 }
