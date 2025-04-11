@@ -1,5 +1,6 @@
 package cn.dextea.product.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.product.model.UploadResponse;
 import cn.dextea.product.service.UploadService;
@@ -24,6 +25,7 @@ public class UploadController {
      * @param file 封面图
      */
     @PostMapping(value = "/product/upload/cover", consumes = "multipart/form-data")
+    @SaCheckPermission("product:product:upload:picture")
     public ResponseEntity<DexteaApiResponse<UploadResponse>> uploadCover(
             @RequestParam Long id,
             @RequestPart MultipartFile file) {
@@ -36,6 +38,7 @@ public class UploadController {
      * @param file 文件
      */
     @PostMapping(value="/product/upload/detail-header-img", consumes = "multipart/form-data")
+    @SaCheckPermission("product:product:upload:picture")
     public ResponseEntity<DexteaApiResponse<UploadResponse>> uploadDetailHeaderImg(
             @RequestParam Long id,
             @RequestPart MultipartFile file) {

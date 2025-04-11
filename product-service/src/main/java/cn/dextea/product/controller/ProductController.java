@@ -1,5 +1,6 @@
 package cn.dextea.product.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.common.ImageModel;
 import cn.dextea.common.model.common.SelectOptionModel;
@@ -31,6 +32,7 @@ public class ProductController {
      * @param data 商品信息
      */
     @PostMapping("/product")
+    @SaCheckPermission("product:product:create")
     public DexteaApiResponse<Void> createProduct(@Valid @RequestBody ProductCreateRequest data){
         return productService.createProduct(data);
     }
@@ -44,6 +46,7 @@ public class ProductController {
      * @param storeId 门店ID，非空时额外返回门店状态
      */
     @GetMapping("/product")
+    @SaCheckPermission("product:product:read")
     public DexteaApiResponse<IPage<ProductModel>> getProductList(
             @Min(value = 1,message = "current不能小于1") int current,
             @Min(value = 1,message = "size不能小于1") int size,
@@ -60,6 +63,7 @@ public class ProductController {
      * @param status 全局销售状态
      */
     @GetMapping("/product/option")
+    @SaCheckPermission("product:product:read")
     public DexteaApiResponse<List<SelectOptionModel>> getProductOption(Integer status) {
         return productService.getProductOption(status);
     }
@@ -69,6 +73,7 @@ public class ProductController {
      * @param id 商品ID
      */
     @GetMapping("/product/{id:\\d+}/base")
+    @SaCheckPermission("product:product:read")
     public DexteaApiResponse<ProductModel> getProductBaseById(@PathVariable Long id){
         return productService.getProductBase(id);
     }
@@ -78,6 +83,7 @@ public class ProductController {
      * @param id 商品ID
      */
     @GetMapping("/product/{id:\\d+}/img")
+    @SaCheckPermission("product:product:read")
     public DexteaApiResponse<List<ImageModel>> getProductImgById(@PathVariable Long id){
         return productService.getProductImg(id);
     }
@@ -89,6 +95,7 @@ public class ProductController {
      * @param storeId 门店ID，非空额外返回门店状态
      */
     @GetMapping("/product/{productId:\\d+}/status")
+    @SaCheckPermission("product:product:read")
     public DexteaApiResponse<ProductModel> getProductStatus(
             @PathVariable Long productId,
             @RequestParam(required = false) Long storeId){
@@ -104,6 +111,7 @@ public class ProductController {
      * @param data 数据
      */
     @PutMapping("/product/{id:\\d+}/base")
+    @SaCheckPermission("product:product:update:base")
     public DexteaApiResponse<Void> updateProductBase(
             @PathVariable Long id,
             @Valid @RequestBody ProductUpdateBaseRequest data){
@@ -117,6 +125,7 @@ public class ProductController {
      * @param status 状态
      */
     @PutMapping("/product/{productId:\\d+}/status")
+    @SaCheckPermission("product:product:update:status")
     public DexteaApiResponse<VPKCRequestBuilder> updateProductStatus(
             @PathVariable Long productId,
             @RequestParam(required = false) Long storeId,

@@ -1,5 +1,6 @@
 package cn.dextea.product.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dextea.common.model.common.ApiResponse;
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.common.SelectOptionModel;
@@ -26,6 +27,7 @@ public class CategoryController {
      * @param data 创建数据
      */
     @PostMapping("/product-category")
+    @SaCheckPermission("product:category:create")
     public DexteaApiResponse<Void> createCategory(@Valid @RequestBody EditCategoryResponse data) {
         return categoryService.createCategory(data);
     }
@@ -34,6 +36,7 @@ public class CategoryController {
      * 获取所有商品分类
      */
     @GetMapping("/product-category")
+    @SaCheckPermission("product:category:read")
     public DexteaApiResponse<List<ProductCategoryModel>> getCategoryList() {
         return categoryService.getCategoryList();
     }
@@ -43,6 +46,7 @@ public class CategoryController {
      * @param id 商品类型ID
      */
     @GetMapping("/product-category/{id}")
+    @SaCheckPermission("product:category:read")
     public DexteaApiResponse<ProductCategoryModel> getCategoryDetail(@PathVariable Long id) {
         return categoryService.getCategoryDetail(id);
     }
@@ -51,6 +55,7 @@ public class CategoryController {
      * 获取商品分类选项
      */
     @GetMapping("/product-category/option")
+    @SaCheckPermission("product:category:read")
     public DexteaApiResponse<List<SelectOptionModel>> getCategoryOption() {
         return categoryService.getCategoryOption();
     }
@@ -61,6 +66,7 @@ public class CategoryController {
      * @param data 数据
      */
     @PutMapping("/product-category/{id}")
+    @SaCheckPermission("product:category:update")
     public DexteaApiResponse<Void> updateCategory(@PathVariable Long id, @Valid @RequestBody EditCategoryResponse data) {
         return categoryService.updateCategory(id, data);
     }

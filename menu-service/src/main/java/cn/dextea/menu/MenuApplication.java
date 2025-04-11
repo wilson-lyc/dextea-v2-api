@@ -13,7 +13,7 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = {"cn.dextea.common.feign"})
-@ComponentScan(basePackages = {"cn.dextea.common", "cn.dextea.menu"})
+@ComponentScan(basePackages = {"cn.dextea.menu","cn.dextea.common"})
 @MapperScan(basePackages = {"cn.dextea.menu.mapper"})
 public class MenuApplication {
     public static void main(String[] args) {

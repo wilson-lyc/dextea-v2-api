@@ -110,6 +110,7 @@ public class MenuServiceImpl implements MenuService {
             menuGroupModel.setContent(productModelList);
             groupModelList.add(menuGroupModel);
         }
+        menuModel.setContent(groupModelList);
         return DexteaApiResponse.success(menuModel);
     }
 

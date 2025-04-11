@@ -78,7 +78,7 @@ public class StaffServiceImpl implements StaffService {
         }
         // 验证员工是否已经绑定该角色
         if (!staffRoleMapper.exists(new MPJLambdaWrapper<StaffRole>()
-                .eq(StaffRole::getStaffId, roleId)
+                .eq(StaffRole::getRoleId, roleId)
                 .eq(StaffRole::getStaffId, staffId))) {
             return DexteaApiResponse.fail("解绑失败",
                     AuthErrorCode.STAFF_BIND_ROLE_NOT_EXISTED.getCode(),
@@ -86,7 +86,7 @@ public class StaffServiceImpl implements StaffService {
         }
         // 解绑
         if (staffRoleMapper.delete(new MPJLambdaWrapper<StaffRole>()
-                .eq(StaffRole::getStaffId, roleId)
+                .eq(StaffRole::getRoleId, roleId)
                 .eq(StaffRole::getStaffId, staffId)) == 0) {
             return DexteaApiResponse.fail("解绑失败",
                     AuthErrorCode.STAFF_UNBIND_ROLE_FAILED.getCode(),

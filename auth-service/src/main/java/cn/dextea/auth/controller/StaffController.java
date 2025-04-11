@@ -1,5 +1,6 @@
 package cn.dextea.auth.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dextea.auth.service.StaffService;
 import cn.dextea.common.model.auth.PermissionModel;
 import cn.dextea.common.model.auth.RoleModel;
@@ -23,6 +24,7 @@ public class StaffController {
      * @param staffId 员工ID
      */
     @PostMapping("/role/{roleId:\\d+}/staff/{staffId:\\d+}")
+    @SaCheckPermission("auth:role:update:staff")
     public DexteaApiResponse<Void> addStaffToRole(
             @PathVariable Long roleId,
             @PathVariable Long staffId){
@@ -35,6 +37,7 @@ public class StaffController {
      * @param staffId 员工ID
      */
     @DeleteMapping("/role/{roleId:\\d+}/staff/{staffId:\\d+}")
+    @SaCheckPermission("auth:role:update:staff")
     public DexteaApiResponse<Void> deleteStaffFromRole(
             @PathVariable Long roleId,
             @PathVariable Long staffId){
@@ -46,12 +49,14 @@ public class StaffController {
      * @param staffId 员工ID
      */
     @GetMapping("/staff/{staffId:\\d+}/role")
+    @SaCheckPermission("auth:role:read")
     public DexteaApiResponse<List<RoleModel>> getStaffRoleList(
             @PathVariable Long staffId){
         return staffService.getStaffRoleList(staffId);
     }
 
     @GetMapping("/staff/{staffId:\\d+}/permission")
+    @SaCheckPermission("auth:role:read")
     public DexteaApiResponse<List<PermissionModel>> getStaffPermissionList(
             @PathVariable Long staffId){
         return staffService.getStaffPermissionList(staffId);

@@ -1,5 +1,6 @@
 package cn.dextea.product.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.product.CustomizeOptionModel;
 import cn.dextea.product.model.option.OptionCreateRequest;
@@ -27,6 +28,7 @@ public class OptionController {
      * @param data 创建数据
      */
     @PostMapping("/product/customize/{itemId:\\d+}/option")
+    @SaCheckPermission("product:customize_option:create")
     public DexteaApiResponse<Void> createOption(
             @PathVariable Long itemId,
             @Valid @RequestBody OptionCreateRequest data) {
@@ -40,6 +42,7 @@ public class OptionController {
      * @param storeId 门店ID,非空额外返回门店状态
      */
     @GetMapping("/product/customize/{itemId:\\d+}/option")
+    @SaCheckPermission("product:customize_option:read")
     public DexteaApiResponse<List<CustomizeOptionModel>> getOptionList(
             @PathVariable Long itemId,
             @RequestParam(required = false) Long storeId) {
@@ -55,6 +58,7 @@ public class OptionController {
      * @param id 选项ID
      */
     @GetMapping("/product/customize/option/{id:\\d+}/base")
+    @SaCheckPermission("product:customize_option:read")
     public DexteaApiResponse<CustomizeOptionModel> getOptionBase(@PathVariable Long id) throws NotFoundException {
         return optionService.getOptionBase(id);
     }
@@ -66,6 +70,7 @@ public class OptionController {
      * @param storeId 门店ID
      */
     @GetMapping("/product/customize/option/{optionId:\\d+}/status")
+    @SaCheckPermission("product:customize_option:read")
     public DexteaApiResponse<CustomizeOptionModel> getOptionStatus(
             @PathVariable Long optionId,
             @RequestParam(required = false) Long storeId) throws NotFoundException {
@@ -81,6 +86,7 @@ public class OptionController {
      * @param data 更新数据
      */
     @PutMapping("/product/customize/option/{id:\\d+}/base")
+    @SaCheckPermission("product:customize_option:update:base")
     public DexteaApiResponse<Void> updateOptionBase(
             @PathVariable Long id,
             @Valid @RequestBody OptionUpdateRequest data) throws NotFoundException {
@@ -88,6 +94,7 @@ public class OptionController {
     }
 
     @PutMapping("/product/customize/option/{optionId:\\d+}/status")
+    @SaCheckPermission("product:customize_option:update:status")
     public DexteaApiResponse<Void> updateOptionStatus(
             @PathVariable Long optionId,
             @RequestParam(required = false) Long storeId,

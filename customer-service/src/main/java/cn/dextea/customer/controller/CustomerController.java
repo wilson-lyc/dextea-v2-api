@@ -1,5 +1,6 @@
 package cn.dextea.customer.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.customer.CustomerModel;
 import cn.dextea.customer.model.CustomerFilter;
@@ -36,6 +37,7 @@ public class CustomerController {
      * @param filter 搜索条件
      */
     @GetMapping("/customer")
+    @SaCheckPermission("customer:customer:read")
     public DexteaApiResponse<IPage<CustomerModel>> getCustomerList(
             @RequestParam(defaultValue = "1") int current,
             @RequestParam(defaultValue = "10") int size,
@@ -48,6 +50,7 @@ public class CustomerController {
      * @param id 顾客ID
      */
     @GetMapping("/customer/{id:\\d+}")
+    @SaCheckPermission("customer:customer:read")
     public DexteaApiResponse<CustomerModel> getCustomerDetail(@PathVariable Long id){
         return customerService.getCustomerDetail(id);
     }
@@ -58,6 +61,7 @@ public class CustomerController {
      * @param status 状态
      */
     @PutMapping("/customer/{id:\\d+}/status")
+    @SaCheckPermission("customer:customer:update:status")
     public DexteaApiResponse<Void> updateCustomerStatus(@PathVariable Long id, @RequestParam Integer status){
         return customerService.updateCustomerStatus(id,status);
     }

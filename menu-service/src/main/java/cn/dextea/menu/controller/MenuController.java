@@ -1,5 +1,6 @@
 package cn.dextea.menu.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.menu.MenuModel;
 import cn.dextea.menu.model.menu.*;
@@ -20,11 +21,13 @@ public class MenuController {
     private MenuService menuService;
 
     @PostMapping("/menu")
+    @SaCheckPermission("menu:menu:create")
     public DexteaApiResponse<Void> createMenu(@Valid @RequestBody MenuCreateRequest data){
         return menuService.createMenu(data);
     }
 
     @GetMapping("/menu")
+    @SaCheckPermission("menu:menu:read")
     public DexteaApiResponse<IPage<MenuModel>> getMenuList(
             @Min(message = "current不能小于1",value = 1) @RequestParam(defaultValue = "1") int current,
             @RequestParam(defaultValue = "10") int size,
@@ -33,18 +36,21 @@ public class MenuController {
     }
 
     @GetMapping("/menu/{id:\\d+}")
-    public DexteaApiResponse<MenuModel> getMenuByDetail(
+    @SaCheckPermission("menu:menu:read")
+    public DexteaApiResponse<MenuModel> getMenuDetail(
             @PathVariable Long id,
             @RequestParam(required = false) Long storeId){
         return menuService.getMenuDetail(id,storeId);
     }
 
     @GetMapping("/menu/{id:\\d+}/base")
+    @SaCheckPermission("menu:menu:read")
     public DexteaApiResponse<MenuModel> getMenuBase(@PathVariable Long id){
         return menuService.getMenuBase(id);
     }
 
     @PutMapping("/menu/{id:\\d+}/base")
+    @SaCheckPermission("menu:menu:update:base")
     public DexteaApiResponse<Void> updateMenuBase(
             @PathVariable Long id,
             @Valid @RequestBody MenuUpdateBaseRequest data){
@@ -52,6 +58,7 @@ public class MenuController {
     }
 
     @PostMapping("/menu/{id:\\d+}/send")
+    @SaCheckPermission("menu:menu:send")
     public DexteaApiResponse<MenuBindResponse> bindMenu(
             @PathVariable Long id,
             @RequestBody MenuBindRequest data){

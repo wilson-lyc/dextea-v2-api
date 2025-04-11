@@ -1,5 +1,6 @@
 package cn.dextea.menu.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dextea.common.model.common.ApiResponse;
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.menu.MenuProductModel;
@@ -17,6 +18,7 @@ public class ProductController {
     @Resource
     private ProductService productService;
     @PostMapping("/menu/{menuId:\\d+}/group/{groupId}/product/{productId:\\d+}")
+    @SaCheckPermission("menu:product:create")
     public DexteaApiResponse<Void> addProduct(
             @PathVariable Long menuId,
             @PathVariable String groupId,
@@ -25,6 +27,7 @@ public class ProductController {
         return productService.addProduct(menuId,groupId,productId,sort);
     }
     @DeleteMapping("/menu/{menuId:\\d+}/group/{groupId}/product/{productId:\\d+}")
+    @SaCheckPermission("menu:product:delete")
     public DexteaApiResponse<Void> deleteProduct(
             @PathVariable Long menuId,
             @PathVariable String groupId,
@@ -33,6 +36,7 @@ public class ProductController {
     }
 
     @GetMapping("/menu/{menuId:\\d+}/group/{groupId}/product")
+    @SaCheckPermission("menu:product:read")
     public DexteaApiResponse<List<MenuProductModel>> getProductList(
             @PathVariable Long menuId,
             @PathVariable String groupId){
@@ -40,6 +44,7 @@ public class ProductController {
     }
 
     @GetMapping("/menu/{menuId:\\d+}/group/{groupId}/product/{productId:\\d+}")
+    @SaCheckPermission("menu:product:read")
     public DexteaApiResponse<MenuProductModel> getProductInfo(
             @PathVariable Long menuId,
             @PathVariable String groupId,
@@ -48,6 +53,7 @@ public class ProductController {
     }
 
     @PutMapping("/menu/{menuId:\\d+}/group/{groupId}/product/{productId:\\d+}")
+    @SaCheckPermission("menu:product:update:base")
     public DexteaApiResponse<Void> updateProductInfo(
             @PathVariable Long menuId,
             @PathVariable String groupId,

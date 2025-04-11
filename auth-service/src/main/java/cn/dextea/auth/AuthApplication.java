@@ -10,7 +10,7 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = {"cn.dextea.common.feign"})
-@ComponentScan(basePackages = {"cn.dextea.common", "cn.dextea.auth"})
+@ComponentScan(basePackages = {"cn.dextea.auth","cn.dextea.common"})
 @MapperScan(basePackages = {"cn.dextea.auth.mapper"})
 public class AuthApplication {
     public static void main(String[] args) {
