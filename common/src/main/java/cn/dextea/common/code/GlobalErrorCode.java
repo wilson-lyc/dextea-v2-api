@@ -9,7 +9,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum GlobalErrorCode {
-    PERMISSION_LACK("global.permission.lack", "您没有访问权限");
+    PERMISSION_LACK("global.permission.lack", "您没有操作权限");
     private final String code;
     private final String msg;
 }

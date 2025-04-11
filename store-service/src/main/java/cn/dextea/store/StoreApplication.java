@@ -13,7 +13,7 @@ import org.springframework.context.annotation.ComponentScan;
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients(basePackages = {"cn.dextea.common.feign"})
-@ComponentScan(basePackages = {"cn.dextea.common", "cn.dextea.store"})
+@ComponentScan(basePackages = {"cn.dextea.store","cn.dextea.common"})
 @MapperScan(basePackages = {"cn.dextea.store.mapper"})
 public class StoreApplication {
     public static void main(String[] args) {

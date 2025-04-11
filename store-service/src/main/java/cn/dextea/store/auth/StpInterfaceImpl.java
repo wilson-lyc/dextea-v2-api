@@ -1,4 +1,4 @@
-package cn.dextea.staff.service.impl;
+package cn.dextea.store.auth;
 
 import cn.dev33.satoken.stp.StpInterface;
 import cn.dextea.common.feign.AuthFeign;
