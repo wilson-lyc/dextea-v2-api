@@ -7,6 +7,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Lai Yongchao
@@ -34,6 +35,6 @@ public class CustomizeItemModel {
     private String updateTime;
 
     public String getStatusText() {
-        return CustomizeItemStatus.fromValue(status).getLabel();
+        return Objects.isNull(status)?null:CustomizeItemStatus.fromValue(status).getLabel();
     }
 }

@@ -47,8 +47,8 @@ public class ProductServiceImpl implements ProductService {
     public DexteaApiResponse<Void> createProduct(ProductCreateRequest data) {
         // 校验商品分类
         if(!productFeign.isCategoryIdValid(data.getCategoryId())){
-            return DexteaApiResponse.fail(ProductErrorCode.PRODUCT_EDIT_CATEGORY_ID_ERROR.getCode(),
-                    ProductErrorCode.PRODUCT_EDIT_CATEGORY_ID_ERROR.getMsg());
+            return DexteaApiResponse.fail(ProductErrorCode.CATEGORY_ID_ERROR.getCode(),
+                    ProductErrorCode.CATEGORY_ID_ERROR.getMsg());
         }
         // 创建商品
         Product product = data.toProduct();
@@ -96,8 +96,8 @@ public class ProductServiceImpl implements ProductService {
     public DexteaApiResponse<IPage<ProductModel>> getProductList(Long storeId, int current, int size, ProductFilter filter){
         // 校验门店ID
         if(!storeFeign.isStoreIdValid(storeId)){
-            return DexteaApiResponse.fail(ProductErrorCode.PRODUCT_STATUS_STORE_ID_ERROR.getCode(),
-                    ProductErrorCode.PRODUCT_STATUS_STORE_ID_ERROR.getMsg());
+            return DexteaApiResponse.fail(ProductErrorCode.STORE_ID_ERROR.getCode(),
+                    ProductErrorCode.STORE_ID_ERROR.getMsg());
         }
         // 构建查询条件
         MPJLambdaWrapper<Product> wrapper = new MPJLambdaWrapper<Product>()
@@ -204,8 +204,8 @@ public class ProductServiceImpl implements ProductService {
     public DexteaApiResponse<ProductModel> getProductStatus(Long productId, Long storeId){
         // 校验门店ID
         if(!storeFeign.isStoreIdValid(storeId)){
-            return DexteaApiResponse.fail(ProductErrorCode.PRODUCT_STATUS_STORE_ID_ERROR.getCode(),
-                    ProductErrorCode.PRODUCT_STATUS_STORE_ID_ERROR.getMsg());
+            return DexteaApiResponse.fail(ProductErrorCode.STORE_ID_ERROR.getCode(),
+                    ProductErrorCode.STORE_ID_ERROR.getMsg());
         }
         // 全局状态
         Integer globalStatus = productFeign.getProductGlobalStatus(productId);
@@ -227,8 +227,8 @@ public class ProductServiceImpl implements ProductService {
     public DexteaApiResponse<Void> updateProductBase(Long id, ProductUpdateBaseRequest data){
         // 校验分类
         if(!productFeign.isCategoryIdValid(data.getCategoryId())) {
-            return DexteaApiResponse.fail(ProductErrorCode.PRODUCT_EDIT_CATEGORY_ID_ERROR.getCode(),
-                    ProductErrorCode.PRODUCT_EDIT_CATEGORY_ID_ERROR.getMsg());
+            return DexteaApiResponse.fail(ProductErrorCode.CATEGORY_ID_ERROR.getCode(),
+                    ProductErrorCode.CATEGORY_ID_ERROR.getMsg());
         }
         // 更新数据
         Product product=data.toProduct(id);
@@ -249,8 +249,8 @@ public class ProductServiceImpl implements ProductService {
     public DexteaApiResponse<VPKCRequestBuilder> updateProductStatus(Long productId, Integer status){
         // 校验状态码 - 全局只有1和0
         if(status!=ProductStatus.GLOBAL_FORBIDDEN.getValue() && status!=ProductStatus.AVAILABLE.getValue()){
-            return DexteaApiResponse.fail(ProductErrorCode.PRODUCT_STATUS_GLOBAL_STATUS_ERROR.getCode(),
-                    ProductErrorCode.PRODUCT_STATUS_GLOBAL_STATUS_ERROR.getMsg());
+            return DexteaApiResponse.fail(ProductErrorCode.PRODUCT_GLOBAL_STATUS_ERROR.getCode(),
+                    ProductErrorCode.PRODUCT_GLOBAL_STATUS_ERROR.getMsg());
         }
         // 更新db
         LambdaUpdateWrapper<Product> wrapper=new LambdaUpdateWrapper<Product>()
@@ -274,13 +274,13 @@ public class ProductServiceImpl implements ProductService {
     public DexteaApiResponse<VPKCRequestBuilder> updateProductStatus(Long productId, Long storeId, Integer status){
         // 校验门店ID
         if(!storeFeign.isStoreIdValid(storeId)){
-            return DexteaApiResponse.fail(ProductErrorCode.PRODUCT_STATUS_STORE_ID_ERROR.getCode(),
-                    ProductErrorCode.PRODUCT_STATUS_STORE_ID_ERROR.getMsg());
+            return DexteaApiResponse.fail(ProductErrorCode.STORE_ID_ERROR.getCode(),
+                    ProductErrorCode.STORE_ID_ERROR.getMsg());
         }
         //校验状态码
         if(status==ProductStatus.GLOBAL_FORBIDDEN.getValue()){
-            return DexteaApiResponse.fail(ProductErrorCode.PRODUCT_STATUS_STORE_STATUS_ERROR.getCode(),
-                    ProductErrorCode.PRODUCT_STATUS_STORE_STATUS_ERROR.getMsg());
+            return DexteaApiResponse.fail(ProductErrorCode.PRODUCT_STORE_STATUS_ERROR.getCode(),
+                    ProductErrorCode.PRODUCT_STORE_STATUS_ERROR.getMsg());
         }
         // 更新db
         MPJLambdaWrapper<ProductStoreStatus> wrapper = new MPJLambdaWrapper<ProductStoreStatus>()

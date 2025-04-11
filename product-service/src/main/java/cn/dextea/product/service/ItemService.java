@@ -1,17 +1,20 @@
 package cn.dextea.product.service;
 
-import cn.dextea.common.model.common.ApiResponse;
+import cn.dextea.common.model.common.DexteaApiResponse;
+import cn.dextea.common.model.product.CustomizeItemModel;
 import cn.dextea.product.model.item.ItemUpdateDTO;
-import cn.dextea.product.model.item.ItemCreateDTO;
+import cn.dextea.product.model.item.ItemCreateRequest;
 import org.apache.ibatis.javassist.NotFoundException;
+
+import java.util.List;
 
 /**
  * @author Lai Yongchao
  */
 public interface ItemService {
-    ApiResponse createItem(Long productId, ItemCreateDTO data);
-    ApiResponse getItemList(Long productId);
-    ApiResponse getItemInfo(Long productId) throws NotFoundException;
-    ApiResponse updateItemInfo(Long productId, ItemUpdateDTO data) throws NotFoundException;
-    ApiResponse updateItemStatus(Long id, Integer status) throws NotFoundException;
+    DexteaApiResponse<Void> createItem(Long productId, ItemCreateRequest data);
+    DexteaApiResponse<List<CustomizeItemModel>> getItemList(Long productId);
+    DexteaApiResponse<CustomizeItemModel> getItemDetail(Long productId);
+    DexteaApiResponse<Void> updateItemDetail(Long productId, ItemUpdateDTO data);
+    DexteaApiResponse<Void> updateItemStatus(Long id, Integer status);
 }

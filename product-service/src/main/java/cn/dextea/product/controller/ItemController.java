@@ -1,13 +1,17 @@
 package cn.dextea.product.controller;
 
 import cn.dextea.common.model.common.ApiResponse;
+import cn.dextea.common.model.common.DexteaApiResponse;
+import cn.dextea.common.model.product.CustomizeItemModel;
 import cn.dextea.product.model.item.ItemUpdateDTO;
-import cn.dextea.product.model.item.ItemCreateDTO;
+import cn.dextea.product.model.item.ItemCreateRequest;
 import cn.dextea.product.service.ItemService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * @author Lai Yongchao
@@ -24,9 +28,9 @@ public class ItemController {
      * @param data 创建配置
      */
     @PostMapping("/product/{id:\\d+}/customize")
-    public ApiResponse createItem(
+    public DexteaApiResponse<Void> createItem(
             @PathVariable Long id,
-            @Valid @RequestBody ItemCreateDTO data){
+            @Valid @RequestBody ItemCreateRequest data){
         return itemService.createItem(id,data);
     }
 
@@ -35,7 +39,7 @@ public class ItemController {
      * @param productId 商品ID
      */
     @GetMapping("/product/{productId:\\d+}/customize")
-    public ApiResponse getItemList(@PathVariable Long productId){
+    public DexteaApiResponse<List<CustomizeItemModel>> getItemList(@PathVariable Long productId){
         return itemService.getItemList(productId);
     }
 
@@ -44,8 +48,8 @@ public class ItemController {
      * @param id 客制化项目ID
      */
     @GetMapping("/product/customize/{id}")
-    public ApiResponse getItemInfo(@PathVariable Long id) throws NotFoundException {
-        return itemService.getItemInfo(id);
+    public DexteaApiResponse<CustomizeItemModel> getItemDetail(@PathVariable Long id){
+        return itemService.getItemDetail(id);
     }
 
     /**
@@ -54,16 +58,16 @@ public class ItemController {
      * @param data 更新数据
      */
     @PutMapping("/product/customize/{id}")
-    public ApiResponse updateItemInfo(
+    public DexteaApiResponse<Void> updateItemDetail(
             @PathVariable Long id,
-            @Valid @RequestBody ItemUpdateDTO data) throws NotFoundException {
-        return itemService.updateItemInfo(id,data);
+            @Valid @RequestBody ItemUpdateDTO data) {
+        return itemService.updateItemDetail(id,data);
     }
 
     @PutMapping("/product/customize/{id}/status")
-    public ApiResponse updateItemStatus(
+    public DexteaApiResponse<Void> updateItemStatus(
             @PathVariable Long id,
-            @RequestParam Integer status) throws NotFoundException {
+            @RequestParam Integer status){
         return itemService.updateItemStatus(id,status);
     }
 }

@@ -14,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ItemCreateDTO {
+public class ItemCreateRequest {
     @NotBlank(message = "项目名不能为空")
     private String name;
     @NotNull(message = "排序不能为空")
@@ -24,7 +24,6 @@ public class ItemCreateDTO {
         return  CustomizeItem.builder()
                 .name(name)
                 .sort(sort)
-                .status(CustomizeItemStatus.FORBIDDEN.getValue())
                 .build();
     }
 }
