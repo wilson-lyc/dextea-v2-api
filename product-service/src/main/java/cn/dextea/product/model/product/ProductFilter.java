@@ -1,4 +1,4 @@
-package cn.dextea.product.dto.product;
+package cn.dextea.product.model.product;
 
 import cn.dextea.common.code.ProductStatus;
 import lombok.AllArgsConstructor;
@@ -13,7 +13,7 @@ import java.util.Objects;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class ProductQueryDTO {
+public class ProductFilter {
     private Long id;// 商品ID
     private String name;// 商品名称
     private Integer status;// 状态

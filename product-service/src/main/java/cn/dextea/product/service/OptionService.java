@@ -1,8 +1,8 @@
 package cn.dextea.product.service;
 
 import cn.dextea.common.model.common.ApiResponse;
-import cn.dextea.product.dto.option.OptionCreateDTO;
-import cn.dextea.product.dto.option.OptionUpdateDTO;
+import cn.dextea.product.model.option.OptionCreateDTO;
+import cn.dextea.product.model.option.OptionUpdateDTO;
 import org.apache.ibatis.javassist.NotFoundException;
 
 /**

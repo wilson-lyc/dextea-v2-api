@@ -1,6 +1,5 @@
-package cn.dextea.product.dto.item;
+package cn.dextea.product.model.item;
 
-import cn.dextea.common.code.CustomizeItemStatus;
 import cn.dextea.product.pojo.CustomizeItem;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -12,19 +11,21 @@ import lombok.NoArgsConstructor;
  * @author Lai Yongchao
  */
 @Data
-@NoArgsConstructor
 @AllArgsConstructor
-public class ItemCreateDTO {
+@NoArgsConstructor
+public class ItemUpdateDTO {
     @NotBlank(message = "项目名不能为空")
     private String name;
     @NotNull(message = "排序不能为空")
     private Integer sort;
+    @NotNull(message = "状态不能为空")
+    private Integer status;
 
-    public CustomizeItem toCustomize() {
-        return  CustomizeItem.builder()
+    public CustomizeItem toCustomize(){
+        return CustomizeItem.builder()
                 .name(name)
                 .sort(sort)
-                .status(CustomizeItemStatus.FORBIDDEN.getValue())
+                .status(status)
                 .build();
     }
 }

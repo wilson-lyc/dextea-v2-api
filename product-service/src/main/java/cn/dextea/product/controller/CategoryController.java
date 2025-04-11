@@ -1,11 +1,16 @@
 package cn.dextea.product.controller;
 
 import cn.dextea.common.model.common.ApiResponse;
-import cn.dextea.product.dto.category.CategoryDTO;
+import cn.dextea.common.model.common.DexteaApiResponse;
+import cn.dextea.common.model.common.SelectOptionModel;
+import cn.dextea.common.model.product.ProductCategoryModel;
+import cn.dextea.product.model.category.EditCategoryResponse;
 import cn.dextea.product.service.CategoryService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 /**
  * 商品类型
@@ -21,7 +26,7 @@ public class CategoryController {
      * @param data 创建数据
      */
     @PostMapping("/product-category")
-    public ApiResponse createCategory(@Valid @RequestBody CategoryDTO data) {
+    public DexteaApiResponse<Void> createCategory(@Valid @RequestBody EditCategoryResponse data) {
         return categoryService.createCategory(data);
     }
 
@@ -29,7 +34,7 @@ public class CategoryController {
      * 获取所有商品分类
      */
     @GetMapping("/product-category")
-    public ApiResponse getCategoryList() {
+    public DexteaApiResponse<List<ProductCategoryModel>> getCategoryList() {
         return categoryService.getCategoryList();
     }
 
@@ -38,24 +43,25 @@ public class CategoryController {
      * @param id 商品类型ID
      */
     @GetMapping("/product-category/{id}")
-    public ApiResponse getCategoryById(@PathVariable Long id) {
-        return categoryService.getCategoryById(id);
+    public DexteaApiResponse<ProductCategoryModel> getCategoryDetail(@PathVariable Long id) {
+        return categoryService.getCategoryDetail(id);
     }
 
     /**
      * 获取商品分类选项
      */
     @GetMapping("/product-category/option")
-    public ApiResponse getCategoryOption() {
+    public DexteaApiResponse<List<SelectOptionModel>> getCategoryOption() {
         return categoryService.getCategoryOption();
     }
 
     /**
      * 更新商品分类
+     *
      * @param data 数据
      */
     @PutMapping("/product-category/{id}")
-    public ApiResponse updateCategory(@PathVariable Long id, @Valid @RequestBody CategoryDTO data) {
+    public DexteaApiResponse<Void> updateCategory(@PathVariable Long id, @Valid @RequestBody EditCategoryResponse data) {
         return categoryService.updateCategory(id, data);
     }
 }

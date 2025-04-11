@@ -1,6 +1,5 @@
-package cn.dextea.product.dto.option;
+package cn.dextea.product.model.option;
 
-import cn.dextea.common.code.CustomizeOptionStatus;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;

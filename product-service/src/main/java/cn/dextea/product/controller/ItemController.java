@@ -1,8 +1,8 @@
 package cn.dextea.product.controller;
 
 import cn.dextea.common.model.common.ApiResponse;
-import cn.dextea.product.dto.item.ItemUpdateDTO;
-import cn.dextea.product.dto.item.ItemCreateDTO;
+import cn.dextea.product.model.item.ItemUpdateDTO;
+import cn.dextea.product.model.item.ItemCreateDTO;
 import cn.dextea.product.service.ItemService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;

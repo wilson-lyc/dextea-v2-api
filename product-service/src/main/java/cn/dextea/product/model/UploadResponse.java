@@ -1,4 +1,4 @@
-package cn.dextea.product.dto;
+package cn.dextea.product.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

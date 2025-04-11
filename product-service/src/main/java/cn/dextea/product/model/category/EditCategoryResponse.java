@@ -1,4 +1,4 @@
-package cn.dextea.product.dto.category;
+package cn.dextea.product.model.category;
 
 import cn.dextea.product.pojo.ProductCategory;
 import jakarta.validation.constraints.NotBlank;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class CategoryDTO {
+public class EditCategoryResponse {
     @NotBlank
     private String name;
 

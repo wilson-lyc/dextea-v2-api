@@ -4,7 +4,7 @@ import cn.dextea.common.code.CustomizeOptionStatus;
 import cn.dextea.common.model.common.ApiResponse;
 import cn.dextea.common.feign.ProductFeign;
 import cn.dextea.common.feign.StoreFeign;
-import cn.dextea.product.dto.option.*;
+import cn.dextea.product.model.option.*;
 import cn.dextea.product.mapper.OptionMapper;
 import cn.dextea.product.mapper.OptionStatusMapper;
 import cn.dextea.product.pojo.CustomizeOption;

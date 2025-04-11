@@ -30,6 +30,8 @@ public enum ProductStatus {
     }
 
     public static Integer getStatus(Integer globalStatus, Integer storeStatus) {
+        if(Objects.isNull(globalStatus))
+            return null;
         if(globalStatus.equals(ProductStatus.GLOBAL_FORBIDDEN.getValue())){
             return ProductStatus.GLOBAL_FORBIDDEN.getValue();
         }else{

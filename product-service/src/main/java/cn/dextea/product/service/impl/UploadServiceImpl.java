@@ -2,7 +2,7 @@ package cn.dextea.product.service.impl;
 
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.util.TosUtil;
-import cn.dextea.product.dto.UploadResponse;
+import cn.dextea.product.model.UploadResponse;
 import cn.dextea.product.mapper.ProductMapper;
 import cn.dextea.product.pojo.Product;
 import cn.dextea.product.service.UploadService;

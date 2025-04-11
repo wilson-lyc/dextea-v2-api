@@ -2,16 +2,19 @@ package cn.dextea.common.model.product;
 
 import cn.dextea.common.code.ProductStatus;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * @author Lai Yongchao
  */
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class ProductModel {
@@ -45,6 +48,8 @@ public class ProductModel {
     }
 
     public String getStatusText() {
-        return ProductStatus.fromValue(getStatus()).getLabel();
+        return Objects.isNull(getStatus())?
+                ProductStatus.UNKNOWN.getLabel():
+                ProductStatus.fromValue(getStatus()).getLabel();
     }
 }

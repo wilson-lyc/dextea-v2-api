@@ -1,16 +1,21 @@
 package cn.dextea.product.controller;
 
-import cn.dextea.common.model.common.ApiResponse;
-import cn.dextea.product.dto.product.ProductCreateDTO;
-import cn.dextea.product.dto.product.ProductQueryDTO;
-import cn.dextea.product.dto.product.ProductUpdateBaseDTO;
+import cn.dextea.common.model.common.DexteaApiResponse;
+import cn.dextea.common.model.common.ImageModel;
+import cn.dextea.common.model.common.SelectOptionModel;
+import cn.dextea.common.model.product.ProductModel;
+import cn.dextea.product.model.product.ProductCreateRequest;
+import cn.dextea.product.model.product.ProductFilter;
+import cn.dextea.product.model.product.ProductUpdateBaseRequest;
 import cn.dextea.product.service.ProductService;
+import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import org.apache.ibatis.javassist.NotFoundException;
+import org.bouncycastle.dvcs.VPKCRequestBuilder;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -26,7 +31,7 @@ public class ProductController {
      * @param data 商品信息
      */
     @PostMapping("/product")
-    public ApiResponse createProduct(@Valid @RequestBody ProductCreateDTO data){
+    public DexteaApiResponse<Void> createProduct(@Valid @RequestBody ProductCreateRequest data){
         return productService.createProduct(data);
     }
 
@@ -36,13 +41,13 @@ public class ProductController {
      * @param current 当前页
      * @param size 每页大小
      * @param filter 过滤条件
-     * @param storeId 门店ID
+     * @param storeId 门店ID，非空时额外返回门店状态
      */
     @GetMapping("/product")
-    public ApiResponse getProductList(
+    public DexteaApiResponse<IPage<ProductModel>> getProductList(
             @Min(value = 1,message = "current不能小于1") int current,
             @Min(value = 1,message = "size不能小于1") int size,
-            @Valid ProductQueryDTO filter,
+            ProductFilter filter,
             @RequestParam(required = false) Long storeId){
         if(Objects.isNull(storeId))
             return productService.getProductList(current, size, filter);
@@ -55,7 +60,7 @@ public class ProductController {
      * @param status 全局销售状态
      */
     @GetMapping("/product/option")
-    public ApiResponse getProductOption(Integer status) {
+    public DexteaApiResponse<List<SelectOptionModel>> getProductOption(Integer status) {
         return productService.getProductOption(status);
     }
 
@@ -64,7 +69,7 @@ public class ProductController {
      * @param id 商品ID
      */
     @GetMapping("/product/{id:\\d+}/base")
-    public ApiResponse getProductBaseById(@PathVariable Long id) throws NotFoundException {
+    public DexteaApiResponse<ProductModel> getProductBaseById(@PathVariable Long id){
         return productService.getProductBase(id);
     }
 
@@ -73,7 +78,7 @@ public class ProductController {
      * @param id 商品ID
      */
     @GetMapping("/product/{id:\\d+}/img")
-    public ApiResponse getProductImgById(@PathVariable Long id) throws NotFoundException {
+    public DexteaApiResponse<List<ImageModel>> getProductImgById(@PathVariable Long id){
         return productService.getProductImg(id);
     }
 
@@ -81,12 +86,12 @@ public class ProductController {
      * 获取商品状态
      * 携带storeId额外返回门店状态
      * @param productId 商品ID
-     * @param storeId 门店ID
+     * @param storeId 门店ID，非空额外返回门店状态
      */
     @GetMapping("/product/{productId:\\d+}/status")
-    public ApiResponse getProductStatus(
+    public DexteaApiResponse<ProductModel> getProductStatus(
             @PathVariable Long productId,
-            @RequestParam(required = false) Long storeId) throws NotFoundException {
+            @RequestParam(required = false) Long storeId){
         if(Objects.isNull(storeId))
             return productService.getProductStatus(productId);
         else
@@ -99,23 +104,23 @@ public class ProductController {
      * @param data 数据
      */
     @PutMapping("/product/{id:\\d+}/base")
-    public ApiResponse updateProductBase(
+    public DexteaApiResponse<Void> updateProductBase(
             @PathVariable Long id,
-            @Valid @RequestBody ProductUpdateBaseDTO data) throws NotFoundException {
+            @Valid @RequestBody ProductUpdateBaseRequest data){
         return productService.updateProductBase(id, data);
     }
 
     /**
      * 更新商品状态
      * @param productId 商品ID
-     * @param storeId 门店ID
-     * @param status 全局状态
+     * @param storeId 门店ID,非空时更新门店状态
+     * @param status 状态
      */
     @PutMapping("/product/{productId:\\d+}/status")
-    public ApiResponse updateProductStatus(
+    public DexteaApiResponse<VPKCRequestBuilder> updateProductStatus(
             @PathVariable Long productId,
             @RequestParam(required = false) Long storeId,
-            @RequestParam Integer status) throws NotFoundException {
+            @RequestParam Integer status){
         if(Objects.isNull(storeId))
             return productService.updateProductStatus(productId, status);
         else

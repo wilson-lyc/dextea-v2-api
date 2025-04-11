@@ -2,8 +2,8 @@ package cn.dextea.product.service.impl;
 
 import cn.dextea.common.model.common.ApiResponse;
 import cn.dextea.common.feign.ProductFeign;
-import cn.dextea.product.dto.item.ItemUpdateDTO;
-import cn.dextea.product.dto.item.ItemCreateDTO;
+import cn.dextea.product.model.item.ItemUpdateDTO;
+import cn.dextea.product.model.item.ItemCreateDTO;
 import cn.dextea.product.mapper.ItemMapper;
 import cn.dextea.product.mapper.ProductMapper;
 import cn.dextea.product.pojo.CustomizeItem;

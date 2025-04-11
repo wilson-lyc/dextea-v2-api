@@ -1,29 +1,30 @@
 package cn.dextea.product.service.impl;
 
 import cn.dextea.common.code.ProductStatus;
-import cn.dextea.common.model.common.ApiResponse;
+import cn.dextea.common.model.common.DexteaApiResponse;
+import cn.dextea.common.model.common.ImageModel;
 import cn.dextea.common.model.common.SelectOptionModel;
 import cn.dextea.common.feign.ProductFeign;
 import cn.dextea.common.feign.StoreFeign;
+import cn.dextea.common.model.product.ProductModel;
+import cn.dextea.product.code.ProductErrorCode;
 import cn.dextea.product.pojo.Product;
 import cn.dextea.product.pojo.ProductCategory;
 import cn.dextea.product.pojo.ProductStoreStatus;
-import cn.dextea.product.dto.product.*;
+import cn.dextea.product.model.product.*;
 import cn.dextea.product.mapper.ProductMapper;
 import cn.dextea.product.mapper.ProductStatusMapper;
 import cn.dextea.product.service.ProductService;
-import com.alibaba.cloud.commons.lang.StringUtils;
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
-import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.github.yulichang.wrapper.MPJLambdaWrapper;
 import jakarta.annotation.Resource;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.ibatis.javassist.NotFoundException;
+import org.bouncycastle.dvcs.VPKCRequestBuilder;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -43,52 +44,43 @@ public class ProductServiceImpl implements ProductService {
     private StoreFeign storeFeign;
 
     @Override
-    public ApiResponse createProduct(ProductCreateDTO data) {
+    public DexteaApiResponse<Void> createProduct(ProductCreateRequest data) {
         // 校验商品分类
         if(!productFeign.isCategoryIdValid(data.getCategoryId())){
-            throw new IllegalArgumentException("categoryId错误");
+            return DexteaApiResponse.fail(ProductErrorCode.PRODUCT_EDIT_CATEGORY_ID_ERROR.getCode(),
+                    ProductErrorCode.PRODUCT_EDIT_CATEGORY_ID_ERROR.getMsg());
         }
         // 创建商品
         Product product = data.toProduct();
         productMapper.insert(product);
-        return ApiResponse.success("商品创建成功");
+        return DexteaApiResponse.success();
     }
 
-    /**
-     * 分页查询商品列表
-     * @param current 当前页码
-     * @param size 分页大小
-     * @param wrapper 查询条件
-     */
-    private IPage<ProductListDTO> getProductListPage(int current, int size,MPJLambdaWrapper<Product> wrapper){
-        IPage<ProductListDTO> page=productMapper.selectJoinPage(
+    // 执行分页查询
+    private IPage<ProductModel> getProductListPage(int current, int size,MPJLambdaWrapper<Product> wrapper){
+        IPage<ProductModel> page=productMapper.selectJoinPage(
                 new Page<>(current, size),
-                ProductListDTO.class,
+                ProductModel.class,
                 wrapper);
         if (page.getCurrent() > page.getPages()) {
             page = productMapper.selectJoinPage(
                     new Page<>(page.getPages(), size),
-                    ProductListDTO.class,
+                    ProductModel.class,
                     wrapper);
         }
         return page;
     }
 
-    /**
-     * 获取商品列表 - 只返回全局状态
-     * @param current 当前页码
-     * @param size 分页大小
-     * @param filter 搜索条件
-     */
+    // 获取商品列表 - 只返回全局状态
     @Override
-    public ApiResponse getProductList(int current, int size, ProductQueryDTO filter) {
+    public DexteaApiResponse<IPage<ProductModel>> getProductList(int current, int size, ProductFilter filter) {
         MPJLambdaWrapper<Product> wrapper = new MPJLambdaWrapper<Product>()
-                .selectAsClass(Product.class, ProductListDTO.class)
+                .selectAsClass(Product.class, ProductModel.class)
                 // 商品分类
                 .leftJoin(ProductCategory.class, ProductCategory::getId, Product::getCategoryId)
                 .selectFunc("coalesce(%s,\"未知\")",arg ->arg
                                 .accept(ProductCategory::getName),
-                        ProductListDTO::getCategoryName)
+                        ProductModel::getCategoryText)
                 // 搜索条件
                 .eqIfExists(Product::getId, filter.getId())
                 .likeIfExists(Product::getName, filter.getName())
@@ -96,36 +88,32 @@ public class ProductServiceImpl implements ProductService {
                 .eqIfExists(Product::getGlobalStatus, filter.getStatus())
                 .between(filter.getMinPrice()!=null&& filter.getMaxPrice()!=null,Product::getPrice,filter.getMinPrice(),filter.getMaxPrice());
         // 分页查询
-        return ApiResponse.success(JSONObject.from(getProductListPage(current,size,wrapper)));
+        return DexteaApiResponse.success(getProductListPage(current,size,wrapper));
     }
 
-    /**
-     * 查询商品列表 - 返回全局状态和门店状态
-     * @param storeId 门店ID
-     * @param current 当前页码
-     * @param size 分页大小
-     * @param filter 搜索条件
-     */
+    // 查询商品列表 - 返回全局状态和门店状态
     @Override
-    public ApiResponse getProductList(Long storeId, int current, int size, ProductQueryDTO filter){
+    public DexteaApiResponse<IPage<ProductModel>> getProductList(Long storeId, int current, int size, ProductFilter filter){
         // 校验门店ID
-        if(!storeFeign.isStoreIdValid(storeId))
-            throw new IllegalArgumentException("storeId错误");
+        if(!storeFeign.isStoreIdValid(storeId)){
+            return DexteaApiResponse.fail(ProductErrorCode.PRODUCT_STATUS_STORE_ID_ERROR.getCode(),
+                    ProductErrorCode.PRODUCT_STATUS_STORE_ID_ERROR.getMsg());
+        }
         // 构建查询条件
         MPJLambdaWrapper<Product> wrapper = new MPJLambdaWrapper<Product>()
-                .selectAsClass(Product.class, ProductListDTO.class)
+                .selectAsClass(Product.class, ProductModel.class)
                 // 商品分类
                 .leftJoin(ProductCategory.class, ProductCategory::getId, Product::getCategoryId)
                 .selectFunc("coalesce(%s,\"未知\")",arg ->arg
                                 .accept(ProductCategory::getName),
-                        ProductListDTO::getCategoryName)
+                        ProductModel::getCategoryText)
                 // 门店状态 - 无记录代表禁售
                 .leftJoin(ProductStoreStatus.class,"ps", on -> on
                         .eq(ProductStoreStatus::getProductId,Product::getId)
                         .eq(ProductStoreStatus::getStoreId,storeId))
                 .selectFunc("coalesce(%s,3)",arg ->arg
                                 .accept(ProductStoreStatus::getStatus),
-                        ProductListDTO::getStoreStatus)
+                        ProductModel::getStoreStatus)
                 // 搜索条件
                 // 门店状态的自定义查询
                 .isNull(Objects.nonNull(filter.getStoreStatus()) && filter.getStoreStatus()==3,"ps", ProductStoreStatus::getStatus)
@@ -137,35 +125,36 @@ public class ProductServiceImpl implements ProductService {
                 .eqIfExists(Product::getGlobalStatus, filter.getGlobalStatus())
                 .between(filter.getMinPrice()!=null&& filter.getMaxPrice()!=null,Product::getPrice,filter.getMinPrice(),filter.getMaxPrice());
         // 分页查询
-        return ApiResponse.success(JSONObject.from(getProductListPage(current,size,wrapper)));
+        return DexteaApiResponse.success(getProductListPage(current,size,wrapper));
     }
 
     @Override
-    public ApiResponse getProductOption(Integer globalStatus) {
+    public DexteaApiResponse<List<SelectOptionModel>> getProductOption(Integer globalStatus) {
         MPJLambdaWrapper<Product> wrapper = new MPJLambdaWrapper<Product>()
                 .selectAs(Product::getId, SelectOptionModel::getValue)
                 .selectAs(Product::getName, SelectOptionModel::getLabel)
                 .eqIfExists(Product::getGlobalStatus,globalStatus);
         List<SelectOptionModel> options = productMapper.selectJoinList(SelectOptionModel.class,wrapper);
-        return ApiResponse.success(JSONObject.of("count",options.size(),"options", options));
+        return DexteaApiResponse.success(options);
     }
 
     @Override
-    public ApiResponse getProductBase(Long id) throws NotFoundException {
+    public DexteaApiResponse<ProductModel> getProductBase(Long id){
         MPJLambdaWrapper<Product> wrapper=new MPJLambdaWrapper<Product>()
-                .selectAsClass(Product.class, ProductBaseDTO.class)
+                .selectAsClass(Product.class, ProductModel.class)
                 .leftJoin(ProductCategory.class,ProductCategory::getId,Product::getCategoryId)
-                .selectAs(ProductCategory::getName,ProductBaseDTO::getCategoryName)
+                .selectAs(ProductCategory::getName,ProductModel::getCategoryText)
                 .eq(Product::getId,id);
-        ProductBaseDTO product = productMapper.selectJoinOne(ProductBaseDTO.class,wrapper);
+        ProductModel product = productMapper.selectJoinOne(ProductModel.class,wrapper);
         if(Objects.isNull(product)) {
-            throw new NotFoundException("商品不存在");
+            return DexteaApiResponse.notFound(ProductErrorCode.PRODUCT_NOT_FOUND.getCode(),
+                    ProductErrorCode.PRODUCT_NOT_FOUND.getMsg());
         }
-        return ApiResponse.success(JSONObject.of("product", product));
+        return DexteaApiResponse.success(product);
     }
 
     @Override
-    public ApiResponse getProductImg(Long id) throws NotFoundException {
+    public DexteaApiResponse<List<ImageModel>> getProductImg(Long id){
         MPJLambdaWrapper<Product> wrapper=new MPJLambdaWrapper<Product>()
                 .eq(Product::getId, id)
                 .select(Product::getId)
@@ -173,105 +162,126 @@ public class ProductServiceImpl implements ProductService {
                 .select(Product::getDetailHeaderImg);
         Product product=productMapper.selectJoinOne(wrapper);
         if(Objects.isNull(product)) {
-            throw new NotFoundException("商品不存在");
+            return DexteaApiResponse.notFound(ProductErrorCode.PRODUCT_NOT_FOUND.getCode(),
+                    ProductErrorCode.PRODUCT_NOT_FOUND.getMsg());
         }
-        JSONArray images=new JSONArray();
+        List<ImageModel>list=new ArrayList<>();
         // 封面
-        images.add(new ProductImgDTO(
-                "cover",
-                "封面",
-                StringUtils.isNotBlank(product.getCover())?product.getCover():null,
-                "/product/upload/cover"));
-        images.add(new ProductImgDTO(
-                "detailHeaderImg",
-                "商品详情页头部图",
-                StringUtils.isNotBlank(product.getDetailHeaderImg())?product.getDetailHeaderImg():null,
-                "/product/upload/detail-header-img"));
-        return ApiResponse.success(JSONObject.of("images",images));
+        ImageModel cover= ImageModel.builder()
+                .key("cover")
+                .name("封面")
+                .action("/product/upload/cover")
+                .url(product.getCover())
+                .build();
+        list.add(cover);
+        // 详情页头图
+        ImageModel header= ImageModel.builder()
+                .key("detailHeaderImg")
+                .name("详情页头图")
+                .action("/product/upload/detail-header-img")
+                .url(product.getDetailHeaderImg())
+                .build();
+        list.add(header);
+        return DexteaApiResponse.success(list);
     }
 
-    /**
-     * 获取商品状态 - 只有全局状态
-     * @param productId 商品ID
-     */
+    // 获取商品状态 - 只有全局状态
     @Override
-    public ApiResponse getProductStatus(Long productId) throws NotFoundException {
+    public DexteaApiResponse<ProductModel> getProductStatus(Long productId){
         Integer globalStatus = productFeign.getProductGlobalStatus(productId);
-        if (Objects.isNull(globalStatus)) {
-            throw new NotFoundException("商品不存在");
+        if(Objects.isNull(globalStatus)) {
+            return DexteaApiResponse.notFound(ProductErrorCode.PRODUCT_NOT_FOUND.getCode(),
+                    ProductErrorCode.PRODUCT_NOT_FOUND.getMsg());
         }
-        ProductStatusDTO status=new ProductStatusDTO(globalStatus);
-        return ApiResponse.success(JSONObject.of("status", status));
+        ProductModel product=ProductModel.builder()
+                .globalStatus(globalStatus)
+                .build();
+        return DexteaApiResponse.success(product);
     }
 
-    /**
-     * 获取商品状态 - 全局状态+门店状态
-     * @param productId 商品ID
-     * @param storeId 门店ID
-     */
+    // 获取商品状态 - 全局状态+门店状态
     @Override
-    public ApiResponse getProductStatus(Long productId, Long storeId) throws NotFoundException {
+    public DexteaApiResponse<ProductModel> getProductStatus(Long productId, Long storeId){
         // 校验门店ID
-        if(!storeFeign.isStoreIdValid(storeId))
-            throw new IllegalArgumentException("storeId错误");
+        if(!storeFeign.isStoreIdValid(storeId)){
+            return DexteaApiResponse.fail(ProductErrorCode.PRODUCT_STATUS_STORE_ID_ERROR.getCode(),
+                    ProductErrorCode.PRODUCT_STATUS_STORE_ID_ERROR.getMsg());
+        }
         // 全局状态
         Integer globalStatus = productFeign.getProductGlobalStatus(productId);
-        if (Objects.isNull(globalStatus))
-            throw new NotFoundException("商品不存在");
+        if(Objects.isNull(globalStatus)) {
+            return DexteaApiResponse.notFound(ProductErrorCode.PRODUCT_NOT_FOUND.getCode(),
+                    ProductErrorCode.PRODUCT_NOT_FOUND.getMsg());
+        }
         // 门店状态
         Integer storeStatus=productFeign.getProductStoreStatus(productId,storeId);
         // 构建结果
-        ProductStatusDTO status=new ProductStatusDTO(globalStatus,storeStatus);
-        return ApiResponse.success(JSONObject.of("status", status));
+        ProductModel product=ProductModel.builder()
+                .globalStatus(globalStatus)
+                .storeStatus(storeStatus)
+                .build();
+        return DexteaApiResponse.success(product);
     }
 
     @Override
-    public ApiResponse updateProductBase(Long id, ProductUpdateBaseDTO data) throws NotFoundException {
+    public DexteaApiResponse<Void> updateProductBase(Long id, ProductUpdateBaseRequest data){
         // 校验分类
-        if(!productFeign.isCategoryIdValid(data.getCategoryId()))
-            throw new IllegalArgumentException("categoryId错误");
+        if(!productFeign.isCategoryIdValid(data.getCategoryId())) {
+            return DexteaApiResponse.fail(ProductErrorCode.PRODUCT_EDIT_CATEGORY_ID_ERROR.getCode(),
+                    ProductErrorCode.PRODUCT_EDIT_CATEGORY_ID_ERROR.getMsg());
+        }
         // 更新数据
         Product product=data.toProduct(id);
         if (productMapper.updateById(product) == 0) {
-            throw new NotFoundException("商品不存在");
+            return DexteaApiResponse.notFound(ProductErrorCode.PRODUCT_NOT_FOUND.getCode(),
+                    ProductErrorCode.PRODUCT_NOT_FOUND.getMsg());
         }
-        return ApiResponse.success("更新成功");
+        return DexteaApiResponse.success();
     }
 
     /**
      * 更新全局状态
+     *
      * @param productId 商品ID
-     * @param status 状态
+     * @param status    状态
      */
     @Override
-    public ApiResponse updateProductStatus(Long productId, Integer status) throws NotFoundException {
-        // 校验状态码
-        if(status!=ProductStatus.GLOBAL_FORBIDDEN.getValue() && status!=ProductStatus.AVAILABLE.getValue())
-            throw new IllegalArgumentException("商品状态码错误");
+    public DexteaApiResponse<VPKCRequestBuilder> updateProductStatus(Long productId, Integer status){
+        // 校验状态码 - 全局只有1和0
+        if(status!=ProductStatus.GLOBAL_FORBIDDEN.getValue() && status!=ProductStatus.AVAILABLE.getValue()){
+            return DexteaApiResponse.fail(ProductErrorCode.PRODUCT_STATUS_GLOBAL_STATUS_ERROR.getCode(),
+                    ProductErrorCode.PRODUCT_STATUS_GLOBAL_STATUS_ERROR.getMsg());
+        }
         // 更新db
-        Product product=Product.builder()
-                .id(productId)
-                .globalStatus(status)
-                .build();
-        if (productMapper.updateById(product) == 0)
-            throw new NotFoundException("商品不存在");
-        return ApiResponse.success("更新成功");
+        LambdaUpdateWrapper<Product> wrapper=new LambdaUpdateWrapper<Product>()
+                .eq(Product::getId,productId)
+                .set(Product::getGlobalStatus,status);
+        if (productMapper.update(wrapper) == 0) {
+            return DexteaApiResponse.notFound(ProductErrorCode.PRODUCT_NOT_FOUND.getCode(),
+                    ProductErrorCode.PRODUCT_NOT_FOUND.getMsg());
+        }
+        return DexteaApiResponse.success();
     }
 
     /**
      * 修改门店状态
+     *
      * @param productId 商品ID
-     * @param storeId 门店ID
-     * @param status 状态
+     * @param storeId   门店ID
+     * @param status    状态
      */
     @Override
-    public ApiResponse updateProductStatus(Long productId, Long storeId, Integer status) throws NotFoundException {
+    public DexteaApiResponse<VPKCRequestBuilder> updateProductStatus(Long productId, Long storeId, Integer status){
         // 校验门店ID
-        if(!storeFeign.isStoreIdValid(storeId))
-            throw new IllegalArgumentException("storeId错误");
+        if(!storeFeign.isStoreIdValid(storeId)){
+            return DexteaApiResponse.fail(ProductErrorCode.PRODUCT_STATUS_STORE_ID_ERROR.getCode(),
+                    ProductErrorCode.PRODUCT_STATUS_STORE_ID_ERROR.getMsg());
+        }
         //校验状态码
-        if(status==ProductStatus.GLOBAL_FORBIDDEN.getValue())
-            throw new IllegalArgumentException("商品状态码错误");
+        if(status==ProductStatus.GLOBAL_FORBIDDEN.getValue()){
+            return DexteaApiResponse.fail(ProductErrorCode.PRODUCT_STATUS_STORE_STATUS_ERROR.getCode(),
+                    ProductErrorCode.PRODUCT_STATUS_STORE_STATUS_ERROR.getMsg());
+        }
         // 更新db
         MPJLambdaWrapper<ProductStoreStatus> wrapper = new MPJLambdaWrapper<ProductStoreStatus>()
                 .eq(ProductStoreStatus::getStoreId,storeId)
@@ -290,13 +300,13 @@ public class ProductServiceImpl implements ProductService {
                         .build();
                 productStatusMapper.insert(productStoreStatus);
             }else {
-                UpdateWrapper<ProductStoreStatus> updateWrapper=new UpdateWrapper<>();
-                updateWrapper.set("status",status);
-                updateWrapper.eq("store_id",storeId);
-                updateWrapper.eq("product_id",productId);
+                LambdaUpdateWrapper<ProductStoreStatus> updateWrapper=new LambdaUpdateWrapper<>();
+                updateWrapper.set(ProductStoreStatus::getStatus,status);
+                updateWrapper.eq(ProductStoreStatus::getStoreId,storeId);
+                updateWrapper.eq(ProductStoreStatus::getProductId,productId);
                productStatusMapper.update(updateWrapper);
             }
         }
-        return ApiResponse.success("更新成功");
+        return DexteaApiResponse.success();
     }
 }

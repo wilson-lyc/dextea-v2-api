@@ -1,7 +1,7 @@
 package cn.dextea.product.service;
 
 import cn.dextea.common.model.common.DexteaApiResponse;
-import cn.dextea.product.dto.UploadResponse;
+import cn.dextea.product.model.UploadResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.multipart.MultipartFile;
 
