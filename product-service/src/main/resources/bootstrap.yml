@@ -1,20 +1,22 @@
 server:
-  port: ${SERVER_PORT:8085} # 端口
+  port: ${SERVER_PORT:8085}
 
 spring:
   application:
-    name: product-service # 应用名称
+    name: product-service
+  jackson:
+    default-property-inclusion: non_null
   cloud:
     nacos:
       # 鉴权配置
-      username: ${NACOS_USERNAME:nacos}  # 账号
-      password: ${NACOS_PASSWORD:LYC1208@nacos}  # 密码
+      username: ${NACOS_USERNAME:nacos}
+      password: ${NACOS_PASSWORD:LYC1208@nacos}
       # nacos地址
       server-addr: ${NACOS_URL:localhost:8848}
       # 服务注册
       discovery:
-        namespace: ${NACOS_DISCOVERY_NAMESPACE:dextea} # 命名空间
-        group: ${NACOS_DISCOVERY_GROUP:DEFAULT_GROUP}  # 分组
+        namespace: ${NACOS_DISCOVERY_NAMESPACE:dextea}
+        group: ${NACOS_DISCOVERY_GROUP:DEFAULT_GROUP}
       # 配置中心
       config:
         namespace: ${NACOS_CONFIG_NAMESPACE:dextea} # 命名空间

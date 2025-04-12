@@ -1,9 +1,9 @@
 server:
-  port: ${SERVER_PORT:8081} # 端口
+  port: ${SERVER_PORT:8081}
 
 spring:
   application:
-    name: staff-service # 应用名称
+    name: staff-service
   jackson:
     default-property-inclusion: non_null
   cloud:
