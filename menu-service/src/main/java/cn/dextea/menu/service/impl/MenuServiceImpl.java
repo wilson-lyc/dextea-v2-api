@@ -67,58 +67,17 @@ public class MenuServiceImpl implements MenuService {
 
     @Override
     public DexteaApiResponse<MenuModel> getMenuDetail(Long id, Long storeId){
-        Menu menu=menuMapper.selectById(id);
-        if (Objects.isNull(menu)) {
-            return DexteaApiResponse.notFound(MenuErrorCode.MENU_NOT_FOUND.getCode(),
-                    MenuErrorCode.MENU_NOT_FOUND.getMsg());
-        }
-        MenuModel menuModel=MenuModel.builder()
-                .id(menu.getId())
-                .name(menu.getName())
-                .description(menu.getDescription())
-                .createTime(menu.getCreateTime())
-                .updateTime(menu.getUpdateTime())
-                .build();
-        List<MenuGroupModel> groupModelList=new ArrayList<>();
-        for (MenuGroup group:menu.getContent()){
-            MenuGroupModel menuGroupModel=MenuGroupModel.builder()
-                    .id(group.getId())
-                    .name(group.getName())
-                    .sort(group.getSort())
-                    .build();
-            // 遍历商品
-            List<MenuProductModel> productModelList=new ArrayList<>();
-            for (MenuProduct menuProduct:group.getContent()){
-                ProductModel product=productFeign.getProductDetail(menuProduct.getId(),storeId);
-                // 商品存在则可以返回给前端
-                if (Objects.nonNull(product)) {
-                    MenuProductModel menuProductModel = MenuProductModel.builder()
-                            .id(product.getId())
-                            .name(product.getName())
-                            .description(product.getDescription())
-                            .price(product.getPrice())
-                            .cover(product.getCover())
-                            .globalStatus(product.getGlobalStatus())
-                            .storeStatus(product.getStoreStatus())
-                            .sort(menuProduct.getSort())
-                            .createTime(product.getCreateTime())
-                            .updateTime(product.getUpdateTime())
-                            .build();
-                    productModelList.add(menuProductModel);
-                }
-            }
-            menuGroupModel.setContent(productModelList);
-            groupModelList.add(menuGroupModel);
-        }
-        menuModel.setContent(groupModelList);
-        return DexteaApiResponse.success(menuModel);
+        MenuModel model=menuFeign.getMenuDetail(id,"all",storeId);
+        return DexteaApiResponse.success(model);
     }
 
     @Override
     public DexteaApiResponse<MenuModel> getMenuBase(Long id){
         MPJLambdaWrapper<Menu>wrapper=new MPJLambdaWrapper<Menu>()
                 .eq(Menu::getId,id)
-                .selectAsClass(Menu.class, MenuModel.class);
+                .selectAs(Menu::getId, MenuModel::getId)
+                .selectAs(Menu::getName, MenuModel::getName)
+                .selectAs(Menu::getDescription,MenuModel::getDescription);
         MenuModel menu=menuMapper.selectJoinOne(MenuModel.class,wrapper);
         if (Objects.isNull(menu)) {
             return DexteaApiResponse.notFound(MenuErrorCode.MENU_NOT_FOUND.getCode(),

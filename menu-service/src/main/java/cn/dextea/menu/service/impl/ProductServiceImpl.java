@@ -93,12 +93,13 @@ public class ProductServiceImpl implements ProductService {
         }
         List<MenuProductModel> productList=new ArrayList<>();
         for (MenuProduct item:menuGroup.getContent()){
-            ProductModel product=productFeign.getProductDetail(item.getId());
+            ProductModel product=productFeign.getProductBase(item.getId());
             if (Objects.nonNull(product)){
                 MenuProductModel productModel=MenuProductModel.builder()
                                 .id(product.getId())
                                 .name(product.getName())
                                 .price(product.getPrice())
+                                .globalStatus(product.getGlobalStatus())
                                 .sort(item.getSort())
                                 .build();
                 productList.add(productModel);
@@ -129,6 +130,7 @@ public class ProductServiceImpl implements ProductService {
                         .id(product.getId())
                         .name(product.getName())
                         .price(product.getPrice())
+                        .globalStatus(product.getGlobalStatus())
                         .sort(menuProduct.getSort())
                         .build();
         return DexteaApiResponse.success(menuProductModel);
@@ -157,6 +159,6 @@ public class ProductServiceImpl implements ProductService {
         menuGroup.sortContent();
         // 更新menu
         menuMapper.updateById(menu);
-        return DexteaApiResponse.success("更新成功");
+        return DexteaApiResponse.success();
     }
 }

@@ -19,4 +19,10 @@ public class MenuGroupModel {
     private String name;
     private Integer sort;
     private List<MenuProductModel> content;
+
+    public MenuGroupModel(String id, String name, Integer sort) {
+        this.id = id;
+        this.name = name;
+        this.sort = sort;
+    }
 }

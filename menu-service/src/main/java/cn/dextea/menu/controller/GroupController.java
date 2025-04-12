@@ -2,11 +2,10 @@ package cn.dextea.menu.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dextea.common.model.common.DexteaApiResponse;
+import cn.dextea.common.model.menu.MenuGroupModel;
 import cn.dextea.menu.model.group.GroupBaseModel;
 import cn.dextea.menu.model.group.GroupCreateRequest;
-import cn.dextea.menu.model.group.GroupListModel;
 import cn.dextea.menu.model.group.GroupUpdateBaseRequest;
-import cn.dextea.menu.pojo.MenuGroup;
 import cn.dextea.menu.service.GroupService;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
@@ -33,22 +32,14 @@ public class GroupController {
 
     @GetMapping("/menu/{menuId:\\d+}/group")
     @SaCheckPermission("menu:group:read")
-    public DexteaApiResponse<List<GroupListModel>> getGroupList(
+    public DexteaApiResponse<List<MenuGroupModel>> getGroupList(
             @PathVariable Long menuId){
         return groupService.getGroupList(menuId);
     }
 
-    @GetMapping("/menu/{menuId:\\d+}/group/{groupId}")
-    @SaCheckPermission("menu:group:read")
-    public DexteaApiResponse<MenuGroup> getGroupById(
-            @PathVariable Long menuId,
-            @PathVariable String groupId) throws NotFoundException{
-        return groupService.getGroupById(menuId,groupId);
-    }
-
     @GetMapping("/menu/{menuId:\\d+}/group/{groupId}/base")
     @SaCheckPermission("menu:group:read")
-    public DexteaApiResponse<GroupBaseModel> getGroupBase(
+    public DexteaApiResponse<MenuGroupModel> getGroupBase(
             @PathVariable Long menuId,
             @PathVariable String groupId) {
         return groupService.getGroupBase(menuId,groupId);

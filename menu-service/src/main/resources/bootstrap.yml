@@ -3,7 +3,9 @@ server:
 
 spring:
   application:
-    name: menu-service # 应用名称
+    name: menu-service
+  jackson:
+    default-property-inclusion: non_null
   cloud:
     nacos:
       # 鉴权配置

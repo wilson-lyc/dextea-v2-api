@@ -78,12 +78,22 @@ public class InternalController {
 
     // 获取商品详情
     @GetMapping("/product/internal/getProductDetail")
-    public ProductModel getProductById(
+    public ProductModel getProductDetail(
             @RequestParam Long productId,
             @RequestParam(required = false) Long storeId) {
         if (Objects.isNull(storeId))
             return internalService.getProductDetail(productId);
         else
             return internalService.getProductDetail(productId,storeId);
+    }
+
+    // 获取商品基础信息
+    @GetMapping("/product/internal/getProductBase")
+    public ProductModel getProductBase(@RequestParam Long productId,
+                                       @RequestParam(required = false) Long storeId) {
+        if (Objects.isNull(storeId))
+            return internalService.getProductBase(productId);
+        else
+            return internalService.getProductBase(productId,storeId);
     }
 }

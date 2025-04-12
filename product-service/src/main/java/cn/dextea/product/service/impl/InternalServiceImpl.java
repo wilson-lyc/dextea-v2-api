@@ -131,9 +131,9 @@ public class InternalServiceImpl implements InternalService {
                 .eq(CustomizeItem::getProductId,productId)
                 .eq(CustomizeItem::getStatus,CustomizeItemStatus.AVAILABLE.getValue())
                 .orderByAsc(CustomizeItem::getSort);
-        List<CustomizeItemModel> items=itemMapper.selectJoinList(CustomizeItemModel.class,itemWrapper);
-        // 获取客制化选项
-        for (CustomizeItemModel item:items){
+        List<CustomizeItemModel> itemModelList=itemMapper.selectJoinList(CustomizeItemModel.class,itemWrapper);
+        // 获取客制化选项 - 只返回全局状态
+        for (CustomizeItemModel item:itemModelList){
             MPJLambdaWrapper<CustomizeOption> optionWrapper=new MPJLambdaWrapper<CustomizeOption>()
                     .selectAsClass(CustomizeOption.class, CustomizeOptionModel.class)
                     .eq(CustomizeOption::getItemId,item.getId())
@@ -141,7 +141,7 @@ public class InternalServiceImpl implements InternalService {
             List<CustomizeOptionModel> options=optionMapper.selectJoinList(CustomizeOptionModel.class,optionWrapper);
             item.setOptions(options);
         }
-        product.setCustomize(items);
+        product.setCustomize(itemModelList);
         return product;
     }
 
@@ -170,9 +170,9 @@ public class InternalServiceImpl implements InternalService {
                 .eq(CustomizeItem::getProductId,productId)
                 .eq(CustomizeItem::getStatus, CustomizeItemStatus.AVAILABLE.getValue())
                 .orderByAsc(CustomizeItem::getSort);
-        List<CustomizeItemModel> items=itemMapper.selectJoinList(CustomizeItemModel.class,itemWrapper);
-        // 获取客制化选项
-        for (CustomizeItemModel item:items){
+        List<CustomizeItemModel> itemModelList=itemMapper.selectJoinList(CustomizeItemModel.class,itemWrapper);
+        // 获取客制化选项 - 全局+门店状态
+        for (CustomizeItemModel item:itemModelList){
             MPJLambdaWrapper<CustomizeOption> optionWrapper=new MPJLambdaWrapper<CustomizeOption>()
                     .selectAsClass(CustomizeOption.class, CustomizeOptionModel.class)
                     .eq(CustomizeOption::getItemId,item.getId())
@@ -187,7 +187,44 @@ public class InternalServiceImpl implements InternalService {
             List<CustomizeOptionModel> options=optionMapper.selectJoinList(CustomizeOptionModel.class,optionWrapper);
             item.setOptions(options);
         }
-        product.setCustomize(items);
+        product.setCustomize(itemModelList);
         return product;
+    }
+
+    // 获取商品基础信息
+
+    @Override
+    public ProductModel getProductBase(Long productId) {
+        // 获取商品基础信息 + 分类
+        MPJLambdaWrapper<Product> productWrapper=new MPJLambdaWrapper<Product>()
+                .selectAsClass(Product.class,ProductModel.class)
+                .eq(Product::getId,productId)
+                // 商品分类
+                .leftJoin(ProductCategory.class,ProductCategory::getId,Product::getCategoryId)
+                .selectFunc("coalesce(%s,\"未知\")",arg ->arg
+                                .accept(ProductCategory::getName),
+                        ProductModel::getCategoryText);
+        return productMapper.selectJoinOne(ProductModel.class,productWrapper);
+    }
+
+    @Override
+    public ProductModel getProductBase(Long productId, Long storeId) {
+        // 获取商品基础信息 + 分类 + 门店状态
+        MPJLambdaWrapper<Product> productWrapper=new MPJLambdaWrapper<Product>()
+                .selectAsClass(Product.class,ProductModel.class)
+                .eq(Product::getId,productId)
+                // 商品分类
+                .leftJoin(ProductCategory.class,ProductCategory::getId,Product::getCategoryId)
+                .selectFunc("coalesce(%s,\"未知\")",arg ->arg
+                                .accept(ProductCategory::getName),
+                        ProductModel::getCategoryText)
+                // 门店状态
+                .leftJoin(ProductStoreStatus.class,"ps", on -> on
+                        .eq(ProductStoreStatus::getProductId,Product::getId)
+                        .eq(ProductStoreStatus::getStoreId,storeId))
+                .selectFunc("coalesce(%s,3)",arg ->arg
+                                .accept(ProductStoreStatus::getStatus),
+                        ProductModel::getStoreStatus);
+        return productMapper.selectJoinOne(ProductModel.class,productWrapper);
     }
 }

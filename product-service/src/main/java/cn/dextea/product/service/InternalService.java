@@ -23,4 +23,7 @@ public interface InternalService {
 
     BigDecimal getCustomizeOptionPrice(Long id);
     BigDecimal getProductPrice(Long id);
+
+    ProductModel getProductBase(Long productId);
+    ProductModel getProductBase(Long productId, Long storeId);
 }

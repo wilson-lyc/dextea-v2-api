@@ -1,12 +1,12 @@
 package cn.dextea.menu.service;
 
-import cn.dextea.menu.pojo.Menu;
+import cn.dextea.common.model.menu.MenuModel;
 
 /**
  * @author Lai Yongchao
  */
 public interface InternalService {
-    Menu getMenuById(Long id);
+    MenuModel getMenuDetail(Long id, String mode, Long storeId);
 
     boolean isMenuIdValid(Long id);
 }

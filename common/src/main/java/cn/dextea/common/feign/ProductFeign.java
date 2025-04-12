@@ -55,5 +55,12 @@ public interface ProductFeign {
 
     @GetMapping("/product/internal/getProductDetail")
     ProductModel getProductDetail(@RequestParam("productId") Long productId,
+                                  @RequestParam("storeId") Long storeId);
+
+    // 获取商品基础信息
+    @GetMapping("/product/internal/getProductBase")
+    ProductModel getProductBase(@RequestParam("productId") Long productId);
+    @GetMapping("/product/internal/getProductBase")
+    ProductModel getProductBase(@RequestParam("productId") Long productId,
                                 @RequestParam("storeId") Long storeId);
 }

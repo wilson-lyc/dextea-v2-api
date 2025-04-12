@@ -1,17 +1,15 @@
 package cn.dextea.menu.service.impl;
 
 import cn.dextea.common.model.common.DexteaApiResponse;
+import cn.dextea.common.model.menu.MenuGroupModel;
 import cn.dextea.menu.code.MenuErrorCode;
 import cn.dextea.menu.pojo.Menu;
-import cn.dextea.menu.model.group.GroupBaseModel;
 import cn.dextea.menu.model.group.GroupCreateRequest;
-import cn.dextea.menu.model.group.GroupListModel;
 import cn.dextea.menu.model.group.GroupUpdateBaseRequest;
 import cn.dextea.menu.mapper.MenuMapper;
 import cn.dextea.menu.pojo.MenuGroup;
 import cn.dextea.menu.service.GroupService;
 import jakarta.annotation.Resource;
-import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -45,35 +43,20 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public DexteaApiResponse<List<GroupListModel>> getGroupList(Long menuId) {
+    public DexteaApiResponse<List<MenuGroupModel>> getGroupList(Long menuId) {
         Menu menu=menuMapper.selectById(menuId);
         if (Objects.isNull(menu)) {
             return DexteaApiResponse.fail(MenuErrorCode.MENU_ID_ILLEGAL.getCode(),
                     MenuErrorCode.MENU_ID_ILLEGAL.getMsg());
         }
-        List<GroupListModel> groupList = menu.getContent().stream()
-                .map(GroupListModel::fromMenuGroup)
+        List<MenuGroupModel> list = menu.getContent().stream()
+                .map(group ->new MenuGroupModel(group.getId(),group.getName(),group.getSort()))
                 .collect(Collectors.toList());
-        return DexteaApiResponse.success(groupList);
+        return DexteaApiResponse.success(list);
     }
 
     @Override
-    public DexteaApiResponse<MenuGroup> getGroupById(Long menuId, String groupId) {
-        Menu menu=menuMapper.selectById(menuId);
-        if (Objects.isNull(menu)) {
-            return DexteaApiResponse.fail(MenuErrorCode.MENU_ID_ILLEGAL.getCode(),
-                    MenuErrorCode.MENU_ID_ILLEGAL.getMsg());
-        }
-        MenuGroup menuGroup=menu.getMenuGroup(groupId);
-        if (Objects.isNull(menuGroup)) {
-            return DexteaApiResponse.notFound(MenuErrorCode.GROUP_NOT_FOUND.getCode(),
-                    MenuErrorCode.GROUP_NOT_FOUND.getMsg());
-        }
-        return DexteaApiResponse.success(menuGroup);
-    }
-
-    @Override
-    public DexteaApiResponse<GroupBaseModel> getGroupBase(Long menuId, String groupId) {
+    public DexteaApiResponse<MenuGroupModel> getGroupBase(Long menuId, String groupId) {
         Menu menu=menuMapper.selectById(menuId);
         if (Objects.isNull(menu)) {
             return DexteaApiResponse.fail(MenuErrorCode.MENU_ID_ILLEGAL.getCode(),
@@ -84,7 +67,8 @@ public class GroupServiceImpl implements GroupService {
             return DexteaApiResponse.notFound(MenuErrorCode.GROUP_NOT_FOUND.getCode(),
                     MenuErrorCode.GROUP_NOT_FOUND.getMsg());
         }
-        return DexteaApiResponse.success(GroupBaseModel.fromMenuGroup(group));
+        MenuGroupModel model=new MenuGroupModel(group.getId(),group.getName(),group.getSort());
+        return DexteaApiResponse.success(model);
     }
 
     @Override

@@ -1,6 +1,7 @@
 package cn.dextea.menu.controller;
 
 import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.dextea.common.feign.MenuFeign;
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.menu.MenuModel;
 import cn.dextea.menu.model.menu.*;
