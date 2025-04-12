@@ -60,12 +60,11 @@ public class ProductController {
 
     /**
      * 获取商品选项
-     * @param status 全局销售状态
      */
     @GetMapping("/product/option")
     @SaCheckPermission("product:product:read")
-    public DexteaApiResponse<List<SelectOptionModel>> getProductOption(Integer status) {
-        return productService.getProductOption(status);
+    public DexteaApiResponse<List<SelectOptionModel>> getProductOption() {
+        return productService.getProductOption();
     }
 
     /**

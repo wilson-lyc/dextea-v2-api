@@ -86,7 +86,8 @@ public class ProductServiceImpl implements ProductService {
                 .likeIfExists(Product::getName, filter.getName())
                 .eqIfExists(Product::getCategoryId, filter.getCategoryId())
                 .eqIfExists(Product::getGlobalStatus, filter.getStatus())
-                .between(filter.getMinPrice()!=null&& filter.getMaxPrice()!=null,Product::getPrice,filter.getMinPrice(),filter.getMaxPrice());
+                .geIfExists(Product::getPrice,filter.getMinPrice())
+                .leIfExists(Product::getPrice,filter.getMaxPrice());
         // 分页查询
         return DexteaApiResponse.success(getProductListPage(current,size,wrapper));
     }
@@ -123,17 +124,17 @@ public class ProductServiceImpl implements ProductService {
                 .likeIfExists(Product::getName, filter.getName())
                 .eqIfExists(Product::getCategoryId, filter.getCategoryId())
                 .eqIfExists(Product::getGlobalStatus, filter.getGlobalStatus())
-                .between(filter.getMinPrice()!=null&& filter.getMaxPrice()!=null,Product::getPrice,filter.getMinPrice(),filter.getMaxPrice());
+                .geIfExists(Product::getPrice,filter.getMinPrice())
+                .leIfExists(Product::getPrice,filter.getMaxPrice());
         // 分页查询
         return DexteaApiResponse.success(getProductListPage(current,size,wrapper));
     }
 
     @Override
-    public DexteaApiResponse<List<SelectOptionModel>> getProductOption(Integer globalStatus) {
+    public DexteaApiResponse<List<SelectOptionModel>> getProductOption() {
         MPJLambdaWrapper<Product> wrapper = new MPJLambdaWrapper<Product>()
                 .selectAs(Product::getId, SelectOptionModel::getValue)
-                .selectAs(Product::getName, SelectOptionModel::getLabel)
-                .eqIfExists(Product::getGlobalStatus,globalStatus);
+                .selectAs(Product::getName, SelectOptionModel::getLabel);
         List<SelectOptionModel> options = productMapper.selectJoinList(SelectOptionModel.class,wrapper);
         return DexteaApiResponse.success(options);
     }
@@ -239,12 +240,7 @@ public class ProductServiceImpl implements ProductService {
         return DexteaApiResponse.success();
     }
 
-    /**
-     * 更新全局状态
-     *
-     * @param productId 商品ID
-     * @param status    状态
-     */
+    // 更新全局状态
     @Override
     public DexteaApiResponse<VPKCRequestBuilder> updateProductStatus(Long productId, Integer status){
         // 校验状态码 - 全局只有1和0
@@ -263,13 +259,7 @@ public class ProductServiceImpl implements ProductService {
         return DexteaApiResponse.success();
     }
 
-    /**
-     * 修改门店状态
-     *
-     * @param productId 商品ID
-     * @param storeId   门店ID
-     * @param status    状态
-     */
+    // 更新门店状态
     @Override
     public DexteaApiResponse<VPKCRequestBuilder> updateProductStatus(Long productId, Long storeId, Integer status){
         // 校验门店ID

@@ -22,7 +22,7 @@ public interface ProductService {
     // 列表
     DexteaApiResponse<IPage<ProductModel>> getProductList(int current, int size, ProductFilter filter);
     DexteaApiResponse<IPage<ProductModel>> getProductList(Long storeId, int current, int size, ProductFilter filter);
-    DexteaApiResponse<List<SelectOptionModel>> getProductOption(Integer status);
+    DexteaApiResponse<List<SelectOptionModel>> getProductOption();
     // 单项
     DexteaApiResponse<ProductModel> getProductBase(Long id);
     DexteaApiResponse<List<ImageModel>> getProductImg(Long id);
