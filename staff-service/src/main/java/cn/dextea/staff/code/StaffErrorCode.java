@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum StaffErrorCode {
+    STATUS_ERROR("staff.status.error", "员工状态码错误"),
     STORE_ID_NULL("staff.store.id.null", "门店ID不可为空"),
     STORE_ID_ILLEGAL("staff.store.id.illegal", "门店ID错误"),
     CREATE_ACCOUNT_FAIL("staff.create.account.fail", "创建账号失败"),

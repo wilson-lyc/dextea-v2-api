@@ -138,6 +138,12 @@ public class StaffServiceImpl implements StaffService {
 
     @Override
     public DexteaApiResponse<Void> updateStaffStatus(Long id, Integer status){
+        // 校验状态
+        if(StaffStatus.fromValue(status).equals(StaffStatus.UNKNOWN)){
+            return DexteaApiResponse.fail(StaffErrorCode.STATUS_ERROR.getCode(),
+                    StaffErrorCode.STATUS_ERROR.getMsg());
+        }
+        // 更新状态
         LambdaUpdateWrapper<Staff> wrapper=new LambdaUpdateWrapper<Staff>()
                 .set(Staff::getStatus,status)
                 .eq(Staff::getId,id);

@@ -42,7 +42,7 @@ public class LoginServiceImpl implements LoginService {
             return DexteaApiResponse.fail(StaffErrorCode.LOGIN_FAIL.getCode(),StaffErrorCode.LOGIN_FAIL.getMsg());
         }
         // 账号被禁用
-        if(staff.getStatus().equals(StaffStatus.FORBIDDEN.getValue())){
+        if(!staff.getStatus().equals(StaffStatus.ACTIVE.getValue())){
             return DexteaApiResponse.fail(StaffErrorCode.ACCOUNT_FORBIDDEN.getCode(),StaffErrorCode.ACCOUNT_FORBIDDEN.getMsg());
         }
         // 创建token
