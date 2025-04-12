@@ -1,5 +1,6 @@
 package cn.dextea.common.handler;
 
+import cn.dextea.common.code.GlobalErrorCode;
 import cn.dextea.common.model.common.DexteaApiResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -19,8 +20,8 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public DexteaApiResponse<Void> handleValidationException(MethodArgumentNotValidException e) {
         String msg=e.getBindingResult().getFieldErrors().get(0).getDefaultMessage();
-        log.error("参数错误: {}", e.getBindingResult().getFieldErrors());
-        return DexteaApiResponse.fail(msg);
+        log.error("参数错误: {}", msg);
+        return DexteaApiResponse.fail(msg, GlobalErrorCode.PARAM_ERROR.getCode(),msg);
     }
 
     // 请求缺少参数

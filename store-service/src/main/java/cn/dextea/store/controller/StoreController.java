@@ -77,7 +77,7 @@ public class StoreController {
      */
     @GetMapping("/store/{id:\\d+}/base")
     @SaCheckPermission("store:store:read")
-    public DexteaApiResponse<StoreModel> getStoreBase(@PathVariable Long id) throws NotFoundException {
+    public DexteaApiResponse<StoreModel> getStoreBase(@PathVariable Long id){
         return storeService.getStoreBase(id);
     }
 
@@ -87,7 +87,7 @@ public class StoreController {
      */
     @GetMapping("/store/{id:\\d+}/license")
     @SaCheckPermission("store:store:read")
-    public DexteaApiResponse<List<ImageModel>> getStoreLicense(@PathVariable Long id) throws NotFoundException {
+    public DexteaApiResponse<List<ImageModel>> getStoreLicense(@PathVariable Long id){
         return storeService.getStoreLicense(id);
     }
 
@@ -97,7 +97,7 @@ public class StoreController {
      */
     @GetMapping("/store/{id:\\d+}/status")
     @SaCheckPermission("store:store:read")
-    public DexteaApiResponse<StoreModel> getStoreStatus(@PathVariable Long id) throws NotFoundException {
+    public DexteaApiResponse<StoreModel> getStoreStatus(@PathVariable Long id){
         return storeService.getStoreStatus(id);
     }
 
@@ -107,7 +107,7 @@ public class StoreController {
      */
     @GetMapping("/store/{id:\\d+}/location")
     @SaCheckPermission("store:store:read")
-    public DexteaApiResponse<StoreModel> getStoreLocation(@PathVariable Long id) throws NotFoundException {
+    public DexteaApiResponse<StoreModel> getStoreLocation(@PathVariable Long id){
         return storeService.getStoreLocation(id);
     }
 
@@ -118,7 +118,7 @@ public class StoreController {
      */
     @PutMapping("/store/{id:\\d+}/base")
     @SaCheckPermission("store:store:update:base")
-    public DexteaApiResponse<Void> updateStoreBase(@PathVariable Long id, @RequestBody StoreUpdateBaseRequest data) throws NotFoundException {
+    public DexteaApiResponse<Void> updateStoreBase(@PathVariable Long id, @RequestBody StoreUpdateBaseRequest data){
         return storeService.updateStoreBase(id, data);
     }
 
@@ -131,7 +131,7 @@ public class StoreController {
     @SaCheckPermission("store:store:update:location")
     public DexteaApiResponse<Void> updateStoreLocation(
             @PathVariable Long id,
-            @RequestBody StoreUpdateLocationRequest data) throws NotFoundException {
+            @RequestBody StoreUpdateLocationRequest data){
         return storeService.updateStoreLocation(id, data);
     }
 
@@ -144,7 +144,7 @@ public class StoreController {
     @SaCheckPermission("store:store:update:status")
     public DexteaApiResponse<Void> updateStoreStatus(
             @PathVariable Long id,
-            @RequestParam Integer status) throws NotFoundException {
+            @RequestParam Integer status){
         return storeService.updateStoreStatus(id, status);
     }
 }

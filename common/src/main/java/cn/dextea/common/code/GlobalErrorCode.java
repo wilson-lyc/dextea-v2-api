@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum GlobalErrorCode {
+    PARAM_ERROR("global.param.error", "参数错误"),
     PERMISSION_LACK("global.permission.lack", "您没有操作权限");
     private final String code;
     private final String msg;

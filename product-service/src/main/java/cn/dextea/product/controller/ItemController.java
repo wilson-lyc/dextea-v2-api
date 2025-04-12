@@ -60,7 +60,7 @@ public class ItemController {
      * @param data 更新数据
      */
     @PutMapping("/product/customize/{id}")
-    @SaCheckPermission("product:customize_item:update")
+    @SaCheckPermission("product:customize_item:update:base")
     public DexteaApiResponse<Void> updateItemDetail(
             @PathVariable Long id,
             @Valid @RequestBody ItemUpdateRequest data) {
@@ -68,7 +68,7 @@ public class ItemController {
     }
 
     @PutMapping("/product/customize/{id}/status")
-    @SaCheckPermission("product:customize_item:update")
+    @SaCheckPermission("product:customize_item:update:status")
     public DexteaApiResponse<Void> updateItemStatus(
             @PathVariable Long id,
             @RequestParam Integer status){

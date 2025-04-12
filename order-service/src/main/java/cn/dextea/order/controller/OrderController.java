@@ -1,5 +1,6 @@
 package cn.dextea.order.controller;
 
+import cn.dev33.satoken.annotation.SaCheckPermission;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dextea.common.model.common.DexteaApiResponse;
 import cn.dextea.common.model.order.OrderModel;
@@ -29,6 +30,7 @@ public class OrderController {
      * @param filter 搜索条件
      */
     @GetMapping("/order")
+    @SaCheckPermission("order:order:read")
     public DexteaApiResponse<IPage<OrderModel>> getOrderList(
             @RequestParam(defaultValue = "1") int current,
             @RequestParam(defaultValue = "10") int size,
@@ -41,6 +43,7 @@ public class OrderController {
      * @param id 订单id
      */
     @GetMapping("/order/{id}/base")
+    @SaCheckPermission("order:order:read")
     public DexteaApiResponse<OrderModel> getOrderBase(@PathVariable Long id) {
         return orderService.getOrderBase(id);
     }
@@ -50,6 +53,7 @@ public class OrderController {
      * @param id 订单ID
      */
     @GetMapping("/order/{id}")
+    @SaCheckPermission("order:order:read")
     public DexteaApiResponse<OrderModel> getOrderDetail(@PathVariable String id) {
         return orderService.getOrderDetail(id);
     }
@@ -59,6 +63,7 @@ public class OrderController {
      * @param storeId 门店ID
      */
     @GetMapping("/order/counter")
+    @SaCheckPermission("order:order:read")
     public DexteaApiResponse<CounterOrderListModel> getOrderForCounter(@RequestParam Long storeId){
         return orderService.getOrderForCounter(storeId);
     }
@@ -68,6 +73,7 @@ public class OrderController {
      * @param id 订单ID
      */
     @GetMapping("/order/{id}/call")
+    @SaCheckPermission("order:order:call")
     public DexteaApiResponse<Void> orderCall(@PathVariable String id){
         return orderService.orderCall(id);
     }
@@ -78,6 +84,7 @@ public class OrderController {
      * @param id 订单ID
      */
     @PutMapping("/order/{id}/status/wait-pick")
+    @SaCheckPermission("order:order:update:wait_pick")
     public DexteaApiResponse<Void> waitPick(
             @PathVariable String id,
             @RequestParam(required = false) String mode){
@@ -89,6 +96,7 @@ public class OrderController {
      * @param id 订单ID
      */
     @PutMapping("/order/{id}/status/done")
+    @SaCheckPermission("order:order:update:done")
     public DexteaApiResponse<Void> done(
             @PathVariable String id,
             @RequestParam(required = false) String mode){
@@ -100,6 +108,7 @@ public class OrderController {
      * @param data 退款请求
      */
     @PutMapping("/order/status/refund")
+    @SaCheckPermission("order:order:update:refund")
     public DexteaApiResponse<Void> refund(
             @RequestBody OrderRefundRequest data,
             @RequestParam(required = false) String mode){

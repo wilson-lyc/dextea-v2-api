@@ -19,7 +19,6 @@ public class StoreCreateRequest {
     private String province;
     @NotBlank(message = "城市不能为空")
     private String city;
-    @NotBlank(message = "区县不能为空")
     private String district;
     @NotBlank(message = "详细地址不能为空")
     private String address;

@@ -25,12 +25,12 @@ public interface StoreService {
     DexteaApiResponse<List<SelectOptionModel>> getStoreOption();
     DexteaApiResponse<JSONArray> getStoreTreeOption();
     // 单项
-    DexteaApiResponse<StoreModel> getStoreBase(Long id) throws NotFoundException;
-    DexteaApiResponse<List<ImageModel>> getStoreLicense(Long id) throws NotFoundException;
-    DexteaApiResponse<StoreModel> getStoreStatus(Long id) throws NotFoundException;
-    DexteaApiResponse<StoreModel> getStoreLocation(Long id) throws NotFoundException;
+    DexteaApiResponse<StoreModel> getStoreBase(Long id);
+    DexteaApiResponse<List<ImageModel>> getStoreLicense(Long id);
+    DexteaApiResponse<StoreModel> getStoreStatus(Long id);
+    DexteaApiResponse<StoreModel> getStoreLocation(Long id);
     // 更新
-    DexteaApiResponse<Void> updateStoreBase(Long id, StoreUpdateBaseRequest data) throws NotFoundException;
-    DexteaApiResponse<Void> updateStoreLocation(Long id, StoreUpdateLocationRequest body) throws NotFoundException;
-    DexteaApiResponse<Void> updateStoreStatus(Long id, Integer status) throws NotFoundException;
+    DexteaApiResponse<Void> updateStoreBase(Long id, StoreUpdateBaseRequest data);
+    DexteaApiResponse<Void> updateStoreLocation(Long id, StoreUpdateLocationRequest body);
+    DexteaApiResponse<Void> updateStoreStatus(Long id, Integer status);
 }

@@ -6,6 +6,7 @@ import cn.dextea.common.feign.StoreFeign;
 import cn.dextea.common.model.common.ImageModel;
 import cn.dextea.common.model.common.SelectOptionModel;
 import cn.dextea.common.model.store.StoreModel;
+import cn.dextea.store.code.StoreErrorCode;
 import cn.dextea.store.mapper.StoreMapper;
 import cn.dextea.store.model.*;
 import cn.dextea.store.pojo.Store;
@@ -42,8 +43,6 @@ public class StoreServiceImpl implements StoreService {
     StoreMapper storeMapper;
     @Resource
     RedisUtil redisUtil;
-    @Resource
-    StoreFeign storeFeign;
     @Value("${amap.key}")
     private String AMAP_KEY;
 
@@ -168,7 +167,7 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public DexteaApiResponse<StoreModel> getStoreBase(Long id) throws NotFoundException {
+    public DexteaApiResponse<StoreModel> getStoreBase(Long id) {
         MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
                 .selectAs(Store::getId, StoreModel::getId)
                 .selectAs(Store::getName, StoreModel::getName)
@@ -183,16 +182,18 @@ public class StoreServiceImpl implements StoreService {
                 .eq(Store::getId,id);
         StoreModel store=storeMapper.selectJoinOne(StoreModel.class, wrapper);
         if (Objects.isNull(store)){
-            throw new NotFoundException("门店不存在");
+            return DexteaApiResponse.notFound(StoreErrorCode.STORE_NOT_FOUND.getCode(),
+                    StoreErrorCode.STORE_NOT_FOUND.getMsg());
         }
         return DexteaApiResponse.success(store);
     }
 
     @Override
-    public DexteaApiResponse<List<ImageModel>> getStoreLicense(Long id) throws NotFoundException {
+    public DexteaApiResponse<List<ImageModel>> getStoreLicense(Long id){
         Store store=storeMapper.selectById(id);
         if (Objects.isNull(store)){
-            throw new NotFoundException("不存在该门店");
+            return DexteaApiResponse.notFound(StoreErrorCode.STORE_NOT_FOUND.getCode(),
+                    StoreErrorCode.STORE_NOT_FOUND.getMsg());
         }
         List<ImageModel> imageList=new ArrayList<>();
         // 营业执照
@@ -215,18 +216,20 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public DexteaApiResponse<StoreModel> getStoreStatus(Long id) throws NotFoundException {
+    public DexteaApiResponse<StoreModel> getStoreStatus(Long id){
         MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
                 .selectAs(Store::getStatus,StoreModel::getStatus)
                 .eq(Store::getId,id);
         StoreModel store=storeMapper.selectJoinOne(StoreModel.class,wrapper);
-        if(Objects.isNull(store))
-            throw new NotFoundException("门店不存在");
+        if(Objects.isNull(store)){
+            return DexteaApiResponse.notFound(StoreErrorCode.STORE_NOT_FOUND.getCode(),
+                    StoreErrorCode.STORE_NOT_FOUND.getMsg());
+        }
         return DexteaApiResponse.success(store);
     }
 
     @Override
-    public DexteaApiResponse<StoreModel> getStoreLocation(Long id) throws NotFoundException {
+    public DexteaApiResponse<StoreModel> getStoreLocation(Long id){
         MPJLambdaWrapper<Store> wrapper=new MPJLambdaWrapper<Store>()
                 .selectAs(Store::getLongitude, StoreModel::getLongitude)
                 .selectAs(Store::getLatitude, StoreModel::getLatitude)
@@ -236,13 +239,15 @@ public class StoreServiceImpl implements StoreService {
                 .selectAs(Store::getAddress, StoreModel::getAddress)
                 .eq(Store::getId,id);
         StoreModel store=storeMapper.selectJoinOne(StoreModel.class,wrapper);
-        if (Objects.isNull(store))
-            throw new NotFoundException("门店不存在");
+        if (Objects.isNull(store)){
+            return DexteaApiResponse.notFound(StoreErrorCode.STORE_NOT_FOUND.getCode(),
+                    StoreErrorCode.STORE_NOT_FOUND.getMsg());
+        }
         return DexteaApiResponse.success(store);
     }
 
     @Override
-    public DexteaApiResponse<Void> updateStoreBase(Long id, StoreUpdateBaseRequest data) throws NotFoundException {
+    public DexteaApiResponse<Void> updateStoreBase(Long id, StoreUpdateBaseRequest data){
         UpdateWrapper<Store> updateWrapper=new UpdateWrapper<Store>()
                 .eq("id",id)
                 .set("name",data.getName())
@@ -254,20 +259,23 @@ public class StoreServiceImpl implements StoreService {
                 .set("phone",data.getPhone())
                 .set("status",data.getStatus())
                 .set("open_time",data.getOpenTime());
-        if (storeMapper.update(updateWrapper)==0)
-            throw new NotFoundException("门店不存在");
+        if (storeMapper.update(updateWrapper)==0){
+            return DexteaApiResponse.notFound(StoreErrorCode.STORE_NOT_FOUND.getCode(),
+                    StoreErrorCode.STORE_NOT_FOUND.getMsg());
+        }
         return DexteaApiResponse.success("更新成功");
     }
 
     @Override
-    public DexteaApiResponse<Void> updateStoreLocation(Long id, StoreUpdateLocationRequest data) throws NotFoundException {
+    public DexteaApiResponse<Void> updateStoreLocation(Long id, StoreUpdateLocationRequest data){
         LambdaUpdateWrapper<Store> wrapper=new LambdaUpdateWrapper<Store>()
                 .eq(Store::getId,id)
                 .set(Store::getLongitude,data.getLongitude())
                 .set(Store::getLatitude,data.getLatitude());
         // 更新数据库
         if(storeMapper.update(wrapper)==0){
-            throw new NotFoundException("门店不存在");
+            return DexteaApiResponse.notFound(StoreErrorCode.STORE_NOT_FOUND.getCode(),
+                    StoreErrorCode.STORE_NOT_FOUND.getMsg());
         }
         // 更新redis
         redisUtil.setStoreLocation(id,data.getLongitude(),data.getLatitude());
@@ -275,12 +283,19 @@ public class StoreServiceImpl implements StoreService {
     }
 
     @Override
-    public DexteaApiResponse<Void> updateStoreStatus(Long id, Integer status) throws NotFoundException {
+    public DexteaApiResponse<Void> updateStoreStatus(Long id, Integer status){
+        // 校验状态
+        if(StoreStatus.fromValue(status).equals(StoreStatus.UNKNOWN)){
+            return DexteaApiResponse.fail(StoreErrorCode.STORE_STATUS_ERROR.getCode(),
+                    StoreErrorCode.STORE_STATUS_ERROR.getMsg());
+        }
         LambdaUpdateWrapper<Store> wrapper=new LambdaUpdateWrapper<Store>()
                 .eq(Store::getId,id)
                 .set(Store::getStatus,status);
-        if (storeMapper.update(wrapper)==0)
-            throw new NotFoundException("门店不存在");
+        if (storeMapper.update(wrapper)==0){
+            return DexteaApiResponse.notFound(StoreErrorCode.STORE_NOT_FOUND.getCode(),
+                    StoreErrorCode.STORE_NOT_FOUND.getMsg());
+        }
         return DexteaApiResponse.success("状态更新成功");
     }
 }

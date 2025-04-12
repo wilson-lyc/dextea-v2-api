@@ -9,7 +9,6 @@ import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.annotation.Resource;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import org.apache.ibatis.javassist.NotFoundException;
 import org.springframework.web.bind.annotation.*;
 
 /**
@@ -58,7 +57,7 @@ public class MenuController {
     }
 
     @PostMapping("/menu/{id:\\d+}/send")
-    @SaCheckPermission("menu:menu:send")
+    @SaCheckPermission("menu:menu:send2store")
     public DexteaApiResponse<MenuBindResponse> bindMenu(
             @PathVariable Long id,
             @RequestBody MenuBindRequest data){

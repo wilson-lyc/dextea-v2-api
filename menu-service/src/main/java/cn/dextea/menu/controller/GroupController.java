@@ -70,5 +70,4 @@ public class GroupController {
             @PathVariable String groupId) {
         return groupService.deleteGroup(menuId,groupId);
     }
-
 }

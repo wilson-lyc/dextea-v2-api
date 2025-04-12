@@ -1,8 +1,6 @@
 package cn.dextea.product.controller;
 
-import cn.dextea.common.model.common.ApiResponse;
 import cn.dextea.common.model.common.DexteaApiResponse;
-import cn.dextea.common.model.menu.MenuProductModel;
 import cn.dextea.common.model.product.ProductModel;
 import cn.dextea.product.service.CustomerService;
 import jakarta.annotation.Resource;
