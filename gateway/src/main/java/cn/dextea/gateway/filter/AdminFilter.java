@@ -6,7 +6,6 @@ import cn.dev33.satoken.router.SaHttpMethod;
 import cn.dev33.satoken.router.SaRouter;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dev33.satoken.util.SaResult;
-import com.alibaba.fastjson2.JSONObject;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -47,11 +46,13 @@ public class AdminFilter {
                 // 前置操作
                 .setBeforeAuth(obj -> {
                     SaHolder.getResponse()
-                            .setHeader("Access-Control-Allow-Origin", "*")
+                            .setHeader("Access-Control-Allow-Origin", "http://localhost:5173")
                             .setHeader("Access-Control-Allow-Methods", "*")
                             .setHeader("Access-Control-Allow-Headers", "*")
                             .setHeader("Access-Control-Max-Age", "3600");
-                    SaRouter.match(SaHttpMethod.OPTIONS).back();
+                    SaRouter.match(SaHttpMethod.OPTIONS)
+                            .free(r -> log.info("OPTIONS预检请求，不做处理"))
+                            .back();
                 });
     }
 }

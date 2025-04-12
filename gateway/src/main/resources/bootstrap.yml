@@ -3,14 +3,14 @@ server:
 
 spring:
   application:
-    name: gateway # 应用名称
+    name: gateway # 服务名称
   jackson:
     default-property-inclusion: non_null
   cloud:
     nacos:
-      # 鉴权配置
-      username: ${NACOS_USERNAME:nacos}  # 账号
-      password: ${NACOS_PASSWORD:LYC1208@nacos}  # 密码
+      # nacos鉴权
+      username: ${NACOS_USERNAME:nacos} # 账号
+      password: ${NACOS_PASSWORD:LYC1208@nacos} # 密码
       # nacos地址
       server-addr: ${NACOS_URL:localhost:8848}
       # 服务注册

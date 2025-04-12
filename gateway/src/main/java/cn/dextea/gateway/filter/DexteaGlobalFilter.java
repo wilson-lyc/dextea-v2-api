@@ -7,6 +7,7 @@ import org.springframework.cloud.gateway.filter.GatewayFilterChain;
 import org.springframework.cloud.gateway.filter.GlobalFilter;
 import org.springframework.core.Ordered;
 import org.springframework.core.io.buffer.DataBuffer;
+import org.springframework.http.HttpMethod;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import reactor.core.publisher.Mono;
@@ -35,6 +36,12 @@ public class DexteaGlobalFilter implements GlobalFilter, Ordered {
 
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
+        // 获取请求方法
+        HttpMethod method = exchange.getRequest().getMethod();
+        // 如果是预检请求（OPTIONS），直接放行
+        if (method.equals(HttpMethod.OPTIONS)) {
+            return chain.filter(exchange);
+        }
         String token=exchange.getRequest().getHeaders().getFirst(TOKEN_NAME);
         String path=exchange.getRequest().getPath().value();
         // 白名单放行

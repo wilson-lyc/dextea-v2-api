@@ -25,7 +25,3 @@ spring:
         refresh-enabled: ${NACOS_CONFIG_REFRESH:true} # 是否启用自动刷新
         shared-configs: ${NACOS_SHARED_CONFIGS:} # 共享配置（可选）
         extension-configs: ${NACOS_EXTENSION_CONFIGS:} # 扩展配置（可选）
-  servlet:
-    multipart:
-      max-file-size: 5MB
-      max-request-size: 5MB
