@@ -46,7 +46,7 @@ public class AdminFilter {
                 // 前置操作
                 .setBeforeAuth(obj -> {
                     SaHolder.getResponse()
-                            .setHeader("Access-Control-Allow-Origin", "http://localhost:5173")
+                            .setHeader("Access-Control-Allow-Origin", "*")
                             .setHeader("Access-Control-Allow-Methods", "*")
                             .setHeader("Access-Control-Allow-Headers", "*")
                             .setHeader("Access-Control-Max-Age", "3600");

@@ -84,7 +84,7 @@ public class OrderController {
      * @param id 订单ID
      */
     @PutMapping("/order/{id}/status/wait-pick")
-    @SaCheckPermission("order:order:update:wait_pick")
+    @SaCheckPermission("order:order:update:status:wait_pick")
     public DexteaApiResponse<Void> waitPick(
             @PathVariable String id,
             @RequestParam(required = false) String mode){
@@ -96,7 +96,7 @@ public class OrderController {
      * @param id 订单ID
      */
     @PutMapping("/order/{id}/status/done")
-    @SaCheckPermission("order:order:update:done")
+    @SaCheckPermission("order:order:update:status:done")
     public DexteaApiResponse<Void> done(
             @PathVariable String id,
             @RequestParam(required = false) String mode){
@@ -108,7 +108,7 @@ public class OrderController {
      * @param data 退款请求
      */
     @PutMapping("/order/status/refund")
-    @SaCheckPermission("order:order:update:refund")
+    @SaCheckPermission("order:order:update:status:refund")
     public DexteaApiResponse<Void> refund(
             @RequestBody OrderRefundRequest data,
             @RequestParam(required = false) String mode){

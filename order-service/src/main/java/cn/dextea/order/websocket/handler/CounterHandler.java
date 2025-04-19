@@ -52,4 +52,10 @@ public class CounterHandler extends TextWebSocketHandler {
             throw new RuntimeException("缺少storeId，连接关闭失败");
         }
     }
+    @Override
+    protected void handleTextMessage(WebSocketSession session, TextMessage message) throws Exception {
+        log.info("收到消息 sessionId={} message={}",session.getId(),message.getPayload());
+        WSMsgModel model = new WSMsgModel(WSMsgType.PONG.getValue(), null);
+        session.sendMessage(new TextMessage(JSONObject.toJSONString(model)));
+    }
 }
