@@ -19,8 +19,7 @@ public class ModuleExceptionHandler {
 
     @ExceptionHandler(NotPermissionException.class)
     public DexteaApiResponse<Void> handleNotPermissionException(NotPermissionException e) {
-        log.error("无权限：{}", e.getMessage());
-        return DexteaApiResponse.forbidden(GlobalErrorCode.PERMISSION_LACK.getCode(),
-                GlobalErrorCode.PERMISSION_LACK.getMsg());
+        log.warn("Permission denied: {}", e.getMessage());
+        return DexteaApiResponse.forbidden(GlobalErrorCode.PERMISSION_LACK.getCode(), GlobalErrorCode.PERMISSION_LACK.getMsg());
     }
 }

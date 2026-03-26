@@ -1,7 +1,6 @@
 package cn.dextea.common.model.staff;
 
 import cn.dextea.common.code.StaffIdentity;
-import cn.dextea.common.code.StaffStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -38,7 +37,14 @@ public class StaffModel {
     private String updateTime;//更新时间
 
     public String getStatusText() {
-        return Objects.isNull(status)?null: StaffStatus.fromValue(status).getLabel();
+        if (Objects.isNull(status)) {
+            return null;
+        }
+        return switch (status) {
+            case 0 -> "禁用";
+            case 1 -> "可用";
+            default -> "未知";
+        };
     }
 
     public String getIdentityText() {
