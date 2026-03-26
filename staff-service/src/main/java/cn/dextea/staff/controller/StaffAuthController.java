@@ -28,7 +28,7 @@ public class StaffAuthController {
      * @param httpServletRequest HTTP 请求对象，用于提取客户端来源信息
      * @return 返回 Sa-Token 令牌信息及当前员工基础资料
      */
-    @PostMapping("/staff/login")
+    @PostMapping("/v1/staff/login")
     public ApiResponse<StaffLoginResponse> login(
             @Valid @RequestBody StaffLoginRequest request,
             HttpServletRequest httpServletRequest) {
