@@ -1,6 +1,7 @@
 package cn.dextea.staff.service;
 
 import cn.dextea.common.web.response.ApiResponse;
+import cn.dextea.staff.dto.request.AssignStaffRoleRequest;
 import cn.dextea.staff.dto.request.CreateStaffRequest;
 import cn.dextea.staff.dto.request.StaffPageQueryRequest;
 import cn.dextea.staff.dto.request.UpdateStaffRequest;
@@ -24,4 +25,8 @@ public interface StaffAdminService {
     ApiResponse<Void> deleteStaff(Long id);
 
     ApiResponse<ResetStaffPasswordResponse> resetPassword(Long id);
+
+    ApiResponse<Void> assignRole(Long id, AssignStaffRoleRequest request);
+
+    ApiResponse<Void> unbindRole(Long id, Long roleId);
 }

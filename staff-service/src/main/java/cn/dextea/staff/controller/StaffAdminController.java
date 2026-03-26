@@ -2,6 +2,7 @@ package cn.dextea.staff.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
+import cn.dextea.staff.dto.request.AssignStaffRoleRequest;
 import cn.dextea.staff.dto.request.CreateStaffRequest;
 import cn.dextea.staff.dto.request.StaffPageQueryRequest;
 import cn.dextea.staff.dto.request.UpdateStaffRequest;
@@ -99,5 +100,19 @@ public class StaffAdminController {
     public ApiResponse<ResetStaffPasswordResponse> resetPassword(
             @PathVariable @Min(value = 1, message = "员工ID不能为空") Long id) {
         return staffAdminService.resetPassword(id);
+    }
+
+    @PostMapping("/{id}/roles")
+    public ApiResponse<Void> assignRole(
+            @PathVariable @Min(value = 1, message = "员工ID不能为空") Long id,
+            @Valid @RequestBody AssignStaffRoleRequest request) {
+        return staffAdminService.assignRole(id, request);
+    }
+
+    @DeleteMapping("/{id}/roles/{roleId}")
+    public ApiResponse<Void> unbindRole(
+            @PathVariable @Min(value = 1, message = "员工ID不能为空") Long id,
+            @PathVariable @Min(value = 1, message = "角色ID不能为空") Long roleId) {
+        return staffAdminService.unbindRole(id, roleId);
     }
 }

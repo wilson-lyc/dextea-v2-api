@@ -2,16 +2,21 @@ package cn.dextea.staff.service.impl;
 
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.staff.converter.StaffConverter;
+import cn.dextea.staff.dto.request.AssignStaffRoleRequest;
 import cn.dextea.staff.dto.request.CreateStaffRequest;
 import cn.dextea.staff.dto.request.StaffPageQueryRequest;
 import cn.dextea.staff.dto.request.UpdateStaffRequest;
 import cn.dextea.staff.dto.response.CreateStaffResponse;
 import cn.dextea.staff.dto.response.ResetStaffPasswordResponse;
 import cn.dextea.staff.dto.response.StaffDetailResponse;
+import cn.dextea.staff.entity.RoleEntity;
 import cn.dextea.staff.entity.StaffEntity;
+import cn.dextea.staff.entity.StaffRoleRelEntity;
 import cn.dextea.staff.enums.StaffErrorCode;
 import cn.dextea.staff.enums.StaffStatus;
+import cn.dextea.staff.mapper.RoleMapper;
 import cn.dextea.staff.mapper.StaffMapper;
+import cn.dextea.staff.mapper.StaffRoleRelMapper;
 import cn.dextea.staff.service.StaffAdminService;
 import cn.dextea.staff.util.PasswordUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -25,6 +30,8 @@ import org.springframework.transaction.annotation.Transactional;
 @RequiredArgsConstructor
 public class StaffAdminServiceImpl implements StaffAdminService {
     private final StaffMapper staffMapper;
+    private final RoleMapper roleMapper;
+    private final StaffRoleRelMapper staffRoleRelMapper;
     private final PasswordUtil passwordUtil;
     private final StaffConverter staffConverter;
 
@@ -137,6 +144,64 @@ public class StaffAdminServiceImpl implements StaffAdminService {
         }
 
         return ApiResponse.success(staffConverter.toResetPasswordResponse(staffEntity, resetPassword));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResponse<Void> assignRole(Long id, AssignStaffRoleRequest request) {
+        StaffEntity staffEntity = staffMapper.selectById(id);
+        if (staffEntity == null) {
+            return fail(StaffErrorCode.STAFF_NOT_FOUND);
+        }
+
+        RoleEntity roleEntity = roleMapper.selectById(request.getRoleId());
+        if (roleEntity == null) {
+            return fail(StaffErrorCode.ROLE_NOT_FOUND);
+        }
+
+        LambdaQueryWrapper<StaffRoleRelEntity> queryWrapper = new LambdaQueryWrapper<StaffRoleRelEntity>()
+                .eq(StaffRoleRelEntity::getStaffId, id)
+                .eq(StaffRoleRelEntity::getRoleId, request.getRoleId());
+        if (staffRoleRelMapper.exists(queryWrapper)) {
+            return fail(StaffErrorCode.STAFF_ROLE_ALREADY_BOUND);
+        }
+
+        StaffRoleRelEntity relation = StaffRoleRelEntity.builder()
+                .staffId(id)
+                .roleId(request.getRoleId())
+                .build();
+        if (staffRoleRelMapper.insert(relation) != 1) {
+            return fail(StaffErrorCode.ASSIGN_ROLE_FAILED);
+        }
+
+        return ApiResponse.success();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResponse<Void> unbindRole(Long id, Long roleId) {
+        StaffEntity staffEntity = staffMapper.selectById(id);
+        if (staffEntity == null) {
+            return fail(StaffErrorCode.STAFF_NOT_FOUND);
+        }
+
+        RoleEntity roleEntity = roleMapper.selectById(roleId);
+        if (roleEntity == null) {
+            return fail(StaffErrorCode.ROLE_NOT_FOUND);
+        }
+
+        LambdaQueryWrapper<StaffRoleRelEntity> queryWrapper = new LambdaQueryWrapper<StaffRoleRelEntity>()
+                .eq(StaffRoleRelEntity::getStaffId, id)
+                .eq(StaffRoleRelEntity::getRoleId, roleId);
+        if (!staffRoleRelMapper.exists(queryWrapper)) {
+            return fail(StaffErrorCode.STAFF_ROLE_REL_NOT_FOUND);
+        }
+
+        if (staffRoleRelMapper.delete(queryWrapper) != 1) {
+            return fail(StaffErrorCode.UNBIND_ROLE_FAILED);
+        }
+
+        return ApiResponse.success();
     }
 
     private boolean existsByUsername(String username, Long excludeId) {
