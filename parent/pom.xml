@@ -143,6 +143,11 @@
                 <artifactId>common</artifactId>
                 <version>${dextea.version}</version>
             </dependency>
+            <dependency>
+                <groupId>cn.dextea</groupId>
+                <artifactId>store-service-api</artifactId>
+                <version>${dextea.version}</version>
+            </dependency>
         </dependencies>
     </dependencyManagement>
 

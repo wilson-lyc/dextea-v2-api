@@ -29,6 +29,9 @@ public class StaffPageQueryRequest {
     @Size(max = 64, message = "员工姓名长度不能超过64位")
     private String realName;
 
+    @Min(value = 1, message = "门店ID不能为空")
+    private Long storeId;
+
     private Integer userType;
 
     private Integer status;

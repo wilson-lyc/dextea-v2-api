@@ -3,6 +3,7 @@ package cn.dextea.staff.controller;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.staff.dto.request.AssignStaffRoleRequest;
+import cn.dextea.staff.dto.request.BindStaffStoreRequest;
 import cn.dextea.staff.dto.request.CreateStaffRequest;
 import cn.dextea.staff.dto.request.StaffPageQueryRequest;
 import cn.dextea.staff.dto.request.UpdateStaffRequest;
@@ -62,7 +63,7 @@ public class StaffAdminController {
      */
     @GetMapping("/{id}")
     public ApiResponse<StaffDetailResponse> getStaffDetail(
-            @PathVariable @Min(value = 1, message = "员工ID不能为空") Long id) {
+            @PathVariable("id") @Min(value = 1, message = "员工ID不能为空") Long id) {
         return staffAdminService.getStaffDetail(id);
     }
 
@@ -74,7 +75,7 @@ public class StaffAdminController {
      */
     @PutMapping("/{id}")
     public ApiResponse<StaffDetailResponse> updateStaff(
-            @PathVariable @Min(value = 1, message = "员工ID不能为空") Long id,
+            @PathVariable("id") @Min(value = 1, message = "员工ID不能为空") Long id,
             @Valid @RequestBody UpdateStaffRequest request) {
         return staffAdminService.updateStaff(id, request);
     }
@@ -86,7 +87,7 @@ public class StaffAdminController {
      */
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteStaff(
-            @PathVariable @Min(value = 1, message = "员工ID不能为空") Long id) {
+            @PathVariable("id") @Min(value = 1, message = "员工ID不能为空") Long id) {
         return staffAdminService.deleteStaff(id);
     }
 
@@ -97,7 +98,7 @@ public class StaffAdminController {
      */
     @PutMapping("/{id}/password/reset")
     public ApiResponse<ResetStaffPasswordResponse> resetPassword(
-            @PathVariable @Min(value = 1, message = "员工ID不能为空") Long id) {
+            @PathVariable("id") @Min(value = 1, message = "员工ID不能为空") Long id) {
         return staffAdminService.resetPassword(id);
     }
 
@@ -109,7 +110,7 @@ public class StaffAdminController {
      */
     @PostMapping("/{id}/roles")
     public ApiResponse<Void> assignRole(
-            @PathVariable @Min(value = 1, message = "员工ID不能为空") Long id,
+            @PathVariable("id") @Min(value = 1, message = "员工ID不能为空") Long id,
             @Valid @RequestBody AssignStaffRoleRequest request) {
         return staffAdminService.assignRole(id, request);
     }
@@ -122,8 +123,32 @@ public class StaffAdminController {
      */
     @DeleteMapping("/{id}/roles/{roleId}")
     public ApiResponse<Void> unbindRole(
-            @PathVariable @Min(value = 1, message = "员工ID不能为空") Long id,
-            @PathVariable @Min(value = 1, message = "角色ID不能为空") Long roleId) {
+            @PathVariable("id") @Min(value = 1, message = "员工ID不能为空") Long id,
+            @PathVariable("roleId") @Min(value = 1, message = "角色ID不能为空") Long roleId) {
         return staffAdminService.unbindRole(id, roleId);
+    }
+
+    /**
+     * 绑定员工所属门店
+     * @param id 员工ID
+     * @param request 门店绑定请求
+     * @return 绑定结果
+     */
+    @PutMapping("/{id}/store")
+    public ApiResponse<Void> bindStore(
+            @PathVariable("id") @Min(value = 1, message = "员工ID不能为空") Long id,
+            @Valid @RequestBody BindStaffStoreRequest request) {
+        return staffAdminService.bindStore(id, request);
+    }
+
+    /**
+     * 解绑员工所属门店
+     * @param id 员工ID
+     * @return 解绑结果
+     */
+    @DeleteMapping("/{id}/store")
+    public ApiResponse<Void> unbindStore(
+            @PathVariable("id") @Min(value = 1, message = "员工ID不能为空") Long id) {
+        return staffAdminService.unbindStore(id);
     }
 }

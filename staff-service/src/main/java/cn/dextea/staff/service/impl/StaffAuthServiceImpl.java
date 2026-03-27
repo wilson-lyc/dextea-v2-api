@@ -34,6 +34,7 @@ public class StaffAuthServiceImpl implements StaffAuthService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ApiResponse<StaffLoginResponse> login(StaffLoginRequest request, HttpServletRequest httpServletRequest) {
+        // 先规整登录账号，避免账号首尾空格影响查询结果。
         String username = request.getUsername().trim();
 
         // 查询登录账号，并显式带出密码字段用于密码校验。
@@ -53,6 +54,7 @@ public class StaffAuthServiceImpl implements StaffAuthService {
         if (staffEntity == null || !passwordUtil.matches(request.getPassword(), staffEntity.getPassword())) {
             return fail(StaffErrorCode.LOGIN_FAILED);
         }
+        // 只有可用状态的员工才允许登录后台系统。
         if (staffEntity.getStatus() == null || staffEntity.getStatus() != StaffStatus.AVAILABLE.getValue()) {
             return fail(StaffErrorCode.ACCOUNT_DISABLED);
         }
@@ -62,6 +64,7 @@ public class StaffAuthServiceImpl implements StaffAuthService {
         staffEntity.setLastLoginIp(resolveClientIp(httpServletRequest));
         staffMapper.updateById(staffEntity);
 
+        // 写入 Sa-Token 登录态，并返回登录令牌及员工资料。
         StpUtil.login(staffEntity.getId());
         SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
         return ApiResponse.success(staffConverter.toStaffLoginResponse(staffEntity, tokenInfo));
@@ -70,6 +73,7 @@ public class StaffAuthServiceImpl implements StaffAuthService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ApiResponse<Void> updatePassword(StaffUpdatePasswordRequest request) {
+        // 先从登录态里拿到当前员工 ID，只允许本人修改自己的密码。
         Long staffId = StpUtil.getLoginIdAsLong();
         StaffEntity staffEntity = staffMapper.selectOne(new LambdaQueryWrapper<StaffEntity>()
                 .select(StaffEntity::getId, StaffEntity::getPassword)
@@ -79,10 +83,12 @@ public class StaffAuthServiceImpl implements StaffAuthService {
             return fail(StaffErrorCode.STAFF_NOT_FOUND);
         }
 
+        // 旧密码校验通过后，才允许覆盖为新密码。
         if (!passwordUtil.matches(request.getOldPassword(), staffEntity.getPassword())) {
             return fail(StaffErrorCode.OLD_PASSWORD_INCORRECT);
         }
 
+        // 新密码落库前先做加密，数据库中不保存明文密码。
         staffEntity.setPassword(passwordUtil.encode(request.getNewPassword()));
         if (staffMapper.updateById(staffEntity) != 1) {
             return fail(StaffErrorCode.UPDATE_PASSWORD_FAILED);

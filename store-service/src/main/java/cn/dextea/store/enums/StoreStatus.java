@@ -1,16 +1,15 @@
-package cn.dextea.staff.enums;
+package cn.dextea.store.enums;
 
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 
-/**
- * @author Lai Yongchao
- */
 @Getter
 @RequiredArgsConstructor
-public enum StaffStatus {
-    DISABLED(0,"禁用"),
-    AVAILABLE(1, "可用");
+public enum StoreStatus {
+    REST(0, "休息"),
+    OPEN(1, "营业"),
+    BUSY(2, "繁忙"),
+    CLOSED(3, "关店");
 
     private final int value;
     private final String label;
@@ -19,7 +18,7 @@ public enum StaffStatus {
         if (value == null) {
             return false;
         }
-        for (StaffStatus status : values()) {
+        for (StoreStatus status : values()) {
             if (status.value == value) {
                 return true;
             }

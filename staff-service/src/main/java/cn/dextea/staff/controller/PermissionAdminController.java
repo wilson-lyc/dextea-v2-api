@@ -43,7 +43,7 @@ public class PermissionAdminController {
      */
     @GetMapping("/{id}")
     public ApiResponse<PermissionDetailResponse> getPermissionDetail(
-            @PathVariable @Min(value = 1, message = "权限ID不能为空") Long id) {
+            @PathVariable("id") @Min(value = 1, message = "权限ID不能为空") Long id) {
         return permissionAdminService.getPermissionDetail(id);
     }
 }

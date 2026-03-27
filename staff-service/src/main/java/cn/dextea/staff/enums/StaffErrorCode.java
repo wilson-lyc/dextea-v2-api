@@ -22,7 +22,15 @@ public enum StaffErrorCode {
     ASSIGN_ROLE_FAILED(10011, "分配角色失败"),
     UNBIND_ROLE_FAILED(10012, "解绑角色失败"),
     OLD_PASSWORD_INCORRECT(10013, "原密码错误"),
-    UPDATE_PASSWORD_FAILED(10014, "修改密码失败");
+    UPDATE_PASSWORD_FAILED(10014, "修改密码失败"),
+    INVALID_USER_TYPE(10015, "员工类型错误"),
+    INVALID_STATUS(10016, "员工状态错误"),
+    STORE_NOT_FOUND(10017, "门店不存在"),
+    STORE_BIND_ONLY_FOR_STORE_STAFF(10018, "仅门店员工支持绑定门店"),
+    STAFF_STORE_ALREADY_BOUND(10019, "员工已绑定该门店"),
+    STAFF_STORE_REL_NOT_FOUND(10020, "员工未绑定该门店"),
+    BIND_STORE_FAILED(10021, "绑定门店失败"),
+    UNBIND_STORE_FAILED(10022, "解绑门店失败");
 
     private final Integer code;
     private final String msg;

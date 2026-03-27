@@ -62,7 +62,7 @@ public class RoleAdminController {
      */
     @GetMapping("/{id}")
     public ApiResponse<RoleDetailResponse> getRoleDetail(
-            @PathVariable @Min(value = 1, message = "角色ID不能为空") Long id) {
+            @PathVariable("id") @Min(value = 1, message = "角色ID不能为空") Long id) {
         return roleAdminService.getRoleDetail(id);
     }
 
@@ -74,7 +74,7 @@ public class RoleAdminController {
      */
     @PutMapping("/{id}")
     public ApiResponse<RoleDetailResponse> updateRole(
-            @PathVariable @Min(value = 1, message = "角色ID不能为空") Long id,
+            @PathVariable("id") @Min(value = 1, message = "角色ID不能为空") Long id,
             @Valid @RequestBody UpdateRoleRequest request) {
         return roleAdminService.updateRole(id, request);
     }
@@ -86,7 +86,7 @@ public class RoleAdminController {
      */
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteRole(
-            @PathVariable @Min(value = 1, message = "角色ID不能为空") Long id) {
+            @PathVariable("id") @Min(value = 1, message = "角色ID不能为空") Long id) {
         return roleAdminService.deleteRole(id);
     }
 
@@ -98,7 +98,7 @@ public class RoleAdminController {
      */
     @PostMapping("/{id}/permissions")
     public ApiResponse<Void> bindPermission(
-            @PathVariable @Min(value = 1, message = "角色ID不能为空") Long id,
+            @PathVariable("id") @Min(value = 1, message = "角色ID不能为空") Long id,
             @Valid @RequestBody BindRolePermissionRequest request) {
         return roleAdminService.bindPermission(id, request);
     }
@@ -111,8 +111,8 @@ public class RoleAdminController {
      */
     @DeleteMapping("/{id}/permissions/{permissionName}")
     public ApiResponse<Void> unbindPermission(
-            @PathVariable @Min(value = 1, message = "角色ID不能为空") Long id,
-            @PathVariable @NotBlank(message = "权限名称不能为空") String permissionName) {
+            @PathVariable("id") @Min(value = 1, message = "角色ID不能为空") Long id,
+            @PathVariable("permissionName") @NotBlank(message = "权限名称不能为空") String permissionName) {
         return roleAdminService.unbindPermission(id, permissionName);
     }
 }

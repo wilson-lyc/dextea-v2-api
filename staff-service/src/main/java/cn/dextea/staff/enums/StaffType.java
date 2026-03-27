@@ -14,4 +14,16 @@ public enum StaffType {
 
     private final int value;
     private final String label;
+
+    public static boolean isValid(Integer value) {
+        if (value == null) {
+            return false;
+        }
+        for (StaffType type : values()) {
+            if (type.value == value) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

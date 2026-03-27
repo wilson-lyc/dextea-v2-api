@@ -2,6 +2,7 @@ package cn.dextea.staff.service;
 
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.staff.dto.request.AssignStaffRoleRequest;
+import cn.dextea.staff.dto.request.BindStaffStoreRequest;
 import cn.dextea.staff.dto.request.CreateStaffRequest;
 import cn.dextea.staff.dto.request.StaffPageQueryRequest;
 import cn.dextea.staff.dto.request.UpdateStaffRequest;
@@ -81,4 +82,21 @@ public interface StaffAdminService {
      * @return 返回移除结果
      */
     ApiResponse<Void> unbindRole(Long id, Long roleId);
+
+    /**
+     * 为门店员工绑定门店
+     *
+     * @param id 员工ID
+     * @param request 门店绑定请求
+     * @return 返回绑定结果
+     */
+    ApiResponse<Void> bindStore(Long id, BindStaffStoreRequest request);
+
+    /**
+     * 解绑门店员工的门店归属
+     *
+     * @param id 员工ID
+     * @return 返回解绑结果
+     */
+    ApiResponse<Void> unbindStore(Long id);
 }

@@ -35,13 +35,16 @@ public class RoleAdminServiceImpl implements RoleAdminService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ApiResponse<CreateRoleResponse> createRole(CreateRoleRequest request) {
+        // 先规整字符串字段，避免前后空格影响唯一性判断和持久化结果。
         String name = request.getName().trim();
         String remark = trim(request.getRemark());
 
+        // 角色名称必须全局唯一，创建前先做重名校验。
         if (existsByName(name, null)) {
             return fail(RoleErrorCode.ROLE_NAME_ALREADY_EXISTS);
         }
 
+        // 组装待落库的角色实体，新增角色默认置为可用状态。
         RoleEntity roleEntity = RoleEntity.builder()
                 .name(name)
                 .remark(remark)
@@ -49,21 +52,25 @@ public class RoleAdminServiceImpl implements RoleAdminService {
                 .status(RoleStatus.AVAILABLE.getValue())
                 .build();
 
+        // 写入角色主表，失败则回滚整个事务。
         if (roleMapper.insert(roleEntity) != 1) {
             return fail(RoleErrorCode.CREATE_FAILED);
         }
 
+        // 返回新建成功后的角色基础信息。
         return ApiResponse.success(roleConverter.toCreateRoleResponse(roleEntity));
     }
 
     @Override
     public ApiResponse<IPage<RoleDetailResponse>> getRolePage(RolePageQueryRequest request) {
+        // 按名称、数据范围、状态动态拼装分页查询条件。
         LambdaQueryWrapper<RoleEntity> queryWrapper = new LambdaQueryWrapper<RoleEntity>()
                 .like(hasText(request.getName()), RoleEntity::getName, trim(request.getName()))
                 .eq(request.getDataScope() != null, RoleEntity::getDataScope, request.getDataScope())
                 .eq(request.getStatus() != null, RoleEntity::getStatus, request.getStatus())
                 .orderByDesc(RoleEntity::getId);
 
+        // 查询分页实体并转换为详情分页结果。
         IPage<RoleEntity> entityPage = roleMapper.selectPage(new Page<>(request.getCurrent(), request.getSize()), queryWrapper);
         IPage<RoleDetailResponse> responsePage = entityPage.convert(roleConverter::toRoleDetailResponse);
         return ApiResponse.success(responsePage);
@@ -71,6 +78,7 @@ public class RoleAdminServiceImpl implements RoleAdminService {
 
     @Override
     public ApiResponse<RoleDetailResponse> getRoleDetail(Long id) {
+        // 先确认角色存在，再返回详情。
         RoleEntity roleEntity = roleMapper.selectById(id);
         if (roleEntity == null) {
             return fail(RoleErrorCode.ROLE_NOT_FOUND);
@@ -81,23 +89,28 @@ public class RoleAdminServiceImpl implements RoleAdminService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ApiResponse<RoleDetailResponse> updateRole(Long id, UpdateRoleRequest request) {
+        // 更新前先查询当前角色，避免对不存在的数据执行更新。
         RoleEntity currentRole = roleMapper.selectById(id);
         if (currentRole == null) {
             return fail(RoleErrorCode.ROLE_NOT_FOUND);
         }
 
+        // 规整可编辑字段，保证后续校验和存储使用统一值。
         String name = request.getName().trim();
         String remark = trim(request.getRemark());
 
+        // 更新时排除自身后做重名校验，防止角色名称冲突。
         if (existsByName(name, id)) {
             return fail(RoleErrorCode.ROLE_NAME_ALREADY_EXISTS);
         }
 
+        // 将请求中的最新字段回写到当前角色实体。
         currentRole.setName(name);
         currentRole.setRemark(remark);
         currentRole.setDataScope(request.getDataScope());
         currentRole.setStatus(request.getStatus());
 
+        // 更新主表后再回查一次，确保响应里带的是最新数据库状态。
         if (roleMapper.updateById(currentRole) != 1) {
             return fail(RoleErrorCode.UPDATE_FAILED);
         }
@@ -109,6 +122,7 @@ public class RoleAdminServiceImpl implements RoleAdminService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ApiResponse<Void> deleteRole(Long id) {
+        // 删除角色采用软删除：先校验存在，再改为禁用状态。
         RoleEntity roleEntity = roleMapper.selectById(id);
         if (roleEntity == null) {
             return fail(RoleErrorCode.ROLE_NOT_FOUND);
@@ -125,11 +139,13 @@ public class RoleAdminServiceImpl implements RoleAdminService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ApiResponse<Void> bindPermission(Long id, BindRolePermissionRequest request) {
+        // 先确认角色存在，避免绑定到无效角色。
         RoleEntity roleEntity = roleMapper.selectById(id);
         if (roleEntity == null) {
             return fail(RoleErrorCode.ROLE_NOT_FOUND);
         }
 
+        // 按权限名称查询权限定义，绑定关系必须指向真实存在的权限。
         String permissionName = request.getPermissionName().trim();
         PermissionEntity permissionEntity = permissionMapper.selectOne(
                 new LambdaQueryWrapper<PermissionEntity>().eq(PermissionEntity::getName, permissionName)
@@ -138,6 +154,7 @@ public class RoleAdminServiceImpl implements RoleAdminService {
             return fail(RoleErrorCode.PERMISSION_NOT_FOUND);
         }
 
+        // 避免重复插入同一角色与权限的关联关系。
         LambdaQueryWrapper<RolePermissionRelEntity> queryWrapper = new LambdaQueryWrapper<RolePermissionRelEntity>()
                 .eq(RolePermissionRelEntity::getRoleId, id)
                 .eq(RolePermissionRelEntity::getPermissionName, permissionName);
@@ -145,6 +162,7 @@ public class RoleAdminServiceImpl implements RoleAdminService {
             return fail(RoleErrorCode.ROLE_PERMISSION_ALREADY_BOUND);
         }
 
+        // 创建角色-权限关系记录。
         RolePermissionRelEntity relation = RolePermissionRelEntity.builder()
                 .roleId(id)
                 .permissionName(permissionName)
@@ -159,11 +177,13 @@ public class RoleAdminServiceImpl implements RoleAdminService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ApiResponse<Void> unbindPermission(Long id, String permissionName) {
+        // 先确认角色存在，再处理角色权限解绑。
         RoleEntity roleEntity = roleMapper.selectById(id);
         if (roleEntity == null) {
             return fail(RoleErrorCode.ROLE_NOT_FOUND);
         }
 
+        // 根据权限名称确认目标权限存在，避免传入脏数据。
         String trimmedPermissionName = permissionName.trim();
         PermissionEntity permissionEntity = permissionMapper.selectOne(
                 new LambdaQueryWrapper<PermissionEntity>().eq(PermissionEntity::getName, trimmedPermissionName)
@@ -172,6 +192,7 @@ public class RoleAdminServiceImpl implements RoleAdminService {
             return fail(RoleErrorCode.PERMISSION_NOT_FOUND);
         }
 
+        // 先判断关系是否存在，避免删除不存在的绑定记录。
         LambdaQueryWrapper<RolePermissionRelEntity> queryWrapper = new LambdaQueryWrapper<RolePermissionRelEntity>()
                 .eq(RolePermissionRelEntity::getRoleId, id)
                 .eq(RolePermissionRelEntity::getPermissionName, trimmedPermissionName);
@@ -179,6 +200,7 @@ public class RoleAdminServiceImpl implements RoleAdminService {
             return fail(RoleErrorCode.ROLE_PERMISSION_REL_NOT_FOUND);
         }
 
+        // 删除角色-权限关系。
         if (rolePermissionRelMapper.delete(queryWrapper) != 1) {
             return fail(RoleErrorCode.UNBIND_PERMISSION_FAILED);
         }
@@ -187,6 +209,7 @@ public class RoleAdminServiceImpl implements RoleAdminService {
     }
 
     private boolean existsByName(String name, Long excludeId) {
+        // 通用重名校验：更新场景下允许排除当前角色自身。
         LambdaQueryWrapper<RoleEntity> queryWrapper = new LambdaQueryWrapper<RoleEntity>()
                 .eq(RoleEntity::getName, name)
                 .ne(excludeId != null, RoleEntity::getId, excludeId);
