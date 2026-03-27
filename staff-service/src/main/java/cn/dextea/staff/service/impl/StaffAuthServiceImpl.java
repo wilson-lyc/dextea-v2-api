@@ -5,6 +5,7 @@ import cn.dev33.satoken.stp.StpUtil;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.staff.converter.StaffConverter;
 import cn.dextea.staff.dto.request.StaffLoginRequest;
+import cn.dextea.staff.dto.request.StaffUpdatePasswordRequest;
 import cn.dextea.staff.dto.response.StaffLoginResponse;
 import cn.dextea.staff.entity.StaffEntity;
 import cn.dextea.staff.enums.StaffErrorCode;
@@ -64,6 +65,30 @@ public class StaffAuthServiceImpl implements StaffAuthService {
         StpUtil.login(staffEntity.getId());
         SaTokenInfo tokenInfo = StpUtil.getTokenInfo();
         return ApiResponse.success(staffConverter.toStaffLoginResponse(staffEntity, tokenInfo));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResponse<Void> updatePassword(StaffUpdatePasswordRequest request) {
+        Long staffId = StpUtil.getLoginIdAsLong();
+        StaffEntity staffEntity = staffMapper.selectOne(new LambdaQueryWrapper<StaffEntity>()
+                .select(StaffEntity::getId, StaffEntity::getPassword)
+                .eq(StaffEntity::getId, staffId)
+                .last("limit 1"));
+        if (staffEntity == null) {
+            return fail(StaffErrorCode.STAFF_NOT_FOUND);
+        }
+
+        if (!passwordUtil.matches(request.getOldPassword(), staffEntity.getPassword())) {
+            return fail(StaffErrorCode.OLD_PASSWORD_INCORRECT);
+        }
+
+        staffEntity.setPassword(passwordUtil.encode(request.getNewPassword()));
+        if (staffMapper.updateById(staffEntity) != 1) {
+            return fail(StaffErrorCode.UPDATE_PASSWORD_FAILED);
+        }
+
+        return ApiResponse.success();
     }
 
     /**

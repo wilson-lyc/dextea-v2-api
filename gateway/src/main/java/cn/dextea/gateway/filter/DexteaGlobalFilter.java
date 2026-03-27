@@ -31,6 +31,7 @@ public class DexteaGlobalFilter implements GlobalFilter, Ordered {
 
     // 白名单
     private static final List<String> WHITE_LIST = Arrays.asList(
+            "/ping",
             "/v1/staff/login",
             "/customer/login");
 

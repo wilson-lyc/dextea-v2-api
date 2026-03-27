@@ -20,7 +20,9 @@ public enum StaffErrorCode {
     STAFF_ROLE_ALREADY_BOUND(10009, "员工已绑定该角色"),
     STAFF_ROLE_REL_NOT_FOUND(10010, "员工未绑定该角色"),
     ASSIGN_ROLE_FAILED(10011, "分配角色失败"),
-    UNBIND_ROLE_FAILED(10012, "解绑角色失败");
+    UNBIND_ROLE_FAILED(10012, "解绑角色失败"),
+    OLD_PASSWORD_INCORRECT(10013, "原密码错误"),
+    UPDATE_PASSWORD_FAILED(10014, "修改密码失败");
 
     private final Integer code;
     private final String msg;

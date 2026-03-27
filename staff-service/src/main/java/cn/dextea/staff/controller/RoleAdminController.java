@@ -24,6 +24,9 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+/**
+ * 角色管理
+ */
 @RestController
 @RequestMapping("/v1/admin/roles")
 @RequiredArgsConstructor
@@ -32,21 +35,43 @@ import org.springframework.web.bind.annotation.RestController;
 public class RoleAdminController {
     private final RoleAdminService roleAdminService;
 
+    /**
+     * 创建角色
+     * @param request 创建角色请求参数
+     * @return 创建结果
+     */
     @PostMapping
     public ApiResponse<CreateRoleResponse> createRole(@Valid @RequestBody CreateRoleRequest request) {
         return roleAdminService.createRole(request);
     }
 
+    /**
+     * 分页查询角色列表
+     * @param request 角色分页查询请求参数
+     * @return 角色分页数据
+     */
     @GetMapping
     public ApiResponse<IPage<RoleDetailResponse>> getRolePage(@Valid RolePageQueryRequest request) {
         return roleAdminService.getRolePage(request);
     }
 
+    /**
+     * 查询角色详情
+     * @param id 角色ID
+     * @return 角色详情
+     */
     @GetMapping("/{id}")
-    public ApiResponse<RoleDetailResponse> getRoleDetail(@PathVariable @Min(value = 1, message = "角色ID不能为空") Long id) {
+    public ApiResponse<RoleDetailResponse> getRoleDetail(
+            @PathVariable @Min(value = 1, message = "角色ID不能为空") Long id) {
         return roleAdminService.getRoleDetail(id);
     }
 
+    /**
+     * 更新角色信息
+     * @param id 角色ID
+     * @param request 更新角色请求参数
+     * @return 更新后的角色详情
+     */
     @PutMapping("/{id}")
     public ApiResponse<RoleDetailResponse> updateRole(
             @PathVariable @Min(value = 1, message = "角色ID不能为空") Long id,
@@ -54,11 +79,23 @@ public class RoleAdminController {
         return roleAdminService.updateRole(id, request);
     }
 
+    /**
+     * 删除角色
+     * @param id 角色ID
+     * @return 删除结果
+     */
     @DeleteMapping("/{id}")
-    public ApiResponse<Void> deleteRole(@PathVariable @Min(value = 1, message = "角色ID不能为空") Long id) {
+    public ApiResponse<Void> deleteRole(
+            @PathVariable @Min(value = 1, message = "角色ID不能为空") Long id) {
         return roleAdminService.deleteRole(id);
     }
 
+    /**
+     * 为角色绑定权限
+     * @param id 角色ID
+     * @param request 角色绑定权限请求参数
+     * @return 绑定结果
+     */
     @PostMapping("/{id}/permissions")
     public ApiResponse<Void> bindPermission(
             @PathVariable @Min(value = 1, message = "角色ID不能为空") Long id,
@@ -66,6 +103,12 @@ public class RoleAdminController {
         return roleAdminService.bindPermission(id, request);
     }
 
+    /**
+     * 解除角色的权限
+     * @param id 角色ID
+     * @param permissionName 权限名称
+     * @return 解除结果
+     */
     @DeleteMapping("/{id}/permissions/{permissionName}")
     public ApiResponse<Void> unbindPermission(
             @PathVariable @Min(value = 1, message = "角色ID不能为空") Long id,

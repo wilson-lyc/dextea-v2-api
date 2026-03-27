@@ -25,6 +25,7 @@ public class AdminFilter {
                 .addExclude(
                         // 登录接口
                         "/v1/staff/login",
+                        "/ping",
                         "/customer/login",
                         // 顾客端接口
                         "/store/customer/**",
