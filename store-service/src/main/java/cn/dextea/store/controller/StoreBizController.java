@@ -1,6 +1,5 @@
 package cn.dextea.store.controller;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.store.dto.request.NearbyStoreRequest;
 import cn.dextea.store.dto.response.NearbyStoreResponse;
@@ -31,7 +30,6 @@ public class StoreBizController {
      * @param request 包含用户经纬度和搜索参数
      * @return 按距离排序的附近门店列表
      */
-    @SaCheckLogin
     @GetMapping("/nearby")
     public ApiResponse<List<NearbyStoreResponse>> getNearbyStores(
             @Valid NearbyStoreRequest request) {

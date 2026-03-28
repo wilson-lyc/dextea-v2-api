@@ -2,7 +2,13 @@
   "permissions": {
     "allow": [
       "Bash(mvn compile:*)",
-      "Bash(mvn clean:*)"
+      "Bash(mvn clean:*)",
+      "Bash(mvn install:*)",
+      "Bash(mvn spring-boot:run -pl staff-service -DskipTests)",
+      "Read(//private/tmp/check_jar2/**)",
+      "Bash(unzip -p BOOT-INF/lib/mybatis-plus-3.5.9.jar META-INF/maven/com.baomidou/mybatis-plus/pom.xml)",
+      "Bash(jar -tf BOOT-INF/lib/mybatis-plus-spring-3.5.9.jar)",
+      "Bash(jar -tf BOOT-INF/lib/mybatis-plus-spring-boot3-starter-3.5.9.jar)"
     ]
   }
 }

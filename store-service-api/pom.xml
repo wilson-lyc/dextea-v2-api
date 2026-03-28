@@ -12,18 +12,25 @@
     </parent>
 
     <artifactId>store-service-api</artifactId>
-    <packaging>jar</packaging>
+    <name>dextea-store-service-api</name>
+    <description>Store service API interfaces and Feign clients</description>
 
+    <!-- ===== Dependencies ===== -->
     <dependencies>
+        <!-- Internal modules -->
         <dependency>
             <groupId>cn.dextea</groupId>
             <artifactId>common</artifactId>
         </dependency>
+
+        <!-- Feign (optional — only needed for service consumers) -->
         <dependency>
             <groupId>org.springframework.cloud</groupId>
             <artifactId>spring-cloud-starter-openfeign</artifactId>
             <optional>true</optional>
         </dependency>
+
+        <!-- Web (provided — consumers bring their own starter) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>

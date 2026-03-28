@@ -12,19 +12,25 @@ import cn.dextea.store.enums.StoreStatus;
 import cn.dextea.store.mapper.StoreMapper;
 import cn.dextea.store.service.StoreAdminService;
 import cn.dextea.store.service.StoreGeoSyncService;
-import cn.hutool.http.HttpRequest;
-import cn.hutool.http.HttpResponse;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
+import org.apache.hc.client5.http.classic.methods.HttpGet;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpClient;
+import org.apache.hc.client5.http.impl.classic.CloseableHttpResponse;
+import org.apache.hc.client5.http.impl.classic.HttpClients;
+import org.apache.hc.client5.http.impl.io.PoolingHttpClientConnectionManager;
+import org.apache.hc.core5.util.TextUtils;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.Map;
 
@@ -35,6 +41,13 @@ public class StoreAdminServiceImpl implements StoreAdminService {
     private final StoreConverter storeConverter;
     private final StoreGeoSyncService storeGeoSyncService;
     private final ObjectMapper objectMapper;
+
+    private static final PoolingHttpClientConnectionManager CONNECTION_MANAGER = new PoolingHttpClientConnectionManager();
+
+    static {
+        CONNECTION_MANAGER.setMaxTotal(20);
+        CONNECTION_MANAGER.setDefaultMaxPerRoute(10);
+    }
 
     @Value("${amap.key}")
     private String amapKey;
@@ -154,42 +167,48 @@ public class StoreAdminServiceImpl implements StoreAdminService {
     }
 
     private BigDecimal[] resolveCoordinates(CreateStoreRequest request) {
-        try {
+        try (CloseableHttpClient httpClient = HttpClients.custom()
+                .setConnectionManager(CONNECTION_MANAGER)
+                .build()) {
             // 把省市区和详细地址拼成完整地址，供地理编码接口解析。
             String fullAddress = trim(request.getProvince())
                     + trim(request.getCity())
                     + trim(request.getDistrict())
                     + trim(request.getAddress());
-            HttpResponse response = HttpRequest.get("https://restapi.amap.com/v3/geocode/geo")
-                    .form("key", amapKey)
-                    .form("output", "JSON")
-                    .form("address", fullAddress)
-                    .form("city", trim(request.getCity()))
-                    .execute();
 
-            // 校验高德接口返回状态，只在成功时继续解析经纬度。
-            Map<String, Object> body = objectMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
-            if (!"1".equals(String.valueOf(body.get("status")))) {
-                return null;
+            String url = "https://restapi.amap.com/v3/geocode/geo"
+                    + "?key=" + URLEncoder.encode(amapKey, StandardCharsets.UTF_8)
+                    + "&output=JSON"
+                    + "&address=" + URLEncoder.encode(fullAddress, StandardCharsets.UTF_8)
+                    + "&city=" + URLEncoder.encode(trim(request.getCity()), StandardCharsets.UTF_8);
+
+            HttpGet httpGet = new HttpGet(url);
+            try (CloseableHttpResponse response = httpClient.execute(httpGet)) {
+                // 校验高德接口返回状态，只在成功时继续解析经纬度。
+                Map<String, Object> body = objectMapper.readValue(
+                        response.getEntity().getContent(), new TypeReference<Map<String, Object>>() {});
+                if (!"1".equals(String.valueOf(body.get("status")))) {
+                    return null;
+                }
+
+                // 取第一条地理编码结果作为门店坐标。
+                List<Map<String, Object>> geocodes = (List<Map<String, Object>>) body.get("geocodes");
+                if (geocodes == null || geocodes.isEmpty()) {
+                    return null;
+                }
+
+                // 高德返回的 location 形如 "经度,纬度"，这里拆分后转换为 BigDecimal。
+                String location = String.valueOf(geocodes.get(0).get("location"));
+                if (TextUtils.isBlank(location) || !location.contains(",")) {
+                    return null;
+                }
+
+                String[] parts = location.split(",");
+                return new BigDecimal[]{
+                        new BigDecimal(parts[0]),
+                        new BigDecimal(parts[1])
+                };
             }
-
-            // 取第一条地理编码结果作为门店坐标。
-            List<Map<String, Object>> geocodes = (List<Map<String, Object>>) body.get("geocodes");
-            if (geocodes == null || geocodes.isEmpty()) {
-                return null;
-            }
-
-            // 高德返回的 location 形如 "经度,纬度"，这里拆分后转换为 BigDecimal。
-            String location = String.valueOf(geocodes.get(0).get("location"));
-            if (location == null || !location.contains(",")) {
-                return null;
-            }
-
-            String[] parts = location.split(",");
-            return new BigDecimal[]{
-                    new BigDecimal(parts[0]),
-                    new BigDecimal(parts[1])
-            };
         } catch (Exception exception) {
             // 地址解析过程中出现任何异常，都按解析失败处理。
             return null;

@@ -1,6 +1,5 @@
 package cn.dextea.store.controller;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.store.dto.request.CreateStoreRequest;
 import cn.dextea.store.dto.request.StorePageQueryRequest;
@@ -28,7 +27,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/v1/admin/stores")
 @RequiredArgsConstructor
-@SaCheckLogin
 @Validated
 public class StoreAdminController {
     private final StoreAdminService storeAdminService;

@@ -1,5 +1,7 @@
 package cn.dextea.staff.dto.request;
 
+import cn.dextea.common.validation.annotation.EnumValue;
+import cn.dextea.staff.enums.RoleStatus;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -24,5 +26,6 @@ public class UpdateRoleRequest {
     private Integer dataScope;
 
     @NotNull(message = "状态不能为空")
+    @EnumValue(enumClass = RoleStatus.class, fieldName = "角色状态")
     private Integer status;
 }
