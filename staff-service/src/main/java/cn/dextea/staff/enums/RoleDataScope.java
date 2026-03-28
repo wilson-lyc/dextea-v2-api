@@ -12,4 +12,16 @@ public enum RoleDataScope {
 
     private final int value;
     private final String label;
+
+    public static boolean isValid(Integer value) {
+        if (value == null) {
+            return false;
+        }
+        for (RoleDataScope scope : values()) {
+            if (scope.value == value) {
+                return true;
+            }
+        }
+        return false;
+    }
 }

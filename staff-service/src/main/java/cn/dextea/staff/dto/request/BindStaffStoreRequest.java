@@ -1,6 +1,5 @@
 package cn.dextea.staff.dto.request;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,7 +11,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BindStaffStoreRequest {
-    @NotNull(message = "门店ID不能为空")
-    @Min(value = 1, message = "门店ID不能为空")
+    @NotNull(message = "门店ID是必填的")
     private Long storeId;
 }

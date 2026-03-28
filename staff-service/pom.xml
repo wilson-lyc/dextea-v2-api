@@ -77,7 +77,7 @@
         </dependency>
         <dependency>
             <groupId>cn.dev33</groupId>
-            <artifactId>sa-token-fastjson2</artifactId>
+            <artifactId>sa-token-redis-jackson</artifactId>
         </dependency>
         <dependency>
             <groupId>cn.dev33</groupId>

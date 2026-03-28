@@ -14,17 +14,19 @@ import cn.dextea.store.service.StoreAdminService;
 import cn.dextea.store.service.StoreGeoSyncService;
 import cn.hutool.http.HttpRequest;
 import cn.hutool.http.HttpResponse;
-import com.alibaba.fastjson2.JSONArray;
-import com.alibaba.fastjson2.JSONObject;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -32,6 +34,7 @@ public class StoreAdminServiceImpl implements StoreAdminService {
     private final StoreMapper storeMapper;
     private final StoreConverter storeConverter;
     private final StoreGeoSyncService storeGeoSyncService;
+    private final ObjectMapper objectMapper;
 
     @Value("${amap.key}")
     private String amapKey;
@@ -39,11 +42,6 @@ public class StoreAdminServiceImpl implements StoreAdminService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ApiResponse<StoreDetailResponse> createStore(CreateStoreRequest request) {
-        // 创建前先校验门店状态是否合法，避免脏数据入库。
-        if (!StoreStatus.isValid(request.getStatus())) {
-            return fail(StoreErrorCode.INVALID_STATUS);
-        }
-
         // 根据省市区和详细地址调用高德接口解析经纬度。
         BigDecimal[] coordinates = resolveCoordinates(request);
         if (coordinates == null) {
@@ -108,11 +106,6 @@ public class StoreAdminServiceImpl implements StoreAdminService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ApiResponse<StoreDetailResponse> updateStore(Long id, UpdateStoreRequest request) {
-        // 更新前先校验状态是否合法。
-        if (!StoreStatus.isValid(request.getStatus())) {
-            return fail(StoreErrorCode.INVALID_STATUS);
-        }
-
         // 先查询当前门店，避免更新不存在的数据。
         StoreEntity storeEntity = storeMapper.selectById(id);
         if (storeEntity == null) {
@@ -175,19 +168,19 @@ public class StoreAdminServiceImpl implements StoreAdminService {
                     .execute();
 
             // 校验高德接口返回状态，只在成功时继续解析经纬度。
-            JSONObject body = JSONObject.parseObject(response.body());
-            if (!"1".equals(body.getString("status"))) {
+            Map<String, Object> body = objectMapper.readValue(response.body(), new TypeReference<Map<String, Object>>() {});
+            if (!"1".equals(String.valueOf(body.get("status")))) {
                 return null;
             }
 
             // 取第一条地理编码结果作为门店坐标。
-            JSONArray geocodes = body.getJSONArray("geocodes");
+            List<Map<String, Object>> geocodes = (List<Map<String, Object>>) body.get("geocodes");
             if (geocodes == null || geocodes.isEmpty()) {
                 return null;
             }
 
             // 高德返回的 location 形如 "经度,纬度"，这里拆分后转换为 BigDecimal。
-            String location = geocodes.getJSONObject(0).getString("location");
+            String location = String.valueOf(geocodes.get(0).get("location"));
             if (location == null || !location.contains(",")) {
                 return null;
             }

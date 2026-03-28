@@ -48,11 +48,6 @@ public class StaffAdminServiceImpl implements StaffAdminService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ApiResponse<CreateStaffResponse> createStaff(CreateStaffRequest request) {
-        // 创建前先校验员工类型是否合法，避免非法字典值落库。
-        if (!StaffType.isValid(request.getUserType())) {
-            return fail(StaffErrorCode.INVALID_USER_TYPE);
-        }
-
         // 先规整账号和姓名，避免空格导致的重复账号问题。
         String username = request.getUsername().trim();
         String realName = request.getRealName().trim();
@@ -83,14 +78,6 @@ public class StaffAdminServiceImpl implements StaffAdminService {
 
     @Override
     public ApiResponse<IPage<StaffDetailResponse>> getStaffPage(StaffPageQueryRequest request) {
-        // 分页筛选中的员工类型和状态如果传了值，也必须满足字典约束。
-        if (request.getUserType() != null && !StaffType.isValid(request.getUserType())) {
-            return fail(StaffErrorCode.INVALID_USER_TYPE);
-        }
-        if (request.getStatus() != null && !StaffStatus.isValid(request.getStatus())) {
-            return fail(StaffErrorCode.INVALID_STATUS);
-        }
-
         // 按账号、姓名、用户类型、状态动态构建分页查询条件。
         LambdaQueryWrapper<StaffEntity> queryWrapper = new LambdaQueryWrapper<StaffEntity>()
                 .like(hasText(request.getUsername()), StaffEntity::getUsername, trim(request.getUsername()))
@@ -127,14 +114,6 @@ public class StaffAdminServiceImpl implements StaffAdminService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ApiResponse<StaffDetailResponse> updateStaff(Long id, UpdateStaffRequest request) {
-        // 更新前先校验员工类型和状态是否合法。
-        if (!StaffType.isValid(request.getUserType())) {
-            return fail(StaffErrorCode.INVALID_USER_TYPE);
-        }
-        if (!StaffStatus.isValid(request.getStatus())) {
-            return fail(StaffErrorCode.INVALID_STATUS);
-        }
-
         // 更新前先确认员工存在。
         StaffEntity currentStaff = staffMapper.selectById(id);
         if (currentStaff == null) {
