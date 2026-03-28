@@ -7,6 +7,8 @@ spring:
   config:
     import:
       - optional:nacos:${NACOS_MYSQL_DATA_ID:mysql.yaml}?group=${NACOS_MYSQL_GROUP:${NACOS_CONFIG_GROUP:DEFAULT_GROUP}}&refreshEnabled=${NACOS_MYSQL_REFRESH:true}
+      - optional:nacos:${NACOS_REDIS_DATA_ID:redis.yaml}?group=${NACOS_REDIS_GROUP:${NACOS_CONFIG_GROUP:DEFAULT_GROUP}}&refreshEnabled=${NACOS_REDIS_REFRESH:true}
+      - optional:nacos:${NACOS_SATOKEN_DATA_ID:sa-token.yaml}?group=${NACOS_SATOKEN_GROUP:${NACOS_CONFIG_GROUP:DEFAULT_GROUP}}&refreshEnabled=${NACOS_SATOKEN_REFRESH:true}
   jackson:
     default-property-inclusion: non_null
   cloud:

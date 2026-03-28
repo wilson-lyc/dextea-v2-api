@@ -184,6 +184,23 @@ public class StaffAdminServiceImpl implements StaffAdminService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
+    public ApiResponse<Void> enableStaff(Long id) {
+        // 激活员工：将账号状态改为可用。
+        StaffEntity staffEntity = staffMapper.selectById(id);
+        if (staffEntity == null) {
+            return fail(StaffErrorCode.STAFF_NOT_FOUND);
+        }
+
+        staffEntity.setStatus(StaffStatus.AVAILABLE.getValue());
+        if (staffMapper.updateById(staffEntity) != 1) {
+            return fail(StaffErrorCode.UPDATE_FAILED);
+        }
+
+        return ApiResponse.success();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
     public ApiResponse<ResetStaffPasswordResponse> resetPassword(Long id) {
         // 先确认目标员工存在。
         StaffEntity staffEntity = staffMapper.selectById(id);

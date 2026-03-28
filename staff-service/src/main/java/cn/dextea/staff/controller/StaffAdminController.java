@@ -92,6 +92,17 @@ public class StaffAdminController {
     }
 
     /**
+     * 激活员工账号
+     * @param id 员工ID
+     * @return 激活结果
+     */
+    @PutMapping("/{id}/enable")
+    public ApiResponse<Void> enableStaff(
+            @PathVariable("id") @Min(value = 1, message = "员工ID不能为空") Long id) {
+        return staffAdminService.enableStaff(id);
+    }
+
+    /**
      * 重置员工登录密码
      * @param id 员工ID
      * @return 重置后的密码信息

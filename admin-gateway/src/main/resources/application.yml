@@ -3,7 +3,7 @@ server:
 
 spring:
   application:
-    name: ${SPRING_APPLICATION_NAME:api-gateway}
+    name: ${SPRING_APPLICATION_NAME:admin-gateway}
   config:
     import:
       - optional:nacos:${spring.application.name}.${NACOS_CONFIG_FILE_EXTENSION:yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=${NACOS_CONFIG_REFRESH_ENABLED:true}

@@ -14,11 +14,10 @@
 
     <modules>
         <module>parent</module>
+        <module>common</module>
         <module>store-service-api</module>
         <module>staff-service</module>
-        <module>gateway</module>
-        <module>api-gateway</module>
-        <module>common</module>
+        <module>admin-gateway</module>
         <module>store-service</module>
         <module>auth-service</module>
         <module>product-service</module>
@@ -26,4 +25,12 @@
         <module>customer-service</module>
         <module>order-service</module>
     </modules>
+    <dependencies>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-autoconfigure</artifactId>
+            <version>3.5.0</version>
+            <scope>compile</scope>
+        </dependency>
+    </dependencies>
 </project>

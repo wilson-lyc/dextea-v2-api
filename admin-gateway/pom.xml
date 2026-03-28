@@ -10,7 +10,7 @@
         <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
-    <artifactId>api-gateway</artifactId>
+    <artifactId>admin-gateway</artifactId>
 
     <dependencies>
         <!-- common -->

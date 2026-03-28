@@ -58,6 +58,14 @@ public interface StaffAdminService {
     ApiResponse<Void> deleteStaff(Long id);
 
     /**
+     * 激活员工账号
+     *
+     * @param id 员工ID
+     * @return 返回激活处理结果
+     */
+    ApiResponse<Void> enableStaff(Long id);
+
+    /**
      * 重置员工登录密码
      *
      * @param id 员工ID

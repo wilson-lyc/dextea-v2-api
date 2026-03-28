@@ -9,7 +9,7 @@ import lombok.Getter;
 @Getter
 @AllArgsConstructor
 public enum ResponseCode {
-    SUCCESS(200, "success"),
+    SUCCESS(0, "success"),
     FAIL(400, "Fail"),
     UNAUTHORIZED(401, "Unauthorized"),
     FORBIDDEN(403, "Forbidden"),
