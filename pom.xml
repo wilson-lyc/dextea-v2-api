@@ -19,11 +19,6 @@
         <module>staff-service</module>
         <module>admin-gateway</module>
         <module>store-service</module>
-        <module>auth-service</module>
-        <module>product-service</module>
-        <module>menu-service</module>
-        <module>customer-service</module>
-        <module>order-service</module>
     </modules>
     <dependencies>
         <dependency>
