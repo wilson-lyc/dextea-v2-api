@@ -30,8 +30,6 @@ public class CustomizationOptionIngredientEntity {
 
     private BigDecimal quantity;
 
-    private String unit;
-
     @TableField("create_time")
     private LocalDateTime createTime;
 

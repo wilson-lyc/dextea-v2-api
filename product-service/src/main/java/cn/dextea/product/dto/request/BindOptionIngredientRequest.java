@@ -25,8 +25,4 @@ public class BindOptionIngredientRequest {
     @NotNull(message = "消耗数量不能为空")
     @DecimalMin(value = "0.01", message = "消耗数量必须大于0")
     private BigDecimal quantity;
-
-    @NotBlank(message = "计量单位不能为空")
-    @Size(max = 16, message = "计量单位长度不能超过16位")
-    private String unit;
 }

@@ -15,6 +15,7 @@ public class IngredientDetailResponse {
 
     private Long id;
     private String name;
+    private String unit;
     private Integer shelfLife;
     private Integer shelfLifeUnit;
     private Integer storageMethod;

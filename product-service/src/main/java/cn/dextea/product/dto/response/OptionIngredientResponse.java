@@ -15,6 +15,6 @@ public class OptionIngredientResponse {
 
     private Long ingredientId;
     private String ingredientName;
-    private BigDecimal quantity;
     private String unit;
+    private BigDecimal quantity;
 }

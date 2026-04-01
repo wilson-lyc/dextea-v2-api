@@ -16,11 +16,11 @@ public class ProductIngredientDetailResponse {
 
     private Long ingredientId;
     private String ingredientName;
+    private String unit;
     private Integer shelfLife;
     private Integer shelfLifeUnit;
     private Integer storageMethod;
     private BigDecimal quantity;
-    private String unit;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

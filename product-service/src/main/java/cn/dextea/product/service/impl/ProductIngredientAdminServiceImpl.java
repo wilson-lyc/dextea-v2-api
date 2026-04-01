@@ -55,7 +55,6 @@ public class ProductIngredientAdminServiceImpl implements ProductIngredientAdmin
                 .productId(productId)
                 .ingredientId(request.getIngredientId())
                 .quantity(request.getQuantity())
-                .unit(request.getUnit().trim())
                 .build();
 
         productIngredientMapper.insert(binding);

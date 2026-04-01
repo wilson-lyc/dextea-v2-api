@@ -37,6 +37,7 @@ public class IngredientAdminServiceImpl implements IngredientAdminService {
 
         IngredientEntity entity = IngredientEntity.builder()
                 .name(name)
+                .unit(request.getUnit().trim())
                 .shelfLife(request.getShelfLife())
                 .shelfLifeUnit(request.getShelfLifeUnit())
                 .storageMethod(request.getStorageMethod())
@@ -86,6 +87,7 @@ public class IngredientAdminServiceImpl implements IngredientAdminService {
         }
 
         entity.setName(name);
+        entity.setUnit(request.getUnit().trim());
         entity.setShelfLife(request.getShelfLife());
         entity.setShelfLifeUnit(request.getShelfLifeUnit());
         entity.setStorageMethod(request.getStorageMethod());

@@ -23,8 +23,4 @@ public class BindProductIngredientRequest {
     @NotNull(message = "用量不能为空")
     @DecimalMin(value = "0.01", message = "用量不能小于0.01")
     private BigDecimal quantity;
-
-    @NotBlank(message = "单位不能为空")
-    @Size(max = 16, message = "单位长度不能超过16位")
-    private String unit;
 }

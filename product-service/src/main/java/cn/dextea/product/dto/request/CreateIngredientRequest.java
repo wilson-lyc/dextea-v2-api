@@ -22,6 +22,10 @@ public class CreateIngredientRequest {
     @Size(max = 64, message = "原料名称长度不能超过64位")
     private String name;
 
+    @NotBlank(message = "库存单位不能为空")
+    @Size(max = 16, message = "库存单位长度不能超过16位")
+    private String unit;
+
     @NotNull(message = "保质时长不能为空")
     @Min(value = 1, message = "保质时长不能小于1")
     private Integer shelfLife;

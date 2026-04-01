@@ -142,7 +142,6 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
 
         if (existing != null) {
             existing.setQuantity(request.getQuantity());
-            existing.setUnit(request.getUnit().trim());
             bindingMapper.updateById(existing);
             return ApiResponse.success(customizationConverter.toOptionIngredientResponse(existing, ingredient));
         }
@@ -151,7 +150,6 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
                 .optionId(optionId)
                 .ingredientId(request.getIngredientId())
                 .quantity(request.getQuantity())
-                .unit(request.getUnit().trim())
                 .build();
 
         bindingMapper.insert(binding);

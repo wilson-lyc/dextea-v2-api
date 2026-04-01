@@ -58,6 +58,21 @@ public class CustomizationConverter {
     }
 
     public CustomizationOptionDetailResponse toCustomizationOptionDetailResponse(
+            ProductCustomizationOptionEntity entity) {
+        return CustomizationOptionDetailResponse.builder()
+                .id(entity.getId())
+                .itemId(entity.getItemId())
+                .name(entity.getName())
+                .priceAdjustment(entity.getPriceAdjustment())
+                .sortOrder(entity.getSortOrder())
+                .isDefault(entity.getIsDefault())
+                .status(entity.getStatus())
+                .createTime(entity.getCreateTime())
+                .updateTime(entity.getUpdateTime())
+                .build();
+    }
+
+    public CustomizationOptionDetailResponse toCustomizationOptionDetailResponse(
             ProductCustomizationOptionEntity entity, OptionIngredientResponse ingredient) {
         return CustomizationOptionDetailResponse.builder()
                 .id(entity.getId())
@@ -78,8 +93,8 @@ public class CustomizationConverter {
         return OptionIngredientResponse.builder()
                 .ingredientId(ingredient.getId())
                 .ingredientName(ingredient.getName())
+                .unit(ingredient.getUnit())
                 .quantity(binding.getQuantity())
-                .unit(binding.getUnit())
                 .build();
     }
 }

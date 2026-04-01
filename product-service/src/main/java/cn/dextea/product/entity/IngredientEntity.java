@@ -23,6 +23,8 @@ public class IngredientEntity {
 
     private String name;
 
+    private String unit;
+
     @TableField("shelf_life")
     private Integer shelfLife;
 

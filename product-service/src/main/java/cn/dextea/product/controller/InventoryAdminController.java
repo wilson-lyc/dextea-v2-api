@@ -24,8 +24,10 @@ public class InventoryAdminController {
     private final InventoryAdminService inventoryAdminService;
 
     /**
-     * List all inventory records for a store (paginated).
-     * Supports optional filters: ingredientName (fuzzy), lowStock (boolean).
+     * 分页查询门店原料库存列表
+     * @param storeId 门店ID
+     * @param request 查询请求参数（支持按原料名称模糊搜索、按低库存筛选）
+     * @return 门店原料库存分页列表
      */
     @GetMapping
     public ApiResponse<IPage<InventoryDetailResponse>> getInventoryPage(
@@ -35,7 +37,10 @@ public class InventoryAdminController {
     }
 
     /**
-     * Get inventory detail for a specific ingredient in a store.
+     * 获取门店原料库存详情
+     * @param storeId 门店ID
+     * @param ingredientId 原料ID
+     * @return 门店原料库存详情
      */
     @GetMapping("/{ingredientId}")
     public ApiResponse<InventoryDetailResponse> getInventoryDetail(
@@ -45,8 +50,11 @@ public class InventoryAdminController {
     }
 
     /**
-     * Set (upsert) the inventory for a specific ingredient in a store.
-     * Creates a new record if none exists, otherwise updates it.
+     * 设置门店原料库存（Upsert）
+     * @param storeId 门店ID
+     * @param ingredientId 原料ID
+     * @param request 设置库存请求参数
+     * @return 设置后的库存详情
      */
     @PutMapping("/{ingredientId}")
     public ApiResponse<InventoryDetailResponse> setInventory(
@@ -57,8 +65,11 @@ public class InventoryAdminController {
     }
 
     /**
-     * Adjust the stock quantity by a signed delta.
-     * Positive delta = restock; negative delta = consumption.
+     * 调整门店原料库存数量
+     * @param storeId 门店ID
+     * @param ingredientId 原料ID
+     * @param request 调整库存请求参数（正数=补货，负数=消耗）
+     * @return 调整后的库存详情
      */
     @PostMapping("/{ingredientId}/adjust")
     public ApiResponse<InventoryDetailResponse> adjustInventory(

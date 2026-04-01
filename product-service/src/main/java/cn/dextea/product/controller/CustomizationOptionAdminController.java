@@ -23,6 +23,12 @@ public class CustomizationOptionAdminController {
 
     private final CustomizationOptionAdminService customizationOptionAdminService;
 
+    /**
+     * 创建客制化选项
+     * @param itemId 客制化项目ID
+     * @param request 创建客制化选项请求参数
+     * @return 创建成功的客制化选项信息
+     */
     @PostMapping("/v1/admin/customization-items/{itemId}/options")
     public ApiResponse<CreateCustomizationOptionResponse> createOption(
             @PathVariable("itemId") @Min(value = 1, message = "定制项ID不合法") Long itemId,
@@ -30,6 +36,12 @@ public class CustomizationOptionAdminController {
         return customizationOptionAdminService.createOption(itemId, request);
     }
 
+    /**
+     * 更新客制化选项信息
+     * @param optionId 客制化选项ID
+     * @param request 更新客制化选项请求参数
+     * @return 更新后的客制化选项详情
+     */
     @PutMapping("/v1/admin/customization-options/{optionId}")
     public ApiResponse<CustomizationOptionDetailResponse> updateOption(
             @PathVariable("optionId") @Min(value = 1, message = "定制选项ID不合法") Long optionId,
@@ -37,12 +49,23 @@ public class CustomizationOptionAdminController {
         return customizationOptionAdminService.updateOption(optionId, request);
     }
 
+    /**
+     * 删除客制化选项
+     * @param optionId 客制化选项ID
+     * @return 操作结果
+     */
     @DeleteMapping("/v1/admin/customization-options/{optionId}")
     public ApiResponse<Void> deleteOption(
             @PathVariable("optionId") @Min(value = 1, message = "定制选项ID不合法") Long optionId) {
         return customizationOptionAdminService.deleteOption(optionId);
     }
 
+    /**
+     * 绑定客制化选项原料
+     * @param optionId 客制化选项ID
+     * @param request 绑定原料请求参数
+     * @return 绑定后的选项原料详情
+     */
     @PutMapping("/v1/admin/customization-options/{optionId}/ingredient")
     public ApiResponse<OptionIngredientResponse> bindIngredient(
             @PathVariable("optionId") @Min(value = 1, message = "定制选项ID不合法") Long optionId,
@@ -50,6 +73,11 @@ public class CustomizationOptionAdminController {
         return customizationOptionAdminService.bindIngredient(optionId, request);
     }
 
+    /**
+     * 解绑客制化选项原料
+     * @param optionId 客制化选项ID
+     * @return 操作结果
+     */
     @DeleteMapping("/v1/admin/customization-options/{optionId}/ingredient")
     public ApiResponse<Void> unbindIngredient(
             @PathVariable("optionId") @Min(value = 1, message = "定制选项ID不合法") Long optionId) {
