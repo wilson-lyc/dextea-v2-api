@@ -19,5 +19,6 @@
         <module>staff-service</module>
         <module>admin-gateway</module>
         <module>store-service</module>
+        <module>product-service</module>
     </modules>
 </project>
