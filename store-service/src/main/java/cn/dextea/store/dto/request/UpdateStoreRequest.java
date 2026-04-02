@@ -1,7 +1,13 @@
 package cn.dextea.store.dto.request;
 
+import cn.dextea.common.validation.annotation.EnumValue;
 import cn.dextea.common.validation.annotation.PhoneNumber;
-import jakarta.validation.constraints.*;
+import cn.dextea.store.enums.StoreStatus;
+import jakarta.validation.constraints.DecimalMax;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -34,9 +40,8 @@ public class UpdateStoreRequest {
     @Size(max = 255, message = "详细地址长度不能超过255位")
     private String address;
 
-    @NotNull(message = "状态是必填的")
-    @Min(value = 0, message = "状态不能小于0")
-    @Max(value = 3, message = "状态不能大于3")
+    @NotNull(message = "门店状态不能为空")
+    @EnumValue(enumClass = StoreStatus.class, fieldName = "门店状态")
     private Integer status;
 
     @NotNull(message = "经度是必填的")

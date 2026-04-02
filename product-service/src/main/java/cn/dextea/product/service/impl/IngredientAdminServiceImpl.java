@@ -1,5 +1,6 @@
 package cn.dextea.product.service.impl;
 
+import cn.dextea.common.util.StringValueUtils;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.converter.IngredientConverter;
 import cn.dextea.product.dto.request.CreateIngredientRequest;
@@ -55,7 +56,7 @@ public class IngredientAdminServiceImpl implements IngredientAdminService {
     public ApiResponse<IPage<IngredientDetailResponse>> getIngredientPage(IngredientPageQueryRequest request) {
         LambdaQueryWrapper<IngredientEntity> queryWrapper = new LambdaQueryWrapper<IngredientEntity>()
                 .eq(IngredientEntity::getStatus, IngredientStatus.ACTIVE.getValue())
-                .like(hasText(request.getName()), IngredientEntity::getName, trim(request.getName()))
+                .like(StringValueUtils.hasText(request.getName()), IngredientEntity::getName, StringValueUtils.trim(request.getName()))
                 .orderByDesc(IngredientEntity::getId);
 
         IPage<IngredientEntity> entityPage = ingredientMapper.selectPage(
@@ -131,13 +132,5 @@ public class IngredientAdminServiceImpl implements IngredientAdminService {
 
     private <T> ApiResponse<T> fail(IngredientErrorCode errorCode) {
         return ApiResponse.fail(errorCode.getCode(), errorCode.getMsg());
-    }
-
-    private boolean hasText(String value) {
-        return value != null && !value.trim().isEmpty();
-    }
-
-    private String trim(String value) {
-        return value == null ? null : value.trim();
     }
 }

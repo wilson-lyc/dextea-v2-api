@@ -16,7 +16,7 @@ public interface PermissionAdminService {
      * @param request 分页及筛选条件
      * @return 返回权限分页结果集
      */
-    ApiResponse<IPage<PermissionDetailResponse>> getPermissionPage(PermissionPageQueryRequest request);
+    ApiResponse<IPage<PermissionDetailResponse>> page(PermissionPageQueryRequest request);
 
     /**
      * 查询权限详情
@@ -24,5 +24,5 @@ public interface PermissionAdminService {
      * @param id 权限ID
      * @return 返回指定权限的详细信息
      */
-    ApiResponse<PermissionDetailResponse> getPermissionDetail(Long id);
+    ApiResponse<PermissionDetailResponse> detail(Long id);
 }

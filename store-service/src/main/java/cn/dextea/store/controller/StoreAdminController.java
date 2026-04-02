@@ -4,6 +4,7 @@ import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.store.dto.request.CreateStoreRequest;
 import cn.dextea.store.dto.request.StorePageQueryRequest;
 import cn.dextea.store.dto.request.UpdateStoreRequest;
+import cn.dextea.store.dto.response.CreateStoreResponse;
 import cn.dextea.store.dto.response.StoreDetailResponse;
 import cn.dextea.store.service.StoreAdminService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -34,11 +35,11 @@ public class StoreAdminController {
     /**
      * 创建门店
      * @param request 创建门店请求参数
-     * @return 门店详情
+     * @return 创建结果
      */
     @PostMapping
-    public ApiResponse<StoreDetailResponse> createStore(@Valid @RequestBody CreateStoreRequest request) {
-        return storeAdminService.createStore(request);
+    public ApiResponse<CreateStoreResponse> createStore(@Valid @RequestBody CreateStoreRequest request) {
+        return storeAdminService.create(request);
     }
 
     /**
@@ -48,7 +49,7 @@ public class StoreAdminController {
      */
     @GetMapping
     public ApiResponse<IPage<StoreDetailResponse>> getStorePage(@Valid StorePageQueryRequest request) {
-        return storeAdminService.getStorePage(request);
+        return storeAdminService.page(request);
     }
 
     /**
@@ -59,7 +60,7 @@ public class StoreAdminController {
     @GetMapping("/{id}")
     public ApiResponse<StoreDetailResponse> getStoreDetail(
             @PathVariable("id") @Min(value = 1, message = "门店ID不能为空") Long id) {
-        return storeAdminService.getStoreDetail(id);
+        return storeAdminService.detail(id);
     }
 
     /**
@@ -72,7 +73,7 @@ public class StoreAdminController {
     public ApiResponse<StoreDetailResponse> updateStore(
             @PathVariable("id") @Min(value = 1, message = "门店ID不能为空") Long id,
             @Valid @RequestBody UpdateStoreRequest request) {
-        return storeAdminService.updateStore(id, request);
+        return storeAdminService.update(id, request);
     }
 
     /**
@@ -83,6 +84,6 @@ public class StoreAdminController {
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteStore(
             @PathVariable("id") @Min(value = 1, message = "门店ID不能为空") Long id) {
-        return storeAdminService.deleteStore(id);
+        return storeAdminService.delete(id);
     }
 }

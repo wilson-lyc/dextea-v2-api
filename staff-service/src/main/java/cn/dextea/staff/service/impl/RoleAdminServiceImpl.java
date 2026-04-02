@@ -1,5 +1,6 @@
 package cn.dextea.staff.service.impl;
 
+import cn.dextea.common.util.StringValueUtils;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.staff.converter.RoleConverter;
 import cn.dextea.staff.dto.request.BindRolePermissionRequest;
@@ -34,10 +35,10 @@ public class RoleAdminServiceImpl implements RoleAdminService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<CreateRoleResponse> createRole(CreateRoleRequest request) {
+    public ApiResponse<CreateRoleResponse> create(CreateRoleRequest request) {
         // 先规整字符串字段，避免前后空格影响唯一性判断和持久化结果。
         String name = request.getName().trim();
-        String remark = trim(request.getRemark());
+        String remark = StringValueUtils.trim(request.getRemark());
 
         // 角色名称必须全局唯一，创建前先做重名校验。
         if (existsByName(name, null)) {
@@ -62,10 +63,10 @@ public class RoleAdminServiceImpl implements RoleAdminService {
     }
 
     @Override
-    public ApiResponse<IPage<RoleDetailResponse>> getRolePage(RolePageQueryRequest request) {
+    public ApiResponse<IPage<RoleDetailResponse>> page(RolePageQueryRequest request) {
         // 按名称、数据范围、状态动态拼装分页查询条件。
         LambdaQueryWrapper<RoleEntity> queryWrapper = new LambdaQueryWrapper<RoleEntity>()
-                .like(hasText(request.getName()), RoleEntity::getName, trim(request.getName()))
+                .like(StringValueUtils.hasText(request.getName()), RoleEntity::getName, StringValueUtils.trim(request.getName()))
                 .eq(request.getDataScope() != null, RoleEntity::getDataScope, request.getDataScope())
                 .eq(request.getStatus() != null, RoleEntity::getStatus, request.getStatus())
                 .orderByDesc(RoleEntity::getId);
@@ -77,7 +78,7 @@ public class RoleAdminServiceImpl implements RoleAdminService {
     }
 
     @Override
-    public ApiResponse<RoleDetailResponse> getRoleDetail(Long id) {
+    public ApiResponse<RoleDetailResponse> detail(Long id) {
         // 先确认角色存在，再返回详情。
         RoleEntity roleEntity = roleMapper.selectById(id);
         if (roleEntity == null) {
@@ -88,7 +89,7 @@ public class RoleAdminServiceImpl implements RoleAdminService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<RoleDetailResponse> updateRole(Long id, UpdateRoleRequest request) {
+    public ApiResponse<RoleDetailResponse> update(Long id, UpdateRoleRequest request) {
         // 更新前先查询当前角色，避免对不存在的数据执行更新。
         RoleEntity currentRole = roleMapper.selectById(id);
         if (currentRole == null) {
@@ -97,7 +98,7 @@ public class RoleAdminServiceImpl implements RoleAdminService {
 
         // 规整可编辑字段，保证后续校验和存储使用统一值。
         String name = request.getName().trim();
-        String remark = trim(request.getRemark());
+        String remark = StringValueUtils.trim(request.getRemark());
 
         // 更新时排除自身后做重名校验，防止角色名称冲突。
         if (existsByName(name, id)) {
@@ -121,7 +122,7 @@ public class RoleAdminServiceImpl implements RoleAdminService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<Void> deleteRole(Long id) {
+    public ApiResponse<Void> delete(Long id) {
         // 删除角色采用软删除：先校验存在，再改为禁用状态。
         RoleEntity roleEntity = roleMapper.selectById(id);
         if (roleEntity == null) {
@@ -218,13 +219,5 @@ public class RoleAdminServiceImpl implements RoleAdminService {
 
     private <T> ApiResponse<T> fail(RoleErrorCode errorCode) {
         return ApiResponse.fail(errorCode.getCode(), errorCode.getMsg());
-    }
-
-    private boolean hasText(String value) {
-        return value != null && !value.trim().isEmpty();
-    }
-
-    private String trim(String value) {
-        return value == null ? null : value.trim();
     }
 }

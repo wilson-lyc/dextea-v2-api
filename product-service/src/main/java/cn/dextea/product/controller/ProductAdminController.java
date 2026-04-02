@@ -1,6 +1,5 @@
 package cn.dextea.product.controller;
 
-import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.dto.request.CreateProductRequest;
 import cn.dextea.product.dto.request.ProductPageQueryRequest;
@@ -18,7 +17,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/v1/admin/products")
 @RequiredArgsConstructor
-@SaCheckLogin
 @Validated
 public class ProductAdminController {
 

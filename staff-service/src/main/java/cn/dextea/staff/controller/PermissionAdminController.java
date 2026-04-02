@@ -33,7 +33,7 @@ public class PermissionAdminController {
      */
     @GetMapping
     public ApiResponse<IPage<PermissionDetailResponse>> getPermissionPage(@Valid PermissionPageQueryRequest request) {
-        return permissionAdminService.getPermissionPage(request);
+        return permissionAdminService.page(request);
     }
 
     /**
@@ -44,6 +44,6 @@ public class PermissionAdminController {
     @GetMapping("/{id}")
     public ApiResponse<PermissionDetailResponse> getPermissionDetail(
             @PathVariable("id") @Min(value = 1, message = "权限ID不能为空") Long id) {
-        return permissionAdminService.getPermissionDetail(id);
+        return permissionAdminService.detail(id);
     }
 }

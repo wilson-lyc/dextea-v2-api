@@ -43,7 +43,7 @@ public class StaffAdminController {
      */
     @PostMapping
     public ApiResponse<CreateStaffResponse> createStaff(@Valid @RequestBody CreateStaffRequest request) {
-        return staffAdminService.createStaff(request);
+        return staffAdminService.create(request);
     }
 
     /**
@@ -53,7 +53,7 @@ public class StaffAdminController {
      */
     @GetMapping
     public ApiResponse<IPage<StaffDetailResponse>> getStaffPage(@Valid StaffPageQueryRequest request) {
-        return staffAdminService.getStaffPage(request);
+        return staffAdminService.page(request);
     }
 
     /**
@@ -64,7 +64,7 @@ public class StaffAdminController {
     @GetMapping("/{id}")
     public ApiResponse<StaffDetailResponse> getStaffDetail(
             @PathVariable("id") @Min(value = 1, message = "员工ID不能为空") Long id) {
-        return staffAdminService.getStaffDetail(id);
+        return staffAdminService.detail(id);
     }
 
     /**
@@ -77,7 +77,7 @@ public class StaffAdminController {
     public ApiResponse<StaffDetailResponse> updateStaff(
             @PathVariable("id") @Min(value = 1, message = "员工ID不能为空") Long id,
             @Valid @RequestBody UpdateStaffRequest request) {
-        return staffAdminService.updateStaff(id, request);
+        return staffAdminService.update(id, request);
     }
 
     /**
@@ -88,7 +88,7 @@ public class StaffAdminController {
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteStaff(
             @PathVariable("id") @Min(value = 1, message = "员工ID不能为空") Long id) {
-        return staffAdminService.deleteStaff(id);
+        return staffAdminService.delete(id);
     }
 
     /**

@@ -26,7 +26,6 @@ public class StoreBizController {
 
     /**
      * 推荐附近门店
-     *
      * @param request 包含用户经纬度和搜索参数
      * @return 按距离排序的附近门店列表
      */

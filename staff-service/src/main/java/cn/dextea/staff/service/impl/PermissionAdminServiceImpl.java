@@ -1,5 +1,6 @@
 package cn.dextea.staff.service.impl;
 
+import cn.dextea.common.util.StringValueUtils;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.staff.converter.PermissionConverter;
 import cn.dextea.staff.dto.request.PermissionPageQueryRequest;
@@ -21,10 +22,10 @@ public class PermissionAdminServiceImpl implements PermissionAdminService {
     private final PermissionConverter permissionConverter;
 
     @Override
-    public ApiResponse<IPage<PermissionDetailResponse>> getPermissionPage(PermissionPageQueryRequest request) {
+    public ApiResponse<IPage<PermissionDetailResponse>> page(PermissionPageQueryRequest request) {
         // 按查询条件拼装分页检索语句，仅在传入名称时追加模糊过滤。
         LambdaQueryWrapper<PermissionEntity> queryWrapper = new LambdaQueryWrapper<PermissionEntity>()
-                .like(hasText(request.getName()), PermissionEntity::getName, trim(request.getName()))
+                .like(StringValueUtils.hasText(request.getName()), PermissionEntity::getName, StringValueUtils.trim(request.getName()))
                 .orderByDesc(PermissionEntity::getId);
 
         // 先查实体分页结果，再统一转换为接口响应对象。
@@ -34,7 +35,7 @@ public class PermissionAdminServiceImpl implements PermissionAdminService {
     }
 
     @Override
-    public ApiResponse<PermissionDetailResponse> getPermissionDetail(Long id) {
+    public ApiResponse<PermissionDetailResponse> detail(Long id) {
         // 根据主键查询权限详情，不存在时直接返回业务错误。
         PermissionEntity permissionEntity = permissionMapper.selectById(id);
         if (permissionEntity == null) {
@@ -43,13 +44,5 @@ public class PermissionAdminServiceImpl implements PermissionAdminService {
 
         // 查询成功后转换为详情响应。
         return ApiResponse.success(permissionConverter.toPermissionDetailResponse(permissionEntity));
-    }
-
-    private boolean hasText(String value) {
-        return value != null && !value.trim().isEmpty();
-    }
-
-    private String trim(String value) {
-        return value == null ? null : value.trim();
     }
 }

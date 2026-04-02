@@ -1,5 +1,6 @@
 package cn.dextea.product.service.impl;
 
+import cn.dextea.common.util.StringValueUtils;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.converter.InventoryConverter;
 import cn.dextea.product.dto.request.AdjustInventoryRequest;
@@ -127,7 +128,7 @@ public class InventoryAdminServiceImpl implements InventoryAdminService {
 
         // Resolve ingredient ID list when a name filter is specified
         List<Long> filteredIngredientIds = null;
-        if (hasText(request.getIngredientName())) {
+        if (StringValueUtils.hasText(request.getIngredientName())) {
             filteredIngredientIds = ingredientMapper.selectList(
                     new LambdaQueryWrapper<IngredientEntity>()
                             .eq(IngredientEntity::getStatus, IngredientStatus.ACTIVE.getValue())
@@ -218,9 +219,5 @@ public class InventoryAdminServiceImpl implements InventoryAdminService {
 
     private <T> ApiResponse<T> fail(InventoryErrorCode code) {
         return ApiResponse.fail(code.getCode(), code.getMsg());
-    }
-
-    private boolean hasText(String value) {
-        return value != null && !value.trim().isEmpty();
     }
 }

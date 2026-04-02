@@ -42,7 +42,7 @@ public class RoleAdminController {
      */
     @PostMapping
     public ApiResponse<CreateRoleResponse> createRole(@Valid @RequestBody CreateRoleRequest request) {
-        return roleAdminService.createRole(request);
+        return roleAdminService.create(request);
     }
 
     /**
@@ -52,7 +52,7 @@ public class RoleAdminController {
      */
     @GetMapping
     public ApiResponse<IPage<RoleDetailResponse>> getRolePage(@Valid RolePageQueryRequest request) {
-        return roleAdminService.getRolePage(request);
+        return roleAdminService.page(request);
     }
 
     /**
@@ -63,7 +63,7 @@ public class RoleAdminController {
     @GetMapping("/{id}")
     public ApiResponse<RoleDetailResponse> getRoleDetail(
             @PathVariable("id") @Min(value = 1, message = "角色ID不能为空") Long id) {
-        return roleAdminService.getRoleDetail(id);
+        return roleAdminService.detail(id);
     }
 
     /**
@@ -76,7 +76,7 @@ public class RoleAdminController {
     public ApiResponse<RoleDetailResponse> updateRole(
             @PathVariable("id") @Min(value = 1, message = "角色ID不能为空") Long id,
             @Valid @RequestBody UpdateRoleRequest request) {
-        return roleAdminService.updateRole(id, request);
+        return roleAdminService.update(id, request);
     }
 
     /**
@@ -87,7 +87,7 @@ public class RoleAdminController {
     @DeleteMapping("/{id}")
     public ApiResponse<Void> deleteRole(
             @PathVariable("id") @Min(value = 1, message = "角色ID不能为空") Long id) {
-        return roleAdminService.deleteRole(id);
+        return roleAdminService.delete(id);
     }
 
     /**

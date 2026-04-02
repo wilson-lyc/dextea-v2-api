@@ -1,5 +1,6 @@
 package cn.dextea.product.service.impl;
 
+import cn.dextea.common.util.StringValueUtils;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.converter.ProductConverter;
 import cn.dextea.product.dto.request.CreateProductRequest;
@@ -52,7 +53,7 @@ public class ProductAdminServiceImpl implements ProductAdminService {
     @Override
     public ApiResponse<IPage<ProductDetailResponse>> getProductPage(ProductPageQueryRequest request) {
         LambdaQueryWrapper<ProductEntity> queryWrapper = new LambdaQueryWrapper<ProductEntity>()
-                .like(hasText(request.getName()), ProductEntity::getName, trim(request.getName()))
+                .like(StringValueUtils.hasText(request.getName()), ProductEntity::getName, StringValueUtils.trim(request.getName()))
                 .eq(request.getStatus() != null, ProductEntity::getStatus, request.getStatus())
                 .orderByDesc(ProductEntity::getId);
 
@@ -110,8 +111,6 @@ public class ProductAdminServiceImpl implements ProductAdminService {
         return ApiResponse.success();
     }
 
-    // ---- Helpers ----
-
     private boolean existsByName(String name, Long excludeId) {
         LambdaQueryWrapper<ProductEntity> queryWrapper = new LambdaQueryWrapper<ProductEntity>()
                 .eq(ProductEntity::getName, name)
@@ -121,13 +120,5 @@ public class ProductAdminServiceImpl implements ProductAdminService {
 
     private <T> ApiResponse<T> fail(ProductErrorCode errorCode) {
         return ApiResponse.fail(errorCode.getCode(), errorCode.getMsg());
-    }
-
-    private boolean hasText(String value) {
-        return value != null && !value.trim().isEmpty();
-    }
-
-    private String trim(String value) {
-        return value == null ? null : value.trim();
     }
 }

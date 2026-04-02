@@ -39,5 +39,6 @@ public class StorePageQueryRequest {
     @Size(max = 32, message = "区县长度不能超过32位")
     private String district;
 
+    @Size(max = 32, message = "联系电话长度不能超过32位")
     private String phone;
 }

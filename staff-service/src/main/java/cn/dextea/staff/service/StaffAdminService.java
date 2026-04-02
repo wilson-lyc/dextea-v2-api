@@ -22,7 +22,7 @@ public interface StaffAdminService {
      * @param request 员工创建请求，包含用户名、姓名和员工类型
      * @return 返回新建员工信息及系统生成的初始密码
      */
-    ApiResponse<CreateStaffResponse> createStaff(CreateStaffRequest request);
+    ApiResponse<CreateStaffResponse> create(CreateStaffRequest request);
 
     /**
      * 分页查询员工列表
@@ -30,7 +30,7 @@ public interface StaffAdminService {
      * @param request 分页及筛选条件，支持用户名、姓名、类型和状态过滤
      * @return 返回员工分页结果集
      */
-    ApiResponse<IPage<StaffDetailResponse>> getStaffPage(StaffPageQueryRequest request);
+    ApiResponse<IPage<StaffDetailResponse>> page(StaffPageQueryRequest request);
 
     /**
      * 查询员工详情
@@ -38,7 +38,7 @@ public interface StaffAdminService {
      * @param id 员工ID
      * @return 返回指定员工的详细资料
      */
-    ApiResponse<StaffDetailResponse> getStaffDetail(Long id);
+    ApiResponse<StaffDetailResponse> detail(Long id);
 
     /**
      * 更新员工资料
@@ -47,7 +47,7 @@ public interface StaffAdminService {
      * @param request 员工更新请求，包含用户名、姓名、类型和账号状态
      * @return 返回更新后的员工详情
      */
-    ApiResponse<StaffDetailResponse> updateStaff(Long id, UpdateStaffRequest request);
+    ApiResponse<StaffDetailResponse> update(Long id, UpdateStaffRequest request);
 
     /**
      * 禁用员工账号
@@ -55,7 +55,7 @@ public interface StaffAdminService {
      * @param id 员工ID
      * @return 返回禁用处理结果
      */
-    ApiResponse<Void> deleteStaff(Long id);
+    ApiResponse<Void> delete(Long id);
 
     /**
      * 激活员工账号

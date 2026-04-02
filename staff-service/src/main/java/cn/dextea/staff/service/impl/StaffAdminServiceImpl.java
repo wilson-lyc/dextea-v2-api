@@ -1,5 +1,6 @@
 package cn.dextea.staff.service.impl;
 
+import cn.dextea.common.util.StringValueUtils;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.store.api.dto.response.StoreValidityResponse;
 import cn.dextea.store.api.feign.StoreInternalFeign;
@@ -47,7 +48,7 @@ public class StaffAdminServiceImpl implements StaffAdminService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<CreateStaffResponse> createStaff(CreateStaffRequest request) {
+    public ApiResponse<CreateStaffResponse> create(CreateStaffRequest request) {
         // 先规整账号和姓名，避免空格导致的重复账号问题。
         String username = request.getUsername().trim();
         String realName = request.getRealName().trim();
@@ -77,11 +78,11 @@ public class StaffAdminServiceImpl implements StaffAdminService {
     }
 
     @Override
-    public ApiResponse<IPage<StaffDetailResponse>> getStaffPage(StaffPageQueryRequest request) {
+    public ApiResponse<IPage<StaffDetailResponse>> page(StaffPageQueryRequest request) {
         // 按账号、姓名、用户类型、状态动态构建分页查询条件。
         LambdaQueryWrapper<StaffEntity> queryWrapper = new LambdaQueryWrapper<StaffEntity>()
-                .like(hasText(request.getUsername()), StaffEntity::getUsername, trim(request.getUsername()))
-                .like(hasText(request.getRealName()), StaffEntity::getRealName, trim(request.getRealName()))
+                .like(StringValueUtils.hasText(request.getUsername()), StaffEntity::getUsername, StringValueUtils.trim(request.getUsername()))
+                .like(StringValueUtils.hasText(request.getRealName()), StaffEntity::getRealName, StringValueUtils.trim(request.getRealName()))
                 .eq(request.getUserType() != null, StaffEntity::getUserType, request.getUserType())
                 .eq(request.getStatus() != null, StaffEntity::getStatus, request.getStatus())
                 .orderByDesc(StaffEntity::getId);
@@ -102,7 +103,7 @@ public class StaffAdminServiceImpl implements StaffAdminService {
     }
 
     @Override
-    public ApiResponse<StaffDetailResponse> getStaffDetail(Long id) {
+    public ApiResponse<StaffDetailResponse> detail(Long id) {
         // 根据员工主键查询详情，不存在则返回业务错误。
         StaffEntity staffEntity = staffMapper.selectById(id);
         if (staffEntity == null) {
@@ -113,7 +114,7 @@ public class StaffAdminServiceImpl implements StaffAdminService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<StaffDetailResponse> updateStaff(Long id, UpdateStaffRequest request) {
+    public ApiResponse<StaffDetailResponse> update(Long id, UpdateStaffRequest request) {
         // 更新前先确认员工存在。
         StaffEntity currentStaff = staffMapper.selectById(id);
         if (currentStaff == null) {
@@ -146,7 +147,7 @@ public class StaffAdminServiceImpl implements StaffAdminService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<Void> deleteStaff(Long id) {
+    public ApiResponse<Void> delete(Long id) {
         // 删除员工采用软删除：将账号状态改为禁用。
         StaffEntity staffEntity = staffMapper.selectById(id);
         if (staffEntity == null) {
@@ -342,13 +343,5 @@ public class StaffAdminServiceImpl implements StaffAdminService {
 
     private <T> ApiResponse<T> fail(StaffErrorCode errorCode) {
         return ApiResponse.fail(errorCode.getCode(), errorCode.getMsg());
-    }
-
-    private boolean hasText(String value) {
-        return value != null && !value.trim().isEmpty();
-    }
-
-    private String trim(String value) {
-        return value == null ? null : value.trim();
     }
 }
