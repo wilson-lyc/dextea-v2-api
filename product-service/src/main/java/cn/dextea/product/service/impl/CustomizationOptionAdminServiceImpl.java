@@ -13,6 +13,7 @@ import cn.dextea.product.entity.IngredientEntity;
 import cn.dextea.product.entity.ProductCustomizationItemEntity;
 import cn.dextea.product.entity.ProductCustomizationOptionEntity;
 import cn.dextea.product.enums.CustomizationErrorCode;
+import cn.dextea.product.enums.CustomizationStatus;
 import cn.dextea.product.enums.IngredientStatus;
 import cn.dextea.product.mapper.CustomizationOptionIngredientMapper;
 import cn.dextea.product.mapper.IngredientMapper;
@@ -30,9 +31,6 @@ import java.math.BigDecimal;
 @Service
 @RequiredArgsConstructor
 public class CustomizationOptionAdminServiceImpl implements CustomizationOptionAdminService {
-
-    private static final int STATUS_ACTIVE = 1;
-    private static final int STATUS_DELETED = 0;
 
     private final ProductCustomizationItemMapper itemMapper;
     private final ProductCustomizationOptionMapper optionMapper;
@@ -67,7 +65,7 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
                 .priceAdjustment(priceAdjustment)
                 .sortOrder(request.getSortOrder())
                 .isDefault(request.getIsDefault())
-                .status(STATUS_ACTIVE)
+                .status(CustomizationStatus.ACTIVE.getValue())
                 .build();
 
         optionMapper.insert(entity);
@@ -117,7 +115,7 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
         bindingMapper.delete(new LambdaQueryWrapper<CustomizationOptionIngredientEntity>()
                 .eq(CustomizationOptionIngredientEntity::getOptionId, optionId));
 
-        entity.setStatus(STATUS_DELETED);
+        entity.setStatus(CustomizationStatus.DELETED.getValue());
         optionMapper.updateById(entity);
         return ApiResponse.success();
     }
@@ -141,8 +139,11 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
                         .eq(CustomizationOptionIngredientEntity::getIngredientId, request.getIngredientId()));
 
         if (existing != null) {
+            bindingMapper.update(new LambdaUpdateWrapper<CustomizationOptionIngredientEntity>()
+                    .eq(CustomizationOptionIngredientEntity::getOptionId, optionId)
+                    .eq(CustomizationOptionIngredientEntity::getIngredientId, request.getIngredientId())
+                    .set(CustomizationOptionIngredientEntity::getQuantity, request.getQuantity()));
             existing.setQuantity(request.getQuantity());
-            bindingMapper.updateById(existing);
             return ApiResponse.success(customizationConverter.toOptionIngredientResponse(existing, ingredient));
         }
 
@@ -178,20 +179,20 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
     private ProductCustomizationItemEntity getActiveItemById(Long itemId) {
         return itemMapper.selectOne(new LambdaQueryWrapper<ProductCustomizationItemEntity>()
                 .eq(ProductCustomizationItemEntity::getId, itemId)
-                .eq(ProductCustomizationItemEntity::getStatus, STATUS_ACTIVE));
+                .eq(ProductCustomizationItemEntity::getStatus, CustomizationStatus.ACTIVE.getValue()));
     }
 
     private ProductCustomizationOptionEntity getActiveOptionById(Long optionId) {
         return optionMapper.selectOne(new LambdaQueryWrapper<ProductCustomizationOptionEntity>()
                 .eq(ProductCustomizationOptionEntity::getId, optionId)
-                .eq(ProductCustomizationOptionEntity::getStatus, STATUS_ACTIVE));
+                .eq(ProductCustomizationOptionEntity::getStatus, CustomizationStatus.ACTIVE.getValue()));
     }
 
     private boolean optionNameExistsInItem(Long itemId, String name, Long excludeOptionId) {
         return optionMapper.exists(new LambdaQueryWrapper<ProductCustomizationOptionEntity>()
                 .eq(ProductCustomizationOptionEntity::getItemId, itemId)
                 .eq(ProductCustomizationOptionEntity::getName, name)
-                .eq(ProductCustomizationOptionEntity::getStatus, STATUS_ACTIVE)
+                .eq(ProductCustomizationOptionEntity::getStatus, CustomizationStatus.ACTIVE.getValue())
                 .ne(excludeOptionId != null, ProductCustomizationOptionEntity::getId, excludeOptionId));
     }
 
@@ -199,7 +200,7 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
         optionMapper.update(new LambdaUpdateWrapper<ProductCustomizationOptionEntity>()
                 .eq(ProductCustomizationOptionEntity::getItemId, itemId)
                 .eq(ProductCustomizationOptionEntity::getIsDefault, true)
-                .eq(ProductCustomizationOptionEntity::getStatus, STATUS_ACTIVE)
+                .eq(ProductCustomizationOptionEntity::getStatus, CustomizationStatus.ACTIVE.getValue())
                 .set(ProductCustomizationOptionEntity::getIsDefault, false));
     }
 

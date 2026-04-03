@@ -1,7 +1,5 @@
 package cn.dextea.product.entity;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -16,9 +14,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @TableName("store_product_status")
 public class StoreProductStatusEntity {
-
-    @TableId(value = "id", type = IdType.AUTO)
-    private Long id;
 
     private Long storeId;
 

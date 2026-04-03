@@ -6,17 +6,18 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateCustomizationItemResponse {
-
+public class MenuDetailResponse {
     private Long id;
-    private Long productId;
     private String name;
-    private Integer sortOrder;
+    private String description;
     private Integer status;
+    private List<MenuGroupResponse> groups;
     private LocalDateTime createTime;
+    private LocalDateTime updateTime;
 }

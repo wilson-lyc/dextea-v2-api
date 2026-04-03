@@ -14,6 +14,7 @@ import cn.dextea.product.entity.ProductCustomizationItemEntity;
 import cn.dextea.product.entity.ProductCustomizationOptionEntity;
 import cn.dextea.product.entity.ProductEntity;
 import cn.dextea.product.enums.CustomizationErrorCode;
+import cn.dextea.product.enums.CustomizationStatus;
 import cn.dextea.product.enums.IngredientStatus;
 import cn.dextea.product.enums.ProductStatus;
 import cn.dextea.product.mapper.CustomizationOptionIngredientMapper;
@@ -39,9 +40,6 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class CustomizationItemAdminServiceImpl implements CustomizationItemAdminService {
 
-    private static final int STATUS_ACTIVE = 1;
-    private static final int STATUS_DELETED = 0;
-
     private final ProductMapper productMapper;
     private final ProductCustomizationItemMapper itemMapper;
     private final ProductCustomizationOptionMapper optionMapper;
@@ -66,8 +64,7 @@ public class CustomizationItemAdminServiceImpl implements CustomizationItemAdmin
                 .productId(productId)
                 .name(name)
                 .sortOrder(request.getSortOrder())
-                .isRequired(request.getIsRequired())
-                .status(STATUS_ACTIVE)
+                .status(CustomizationStatus.ACTIVE.getValue())
                 .build();
 
         itemMapper.insert(entity);
@@ -83,7 +80,7 @@ public class CustomizationItemAdminServiceImpl implements CustomizationItemAdmin
         List<ProductCustomizationItemEntity> items = itemMapper.selectList(
                 new LambdaQueryWrapper<ProductCustomizationItemEntity>()
                         .eq(ProductCustomizationItemEntity::getProductId, productId)
-                        .eq(ProductCustomizationItemEntity::getStatus, STATUS_ACTIVE)
+                        .eq(ProductCustomizationItemEntity::getStatus, CustomizationStatus.ACTIVE.getValue())
                         .orderByAsc(ProductCustomizationItemEntity::getSortOrder));
 
         if (items.isEmpty()) {
@@ -95,7 +92,7 @@ public class CustomizationItemAdminServiceImpl implements CustomizationItemAdmin
         List<ProductCustomizationOptionEntity> options = optionMapper.selectList(
                 new LambdaQueryWrapper<ProductCustomizationOptionEntity>()
                         .in(ProductCustomizationOptionEntity::getItemId, itemIds)
-                        .eq(ProductCustomizationOptionEntity::getStatus, STATUS_ACTIVE)
+                        .eq(ProductCustomizationOptionEntity::getStatus, CustomizationStatus.ACTIVE.getValue())
                         .orderByAsc(ProductCustomizationOptionEntity::getSortOrder));
 
         Map<Long, OptionIngredientResponse> ingredientByOptionId = fetchIngredientResponses(options);
@@ -132,7 +129,6 @@ public class CustomizationItemAdminServiceImpl implements CustomizationItemAdmin
 
         entity.setName(name);
         entity.setSortOrder(request.getSortOrder());
-        entity.setIsRequired(request.getIsRequired());
         itemMapper.updateById(entity);
 
         List<ProductCustomizationOptionEntity> options = getActiveOptionsByItemId(itemId);
@@ -169,10 +165,10 @@ public class CustomizationItemAdminServiceImpl implements CustomizationItemAdmin
             // Soft-delete all options
             optionMapper.update(new LambdaUpdateWrapper<ProductCustomizationOptionEntity>()
                     .in(ProductCustomizationOptionEntity::getId, optionIds)
-                    .set(ProductCustomizationOptionEntity::getStatus, STATUS_DELETED));
+                    .set(ProductCustomizationOptionEntity::getStatus, CustomizationStatus.DELETED.getValue()));
         }
 
-        entity.setStatus(STATUS_DELETED);
+        entity.setStatus(CustomizationStatus.DELETED.getValue());
         itemMapper.updateById(entity);
         return ApiResponse.success();
     }
@@ -188,21 +184,21 @@ public class CustomizationItemAdminServiceImpl implements CustomizationItemAdmin
     private ProductCustomizationItemEntity getActiveItemById(Long itemId) {
         return itemMapper.selectOne(new LambdaQueryWrapper<ProductCustomizationItemEntity>()
                 .eq(ProductCustomizationItemEntity::getId, itemId)
-                .eq(ProductCustomizationItemEntity::getStatus, STATUS_ACTIVE));
+                .eq(ProductCustomizationItemEntity::getStatus, CustomizationStatus.ACTIVE.getValue()));
     }
 
     private boolean itemNameExistsInProduct(Long productId, String name, Long excludeItemId) {
         return itemMapper.exists(new LambdaQueryWrapper<ProductCustomizationItemEntity>()
                 .eq(ProductCustomizationItemEntity::getProductId, productId)
                 .eq(ProductCustomizationItemEntity::getName, name)
-                .eq(ProductCustomizationItemEntity::getStatus, STATUS_ACTIVE)
+                .eq(ProductCustomizationItemEntity::getStatus, CustomizationStatus.ACTIVE.getValue())
                 .ne(excludeItemId != null, ProductCustomizationItemEntity::getId, excludeItemId));
     }
 
     private List<ProductCustomizationOptionEntity> getActiveOptionsByItemId(Long itemId) {
         return optionMapper.selectList(new LambdaQueryWrapper<ProductCustomizationOptionEntity>()
                 .eq(ProductCustomizationOptionEntity::getItemId, itemId)
-                .eq(ProductCustomizationOptionEntity::getStatus, STATUS_ACTIVE)
+                .eq(ProductCustomizationOptionEntity::getStatus, CustomizationStatus.ACTIVE.getValue())
                 .orderByAsc(ProductCustomizationOptionEntity::getSortOrder));
     }
 

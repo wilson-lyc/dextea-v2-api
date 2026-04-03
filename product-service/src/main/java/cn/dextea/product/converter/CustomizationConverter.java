@@ -22,7 +22,6 @@ public class CustomizationConverter {
                 .productId(entity.getProductId())
                 .name(entity.getName())
                 .sortOrder(entity.getSortOrder())
-                .isRequired(entity.getIsRequired())
                 .status(entity.getStatus())
                 .createTime(entity.getCreateTime())
                 .build();
@@ -35,7 +34,6 @@ public class CustomizationConverter {
                 .productId(entity.getProductId())
                 .name(entity.getName())
                 .sortOrder(entity.getSortOrder())
-                .isRequired(entity.getIsRequired())
                 .status(entity.getStatus())
                 .createTime(entity.getCreateTime())
                 .updateTime(entity.getUpdateTime())

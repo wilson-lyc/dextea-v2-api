@@ -11,12 +11,10 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateCustomizationItemResponse {
-
+public class CreateMenuResponse {
     private Long id;
-    private Long productId;
     private String name;
-    private Integer sortOrder;
+    private String description;
     private Integer status;
     private LocalDateTime createTime;
 }

@@ -18,7 +18,6 @@ public class CustomizationItemDetailResponse {
     private Long productId;
     private String name;
     private Integer sortOrder;
-    private Boolean isRequired;
     private Integer status;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;

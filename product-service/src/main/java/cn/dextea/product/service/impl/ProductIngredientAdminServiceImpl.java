@@ -38,8 +38,7 @@ public class ProductIngredientAdminServiceImpl implements ProductIngredientAdmin
     public ApiResponse<Void> bindIngredient(Long productId, BindProductIngredientRequest request) {
         ProductEntity product = productMapper.selectById(productId);
         if (product == null) {
-            return ApiResponse.fail(ProductErrorCode.PRODUCT_NOT_FOUND.getCode(),
-                    ProductErrorCode.PRODUCT_NOT_FOUND.getMsg());
+            return fail(ProductErrorCode.PRODUCT_NOT_FOUND);
         }
 
         IngredientEntity ingredient = getActiveIngredientById(request.getIngredientId());
@@ -66,8 +65,7 @@ public class ProductIngredientAdminServiceImpl implements ProductIngredientAdmin
     public ApiResponse<Void> unbindIngredient(Long productId, Long ingredientId) {
         ProductEntity product = productMapper.selectById(productId);
         if (product == null) {
-            return ApiResponse.fail(ProductErrorCode.PRODUCT_NOT_FOUND.getCode(),
-                    ProductErrorCode.PRODUCT_NOT_FOUND.getMsg());
+            return fail(ProductErrorCode.PRODUCT_NOT_FOUND);
         }
 
         LambdaQueryWrapper<ProductIngredientEntity> queryWrapper = new LambdaQueryWrapper<ProductIngredientEntity>()
@@ -86,14 +84,13 @@ public class ProductIngredientAdminServiceImpl implements ProductIngredientAdmin
     public ApiResponse<List<ProductIngredientDetailResponse>> getProductIngredients(Long productId) {
         ProductEntity product = productMapper.selectById(productId);
         if (product == null) {
-            return ApiResponse.fail(ProductErrorCode.PRODUCT_NOT_FOUND.getCode(),
-                    ProductErrorCode.PRODUCT_NOT_FOUND.getMsg());
+            return fail(ProductErrorCode.PRODUCT_NOT_FOUND);
         }
 
         List<ProductIngredientEntity> bindings = productIngredientMapper.selectList(
                 new LambdaQueryWrapper<ProductIngredientEntity>()
                         .eq(ProductIngredientEntity::getProductId, productId)
-                        .orderByAsc(ProductIngredientEntity::getId));
+                        .orderByAsc(ProductIngredientEntity::getCreateTime));
 
         if (bindings.isEmpty()) {
             return ApiResponse.success(List.of());
@@ -130,6 +127,10 @@ public class ProductIngredientAdminServiceImpl implements ProductIngredientAdmin
                 .eq(ProductIngredientEntity::getProductId, productId)
                 .eq(ProductIngredientEntity::getIngredientId, ingredientId);
         return productIngredientMapper.exists(queryWrapper);
+    }
+
+    private <T> ApiResponse<T> fail(ProductErrorCode errorCode) {
+        return ApiResponse.fail(errorCode.getCode(), errorCode.getMsg());
     }
 
     private <T> ApiResponse<T> fail(IngredientErrorCode errorCode) {

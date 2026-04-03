@@ -1,110 +1,120 @@
 package cn.dextea.product.service.impl;
 
 import cn.dextea.common.web.response.ApiResponse;
-import cn.dextea.product.converter.CustomizationConverter;
 import cn.dextea.product.converter.ProductConverter;
-import cn.dextea.product.dto.request.GetProductBizDetailRequest;
-import cn.dextea.product.dto.response.CustomizationItemDetailResponse;
-import cn.dextea.product.dto.response.CustomizationOptionDetailResponse;
-import cn.dextea.product.dto.response.ProductBizDetailResponse;
-import cn.dextea.product.entity.ProductCustomizationItemEntity;
-import cn.dextea.product.entity.ProductCustomizationOptionEntity;
+import cn.dextea.product.converter.StoreProductStatusConverter;
+import cn.dextea.product.dto.request.ProductBizPageQueryRequest;
+import cn.dextea.product.dto.request.UpdateStoreProductStatusRequest;
+import cn.dextea.product.dto.response.ProductBizPageItemResponse;
+import cn.dextea.product.dto.response.StoreProductStatusDetailResponse;
 import cn.dextea.product.entity.ProductEntity;
 import cn.dextea.product.entity.StoreProductStatusEntity;
 import cn.dextea.product.enums.ProductErrorCode;
+import cn.dextea.product.enums.ProductSaleStatus;
 import cn.dextea.product.enums.ProductStatus;
-import cn.dextea.product.enums.StoreProductSaleStatus;
-import cn.dextea.product.mapper.ProductCustomizationItemMapper;
-import cn.dextea.product.mapper.ProductCustomizationOptionMapper;
+import cn.dextea.product.enums.StoreProductStatusErrorCode;
 import cn.dextea.product.mapper.ProductMapper;
 import cn.dextea.product.mapper.StoreProductStatusMapper;
 import cn.dextea.product.service.ProductBizService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class ProductBizServiceImpl implements ProductBizService {
 
     private final ProductMapper productMapper;
-    private final ProductCustomizationItemMapper customizationItemMapper;
-    private final ProductCustomizationOptionMapper customizationOptionMapper;
     private final StoreProductStatusMapper storeProductStatusMapper;
     private final ProductConverter productConverter;
-    private final CustomizationConverter customizationConverter;
+    private final StoreProductStatusConverter storeProductStatusConverter;
 
     @Override
-    public ApiResponse<ProductBizDetailResponse> getProductBizDetail(GetProductBizDetailRequest request) {
-        Long productId = request.getProductId();
+    public ApiResponse<IPage<ProductBizPageItemResponse>> getStoreProductPage(ProductBizPageQueryRequest request) {
         Long storeId = request.getStoreId();
 
-        // 查询商品信息
-        ProductEntity productEntity = productMapper.selectById(productId);
-        if (productEntity == null) {
+        // 分页查询全局上架商品
+        Page<ProductEntity> pageParam = new Page<>(request.getCurrent(), request.getSize());
+        LambdaQueryWrapper<ProductEntity> productQuery = new LambdaQueryWrapper<ProductEntity>()
+                .eq(ProductEntity::getStatus, ProductStatus.ENABLED.getValue());
+        IPage<ProductEntity> productPage = productMapper.selectPage(pageParam, productQuery);
+
+        List<ProductEntity> products = productPage.getRecords();
+        if (products.isEmpty()) {
+            return ApiResponse.success(productPage.convert(p -> null));
+        }
+
+        // 批量查询这批商品在门店的状态
+        List<Long> productIds = products.stream().map(ProductEntity::getId).toList();
+        LambdaQueryWrapper<StoreProductStatusEntity> statusQuery = new LambdaQueryWrapper<StoreProductStatusEntity>()
+                .eq(StoreProductStatusEntity::getStoreId, storeId)
+                .in(StoreProductStatusEntity::getProductId, productIds);
+        List<StoreProductStatusEntity> storeStatuses = storeProductStatusMapper.selectList(statusQuery);
+
+        Map<Long, Integer> storeStatusMap = storeStatuses.stream()
+                .collect(Collectors.toMap(StoreProductStatusEntity::getProductId, StoreProductStatusEntity::getStatus));
+
+        // 转换为响应对象
+        IPage<ProductBizPageItemResponse> responsePage = productPage.convert(entity -> {
+            Integer storeStatus = storeStatusMap.get(entity.getId());
+            ProductSaleStatus saleStatus = ProductSaleStatus.resolve(entity.getStatus(), storeStatus);
+            return productConverter.toProductBizPageItemResponse(entity, saleStatus.getValue());
+        });
+
+        return ApiResponse.success(responsePage);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResponse<StoreProductStatusDetailResponse> updateStoreStatus(Long productId, Long storeId, UpdateStoreProductStatusRequest request) {
+        ProductEntity product = productMapper.selectById(productId);
+        if (product == null) {
             return fail(ProductErrorCode.PRODUCT_NOT_FOUND);
         }
 
-        // 校验商品全局状态：必须是上架状态
-        if (productEntity.getStatus() == null || productEntity.getStatus() != ProductStatus.ENABLED.getValue()) {
-            return fail(ProductErrorCode.PRODUCT_NOT_AVAILABLE);
-        }
-
-        // 查询门店商品状态
-        LambdaQueryWrapper<StoreProductStatusEntity> statusQueryWrapper = new LambdaQueryWrapper<StoreProductStatusEntity>()
+        LambdaQueryWrapper<StoreProductStatusEntity> query = new LambdaQueryWrapper<StoreProductStatusEntity>()
                 .eq(StoreProductStatusEntity::getStoreId, storeId)
                 .eq(StoreProductStatusEntity::getProductId, productId);
-        StoreProductStatusEntity storeStatusEntity = storeProductStatusMapper.selectOne(statusQueryWrapper);
+        StoreProductStatusEntity existing = storeProductStatusMapper.selectOne(query);
 
-        // 校验门店商品状态：必须是在售状态
-        Integer storeStatus = null;
-        if (storeStatusEntity == null || storeStatusEntity.getStatus() == null
-                || storeStatusEntity.getStatus() != StoreProductSaleStatus.ON_SALE.getValue()) {
-            return fail(ProductErrorCode.PRODUCT_NOT_AVAILABLE);
+        StoreProductStatusEntity entity;
+        if (existing != null) {
+            LambdaUpdateWrapper<StoreProductStatusEntity> updateWrapper = new LambdaUpdateWrapper<StoreProductStatusEntity>()
+                    .eq(StoreProductStatusEntity::getStoreId, storeId)
+                    .eq(StoreProductStatusEntity::getProductId, productId)
+                    .set(StoreProductStatusEntity::getStatus, request.getStatus());
+            if (storeProductStatusMapper.update(null, updateWrapper) != 1) {
+                return fail(StoreProductStatusErrorCode.UPDATE_FAILED);
+            }
+            existing.setStatus(request.getStatus());
+            entity = existing;
+        } else {
+            entity = StoreProductStatusEntity.builder()
+                    .storeId(storeId)
+                    .productId(productId)
+                    .status(request.getStatus())
+                    .build();
+            if (storeProductStatusMapper.insert(entity) != 1) {
+                return fail(StoreProductStatusErrorCode.CREATE_FAILED);
+            }
         }
-        storeStatus = storeStatusEntity.getStatus();
 
-        // 查询商品的客制化项目列表
-        LambdaQueryWrapper<ProductCustomizationItemEntity> itemQueryWrapper = new LambdaQueryWrapper<ProductCustomizationItemEntity>()
-                .eq(ProductCustomizationItemEntity::getProductId, productId)
-                .orderByAsc(ProductCustomizationItemEntity::getSortOrder);
-        List<ProductCustomizationItemEntity> itemEntities = customizationItemMapper.selectList(itemQueryWrapper);
-
-        // 查询每个项目下的选项
-        List<CustomizationItemDetailResponse> customizationItems = itemEntities.stream()
-                .map(itemEntity -> {
-                    LambdaQueryWrapper<ProductCustomizationOptionEntity> optionQueryWrapper = new LambdaQueryWrapper<ProductCustomizationOptionEntity>()
-                            .eq(ProductCustomizationOptionEntity::getItemId, itemEntity.getId())
-                            .orderByAsc(ProductCustomizationOptionEntity::getSortOrder);
-                    List<ProductCustomizationOptionEntity> optionEntities = customizationOptionMapper.selectList(optionQueryWrapper);
-
-                    List<CustomizationOptionDetailResponse> options = optionEntities.stream()
-                            .map(customizationConverter::toCustomizationOptionDetailResponse)
-                            .toList();
-
-                    return customizationConverter.toCustomizationItemDetailResponse(itemEntity, options);
-                })
-                .toList();
-
-        // 构建响应数据
-        ProductBizDetailResponse response = ProductBizDetailResponse.builder()
-                .id(productEntity.getId())
-                .name(productEntity.getName())
-                .description(productEntity.getDescription())
-                .price(productEntity.getPrice())
-                .status(productEntity.getStatus())
-                .storeStatus(storeStatus)
-                .createTime(productEntity.getCreateTime())
-                .updateTime(productEntity.getUpdateTime())
-                .customizationItems(customizationItems)
-                .build();
-
-        return ApiResponse.success(response);
+        return ApiResponse.success(storeProductStatusConverter.toDetailResponse(entity));
     }
 
     private <T> ApiResponse<T> fail(ProductErrorCode errorCode) {
+        return ApiResponse.fail(errorCode.getCode(), errorCode.getMsg());
+    }
+
+    private <T> ApiResponse<T> fail(StoreProductStatusErrorCode errorCode) {
         return ApiResponse.fail(errorCode.getCode(), errorCode.getMsg());
     }
 }

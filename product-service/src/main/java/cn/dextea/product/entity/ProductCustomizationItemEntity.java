@@ -29,9 +29,6 @@ public class ProductCustomizationItemEntity {
     @TableField("sort_order")
     private Integer sortOrder;
 
-    @TableField("is_required")
-    private Boolean isRequired;
-
     private Integer status;
 
     @TableField("create_time")

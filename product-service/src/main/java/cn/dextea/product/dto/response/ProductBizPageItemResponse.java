@@ -5,18 +5,26 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateCustomizationItemResponse {
+public class ProductBizPageItemResponse {
 
     private Long id;
-    private Long productId;
+
     private String name;
-    private Integer sortOrder;
+
+    private String description;
+
+    private BigDecimal price;
+
     private Integer status;
+
     private LocalDateTime createTime;
+
+    private LocalDateTime updateTime;
 }

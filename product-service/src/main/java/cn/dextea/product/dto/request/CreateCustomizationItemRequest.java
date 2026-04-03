@@ -22,7 +22,4 @@ public class CreateCustomizationItemRequest {
     @NotNull(message = "排序值不能为空")
     @Min(value = 0, message = "排序值不能小于0")
     private Integer sortOrder;
-
-    @NotNull(message = "是否必选不能为空")
-    private Boolean isRequired;
 }

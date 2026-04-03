@@ -11,12 +11,18 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateCustomizationItemResponse {
+public class StoreProductStatusDetailResponse {
 
-    private Long id;
+    private Long storeId;
+
     private Long productId;
-    private String name;
-    private Integer sortOrder;
+
+    /**
+     * 门店商品销售状态：0=售罄，1=在售
+     */
     private Integer status;
+
     private LocalDateTime createTime;
+
+    private LocalDateTime updateTime;
 }

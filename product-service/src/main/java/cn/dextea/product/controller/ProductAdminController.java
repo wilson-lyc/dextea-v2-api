@@ -1,5 +1,6 @@
 package cn.dextea.product.controller;
 
+import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.dto.request.CreateProductRequest;
 import cn.dextea.product.dto.request.ProductPageQueryRequest;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/v1/admin/products")
 @RequiredArgsConstructor
+@SaCheckLogin
 @Validated
 public class ProductAdminController {
 
@@ -69,7 +71,7 @@ public class ProductAdminController {
     }
 
     /**
-     * 删除商品（下架）
+     * 下架商品
      * @param id 商品ID
      * @return 操作结果
      */
