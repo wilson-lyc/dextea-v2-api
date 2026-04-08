@@ -1,5 +1,6 @@
-package cn.dextea.product.dto.response;
+package cn.dextea.product.entity;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,20 +10,14 @@ import java.time.LocalDateTime;
 
 @Data
 @Builder
-@NoArgsConstructor
 @AllArgsConstructor
-public class StoreProductStatusDetailResponse {
+@NoArgsConstructor
+@TableName("store_product_rel")
+public class StoreProductRelEntity {
 
     private Long storeId;
 
     private Long productId;
 
-    /**
-     * 门店商品销售状态：0=售罄，1=在售
-     */
-    private Integer status;
-
     private LocalDateTime createTime;
-
-    private LocalDateTime updateTime;
 }

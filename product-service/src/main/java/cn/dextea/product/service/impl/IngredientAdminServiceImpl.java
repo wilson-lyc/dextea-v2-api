@@ -42,6 +42,8 @@ public class IngredientAdminServiceImpl implements IngredientAdminService {
                 .shelfLife(request.getShelfLife())
                 .shelfLifeUnit(request.getShelfLifeUnit())
                 .storageMethod(request.getStorageMethod())
+                .preparedExpiry(request.getPreparedExpiry())
+                .preparedExpiryUnit(request.getPreparedExpiryUnit())
                 .status(IngredientStatus.ACTIVE.getValue())
                 .build();
 
@@ -92,6 +94,8 @@ public class IngredientAdminServiceImpl implements IngredientAdminService {
         entity.setShelfLife(request.getShelfLife());
         entity.setShelfLifeUnit(request.getShelfLifeUnit());
         entity.setStorageMethod(request.getStorageMethod());
+        entity.setPreparedExpiry(request.getPreparedExpiry());
+        entity.setPreparedExpiryUnit(request.getPreparedExpiryUnit());
 
         if (ingredientMapper.updateById(entity) != 1) {
             return fail(IngredientErrorCode.UPDATE_FAILED);

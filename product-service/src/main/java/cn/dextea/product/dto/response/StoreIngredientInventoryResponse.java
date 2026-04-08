@@ -5,23 +5,24 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class IngredientDetailResponse {
+public class StoreIngredientInventoryResponse {
 
-    private Long id;
-    private String name;
+    private Long ingredientId;
+    private String ingredientName;
     private String unit;
     private Integer shelfLife;
     private Integer shelfLifeUnit;
     private Integer storageMethod;
     private Integer preparedExpiry;
     private Integer preparedExpiryUnit;
-    private Integer status;
-    private LocalDateTime createTime;
-    private LocalDateTime updateTime;
+    private BigDecimal quantity;
+    private BigDecimal warnThreshold;
+    private LocalDateTime lastRestockTime;
 }

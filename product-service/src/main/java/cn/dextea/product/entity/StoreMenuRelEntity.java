@@ -1,5 +1,6 @@
 package cn.dextea.product.entity;
 
+import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,16 +13,15 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("store_product_status")
-public class StoreProductStatusEntity {
+@TableName("store_menu_rel")
+public class StoreMenuRelEntity {
 
+    @TableField("store_id")
     private Long storeId;
 
-    private Long productId;
+    @TableField("menu_id")
+    private Long menuId;
 
-    private Integer status;
-
+    @TableField("create_time")
     private LocalDateTime createTime;
-
-    private LocalDateTime updateTime;
 }

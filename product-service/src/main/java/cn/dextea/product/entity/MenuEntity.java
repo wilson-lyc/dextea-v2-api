@@ -3,6 +3,7 @@ package cn.dextea.product.entity;
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.extension.handlers.JacksonTypeHandler;
 import lombok.AllArgsConstructor;
@@ -31,6 +32,9 @@ public class MenuEntity {
 
     @TableField(typeHandler = JacksonTypeHandler.class)
     private List<MenuGroupData> groups;
+
+    @TableLogic
+    private Integer deleted;
 
     @TableField("create_time")
     private LocalDateTime createTime;

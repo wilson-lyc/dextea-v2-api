@@ -5,17 +5,13 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.util.List;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateCustomizationItemResponse {
-
-    private Long id;
+public class StoreMenuGroupResponse {
     private String name;
-    private Integer sortOrder;
-    private Integer status;
-    private LocalDateTime createTime;
+    private List<MenuProductItemResponse> products;
 }

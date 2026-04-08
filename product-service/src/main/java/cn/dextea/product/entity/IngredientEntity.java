@@ -34,6 +34,12 @@ public class IngredientEntity {
     @TableField("storage_method")
     private Integer storageMethod;
 
+    @TableField("prepared_expiry")
+    private Integer preparedExpiry;
+
+    @TableField("prepared_expiry_unit")
+    private Integer preparedExpiryUnit;
+
     private Integer status;
 
     @TableField("create_time")

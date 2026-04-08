@@ -1,6 +1,7 @@
 package cn.dextea.product.service;
 
 import cn.dextea.common.web.response.ApiResponse;
+import cn.dextea.product.dto.request.BindStoreMenuRequest;
 import cn.dextea.product.dto.request.CreateMenuRequest;
 import cn.dextea.product.dto.request.MenuPageQueryRequest;
 import cn.dextea.product.dto.request.UpdateMenuRequest;
@@ -19,4 +20,8 @@ public interface MenuAdminService {
     ApiResponse<MenuDetailResponse> updateMenu(Long id, UpdateMenuRequest request);
 
     ApiResponse<Void> deleteMenu(Long id);
+
+    ApiResponse<Void> bindStore(Long menuId, BindStoreMenuRequest request);
+
+    ApiResponse<Void> unbindStore(Long menuId, Long storeId);
 }

@@ -15,22 +15,21 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("product_customization_item")
-public class ProductCustomizationItemEntity {
+@TableName("product_customization_item_binding")
+public class ProductCustomizationItemBindingEntity {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    private String name;
+    @TableField("product_id")
+    private Long productId;
+
+    @TableField("item_id")
+    private Long itemId;
 
     @TableField("sort_order")
     private Integer sortOrder;
 
-    private Integer status;
-
     @TableField("create_time")
     private LocalDateTime createTime;
-
-    @TableField("update_time")
-    private LocalDateTime updateTime;
 }

@@ -3,6 +3,7 @@ package cn.dextea.product.service.impl;
 import cn.dextea.common.util.StringValueUtils;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.converter.MenuConverter;
+import cn.dextea.product.dto.request.BindStoreMenuRequest;
 import cn.dextea.product.dto.request.CreateMenuRequest;
 import cn.dextea.product.dto.request.MenuGroupRequest;
 import cn.dextea.product.dto.request.MenuPageQueryRequest;
@@ -11,8 +12,10 @@ import cn.dextea.product.dto.response.CreateMenuResponse;
 import cn.dextea.product.dto.response.MenuDetailResponse;
 import cn.dextea.product.entity.MenuEntity;
 import cn.dextea.product.entity.MenuGroupData;
+import cn.dextea.product.entity.StoreMenuRelEntity;
 import cn.dextea.product.enums.MenuErrorCode;
 import cn.dextea.product.mapper.MenuMapper;
+import cn.dextea.product.mapper.StoreMenuRelMapper;
 import cn.dextea.product.service.MenuAdminService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -32,6 +35,7 @@ public class MenuAdminServiceImpl implements MenuAdminService {
 
     private final MenuMapper menuMapper;
     private final MenuConverter menuConverter;
+    private final StoreMenuRelMapper storeMenuRelMapper;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -110,8 +114,43 @@ public class MenuAdminServiceImpl implements MenuAdminService {
         if (entity == null) {
             return fail(MenuErrorCode.MENU_NOT_FOUND);
         }
+        if (storeMenuRelMapper.exists(new LambdaQueryWrapper<StoreMenuRelEntity>()
+                .eq(StoreMenuRelEntity::getMenuId, id))) {
+            return fail(MenuErrorCode.MENU_HAS_BOUND_STORES);
+        }
         if (menuMapper.deleteById(id) != 1) {
             return fail(MenuErrorCode.DELETE_FAILED);
+        }
+        return ApiResponse.success();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResponse<Void> bindStore(Long menuId, BindStoreMenuRequest request) {
+        MenuEntity menu = menuMapper.selectById(menuId);
+        if (menu == null) {
+            return fail(MenuErrorCode.MENU_NOT_FOUND);
+        }
+        if (storeMenuRelMapper.exists(new LambdaQueryWrapper<StoreMenuRelEntity>()
+                .eq(StoreMenuRelEntity::getStoreId, request.getStoreId()))) {
+            return fail(MenuErrorCode.STORE_ALREADY_HAS_MENU);
+        }
+        StoreMenuRelEntity rel = StoreMenuRelEntity.builder()
+                .storeId(request.getStoreId())
+                .menuId(menuId)
+                .build();
+        storeMenuRelMapper.insert(rel);
+        return ApiResponse.success();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResponse<Void> unbindStore(Long menuId, Long storeId) {
+        int deleted = storeMenuRelMapper.delete(new LambdaQueryWrapper<StoreMenuRelEntity>()
+                .eq(StoreMenuRelEntity::getMenuId, menuId)
+                .eq(StoreMenuRelEntity::getStoreId, storeId));
+        if (deleted == 0) {
+            return fail(MenuErrorCode.STORE_MENU_BINDING_NOT_FOUND);
         }
         return ApiResponse.success();
     }

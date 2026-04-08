@@ -3,6 +3,7 @@ package cn.dextea.product.dto.request;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductBizPageQueryRequest {
+public class ProductPageQueryWithStoreIdRequest {
 
     @NotNull(message = "门店ID不能为空")
     @Min(value = 1, message = "门店ID无效")
@@ -26,4 +27,7 @@ public class ProductBizPageQueryRequest {
     @Max(value = 100, message = "每页条数不能大于100")
     @Builder.Default
     private Long size = 10L;
+
+    @Size(max = 100, message = "商品名称长度不能超过100位")
+    private String name;
 }

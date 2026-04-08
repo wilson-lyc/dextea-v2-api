@@ -37,7 +37,7 @@ public class ProductAdminController {
 
     /**
      * 分页查询商品列表
-     * @param request 查询请求参数（支持按名称模糊搜索、按状态筛选）
+     * @param request 商品名、全局状态、分页参数
      * @return 商品分页列表
      */
     @GetMapping

@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum CustomizationStatus {
-    DELETED(0, "已删除"),
-    ACTIVE(1, "正常");
+    DISABLED(0, "禁用"),
+    ACTIVE(1, "激活");
 
     private final Integer value;
     private final String desc;

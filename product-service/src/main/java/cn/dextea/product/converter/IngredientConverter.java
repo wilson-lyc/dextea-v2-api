@@ -18,6 +18,8 @@ public class IngredientConverter {
                 .shelfLife(entity.getShelfLife())
                 .shelfLifeUnit(entity.getShelfLifeUnit())
                 .storageMethod(entity.getStorageMethod())
+                .preparedExpiry(entity.getPreparedExpiry())
+                .preparedExpiryUnit(entity.getPreparedExpiryUnit())
                 .status(entity.getStatus())
                 .createTime(entity.getCreateTime())
                 .build();
@@ -31,6 +33,8 @@ public class IngredientConverter {
                 .shelfLife(entity.getShelfLife())
                 .shelfLifeUnit(entity.getShelfLifeUnit())
                 .storageMethod(entity.getStorageMethod())
+                .preparedExpiry(entity.getPreparedExpiry())
+                .preparedExpiryUnit(entity.getPreparedExpiryUnit())
                 .status(entity.getStatus())
                 .createTime(entity.getCreateTime())
                 .updateTime(entity.getUpdateTime())

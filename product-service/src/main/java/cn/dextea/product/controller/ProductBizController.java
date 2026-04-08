@@ -2,23 +2,16 @@ package cn.dextea.product.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
-import cn.dextea.product.dto.request.ProductBizPageQueryRequest;
-import cn.dextea.product.dto.request.UpdateStoreProductStatusRequest;
-import cn.dextea.product.dto.response.ProductBizPageItemResponse;
-import cn.dextea.product.dto.response.StoreProductStatusDetailResponse;
+import cn.dextea.product.dto.request.ProductPageQueryWithStoreIdRequest;
+import cn.dextea.product.dto.request.UpdateStoreProductSaleRequest;
+import cn.dextea.product.dto.response.ProductDetailResponse;
 import cn.dextea.product.service.ProductBizService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/v1/biz/products")
@@ -30,27 +23,26 @@ public class ProductBizController {
     private final ProductBizService productBizService;
 
     /**
-     * 分页查询门店的商品列表
-     * @param request 查询参数（门店ID、分页）
-     * @return 商品分页数据
+     * 分页查询商品列表（门店端）
+     * @param request 门店ID、商品名、分页参数
+     * @return 商品分页列表，status 为该商品在门店内的在售状态（0售罄，1在售）
      */
     @GetMapping
-    public ApiResponse<IPage<ProductBizPageItemResponse>> getStoreProductPage(@Valid ProductBizPageQueryRequest request) {
-        return productBizService.getStoreProductPage(request);
+    public ApiResponse<IPage<ProductDetailResponse>> getProductPage(
+            @Valid ProductPageQueryWithStoreIdRequest request) {
+        return productBizService.getProductPage(request);
     }
 
     /**
-     * 更新商品在门店的销售状态
+     * 更新商品的门店销售状态
      * @param id 商品ID
-     * @param storeId 门店ID
-     * @param request 目标销售状态
-     * @return 更新后的门店商品状态详情
+     * @param request 门店ID与在售状态
+     * @return 操作结果
      */
-    @PutMapping("/{id}")
-    public ApiResponse<StoreProductStatusDetailResponse> updateStoreStatus(
+    @PutMapping("/{id}/sale")
+    public ApiResponse<Void> updateSaleStatus(
             @PathVariable("id") @Min(value = 1, message = "商品ID不能为空") Long id,
-            @RequestParam("storeId") @Min(value = 1, message = "门店ID无效") Long storeId,
-            @Valid @RequestBody UpdateStoreProductStatusRequest request) {
-        return productBizService.updateStoreStatus(id, storeId, request);
+            @Valid @RequestBody UpdateStoreProductSaleRequest request) {
+        return productBizService.updateSaleStatus(id, request);
     }
 }

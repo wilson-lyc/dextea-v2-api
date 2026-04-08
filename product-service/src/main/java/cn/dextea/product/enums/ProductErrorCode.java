@@ -14,7 +14,8 @@ public enum ProductErrorCode {
     UPDATE_FAILED(30003, "商品更新失败"),
     NAME_ALREADY_EXISTS(30004, "商品名称已存在"),
     DELETE_FAILED(30005, "商品下架失败"),
-    PRODUCT_NOT_AVAILABLE(30006, "商品暂不可售");
+    PRODUCT_NOT_AVAILABLE(30006, "商品暂不可售"),
+    STORE_SALE_STATUS_UPDATE_FAILED(30007, "门店商品销售状态更新失败");
 
     private final Integer code;
     private final String msg;

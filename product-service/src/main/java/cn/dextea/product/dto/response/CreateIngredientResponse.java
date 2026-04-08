@@ -19,6 +19,8 @@ public class CreateIngredientResponse {
     private Integer shelfLife;
     private Integer shelfLifeUnit;
     private Integer storageMethod;
+    private Integer preparedExpiry;
+    private Integer preparedExpiryUnit;
     private Integer status;
     private LocalDateTime createTime;
 }

@@ -2,6 +2,7 @@ package cn.dextea.product.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
+import cn.dextea.product.dto.request.BindStoreMenuRequest;
 import cn.dextea.product.dto.request.CreateMenuRequest;
 import cn.dextea.product.dto.request.MenuPageQueryRequest;
 import cn.dextea.product.dto.request.UpdateMenuRequest;
@@ -69,7 +70,7 @@ public class MenuAdminController {
     }
 
     /**
-     * 删除菜单
+     * 删除菜单（软删除，菜单存在门店绑定时不允许删除）
      * @param id 菜单ID
      * @return 操作结果
      */
@@ -77,5 +78,31 @@ public class MenuAdminController {
     public ApiResponse<Void> deleteMenu(
             @PathVariable("id") @Min(value = 1, message = "菜单ID不能为空") Long id) {
         return menuAdminService.deleteMenu(id);
+    }
+
+    /**
+     * 为菜单绑定门店
+     * @param id 菜单ID
+     * @param request 绑定门店请求参数
+     * @return 操作结果
+     */
+    @PostMapping("/{id}/stores")
+    public ApiResponse<Void> bindStore(
+            @PathVariable("id") @Min(value = 1, message = "菜单ID不能为空") Long id,
+            @Valid @RequestBody BindStoreMenuRequest request) {
+        return menuAdminService.bindStore(id, request);
+    }
+
+    /**
+     * 解绑菜单与门店
+     * @param id 菜单ID
+     * @param storeId 门店ID
+     * @return 操作结果
+     */
+    @DeleteMapping("/{id}/stores/{storeId}")
+    public ApiResponse<Void> unbindStore(
+            @PathVariable("id") @Min(value = 1, message = "菜单ID不能为空") Long id,
+            @PathVariable("storeId") @Min(value = 1, message = "门店ID不能为空") Long storeId) {
+        return menuAdminService.unbindStore(id, storeId);
     }
 }

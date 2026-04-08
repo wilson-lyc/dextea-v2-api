@@ -37,4 +37,12 @@ public class CreateIngredientRequest {
     @NotNull(message = "存储方式不能为空")
     @EnumValue(enumClass = StorageMethod.class, fieldName = "存储方式")
     private Integer storageMethod;
+
+    @NotNull(message = "制备保质时长不能为空")
+    @Min(value = 1, message = "制备保质时长不能小于1")
+    private Integer preparedExpiry;
+
+    @NotNull(message = "制备保质时长单位不能为空")
+    @EnumValue(enumClass = ShelfLifeUnit.class, fieldName = "制备保质时长单位")
+    private Integer preparedExpiryUnit;
 }

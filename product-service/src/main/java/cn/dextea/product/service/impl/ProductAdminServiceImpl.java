@@ -9,9 +9,11 @@ import cn.dextea.product.dto.request.UpdateProductRequest;
 import cn.dextea.product.dto.response.CreateProductResponse;
 import cn.dextea.product.dto.response.ProductDetailResponse;
 import cn.dextea.product.entity.ProductEntity;
+import cn.dextea.product.entity.StoreProductRelEntity;
 import cn.dextea.product.enums.ProductErrorCode;
 import cn.dextea.product.enums.ProductStatus;
 import cn.dextea.product.mapper.ProductMapper;
+import cn.dextea.product.mapper.StoreProductRelMapper;
 import cn.dextea.product.service.ProductAdminService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -25,6 +27,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class ProductAdminServiceImpl implements ProductAdminService {
 
     private final ProductMapper productMapper;
+    private final StoreProductRelMapper storeProductRelMapper;
     private final ProductConverter productConverter;
 
     @Override
@@ -59,8 +62,7 @@ public class ProductAdminServiceImpl implements ProductAdminService {
 
         IPage<ProductEntity> entityPage = productMapper.selectPage(
                 new Page<>(request.getCurrent(), request.getSize()), queryWrapper);
-        IPage<ProductDetailResponse> responsePage = entityPage.convert(productConverter::toProductDetailResponse);
-        return ApiResponse.success(responsePage);
+        return ApiResponse.success(entityPage.convert(productConverter::toProductDetailResponse));
     }
 
     @Override
@@ -108,6 +110,11 @@ public class ProductAdminServiceImpl implements ProductAdminService {
         if (productMapper.updateById(entity) != 1) {
             return fail(ProductErrorCode.DELETE_FAILED);
         }
+
+        // 清除该商品在所有门店的在售关联，避免再次上架时门店状态残留
+        storeProductRelMapper.delete(new LambdaQueryWrapper<StoreProductRelEntity>()
+                .eq(StoreProductRelEntity::getProductId, id));
+
         return ApiResponse.success();
     }
 

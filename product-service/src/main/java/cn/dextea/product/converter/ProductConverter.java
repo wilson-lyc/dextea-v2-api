@@ -1,7 +1,6 @@
 package cn.dextea.product.converter;
 
 import cn.dextea.product.dto.response.CreateProductResponse;
-import cn.dextea.product.dto.response.ProductBizPageItemResponse;
 import cn.dextea.product.dto.response.ProductDetailResponse;
 import cn.dextea.product.entity.ProductEntity;
 import org.springframework.stereotype.Component;
@@ -21,13 +20,13 @@ public class ProductConverter {
                 .build();
     }
 
-    public ProductBizPageItemResponse toProductBizPageItemResponse(ProductEntity entity, Integer saleStatus) {
-        return ProductBizPageItemResponse.builder()
+    public ProductDetailResponse toProductDetailResponseWithStoreStatus(ProductEntity entity, int storeStatus) {
+        return ProductDetailResponse.builder()
                 .id(entity.getId())
                 .name(entity.getName())
                 .description(entity.getDescription())
                 .price(entity.getPrice())
-                .status(saleStatus)
+                .status(storeStatus)
                 .createTime(entity.getCreateTime())
                 .updateTime(entity.getUpdateTime())
                 .build();
