@@ -1,18 +1,26 @@
 package cn.dextea.staff.util;
 
+import cn.hutool.core.codec.Base64;
+import cn.hutool.core.util.HexUtil;
+import cn.hutool.crypto.SecureUtil;
+import cn.hutool.crypto.SmUtil;
+import cn.hutool.crypto.symmetric.SM4;
 import org.passay.CharacterData;
 import org.passay.CharacterRule;
 import org.passay.EnglishCharacterData;
 import org.passay.PasswordGenerator;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
 import org.springframework.stereotype.Component;
+
+
 
 import java.util.Arrays;
 import java.util.List;
 
 @Component
+@RefreshScope
 public class PasswordUtil {
-    private static final BCryptPasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
     private static final CharacterData PUNCTUATION = new CharacterData() {
         @Override
         public String getErrorCode() {
@@ -24,11 +32,14 @@ public class PasswordUtil {
         }
     };
 
+    @Value("${password.secret_key}")
+    private String SECRET_KEY;
+
     /**
      * 生成密码
      * @return 密码
      */
-    public String generate(){
+    public String create(){
         List<CharacterRule> characterRuleList = Arrays.asList(
                 new CharacterRule(EnglishCharacterData.UpperCase, 2),
                 new CharacterRule(EnglishCharacterData.LowerCase, 2),
@@ -44,17 +55,20 @@ public class PasswordUtil {
      * @param password 密码
      * @return 加密后的密码
      */
-    public String encode(String password){
-        return PASSWORD_ENCODER.encode(password);
+    public String encrypt(String password){
+        SM4 sm4 = SmUtil.sm4(HexUtil.decodeHex(SECRET_KEY));
+        return sm4.encryptHex(password);
     }
 
     /**
-     * 校验密码
-     * @param rawPassword 明文密码
-     * @param encodedPassword 加密后的密码
-     * @return 是否匹配
+     * 解密密码
+     * @param password 加密后的密码
+     * @return 密码
      */
-    public boolean matches(String rawPassword, String encodedPassword){
-        return PASSWORD_ENCODER.matches(rawPassword, encodedPassword);
+    public String decrypt(String password){
+        // 从环境变量读取密钥
+        String key=System.getenv("secret_key");
+        SM4 sm4 = SmUtil.sm4(HexUtil.decodeHex(key));
+        return sm4.decryptStr(password);
     }
 }

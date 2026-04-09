@@ -1,0 +1,25 @@
+server:
+  port: 8082
+
+spring:
+  application:
+    name: store-service
+  jackson:
+    default-property-inclusion: non_null
+  cloud:
+    nacos:
+      # 鉴权配置
+      username: ${NACOS_USERNAME:nacos}  # 账号
+      password: ${NACOS_PASSWORD:LYC1208@nacos}  # 密码
+      # nacos地址
+      server-addr: ${NACOS_URL:localhost:8848}
+      # 服务注册
+      discovery:
+        namespace: ${NACOS_DISCOVERY_NAMESPACE:dextea} # 命名空间
+        group: ${NACOS_DISCOVERY_GROUP:DEFAULT_GROUP}  # 分组
+      # 配置中心
+      config:
+        namespace: ${NACOS_CONFIG_NAMESPACE:dextea} # 命名空间
+        group: ${NACOS_CONFIG_GROUP:DEFAULT_GROUP}  # 分组
+        file-extension: yaml # 配置文件扩展名
+        refresh-enabled: true # 是否启用自动刷新

@@ -1,0 +1,67 @@
+package cn.dextea.menu.controller;
+
+import cn.dev33.satoken.annotation.SaCheckPermission;
+import cn.dextea.common.feign.MenuFeign;
+import cn.dextea.common.model.common.DexteaApiResponse;
+import cn.dextea.common.model.menu.MenuModel;
+import cn.dextea.menu.model.menu.*;
+import cn.dextea.menu.service.MenuService;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import jakarta.annotation.Resource;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.Min;
+import org.springframework.web.bind.annotation.*;
+
+/**
+ * @author Lai Yongchao
+ */
+@RestController
+public class MenuController {
+    @Resource
+    private MenuService menuService;
+
+    @PostMapping("/menu")
+    @SaCheckPermission("menu:menu:create")
+    public DexteaApiResponse<Void> createMenu(@Valid @RequestBody MenuCreateRequest data){
+        return menuService.createMenu(data);
+    }
+
+    @GetMapping("/menu")
+    @SaCheckPermission("menu:menu:read")
+    public DexteaApiResponse<IPage<MenuModel>> getMenuList(
+            @Min(message = "current不能小于1",value = 1) @RequestParam(defaultValue = "1") int current,
+            @RequestParam(defaultValue = "10") int size,
+            MenuFilter filter){
+        return menuService.getMenuList(current,size,filter);
+    }
+
+    @GetMapping("/menu/{id:\\d+}")
+    @SaCheckPermission("menu:menu:read")
+    public DexteaApiResponse<MenuModel> getMenuDetail(
+            @PathVariable Long id,
+            @RequestParam(required = false) Long storeId){
+        return menuService.getMenuDetail(id,storeId);
+    }
+
+    @GetMapping("/menu/{id:\\d+}/base")
+    @SaCheckPermission("menu:menu:read")
+    public DexteaApiResponse<MenuModel> getMenuBase(@PathVariable Long id){
+        return menuService.getMenuBase(id);
+    }
+
+    @PutMapping("/menu/{id:\\d+}/base")
+    @SaCheckPermission("menu:menu:update:base")
+    public DexteaApiResponse<Void> updateMenuBase(
+            @PathVariable Long id,
+            @Valid @RequestBody MenuUpdateBaseRequest data){
+        return menuService.updateMenuBase(id,data);
+    }
+
+    @PostMapping("/menu/{id:\\d+}/send")
+    @SaCheckPermission("menu:menu:send2store")
+    public DexteaApiResponse<MenuBindResponse> bindMenu(
+            @PathVariable Long id,
+            @RequestBody MenuBindRequest data){
+        return menuService.storeBindMenu(id,data.getStoreIds());
+    }
+}

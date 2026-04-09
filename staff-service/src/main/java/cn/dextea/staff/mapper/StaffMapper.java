@@ -1,9 +1,9 @@
 package cn.dextea.staff.mapper;
 
-import cn.dextea.staff.entity.StaffEntity;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import cn.dextea.staff.pojo.Staff;
+import com.github.yulichang.base.MPJBaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface StaffMapper extends BaseMapper<StaffEntity> {
+public interface StaffMapper extends MPJBaseMapper<Staff> {
 }
