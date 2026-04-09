@@ -9,22 +9,31 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("product_customization_item")
-public class ProductCustomizationItemEntity {
+@TableName("customization_option")
+public class CustomizationOptionEntity {
 
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
+    @TableField("item_id")
+    private Long itemId;
+
     private String name;
 
-    @TableField("sort_order")
-    private Integer sortOrder;
+    private BigDecimal price;
+
+    @TableField("ingredient_id")
+    private Long ingredientId;
+
+    @TableField("ingredient_quantity")
+    private BigDecimal ingredientQuantity;
 
     private Integer status;
 

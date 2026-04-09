@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateCustomizationOptionResponse {
+public class CustomizationOptionWithStoreStatusResponse {
 
     private Long id;
     private Long itemId;
@@ -20,6 +20,7 @@ public class CreateCustomizationOptionResponse {
     private BigDecimal price;
     private Long ingredientId;
     private BigDecimal ingredientQuantity;
-    private Integer status;
+    private Integer storeStatus;
     private LocalDateTime createTime;
+    private LocalDateTime updateTime;
 }

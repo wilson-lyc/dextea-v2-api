@@ -5,21 +5,18 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CreateCustomizationOptionResponse {
+public class CustomizationItemWithStoreStatusResponse {
 
     private Long id;
-    private Long itemId;
     private String name;
-    private BigDecimal price;
-    private Long ingredientId;
-    private BigDecimal ingredientQuantity;
-    private Integer status;
+    private String description;
+    private Integer storeStatus;
     private LocalDateTime createTime;
+    private LocalDateTime updateTime;
 }

@@ -15,9 +15,8 @@ import java.util.List;
 public class CustomizationItemDetailResponse {
 
     private Long id;
-    private Long productId;
     private String name;
-    private Integer sortOrder;
+    private String description;
     private Integer status;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;

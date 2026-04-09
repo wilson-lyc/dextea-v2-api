@@ -3,244 +3,146 @@ package cn.dextea.product.service.impl;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.converter.CustomizationConverter;
 import cn.dextea.product.dto.request.CreateCustomizationItemRequest;
+import cn.dextea.product.dto.request.CustomizationItemPageQueryRequest;
 import cn.dextea.product.dto.request.UpdateCustomizationItemRequest;
 import cn.dextea.product.dto.response.CreateCustomizationItemResponse;
 import cn.dextea.product.dto.response.CustomizationItemDetailResponse;
 import cn.dextea.product.dto.response.CustomizationOptionDetailResponse;
-import cn.dextea.product.dto.response.OptionIngredientResponse;
-import cn.dextea.product.entity.CustomizationOptionIngredientEntity;
-import cn.dextea.product.entity.IngredientEntity;
-import cn.dextea.product.entity.ProductCustomizationItemEntity;
-import cn.dextea.product.entity.ProductCustomizationOptionEntity;
-import cn.dextea.product.entity.ProductEntity;
+import cn.dextea.product.entity.CustomizationItemEntity;
+import cn.dextea.product.entity.CustomizationOptionEntity;
 import cn.dextea.product.enums.CustomizationErrorCode;
 import cn.dextea.product.enums.CustomizationStatus;
-import cn.dextea.product.enums.IngredientStatus;
-import cn.dextea.product.enums.ProductStatus;
-import cn.dextea.product.mapper.CustomizationOptionIngredientMapper;
-import cn.dextea.product.mapper.IngredientMapper;
-import cn.dextea.product.mapper.ProductCustomizationItemMapper;
-import cn.dextea.product.mapper.ProductCustomizationOptionMapper;
-import cn.dextea.product.mapper.ProductMapper;
+import cn.dextea.product.mapper.CustomizationItemMapper;
+import cn.dextea.product.mapper.CustomizationOptionMapper;
 import cn.dextea.product.service.CustomizationItemAdminService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
+import com.baomidou.mybatisplus.core.metadata.IPage;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class CustomizationItemAdminServiceImpl implements CustomizationItemAdminService {
 
-    private final ProductMapper productMapper;
-    private final ProductCustomizationItemMapper itemMapper;
-    private final ProductCustomizationOptionMapper optionMapper;
-    private final CustomizationOptionIngredientMapper bindingMapper;
-    private final IngredientMapper ingredientMapper;
+    private final CustomizationItemMapper itemMapper;
+    private final CustomizationOptionMapper optionMapper;
     private final CustomizationConverter customizationConverter;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<CreateCustomizationItemResponse> createItem(Long productId,
-            CreateCustomizationItemRequest request) {
-        if (!productExists(productId)) {
-            return fail(CustomizationErrorCode.PRODUCT_NOT_FOUND);
-        }
-
+    public ApiResponse<CreateCustomizationItemResponse> create(CreateCustomizationItemRequest request) {
         String name = request.getName().trim();
-        if (itemNameExistsInProduct(productId, name, null)) {
+        if (nameExists(name, null)) {
             return fail(CustomizationErrorCode.ITEM_NAME_DUPLICATE);
         }
 
-        ProductCustomizationItemEntity entity = ProductCustomizationItemEntity.builder()
-                .productId(productId)
+        CustomizationItemEntity entity = CustomizationItemEntity.builder()
                 .name(name)
-                .sortOrder(request.getSortOrder())
+                .description(request.getDescription())
                 .status(CustomizationStatus.ACTIVE.getValue())
                 .build();
 
         itemMapper.insert(entity);
-        return ApiResponse.success(customizationConverter.toCreateCustomizationItemResponse(entity));
+        return ApiResponse.success(customizationConverter.toCreateItemResponse(entity));
     }
 
     @Override
-    public ApiResponse<List<CustomizationItemDetailResponse>> getProductCustomizations(Long productId) {
-        if (!productExists(productId)) {
-            return fail(CustomizationErrorCode.PRODUCT_NOT_FOUND);
+    public ApiResponse<IPage<CustomizationItemDetailResponse>> page(CustomizationItemPageQueryRequest request) {
+        LambdaQueryWrapper<CustomizationItemEntity> query = new LambdaQueryWrapper<CustomizationItemEntity>()
+                .like(request.getName() != null && !request.getName().isBlank(),
+                        CustomizationItemEntity::getName, request.getName())
+                .eq(request.getStatus() != null, CustomizationItemEntity::getStatus, request.getStatus())
+                .orderByDesc(CustomizationItemEntity::getId);
+
+        IPage<CustomizationItemEntity> entityPage = itemMapper.selectPage(
+                new Page<>(request.getCurrent(), request.getSize()), query);
+
+        return ApiResponse.success(entityPage.convert(customizationConverter::toItemDetailResponse));
+    }
+
+    @Override
+    public ApiResponse<CustomizationItemDetailResponse> detail(Long id) {
+        CustomizationItemEntity entity = itemMapper.selectById(id);
+        if (entity == null || CustomizationStatus.DISABLED.getValue().equals(entity.getStatus())) {
+            return fail(CustomizationErrorCode.ITEM_NOT_FOUND);
         }
 
-        List<ProductCustomizationItemEntity> items = itemMapper.selectList(
-                new LambdaQueryWrapper<ProductCustomizationItemEntity>()
-                        .eq(ProductCustomizationItemEntity::getProductId, productId)
-                        .eq(ProductCustomizationItemEntity::getStatus, CustomizationStatus.ACTIVE.getValue())
-                        .orderByAsc(ProductCustomizationItemEntity::getSortOrder));
+        List<CustomizationOptionEntity> options = optionMapper.selectList(
+                new LambdaQueryWrapper<CustomizationOptionEntity>()
+                        .eq(CustomizationOptionEntity::getItemId, id)
+                        .ne(CustomizationOptionEntity::getStatus, CustomizationStatus.DISABLED.getValue())
+                        .orderByAsc(CustomizationOptionEntity::getId));
 
-        if (items.isEmpty()) {
-            return ApiResponse.success(Collections.emptyList());
-        }
-
-        List<Long> itemIds = items.stream().map(ProductCustomizationItemEntity::getId).collect(Collectors.toList());
-
-        List<ProductCustomizationOptionEntity> options = optionMapper.selectList(
-                new LambdaQueryWrapper<ProductCustomizationOptionEntity>()
-                        .in(ProductCustomizationOptionEntity::getItemId, itemIds)
-                        .eq(ProductCustomizationOptionEntity::getStatus, CustomizationStatus.ACTIVE.getValue())
-                        .orderByAsc(ProductCustomizationOptionEntity::getSortOrder));
-
-        Map<Long, OptionIngredientResponse> ingredientByOptionId = fetchIngredientResponses(options);
-
-        Map<Long, List<CustomizationOptionDetailResponse>> optionsByItemId = options.stream()
-                .collect(Collectors.groupingBy(
-                        ProductCustomizationOptionEntity::getItemId,
-                        Collectors.mapping(
-                                o -> customizationConverter.toCustomizationOptionDetailResponse(
-                                        o, ingredientByOptionId.get(o.getId())),
-                                Collectors.toList())));
-
-        List<CustomizationItemDetailResponse> result = items.stream()
-                .map(item -> customizationConverter.toCustomizationItemDetailResponse(
-                        item, optionsByItemId.getOrDefault(item.getId(), Collections.emptyList())))
+        List<CustomizationOptionDetailResponse> optionResponses = options.stream()
+                .map(customizationConverter::toOptionDetailResponse)
                 .collect(Collectors.toList());
 
-        return ApiResponse.success(result);
+        return ApiResponse.success(customizationConverter.toItemDetailResponse(entity, optionResponses));
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<CustomizationItemDetailResponse> updateItem(Long itemId,
-            UpdateCustomizationItemRequest request) {
-        ProductCustomizationItemEntity entity = getActiveItemById(itemId);
-        if (entity == null) {
+    public ApiResponse<CustomizationItemDetailResponse> update(Long id, UpdateCustomizationItemRequest request) {
+        CustomizationItemEntity entity = itemMapper.selectById(id);
+        if (entity == null || CustomizationStatus.DISABLED.getValue().equals(entity.getStatus())) {
             return fail(CustomizationErrorCode.ITEM_NOT_FOUND);
         }
 
         String name = request.getName().trim();
-        if (itemNameExistsInProduct(entity.getProductId(), name, itemId)) {
+        if (nameExists(name, id)) {
             return fail(CustomizationErrorCode.ITEM_NAME_DUPLICATE);
         }
 
         entity.setName(name);
-        entity.setSortOrder(request.getSortOrder());
+        entity.setDescription(request.getDescription());
+        entity.setStatus(request.getStatus());
         itemMapper.updateById(entity);
 
-        List<ProductCustomizationOptionEntity> options = getActiveOptionsByItemId(itemId);
-        Map<Long, OptionIngredientResponse> ingredientByOptionId = fetchIngredientResponses(options);
+        List<CustomizationOptionEntity> options = optionMapper.selectList(
+                new LambdaQueryWrapper<CustomizationOptionEntity>()
+                        .eq(CustomizationOptionEntity::getItemId, id)
+                        .ne(CustomizationOptionEntity::getStatus, CustomizationStatus.DISABLED.getValue())
+                        .orderByAsc(CustomizationOptionEntity::getId));
 
         List<CustomizationOptionDetailResponse> optionResponses = options.stream()
-                .map(o -> customizationConverter.toCustomizationOptionDetailResponse(
-                        o, ingredientByOptionId.get(o.getId())))
+                .map(customizationConverter::toOptionDetailResponse)
                 .collect(Collectors.toList());
 
-        return ApiResponse.success(
-                customizationConverter.toCustomizationItemDetailResponse(entity, optionResponses));
+        return ApiResponse.success(customizationConverter.toItemDetailResponse(entity, optionResponses));
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<Void> deleteItem(Long itemId) {
-        ProductCustomizationItemEntity entity = getActiveItemById(itemId);
-        if (entity == null) {
+    public ApiResponse<Void> delete(Long id) {
+        CustomizationItemEntity entity = itemMapper.selectById(id);
+        if (entity == null || CustomizationStatus.DISABLED.getValue().equals(entity.getStatus())) {
             return fail(CustomizationErrorCode.ITEM_NOT_FOUND);
         }
 
-        List<ProductCustomizationOptionEntity> options = getActiveOptionsByItemId(itemId);
+        // Soft-delete all active options under this item
+        optionMapper.update(new LambdaUpdateWrapper<CustomizationOptionEntity>()
+                .eq(CustomizationOptionEntity::getItemId, id)
+                .ne(CustomizationOptionEntity::getStatus, CustomizationStatus.DISABLED.getValue())
+                .set(CustomizationOptionEntity::getStatus, CustomizationStatus.DISABLED.getValue()));
 
-        if (!options.isEmpty()) {
-            List<Long> optionIds = options.stream()
-                    .map(ProductCustomizationOptionEntity::getId)
-                    .collect(Collectors.toList());
-
-            // Physically remove ingredient bindings for all options under this item
-            bindingMapper.delete(new LambdaQueryWrapper<CustomizationOptionIngredientEntity>()
-                    .in(CustomizationOptionIngredientEntity::getOptionId, optionIds));
-
-            // Soft-delete all options
-            optionMapper.update(new LambdaUpdateWrapper<ProductCustomizationOptionEntity>()
-                    .in(ProductCustomizationOptionEntity::getId, optionIds)
-                    .set(ProductCustomizationOptionEntity::getStatus, CustomizationStatus.DELETED.getValue()));
-        }
-
-        entity.setStatus(CustomizationStatus.DELETED.getValue());
+        entity.setStatus(CustomizationStatus.DISABLED.getValue());
         itemMapper.updateById(entity);
         return ApiResponse.success();
     }
 
     // ---- Helpers ----
 
-    private boolean productExists(Long productId) {
-        return productMapper.exists(new LambdaQueryWrapper<ProductEntity>()
-                .eq(ProductEntity::getId, productId)
-                .eq(ProductEntity::getStatus, ProductStatus.ENABLED.getValue()));
-    }
-
-    private ProductCustomizationItemEntity getActiveItemById(Long itemId) {
-        return itemMapper.selectOne(new LambdaQueryWrapper<ProductCustomizationItemEntity>()
-                .eq(ProductCustomizationItemEntity::getId, itemId)
-                .eq(ProductCustomizationItemEntity::getStatus, CustomizationStatus.ACTIVE.getValue()));
-    }
-
-    private boolean itemNameExistsInProduct(Long productId, String name, Long excludeItemId) {
-        return itemMapper.exists(new LambdaQueryWrapper<ProductCustomizationItemEntity>()
-                .eq(ProductCustomizationItemEntity::getProductId, productId)
-                .eq(ProductCustomizationItemEntity::getName, name)
-                .eq(ProductCustomizationItemEntity::getStatus, CustomizationStatus.ACTIVE.getValue())
-                .ne(excludeItemId != null, ProductCustomizationItemEntity::getId, excludeItemId));
-    }
-
-    private List<ProductCustomizationOptionEntity> getActiveOptionsByItemId(Long itemId) {
-        return optionMapper.selectList(new LambdaQueryWrapper<ProductCustomizationOptionEntity>()
-                .eq(ProductCustomizationOptionEntity::getItemId, itemId)
-                .eq(ProductCustomizationOptionEntity::getStatus, CustomizationStatus.ACTIVE.getValue())
-                .orderByAsc(ProductCustomizationOptionEntity::getSortOrder));
-    }
-
-    private Map<Long, OptionIngredientResponse> fetchIngredientResponses(
-            List<ProductCustomizationOptionEntity> options) {
-        if (options.isEmpty()) {
-            return Collections.emptyMap();
-        }
-
-        List<Long> optionIds = options.stream()
-                .map(ProductCustomizationOptionEntity::getId)
-                .collect(Collectors.toList());
-
-        List<CustomizationOptionIngredientEntity> bindings = bindingMapper.selectList(
-                new LambdaQueryWrapper<CustomizationOptionIngredientEntity>()
-                        .in(CustomizationOptionIngredientEntity::getOptionId, optionIds));
-
-        if (bindings.isEmpty()) {
-            return Collections.emptyMap();
-        }
-
-        List<Long> ingredientIds = bindings.stream()
-                .map(CustomizationOptionIngredientEntity::getIngredientId)
-                .distinct()
-                .collect(Collectors.toList());
-
-        Map<Long, IngredientEntity> ingredientMap = ingredientMapper.selectList(
-                new LambdaQueryWrapper<IngredientEntity>()
-                        .in(IngredientEntity::getId, ingredientIds)
-                        .eq(IngredientEntity::getStatus, IngredientStatus.ACTIVE.getValue()))
-                .stream()
-                .collect(Collectors.toMap(IngredientEntity::getId, Function.identity()));
-
-        Map<Long, OptionIngredientResponse> result = new java.util.HashMap<>();
-        for (CustomizationOptionIngredientEntity binding : bindings) {
-            IngredientEntity ingredient = ingredientMap.get(binding.getIngredientId());
-            if (ingredient != null) {
-                result.put(binding.getOptionId(),
-                        customizationConverter.toOptionIngredientResponse(binding, ingredient));
-            }
-        }
-        return result;
+    private boolean nameExists(String name, Long excludeId) {
+        return itemMapper.exists(new LambdaQueryWrapper<CustomizationItemEntity>()
+                .eq(CustomizationItemEntity::getName, name)
+                .ne(CustomizationItemEntity::getStatus, CustomizationStatus.DISABLED.getValue())
+                .ne(excludeId != null, CustomizationItemEntity::getId, excludeId));
     }
 
     private <T> ApiResponse<T> fail(CustomizationErrorCode errorCode) {

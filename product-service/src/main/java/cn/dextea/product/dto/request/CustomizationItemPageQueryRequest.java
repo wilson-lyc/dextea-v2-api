@@ -2,8 +2,8 @@ package cn.dextea.product.dto.request;
 
 import cn.dextea.common.validation.annotation.EnumValue;
 import cn.dextea.product.enums.CustomizationStatus;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Max;
+import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -14,16 +14,20 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateCustomizationItemRequest {
+public class CustomizationItemPageQueryRequest {
 
-    @NotBlank(message = "项目名称不能为空")
+    @Min(value = 1, message = "当前页码不能小于1")
+    @Builder.Default
+    private Long current = 1L;
+
+    @Min(value = 1, message = "每页条数不能小于1")
+    @Max(value = 100, message = "每页条数不能大于100")
+    @Builder.Default
+    private Long size = 10L;
+
     @Size(max = 64, message = "项目名称长度不能超过64位")
     private String name;
 
-    @Size(max = 255, message = "项目介绍长度不能超过255位")
-    private String description;
-
-    @NotNull(message = "全局状态不能为空")
     @EnumValue(enumClass = CustomizationStatus.class, fieldName = "全局状态")
     private Integer status;
 }

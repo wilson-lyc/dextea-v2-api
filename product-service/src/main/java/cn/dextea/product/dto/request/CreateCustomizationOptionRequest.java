@@ -1,5 +1,6 @@
 package cn.dextea.product.dto.request;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -17,17 +18,17 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class CreateCustomizationOptionRequest {
 
-    @NotBlank(message = "定制选项名称不能为空")
-    @Size(max = 64, message = "定制选项名称长度不能超过64位")
+    @NotBlank(message = "选项名称不能为空")
+    @Size(max = 64, message = "选项名称长度不能超过64位")
     private String name;
 
-    @Builder.Default
-    private BigDecimal priceAdjustment = BigDecimal.ZERO;
+    @NotNull(message = "价格不能为空")
+    @DecimalMin(value = "0.00", message = "价格不能小于0")
+    private BigDecimal price;
 
-    @NotNull(message = "排序值不能为空")
-    @Min(value = 0, message = "排序值不能小于0")
-    private Integer sortOrder;
+    @Min(value = 1, message = "原料ID不合法")
+    private Long ingredientId;
 
-    @NotNull(message = "是否默认不能为空")
-    private Boolean isDefault;
+    @DecimalMin(value = "0.00", inclusive = false, message = "原料用量必须大于0")
+    private BigDecimal ingredientQuantity;
 }
