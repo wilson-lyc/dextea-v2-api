@@ -3,53 +3,49 @@
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
+
     <parent>
         <groupId>cn.dextea</groupId>
-        <artifactId>dextea-api</artifactId>
-        <version>2.0</version>
+        <artifactId>dextea-parent</artifactId>
+        <version>2.1</version>
+        <relativePath>../parent/pom.xml</relativePath>
     </parent>
 
     <artifactId>common</artifactId>
+    <name>dextea-common</name>
+    <description>Shared library for all dextea microservices</description>
+
+    <!-- ===== Dependencies ===== -->
     <dependencies>
-        <!-- SpringBoot Web -->
+        <!-- Web (provided — consumers bring their own starter) -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
             <scope>provided</scope>
         </dependency>
-        <!-- OpenFeign -->
-        <dependency>
-            <groupId>org.springframework.cloud</groupId>
-            <artifactId>spring-cloud-starter-openfeign</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <!-- MySQL -->
+
+        <!-- Persistence (optional — only needed when consumer uses these) -->
         <dependency>
             <groupId>com.alibaba</groupId>
             <artifactId>druid</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <!-- TOS SDK -->
-        <dependency>
-            <groupId>com.volcengine</groupId>
-            <artifactId>ve-tos-java-sdk</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <!-- hutool -->
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-core</artifactId>
-            <optional>true</optional>
-        </dependency>
-        <dependency>
-            <groupId>cn.hutool</groupId>
-            <artifactId>hutool-jwt</artifactId>
             <optional>true</optional>
         </dependency>
         <dependency>
             <groupId>com.baomidou</groupId>
             <artifactId>mybatis-plus-spring-boot3-starter</artifactId>
             <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.baomidou</groupId>
+            <artifactId>mybatis-plus-jsqlparser</artifactId>
+            <optional>true</optional>
+        </dependency>
+
+        <!-- Cache (optional — only needed when consumer uses Redis) -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-data-redis</artifactId>
+            <optional>true</optional>
         </dependency>
     </dependencies>
 </project>

@@ -1,0 +1,90 @@
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  application:
+    name: ${SPRING_APPLICATION_NAME:admin-gateway}
+  # config:
+  #   import:
+  #     - optional:nacos:${spring.application.name}.${NACOS_CONFIG_FILE_EXTENSION:yaml}?group=${NACOS_CONFIG_GROUP:DEFAULT_GROUP}&refreshEnabled=${NACOS_CONFIG_REFRESH_ENABLED:true}
+  cloud:
+    nacos:
+      username: ${NACOS_USERNAME:dextea}
+      password: ${NACOS_PASSWORD:dextea}
+      server-addr: ${NACOS_SERVER_ADDR:${NACOS_URL:localhost:8848}}
+      discovery:
+        enabled: ${NACOS_DISCOVERY_ENABLED:true}
+        namespace: ${NACOS_DISCOVERY_NAMESPACE:dextea}
+        group: ${NACOS_DISCOVERY_GROUP:DEFAULT_GROUP}
+      config:
+        enabled: ${NACOS_CONFIG_ENABLED:true}
+        namespace: ${NACOS_CONFIG_NAMESPACE:dextea}
+        group: ${NACOS_CONFIG_GROUP:DEFAULT_GROUP}
+        file-extension: ${NACOS_CONFIG_FILE_EXTENSION:yaml}
+        refresh-enabled: ${NACOS_CONFIG_REFRESH_ENABLED:true}
+    gateway:
+      server:
+        webflux:
+          globalcors:
+            cors-configurations:
+              '[/**]':
+                allowedOriginPatterns:
+                  - "*"
+                allowedMethods:
+                  - "*"
+                allowedHeaders:
+                  - "*"
+                allowCredentials: true
+          routes:
+            # ===== API Docs (springdoc aggregation) =====
+            - id: staff-service-docs
+              uri: lb://staff-service
+              predicates:
+                - Path=/staff-service/v3/api-docs
+              filters:
+                - RewritePath=/staff-service/v3/api-docs, /v3/api-docs
+            - id: product-service-docs
+              uri: lb://product-service
+              predicates:
+                - Path=/product-service/v3/api-docs
+              filters:
+                - RewritePath=/product-service/v3/api-docs, /v3/api-docs
+            - id: store-service-docs
+              uri: lb://store-service
+              predicates:
+                - Path=/store-service/v3/api-docs
+              filters:
+                - RewritePath=/store-service/v3/api-docs, /v3/api-docs
+
+            # ===== Business Routes =====
+            - id: staff-service
+              uri: lb://staff-service
+              predicates:
+                - Path=/v1/admin/staffs,/v1/admin/staffs/**,/v1/admin/roles,/v1/admin/roles/**,/v1/admin/permissions,/v1/admin/permissions/**,/v1/staff/**
+              filters:
+                - AddRequestHeader=X-Gateway, SCG
+            - id: product-service
+              uri: lb://product-service
+              predicates:
+                - Path=/v1/admin/products,/v1/admin/products/**,/v1/biz/products,/v1/biz/products/**,/v1/admin/ingredients,/v1/admin/ingredients/**,/v1/biz/ingredients,/v1/biz/ingredients/**,/v1/admin/menus,/v1/admin/menus/**,/v1/biz/menus,/v1/biz/menus/**,/v1/admin/customization-items,/v1/admin/customization-items/**,/v1/biz/customization-items,/v1/biz/customization-items/**,/v1/admin/ingredient-inventories/**
+              filters:
+                - AddRequestHeader=X-Gateway, SCG
+            - id: store-service
+              uri: lb://store-service
+              predicates:
+                - Path=/v1/admin/stores,/v1/admin/stores/**,/v1/biz/stores,/v1/biz/stores/**,/v1/internal/stores,/v1/internal/stores/**
+              filters:
+                - AddRequestHeader=X-Gateway, SCG
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    path: /swagger-ui.html
+    urls:
+      - name: staff-service
+        url: /staff-service/v3/api-docs
+      - name: product-service
+        url: /product-service/v3/api-docs
+      - name: store-service
+        url: /store-service/v3/api-docs
