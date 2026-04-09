@@ -12,6 +12,7 @@ import cn.dextea.store.entity.StoreEntity;
 import cn.dextea.store.enums.StoreErrorCode;
 import cn.dextea.store.enums.StoreStatus;
 import cn.dextea.store.mapper.StoreMapper;
+import cn.dextea.store.service.StoreCacheService;
 import cn.dextea.store.service.StoreAdminService;
 import cn.dextea.store.service.StoreGeoSyncService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -42,6 +43,7 @@ public class StoreAdminServiceImpl implements StoreAdminService {
     private final StoreMapper storeMapper;
     private final StoreConverter storeConverter;
     private final StoreGeoSyncService storeGeoSyncService;
+    private final StoreCacheService storeCacheService;
     private final ObjectMapper objectMapper;
 
     private static final PoolingHttpClientConnectionManager CONNECTION_MANAGER = new PoolingHttpClientConnectionManager();
@@ -110,8 +112,8 @@ public class StoreAdminServiceImpl implements StoreAdminService {
 
     @Override
     public ApiResponse<StoreDetailResponse> detail(Long id) {
-        // 根据门店主键查询详情，不存在时返回业务错误。
-        StoreEntity storeEntity = storeMapper.selectById(id);
+        // 优先走两级缓存，不存在时返回业务错误。
+        StoreEntity storeEntity = storeCacheService.getStoreDetail(id);
         if (storeEntity == null) {
             return fail(StoreErrorCode.STORE_NOT_FOUND);
         }
@@ -145,6 +147,9 @@ public class StoreAdminServiceImpl implements StoreAdminService {
         }
         storeGeoSyncService.syncStoreLocation(storeEntity);
 
+        // 删除 L1 + L2 缓存，由下次读请求触发回填。
+        storeCacheService.evictStore(id);
+
         // 回查最新门店记录作为更新结果返回。
         return ApiResponse.success(storeConverter.toStoreDetailResponse(storeMapper.selectById(id)));
     }
@@ -164,6 +169,9 @@ public class StoreAdminServiceImpl implements StoreAdminService {
             return fail(StoreErrorCode.DELETE_FAILED);
         }
         storeGeoSyncService.removeStoreLocation(id);
+
+        // 删除 L1 + L2 缓存，下游服务（如订单服务）可尽快感知门店关闭。
+        storeCacheService.evictStore(id);
 
         return ApiResponse.success();
     }
