@@ -93,6 +93,12 @@
             <groupId>cn.dev33</groupId>
             <artifactId>sa-token-redis-template</artifactId>
         </dependency>
+
+        <!-- Documentation -->
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+        </dependency>
     </dependencies>
 
     <!-- ===== Build ===== -->
