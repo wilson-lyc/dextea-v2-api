@@ -4,6 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.dto.request.ProductPageQueryWithStoreIdRequest;
 import cn.dextea.product.dto.request.UpdateStoreProductSaleRequest;
+import cn.dextea.product.dto.response.ProductBizDetailResponse;
 import cn.dextea.product.dto.response.ProductDetailResponse;
 import cn.dextea.product.service.ProductBizService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -31,6 +32,19 @@ public class ProductBizController {
     public ApiResponse<IPage<ProductDetailResponse>> getProductPage(
             @Valid ProductPageQueryWithStoreIdRequest request) {
         return productBizService.getProductPage(request);
+    }
+
+    /**
+     * 查询商品详情（顾客端）
+     * @param id 商品ID
+     * @param storeId 门店ID
+     * @return 商品详情及客制化数据，商品全局下架时返回错误
+     */
+    @GetMapping("/{id}")
+    public ApiResponse<ProductBizDetailResponse> getProductDetail(
+            @PathVariable("id") @Min(value = 1, message = "商品ID不能为空") Long id,
+            @RequestParam("storeId") @Min(value = 1, message = "门店ID不能为空") Long storeId) {
+        return productBizService.getProductDetail(id, storeId);
     }
 
     /**
