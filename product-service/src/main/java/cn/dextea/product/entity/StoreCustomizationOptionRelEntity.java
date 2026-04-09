@@ -7,27 +7,21 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("customization_option_ingredient")
-public class CustomizationOptionIngredientEntity {
+@TableName("store_customization_option_rel")
+public class StoreCustomizationOptionRelEntity {
+
+    @TableField("store_id")
+    private Long storeId;
 
     @TableField("option_id")
     private Long optionId;
 
-    @TableField("ingredient_id")
-    private Long ingredientId;
-
-    private BigDecimal quantity;
-
     @TableField("create_time")
     private LocalDateTime createTime;
-
-    @TableField("update_time")
-    private LocalDateTime updateTime;
 }

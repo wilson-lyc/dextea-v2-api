@@ -17,11 +17,10 @@ public class CustomizationOptionDetailResponse {
     private Long id;
     private Long itemId;
     private String name;
-    private BigDecimal priceAdjustment;
-    private Integer sortOrder;
-    private Boolean isDefault;
+    private BigDecimal price;
+    private Long ingredientId;
+    private BigDecimal ingredientQuantity;
     private Integer status;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
-    private OptionIngredientResponse ingredient;
 }

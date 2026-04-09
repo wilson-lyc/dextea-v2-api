@@ -15,7 +15,7 @@ public class CreateCustomizationItemResponse {
 
     private Long id;
     private String name;
-    private Integer sortOrder;
+    private String description;
     private Integer status;
     private LocalDateTime createTime;
 }
