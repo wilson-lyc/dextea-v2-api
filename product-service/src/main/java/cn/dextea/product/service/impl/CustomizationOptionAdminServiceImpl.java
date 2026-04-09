@@ -16,6 +16,7 @@ import cn.dextea.product.mapper.CustomizationItemMapper;
 import cn.dextea.product.mapper.CustomizationOptionMapper;
 import cn.dextea.product.mapper.IngredientMapper;
 import cn.dextea.product.service.CustomizationOptionAdminService;
+import cn.dextea.product.service.ProductCacheEvictionService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
     private final CustomizationOptionMapper optionMapper;
     private final IngredientMapper ingredientMapper;
     private final CustomizationConverter customizationConverter;
+    private final ProductCacheEvictionService cacheEvictionService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -63,6 +65,11 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
                 .build();
 
         optionMapper.insert(entity);
+
+        // New option is available under an item — invalidate options and product detail caches
+        cacheEvictionService.evictCustomizationOptionsBizByItem(itemId);
+        cacheEvictionService.evictProductBizDetailAllClear();
+
         return ApiResponse.success(customizationConverter.toCreateOptionResponse(entity));
     }
 
@@ -111,6 +118,9 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
         entity.setStatus(request.getStatus());
         optionMapper.updateById(entity);
 
+        cacheEvictionService.evictCustomizationOptionsBizByItem(entity.getItemId());
+        cacheEvictionService.evictProductBizDetailAllClear();
+
         return ApiResponse.success(customizationConverter.toOptionDetailResponse(entity));
     }
 
@@ -124,6 +134,10 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
 
         entity.setStatus(CustomizationStatus.DISABLED.getValue());
         optionMapper.updateById(entity);
+
+        cacheEvictionService.evictCustomizationOptionsBizByItem(entity.getItemId());
+        cacheEvictionService.evictProductBizDetailAllClear();
+
         return ApiResponse.success();
     }
 

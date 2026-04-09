@@ -1,6 +1,7 @@
 package cn.dextea.product.service.impl;
 
 import cn.dextea.common.web.response.ApiResponse;
+import cn.dextea.product.cache.CacheNames;
 import cn.dextea.product.converter.CustomizationConverter;
 import cn.dextea.product.dto.request.CustomizationOptionListWithStoreIdRequest;
 import cn.dextea.product.dto.request.UpdateStoreCustomizationOptionSaleRequest;
@@ -15,8 +16,10 @@ import cn.dextea.product.mapper.CustomizationItemMapper;
 import cn.dextea.product.mapper.CustomizationOptionMapper;
 import cn.dextea.product.mapper.StoreCustomizationOptionRelMapper;
 import cn.dextea.product.service.CustomizationOptionBizService;
+import cn.dextea.product.service.ProductCacheEvictionService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,8 +35,14 @@ public class CustomizationOptionBizServiceImpl implements CustomizationOptionBiz
     private final CustomizationOptionMapper optionMapper;
     private final StoreCustomizationOptionRelMapper storeOptionRelMapper;
     private final CustomizationConverter customizationConverter;
+    private final ProductCacheEvictionService cacheEvictionService;
 
     @Override
+    @Cacheable(
+            cacheNames = CacheNames.CUSTOMIZATION_OPTIONS_BIZ,
+            key = "'item:' + #itemId + ':store:' + #request.storeId",
+            unless = "#result.code != 0"
+    )
     public ApiResponse<List<CustomizationOptionWithStoreStatusResponse>> listOptions(Long itemId,
             CustomizationOptionListWithStoreIdRequest request) {
         CustomizationItemEntity item = itemMapper.selectOne(new LambdaQueryWrapper<CustomizationItemEntity>()
@@ -104,6 +113,8 @@ public class CustomizationOptionBizServiceImpl implements CustomizationOptionBiz
         } else {
             storeOptionRelMapper.delete(relQuery);
         }
+
+        cacheEvictionService.evictCustomizationOptionsBizByItem(option.getItemId());
 
         return ApiResponse.success();
     }

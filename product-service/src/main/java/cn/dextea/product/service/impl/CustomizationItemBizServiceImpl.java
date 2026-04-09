@@ -2,6 +2,7 @@ package cn.dextea.product.service.impl;
 
 import cn.dextea.common.util.StringValueUtils;
 import cn.dextea.common.web.response.ApiResponse;
+import cn.dextea.product.cache.CacheNames;
 import cn.dextea.product.converter.CustomizationConverter;
 import cn.dextea.product.dto.request.CustomizationItemPageQueryWithStoreIdRequest;
 import cn.dextea.product.dto.request.UpdateStoreCustomizationItemSaleRequest;
@@ -14,10 +15,12 @@ import cn.dextea.product.enums.StoreCustomizationSaleStatus;
 import cn.dextea.product.mapper.CustomizationItemMapper;
 import cn.dextea.product.mapper.StoreCustomizationItemRelMapper;
 import cn.dextea.product.service.CustomizationItemBizService;
+import cn.dextea.product.service.ProductCacheEvictionService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,8 +35,14 @@ public class CustomizationItemBizServiceImpl implements CustomizationItemBizServ
     private final CustomizationItemMapper itemMapper;
     private final StoreCustomizationItemRelMapper storeItemRelMapper;
     private final CustomizationConverter customizationConverter;
+    private final ProductCacheEvictionService cacheEvictionService;
 
     @Override
+    @Cacheable(
+            cacheNames = CacheNames.CUSTOMIZATION_ITEM_BIZ,
+            key = "'store:' + #request.storeId + ':p:' + #request.current + ':s:' + #request.size + ':n:' + (#request.name ?: '')",
+            unless = "#result.code != 0"
+    )
     public ApiResponse<IPage<CustomizationItemWithStoreStatusResponse>> page(
             CustomizationItemPageQueryWithStoreIdRequest request) {
         Long storeId = request.getStoreId();
@@ -100,6 +109,8 @@ public class CustomizationItemBizServiceImpl implements CustomizationItemBizServ
         } else {
             storeItemRelMapper.delete(relQuery);
         }
+
+        cacheEvictionService.evictCustomizationItemBizAll();
 
         return ApiResponse.success();
     }

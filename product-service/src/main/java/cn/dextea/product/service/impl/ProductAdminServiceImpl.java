@@ -15,6 +15,7 @@ import cn.dextea.product.enums.ProductStatus;
 import cn.dextea.product.mapper.ProductMapper;
 import cn.dextea.product.mapper.StoreProductRelMapper;
 import cn.dextea.product.service.ProductAdminService;
+import cn.dextea.product.service.ProductCacheEvictionService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -29,6 +30,7 @@ public class ProductAdminServiceImpl implements ProductAdminService {
     private final ProductMapper productMapper;
     private final StoreProductRelMapper storeProductRelMapper;
     private final ProductConverter productConverter;
+    private final ProductCacheEvictionService cacheEvictionService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -96,6 +98,10 @@ public class ProductAdminServiceImpl implements ProductAdminService {
             return fail(ProductErrorCode.UPDATE_FAILED);
         }
 
+        // Product data changed — evict all biz caches that embed this product
+        cacheEvictionService.evictProductBizDetailAll(id);
+        cacheEvictionService.evictMenuBizAll();
+
         return ApiResponse.success(productConverter.toProductDetailResponse(entity));
     }
 
@@ -111,9 +117,11 @@ public class ProductAdminServiceImpl implements ProductAdminService {
             return fail(ProductErrorCode.DELETE_FAILED);
         }
 
-        // 清除该商品在所有门店的在售关联，避免再次上架时门店状态残留
         storeProductRelMapper.delete(new LambdaQueryWrapper<StoreProductRelEntity>()
                 .eq(StoreProductRelEntity::getProductId, id));
+
+        cacheEvictionService.evictProductBizDetailAll(id);
+        cacheEvictionService.evictMenuBizAll();
 
         return ApiResponse.success();
     }

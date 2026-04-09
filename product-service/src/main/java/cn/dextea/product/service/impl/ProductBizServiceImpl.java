@@ -2,6 +2,7 @@ package cn.dextea.product.service.impl;
 
 import cn.dextea.common.util.StringValueUtils;
 import cn.dextea.common.web.response.ApiResponse;
+import cn.dextea.product.cache.CacheNames;
 import cn.dextea.product.converter.CustomizationConverter;
 import cn.dextea.product.converter.ProductConverter;
 import cn.dextea.product.dto.request.ProductPageQueryWithStoreIdRequest;
@@ -30,10 +31,12 @@ import cn.dextea.product.mapper.StoreCustomizationItemRelMapper;
 import cn.dextea.product.mapper.StoreCustomizationOptionRelMapper;
 import cn.dextea.product.mapper.StoreProductRelMapper;
 import cn.dextea.product.service.ProductBizService;
+import cn.dextea.product.service.ProductCacheEvictionService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -56,12 +59,17 @@ public class ProductBizServiceImpl implements ProductBizService {
     private final StoreCustomizationOptionRelMapper storeOptionRelMapper;
     private final ProductConverter productConverter;
     private final CustomizationConverter customizationConverter;
+    private final ProductCacheEvictionService cacheEvictionService;
 
     @Override
+    @Cacheable(
+            cacheNames = CacheNames.PRODUCT_BIZ_LIST,
+            key = "'store:' + #request.storeId + ':p:' + #request.current + ':s:' + #request.size + ':n:' + (#request.name ?: '')",
+            unless = "#result.code != 0"
+    )
     public ApiResponse<IPage<ProductDetailResponse>> getProductPage(ProductPageQueryWithStoreIdRequest request) {
         Long storeId = request.getStoreId();
 
-        // 分页查询全局上架的商品
         LambdaQueryWrapper<ProductEntity> productQuery = new LambdaQueryWrapper<ProductEntity>()
                 .eq(ProductEntity::getStatus, ProductStatus.ENABLED.getValue())
                 .like(StringValueUtils.hasText(request.getName()), ProductEntity::getName, request.getName().trim())
@@ -75,7 +83,6 @@ public class ProductBizServiceImpl implements ProductBizService {
                     p -> productConverter.toProductDetailResponseWithStoreStatus(p, StoreProductSaleStatus.SOLD_OUT.getValue())));
         }
 
-        // 批量查询这批商品在门店中的在售关联记录，存在即在售
         List<Long> productIds = products.stream().map(ProductEntity::getId).toList();
         LambdaQueryWrapper<StoreProductRelEntity> relQuery = new LambdaQueryWrapper<StoreProductRelEntity>()
                 .eq(StoreProductRelEntity::getStoreId, storeId)
@@ -106,7 +113,6 @@ public class ProductBizServiceImpl implements ProductBizService {
                 .eq(StoreProductRelEntity::getProductId, productId);
 
         if (Boolean.TRUE.equals(request.getOnSale())) {
-            // 标记在售：插入关联记录（幂等，已存在则跳过）
             if (!storeProductRelMapper.exists(relQuery)) {
                 StoreProductRelEntity rel = StoreProductRelEntity.builder()
                         .storeId(storeId)
@@ -117,14 +123,21 @@ public class ProductBizServiceImpl implements ProductBizService {
                 }
             }
         } else {
-            // 标记售罄：删除关联记录
             storeProductRelMapper.delete(relQuery);
         }
+
+        cacheEvictionService.evictProductBizDetail(productId, storeId);
+        cacheEvictionService.evictProductBizListByStore(storeId);
 
         return ApiResponse.success();
     }
 
     @Override
+    @Cacheable(
+            cacheNames = CacheNames.PRODUCT_BIZ_DETAIL,
+            key = "'productId:' + #productId + ':storeId:' + #storeId",
+            unless = "#result.code != 0"
+    )
     public ApiResponse<ProductBizDetailResponse> getProductDetail(Long productId, Long storeId) {
         ProductEntity product = productMapper.selectById(productId);
         if (product == null) {
@@ -134,7 +147,6 @@ public class ProductBizServiceImpl implements ProductBizService {
             return fail(ProductErrorCode.PRODUCT_DISABLED);
         }
 
-        // 查询门店商品在售状态（存在关联记录则在售，否则售罄）
         boolean onSale = storeProductRelMapper.exists(new LambdaQueryWrapper<StoreProductRelEntity>()
                 .eq(StoreProductRelEntity::getStoreId, storeId)
                 .eq(StoreProductRelEntity::getProductId, productId));
@@ -142,7 +154,6 @@ public class ProductBizServiceImpl implements ProductBizService {
                 ? StoreProductSaleStatus.ON_SALE.getValue()
                 : StoreProductSaleStatus.SOLD_OUT.getValue();
 
-        // 查询商品绑定的客制化项目（按 sortOrder 排序）
         List<ProductCustomizationItemBindingEntity> bindings = bindingMapper.selectList(
                 new LambdaQueryWrapper<ProductCustomizationItemBindingEntity>()
                         .eq(ProductCustomizationItemBindingEntity::getProductId, productId)
@@ -156,7 +167,6 @@ public class ProductBizServiceImpl implements ProductBizService {
                 .map(ProductCustomizationItemBindingEntity::getItemId)
                 .collect(Collectors.toList());
 
-        // 查询全局启用的客制化项目（全局禁用的不返回）
         List<CustomizationItemEntity> activeItems = customizationItemMapper.selectList(
                 new LambdaQueryWrapper<CustomizationItemEntity>()
                         .in(CustomizationItemEntity::getId, boundItemIds)
@@ -170,7 +180,6 @@ public class ProductBizServiceImpl implements ProductBizService {
                 .map(CustomizationItemEntity::getId)
                 .collect(Collectors.toList());
 
-        // 批量查询门店客制化项目在售状态
         Set<Long> onSaleItemIds = storeItemRelMapper.selectList(
                 new LambdaQueryWrapper<StoreCustomizationItemRelEntity>()
                         .eq(StoreCustomizationItemRelEntity::getStoreId, storeId)
@@ -179,14 +188,12 @@ public class ProductBizServiceImpl implements ProductBizService {
                 .map(StoreCustomizationItemRelEntity::getItemId)
                 .collect(Collectors.toSet());
 
-        // 查询所有活跃客制化项目下的全局启用选项（全局禁用的不返回）
         List<CustomizationOptionEntity> activeOptions = customizationOptionMapper.selectList(
                 new LambdaQueryWrapper<CustomizationOptionEntity>()
                         .in(CustomizationOptionEntity::getItemId, activeItemIds)
                         .eq(CustomizationOptionEntity::getStatus, CustomizationStatus.ACTIVE.getValue())
                         .orderByAsc(CustomizationOptionEntity::getId));
 
-        // 批量查询门店客制化选项在售状态
         Set<Long> onSaleOptionIds = Set.of();
         if (!activeOptions.isEmpty()) {
             List<Long> activeOptionIds = activeOptions.stream()
@@ -201,7 +208,6 @@ public class ProductBizServiceImpl implements ProductBizService {
                     .collect(Collectors.toSet());
         }
 
-        // 按项目分组选项
         final Set<Long> finalOnSaleOptionIds = onSaleOptionIds;
         Map<Long, List<CustomizationOptionBizDetailResponse>> optionsByItemId = activeOptions.stream()
                 .collect(Collectors.groupingBy(
@@ -213,7 +219,6 @@ public class ProductBizServiceImpl implements ProductBizService {
                             return customizationConverter.toOptionBizDetailResponse(option, optionStoreStatus);
                         }, Collectors.toList())));
 
-        // 构建客制化项目响应列表（保持 sortOrder 顺序）
         Map<Long, CustomizationItemEntity> itemById = activeItems.stream()
                 .collect(Collectors.toMap(CustomizationItemEntity::getId, e -> e));
         List<CustomizationItemBizDetailResponse> itemResponses = new ArrayList<>();
