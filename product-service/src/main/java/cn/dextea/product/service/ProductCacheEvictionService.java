@@ -15,9 +15,6 @@ public interface ProductCacheEvictionService {
     /** Clear the entire biz product detail cache (used when affected productIds are unknown). */
     void evictProductBizDetailAllClear();
 
-    /** Evict all biz product list pages cached for a store. */
-    void evictProductBizListByStore(Long storeId);
-
     /** Evict the biz menu for a store. */
     void evictMenuBizByStore(Long storeId);
 

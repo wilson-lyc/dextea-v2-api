@@ -7,7 +7,7 @@ import cn.dextea.product.dto.response.MenuProductItemResponse;
 import cn.dextea.product.dto.response.StoreMenuGroupResponse;
 import cn.dextea.product.dto.response.StoreMenuResponse;
 import cn.dextea.product.entity.MenuEntity;
-import cn.dextea.product.entity.MenuGroupData;
+import cn.dextea.product.entity.MenuGroupEntity;
 import cn.dextea.product.entity.ProductEntity;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
@@ -76,7 +76,7 @@ public class MenuConverter {
                 .collect(Collectors.toList());
     }
 
-    private List<MenuGroupResponse> toMenuGroupResponseList(List<MenuGroupData> groups) {
+    private List<MenuGroupResponse> toMenuGroupResponseList(List<MenuGroupEntity> groups) {
         if (CollectionUtils.isEmpty(groups)) {
             return Collections.emptyList();
         }

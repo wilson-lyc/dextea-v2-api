@@ -12,10 +12,9 @@ import org.springframework.stereotype.Service;
  *
  * Key formats mirror the SpEL expressions used in {@code @Cacheable} annotations:
  * <ul>
- *   <li>productBizDetail   key: {@code productId:{id}:storeId:{sid}}</li>
- *   <li>productBizList     key: {@code store:{sid}:p:{page}:s:{size}:n:{name}}</li>
- *   <li>menuBiz            key: {@code store:{sid}}</li>
- *   <li>customizationItemBiz key: {@code store:{sid}:p:{page}:s:{size}:n:{name}}</li>
+ *   <li>productBizDetail        key: {@code productId:{id}:storeId:{sid}}</li>
+ *   <li>menuBiz                 key: {@code store:{sid}}</li>
+ *   <li>customizationItemBiz    key: {@code store:{sid}:p:{page}:s:{size}:n:{name}}</li>
  *   <li>customizationOptionsBiz key: {@code item:{iid}:store:{sid}}</li>
  * </ul>
  */
@@ -40,13 +39,6 @@ public class ProductCacheEvictionServiceImpl implements ProductCacheEvictionServ
     @Override
     public void evictProductBizDetailAllClear() {
         cache(CacheNames.PRODUCT_BIZ_DETAIL).clear();
-    }
-
-    @Override
-    public void evictProductBizListByStore(Long storeId) {
-        // productBizList has L1 disabled; evictByKeyPrefix handles L2 scan
-        cache(CacheNames.PRODUCT_BIZ_LIST)
-                .evictByKeyPrefix("store:" + storeId + ":");
     }
 
     @Override

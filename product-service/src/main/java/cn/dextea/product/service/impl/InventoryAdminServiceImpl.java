@@ -67,7 +67,9 @@ public class InventoryAdminServiceImpl implements InventoryAdminService {
             // treat any explicit set as a restock event
             existing.setLastRestockTime(now);
 
-            if (inventoryMapper.updateById(existing) != 1) {
+            if (inventoryMapper.update(existing, new LambdaQueryWrapper<StoreIngredientInventoryEntity>()
+                    .eq(StoreIngredientInventoryEntity::getStoreId, existing.getStoreId())
+                    .eq(StoreIngredientInventoryEntity::getIngredientId, existing.getIngredientId())) != 1) {
                 return fail(InventoryErrorCode.SET_FAILED);
             }
             return ApiResponse.success(inventoryConverter.toInventoryDetailResponse(existing, ingredient));
@@ -114,7 +116,9 @@ public class InventoryAdminServiceImpl implements InventoryAdminService {
             existing.setLastRestockTime(now);
         }
 
-        if (inventoryMapper.updateById(existing) != 1) {
+        if (inventoryMapper.update(existing, new LambdaQueryWrapper<StoreIngredientInventoryEntity>()
+                .eq(StoreIngredientInventoryEntity::getStoreId, existing.getStoreId())
+                .eq(StoreIngredientInventoryEntity::getIngredientId, existing.getIngredientId())) != 1) {
             return fail(InventoryErrorCode.ADJUST_FAILED);
         }
 
@@ -149,7 +153,7 @@ public class InventoryAdminServiceImpl implements InventoryAdminService {
                                 StoreIngredientInventoryEntity::getIngredientId, filteredIngredientIds)
                         .apply(Boolean.TRUE.equals(request.getLowStock()),
                                 "quantity <= warn_threshold")
-                        .orderByDesc(StoreIngredientInventoryEntity::getId);
+                        .orderByDesc(StoreIngredientInventoryEntity::getCreateTime);
 
         IPage<StoreIngredientInventoryEntity> entityPage = inventoryMapper.selectPage(
                 new Page<>(request.getCurrent(), request.getSize()), wrapper);

@@ -7,8 +7,9 @@ import cn.dextea.product.dto.request.StoreMenuQueryRequest;
 import cn.dextea.product.dto.response.StoreMenuResponse;
 import cn.dextea.product.entity.MenuEntity;
 import cn.dextea.product.entity.ProductEntity;
-import cn.dextea.product.entity.StoreMenuRelEntity;
+import cn.dextea.product.entity.StoreMenuBindingEntity;
 import cn.dextea.product.enums.MenuErrorCode;
+import cn.dextea.product.enums.MenuStatus;
 import cn.dextea.product.mapper.MenuMapper;
 import cn.dextea.product.mapper.ProductMapper;
 import cn.dextea.product.mapper.StoreMenuRelMapper;
@@ -40,15 +41,15 @@ public class MenuBizServiceImpl implements MenuBizService {
             unless = "#result.code != 0"
     )
     public ApiResponse<StoreMenuResponse> getStoreMenu(StoreMenuQueryRequest request) {
-        StoreMenuRelEntity rel = storeMenuRelMapper.selectOne(
-                new LambdaQueryWrapper<StoreMenuRelEntity>()
-                        .eq(StoreMenuRelEntity::getStoreId, request.getStoreId()));
+        StoreMenuBindingEntity rel = storeMenuRelMapper.selectOne(
+                new LambdaQueryWrapper<StoreMenuBindingEntity>()
+                        .eq(StoreMenuBindingEntity::getStoreId, request.getStoreId()));
         if (rel == null) {
             return fail(MenuErrorCode.STORE_MENU_NOT_BOUND);
         }
 
         MenuEntity menu = menuMapper.selectById(rel.getMenuId());
-        if (menu == null) {
+        if (menu == null || MenuStatus.DISABLED.getValue().equals(menu.getStatus())) {
             return fail(MenuErrorCode.MENU_NOT_FOUND);
         }
 

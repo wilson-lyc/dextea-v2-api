@@ -6,8 +6,8 @@ import lombok.RequiredArgsConstructor;
 @Getter
 @RequiredArgsConstructor
 public enum StoreCustomizationSaleStatus {
-    SOLD_OUT(0, "售罄"),
-    ON_SALE(1, "在售");
+    DISABLED(0, "售罄"),
+    ENABLED(1, "在售");
 
     private final int value;
     private final String label;

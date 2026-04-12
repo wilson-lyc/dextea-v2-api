@@ -1,4 +1,4 @@
-CREATE TABLE `product_ingredient`
+CREATE TABLE `product_ingredient_binding`
 (
     `product_id`    BIGINT         NOT NULL COMMENT '商品ID',
     `ingredient_id` BIGINT         NOT NULL COMMENT '原料ID',

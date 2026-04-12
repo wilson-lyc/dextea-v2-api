@@ -26,13 +26,13 @@ public class CreateIngredientRequest {
     @Size(max = 16, message = "库存单位长度不能超过16位")
     private String unit;
 
-    @NotNull(message = "保质时长不能为空")
-    @Min(value = 1, message = "保质时长不能小于1")
-    private Integer shelfLife;
+    @NotNull(message = "存储时长不能为空")
+    @Min(value = 1, message = "存储时长不能小于1")
+    private Integer storageDuration;
 
-    @NotNull(message = "保质时长单位不能为空")
-    @EnumValue(enumClass = ShelfLifeUnit.class, fieldName = "保质时长单位")
-    private Integer shelfLifeUnit;
+    @NotNull(message = "存储时长单位不能为空")
+    @EnumValue(enumClass = ShelfLifeUnit.class, fieldName = "存储时长单位")
+    private Integer storageDurationUnit;
 
     @NotNull(message = "存储方式不能为空")
     @EnumValue(enumClass = StorageMethod.class, fieldName = "存储方式")

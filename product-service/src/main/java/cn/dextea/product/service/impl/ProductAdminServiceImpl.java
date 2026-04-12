@@ -9,7 +9,7 @@ import cn.dextea.product.dto.request.UpdateProductRequest;
 import cn.dextea.product.dto.response.CreateProductResponse;
 import cn.dextea.product.dto.response.ProductDetailResponse;
 import cn.dextea.product.entity.ProductEntity;
-import cn.dextea.product.entity.StoreProductRelEntity;
+import cn.dextea.product.entity.StoreProductStatusEntity;
 import cn.dextea.product.enums.ProductErrorCode;
 import cn.dextea.product.enums.ProductStatus;
 import cn.dextea.product.mapper.ProductMapper;
@@ -98,7 +98,7 @@ public class ProductAdminServiceImpl implements ProductAdminService {
             return fail(ProductErrorCode.UPDATE_FAILED);
         }
 
-        // Product data changed — evict all biz caches that embed this product
+        // 商品信息更新，删除缓存
         cacheEvictionService.evictProductBizDetailAll(id);
         cacheEvictionService.evictMenuBizAll();
 
@@ -117,9 +117,11 @@ public class ProductAdminServiceImpl implements ProductAdminService {
             return fail(ProductErrorCode.DELETE_FAILED);
         }
 
-        storeProductRelMapper.delete(new LambdaQueryWrapper<StoreProductRelEntity>()
-                .eq(StoreProductRelEntity::getProductId, id));
+        // 删除商品门店状态
+        storeProductRelMapper.delete(new LambdaQueryWrapper<StoreProductStatusEntity>()
+                .eq(StoreProductStatusEntity::getProductId, id));
 
+        // 删除缓存
         cacheEvictionService.evictProductBizDetailAll(id);
         cacheEvictionService.evictMenuBizAll();
 

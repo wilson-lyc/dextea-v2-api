@@ -8,7 +8,7 @@ import cn.dextea.product.dto.request.UpdateStoreCustomizationOptionSaleRequest;
 import cn.dextea.product.dto.response.CustomizationOptionWithStoreStatusResponse;
 import cn.dextea.product.entity.CustomizationItemEntity;
 import cn.dextea.product.entity.CustomizationOptionEntity;
-import cn.dextea.product.entity.StoreCustomizationOptionRelEntity;
+import cn.dextea.product.entity.StoreCustomizationOptionStatusEntity;
 import cn.dextea.product.enums.CustomizationErrorCode;
 import cn.dextea.product.enums.CustomizationStatus;
 import cn.dextea.product.enums.StoreCustomizationSaleStatus;
@@ -65,18 +65,18 @@ public class CustomizationOptionBizServiceImpl implements CustomizationOptionBiz
         Long storeId = request.getStoreId();
         List<Long> optionIds = options.stream().map(CustomizationOptionEntity::getId).collect(Collectors.toList());
         Set<Long> onSaleOptionIds = storeOptionRelMapper.selectList(
-                new LambdaQueryWrapper<StoreCustomizationOptionRelEntity>()
-                        .eq(StoreCustomizationOptionRelEntity::getStoreId, storeId)
-                        .in(StoreCustomizationOptionRelEntity::getOptionId, optionIds))
+                new LambdaQueryWrapper<StoreCustomizationOptionStatusEntity>()
+                        .eq(StoreCustomizationOptionStatusEntity::getStoreId, storeId)
+                        .in(StoreCustomizationOptionStatusEntity::getOptionId, optionIds))
                 .stream()
-                .map(StoreCustomizationOptionRelEntity::getOptionId)
+                .map(StoreCustomizationOptionStatusEntity::getOptionId)
                 .collect(Collectors.toSet());
 
         List<CustomizationOptionWithStoreStatusResponse> result = options.stream()
                 .map(entity -> {
                     int storeStatus = onSaleOptionIds.contains(entity.getId())
-                            ? StoreCustomizationSaleStatus.ON_SALE.getValue()
-                            : StoreCustomizationSaleStatus.SOLD_OUT.getValue();
+                            ? StoreCustomizationSaleStatus.ENABLED.getValue()
+                            : StoreCustomizationSaleStatus.DISABLED.getValue();
                     return customizationConverter.toOptionWithStoreStatusResponse(entity, storeStatus);
                 })
                 .collect(Collectors.toList());
@@ -95,14 +95,14 @@ public class CustomizationOptionBizServiceImpl implements CustomizationOptionBiz
         }
 
         Long storeId = request.getStoreId();
-        LambdaQueryWrapper<StoreCustomizationOptionRelEntity> relQuery =
-                new LambdaQueryWrapper<StoreCustomizationOptionRelEntity>()
-                        .eq(StoreCustomizationOptionRelEntity::getStoreId, storeId)
-                        .eq(StoreCustomizationOptionRelEntity::getOptionId, optionId);
+        LambdaQueryWrapper<StoreCustomizationOptionStatusEntity> relQuery =
+                new LambdaQueryWrapper<StoreCustomizationOptionStatusEntity>()
+                        .eq(StoreCustomizationOptionStatusEntity::getStoreId, storeId)
+                        .eq(StoreCustomizationOptionStatusEntity::getOptionId, optionId);
 
         if (Boolean.TRUE.equals(request.getOnSale())) {
             if (!storeOptionRelMapper.exists(relQuery)) {
-                StoreCustomizationOptionRelEntity rel = StoreCustomizationOptionRelEntity.builder()
+                StoreCustomizationOptionStatusEntity rel = StoreCustomizationOptionStatusEntity.builder()
                         .storeId(storeId)
                         .optionId(optionId)
                         .build();

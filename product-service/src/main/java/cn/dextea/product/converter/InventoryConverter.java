@@ -11,17 +11,17 @@ public class InventoryConverter {
     public InventoryDetailResponse toInventoryDetailResponse(
             StoreIngredientInventoryEntity inventory, IngredientEntity ingredient) {
         return InventoryDetailResponse.builder()
-                .id(inventory.getId())
                 .storeId(inventory.getStoreId())
                 .ingredientId(inventory.getIngredientId())
                 .ingredientName(ingredient.getName())
-                .shelfLife(ingredient.getShelfLife())
-                .shelfLifeUnit(ingredient.getShelfLifeUnit())
+                .storageDuration(ingredient.getStorageDuration())
+                .storageDurationUnit(ingredient.getStorageDurationUnit())
                 .storageMethod(ingredient.getStorageMethod())
                 .quantity(inventory.getQuantity())
                 .unit(inventory.getUnit())
                 .warnThreshold(inventory.getWarnThreshold())
-                .lowStock(inventory.getQuantity().compareTo(inventory.getWarnThreshold()) <= 0)
+                .lowStock(inventory.getWarnThreshold() != null
+                        && inventory.getQuantity().compareTo(inventory.getWarnThreshold()) <= 0)
                 .lastRestockTime(inventory.getLastRestockTime())
                 .createTime(inventory.getCreateTime())
                 .updateTime(inventory.getUpdateTime())

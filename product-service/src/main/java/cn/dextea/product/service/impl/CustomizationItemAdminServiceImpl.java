@@ -143,7 +143,7 @@ public class CustomizationItemAdminServiceImpl implements CustomizationItemAdmin
 
         cacheEvictionService.evictCustomizationItemBizAll();
         cacheEvictionService.evictCustomizationOptionsBizByItem(id);
-        cacheEvictionService.evictProductBizDetailAll(id);
+        cacheEvictionService.evictProductBizDetailAllClear();
 
         return ApiResponse.success();
     }

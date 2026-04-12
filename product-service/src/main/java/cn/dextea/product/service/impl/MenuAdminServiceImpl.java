@@ -11,9 +11,10 @@ import cn.dextea.product.dto.request.UpdateMenuRequest;
 import cn.dextea.product.dto.response.CreateMenuResponse;
 import cn.dextea.product.dto.response.MenuDetailResponse;
 import cn.dextea.product.entity.MenuEntity;
-import cn.dextea.product.entity.MenuGroupData;
-import cn.dextea.product.entity.StoreMenuRelEntity;
+import cn.dextea.product.entity.MenuGroupEntity;
+import cn.dextea.product.entity.StoreMenuBindingEntity;
 import cn.dextea.product.enums.MenuErrorCode;
+import cn.dextea.product.enums.MenuStatus;
 import cn.dextea.product.mapper.MenuMapper;
 import cn.dextea.product.mapper.StoreMenuRelMapper;
 import cn.dextea.product.service.MenuAdminService;
@@ -119,11 +120,12 @@ public class MenuAdminServiceImpl implements MenuAdminService {
         if (entity == null) {
             return fail(MenuErrorCode.MENU_NOT_FOUND);
         }
-        if (storeMenuRelMapper.exists(new LambdaQueryWrapper<StoreMenuRelEntity>()
-                .eq(StoreMenuRelEntity::getMenuId, id))) {
+        if (storeMenuRelMapper.exists(new LambdaQueryWrapper<StoreMenuBindingEntity>()
+                .eq(StoreMenuBindingEntity::getMenuId, id))) {
             return fail(MenuErrorCode.MENU_HAS_BOUND_STORES);
         }
-        if (menuMapper.deleteById(id) != 1) {
+        entity.setStatus(MenuStatus.DISABLED.getValue());
+        if (menuMapper.updateById(entity) != 1) {
             return fail(MenuErrorCode.DELETE_FAILED);
         }
         return ApiResponse.success();
@@ -136,11 +138,11 @@ public class MenuAdminServiceImpl implements MenuAdminService {
         if (menu == null) {
             return fail(MenuErrorCode.MENU_NOT_FOUND);
         }
-        if (storeMenuRelMapper.exists(new LambdaQueryWrapper<StoreMenuRelEntity>()
-                .eq(StoreMenuRelEntity::getStoreId, request.getStoreId()))) {
+        if (storeMenuRelMapper.exists(new LambdaQueryWrapper<StoreMenuBindingEntity>()
+                .eq(StoreMenuBindingEntity::getStoreId, request.getStoreId()))) {
             return fail(MenuErrorCode.STORE_ALREADY_HAS_MENU);
         }
-        StoreMenuRelEntity rel = StoreMenuRelEntity.builder()
+        StoreMenuBindingEntity rel = StoreMenuBindingEntity.builder()
                 .storeId(request.getStoreId())
                 .menuId(menuId)
                 .build();
@@ -154,9 +156,9 @@ public class MenuAdminServiceImpl implements MenuAdminService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ApiResponse<Void> unbindStore(Long menuId, Long storeId) {
-        int deleted = storeMenuRelMapper.delete(new LambdaQueryWrapper<StoreMenuRelEntity>()
-                .eq(StoreMenuRelEntity::getMenuId, menuId)
-                .eq(StoreMenuRelEntity::getStoreId, storeId));
+        int deleted = storeMenuRelMapper.delete(new LambdaQueryWrapper<StoreMenuBindingEntity>()
+                .eq(StoreMenuBindingEntity::getMenuId, menuId)
+                .eq(StoreMenuBindingEntity::getStoreId, storeId));
         if (deleted == 0) {
             return fail(MenuErrorCode.STORE_MENU_BINDING_NOT_FOUND);
         }
@@ -169,16 +171,17 @@ public class MenuAdminServiceImpl implements MenuAdminService {
     private boolean existsByName(String name, Long excludeId) {
         LambdaQueryWrapper<MenuEntity> queryWrapper = new LambdaQueryWrapper<MenuEntity>()
                 .eq(MenuEntity::getName, name)
+                .eq(MenuEntity::getStatus, MenuStatus.ENABLED.getValue())
                 .ne(excludeId != null, MenuEntity::getId, excludeId);
         return menuMapper.exists(queryWrapper);
     }
 
-    private List<MenuGroupData> toGroupDataList(List<MenuGroupRequest> groups) {
+    private List<MenuGroupEntity> toGroupDataList(List<MenuGroupRequest> groups) {
         if (CollectionUtils.isEmpty(groups)) {
             return Collections.emptyList();
         }
         return groups.stream()
-                .map(g -> MenuGroupData.builder()
+                .map(g -> MenuGroupEntity.builder()
                         .name(g.getName())
                         .productIds(g.getProductIds())
                         .build())

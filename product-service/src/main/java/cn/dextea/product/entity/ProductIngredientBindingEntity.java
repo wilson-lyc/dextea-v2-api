@@ -6,18 +6,23 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Data
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("store_product_rel")
-public class StoreProductRelEntity {
-
-    private Long storeId;
+@TableName("product_ingredient_binding")
+public class ProductIngredientBindingEntity {
 
     private Long productId;
 
+    private Long ingredientId;
+
+    private BigDecimal quantity;
+
     private LocalDateTime createTime;
+
+    private LocalDateTime updateTime;
 }

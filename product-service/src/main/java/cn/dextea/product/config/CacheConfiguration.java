@@ -20,7 +20,6 @@ import java.util.Map;
  * TTL values match the cache-design.md specification:
  * <pre>
  *   productBizDetail        L1=60s   L2=10min
- *   productBizList          L1=off   L2=5min
  *   menuBiz                 L1=2min  L2=30min
  *   customizationItemBiz    L1=2min  L2=15min
  *   customizationOptionsBiz L1=2min  L2=15min
@@ -43,12 +42,6 @@ public class CacheConfiguration {
                 true, 500, Duration.ofSeconds(60),
                 true, Duration.ofMinutes(10),
                 CacheNames.REDIS_PREFIX_PRODUCT_BIZ_DETAIL));
-
-        // L1 disabled: parameter combinations are large, L1 hit rate would be too low
-        specs.put(CacheNames.PRODUCT_BIZ_LIST, new CacheSpec(
-                false, 0, null,
-                true, Duration.ofMinutes(5),
-                CacheNames.REDIS_PREFIX_PRODUCT_BIZ_LIST));
 
         specs.put(CacheNames.MENU_BIZ, new CacheSpec(
                 true, 100, Duration.ofMinutes(2),

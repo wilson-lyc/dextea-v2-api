@@ -5,9 +5,9 @@ import lombok.RequiredArgsConstructor;
 
 @Getter
 @RequiredArgsConstructor
-public enum StoreProductSaleStatus {
-    SOLD_OUT(0, "售罄"),
-    ON_SALE(1, "在售");
+public enum StoreProductStatus {
+    DISABLED(0, "售罄"),
+    ENABLED(1, "在售");
 
     private final int value;
     private final String label;
@@ -16,7 +16,7 @@ public enum StoreProductSaleStatus {
         if (value == null) {
             return false;
         }
-        for (StoreProductSaleStatus status : values()) {
+        for (StoreProductStatus status : values()) {
             if (status.value == value) {
                 return true;
             }
