@@ -16,7 +16,8 @@ public enum ProductErrorCode {
     DELETE_FAILED(30005, "商品下架失败"),
     PRODUCT_NOT_AVAILABLE(30006, "商品暂不可售"),
     STORE_SALE_STATUS_UPDATE_FAILED(30007, "门店商品销售状态更新失败"),
-    PRODUCT_DISABLED(30008, "商品已下架");
+    PRODUCT_DISABLED(30008, "商品已下架"),
+    CUSTOMIZATION_OPTION_NOT_FOUND(30009, "客制化选项不存在或已禁用");
 
     private final Integer code;
     private final String msg;
