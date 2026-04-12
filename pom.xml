@@ -20,6 +20,7 @@
         <module>admin-gateway</module>
         <module>store-service</module>
         <module>product-service</module>
+        <module>customer-service</module>
         <module>cart-service</module>
     </modules>
 </project>
