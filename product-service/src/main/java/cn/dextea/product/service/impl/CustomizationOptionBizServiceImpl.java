@@ -41,7 +41,7 @@ public class CustomizationOptionBizServiceImpl implements CustomizationOptionBiz
     @Cacheable(
             cacheNames = CacheNames.CUSTOMIZATION_OPTIONS_BIZ,
             key = "'item:' + #itemId + ':store:' + #request.storeId",
-            unless = "#result.code != 0"
+            unless = "!#result.success"
     )
     public ApiResponse<List<CustomizationOptionWithStoreStatusResponse>> listOptions(Long itemId,
             CustomizationOptionListWithStoreIdRequest request) {

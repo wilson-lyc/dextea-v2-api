@@ -170,7 +170,7 @@ public class ProductBizServiceImpl implements ProductBizService {
                 .eq(StoreProductStatusEntity::getStoreId, storeId)
                 .eq(StoreProductStatusEntity::getProductId, productId);
 
-        if (StoreProductStatus.ENABLED.getValue() == request.getStatus()) {
+        if (Integer.valueOf(StoreProductStatus.ENABLED.getValue()).equals(request.getStatus())) {
             if (!storeProductRelMapper.exists(relQuery)) {
                 StoreProductStatusEntity rel = StoreProductStatusEntity.builder()
                         .storeId(storeId)
@@ -194,7 +194,7 @@ public class ProductBizServiceImpl implements ProductBizService {
     @Cacheable(
             cacheNames = CacheNames.PRODUCT_BIZ_DETAIL,
             key = "'productId:' + #productId + ':storeId:' + #storeId",
-            unless = "#result.code != 0"
+            unless = "!#result.success"
     )
     public ApiResponse<ProductBizDetailResponse> getProductDetail(Long productId, Long storeId) {
         // 查询商品基本信息并校验全局状态
@@ -202,7 +202,7 @@ public class ProductBizServiceImpl implements ProductBizService {
         if (product == null) {
             return fail(ProductErrorCode.PRODUCT_NOT_FOUND);
         }
-        if (ProductStatus.DISABLED.getValue() == product.getStatus()) {
+        if (Integer.valueOf(ProductStatus.DISABLED.getValue()).equals(product.getStatus())) {
             return fail(ProductErrorCode.PRODUCT_DISABLED);
         }
 
@@ -252,14 +252,14 @@ public class ProductBizServiceImpl implements ProductBizService {
                 .map(StoreCustomizationItemStatusEntity::getItemId)
                 .collect(Collectors.toSet());
 
-        // 6. 查询所有启用的客制化选项，范围限定在启用项目集合内
+        // 查询所有启用的客制化选项，范围限定在启用项目集合内
         List<CustomizationOptionEntity> activeOptions = customizationOptionMapper.selectList(
                 new LambdaQueryWrapper<CustomizationOptionEntity>()
                         .in(CustomizationOptionEntity::getItemId, activeItemIds)
                         .eq(CustomizationOptionEntity::getStatus, CustomizationStatus.ACTIVE.getValue())
                         .orderByAsc(CustomizationOptionEntity::getId));
 
-        // 7. 批量查询客制化选项在当前门店的在售状态；选项为空时跳过查询
+        // 批量查询客制化选项在当前门店的在售状态；选项为空时跳过查询
         List<Long> activeOptionIds = activeOptions.stream()
                 .map(CustomizationOptionEntity::getId)
                 .toList();
@@ -272,7 +272,7 @@ public class ProductBizServiceImpl implements ProductBizService {
                         .map(StoreCustomizationOptionStatusEntity::getOptionId)
                         .collect(Collectors.toSet());
 
-        // 8. 将选项按所属项目分组，并填充门店在售状态
+        // 将选项按所属项目分组，并填充门店在售状态
         Map<Long, List<CustomizationOptionBizDetailResponse>> optionsByItemId = activeOptions.stream()
                 .collect(Collectors.groupingBy(
                         CustomizationOptionEntity::getItemId,
@@ -283,7 +283,7 @@ public class ProductBizServiceImpl implements ProductBizService {
                             return customizationConverter.toOptionBizDetailResponse(option, optionStoreStatus);
                         }, Collectors.toList())));
 
-        // 9. 按绑定排序遍历，组装客制化项目列表并构建最终响应
+        // 按绑定排序遍历，组装客制化项目列表并构建最终响应
         Map<Long, CustomizationItemEntity> itemById = activeItems.stream()
                 .collect(Collectors.toMap(CustomizationItemEntity::getId, e -> e));
         List<CustomizationItemBizDetailResponse> itemResponses = new ArrayList<>();

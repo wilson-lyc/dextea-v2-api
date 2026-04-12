@@ -14,7 +14,11 @@ public enum CustomizationErrorCode {
     OPTION_DELETE_FAILED(34006, "客制化选项删除失败"),
     INGREDIENT_NOT_FOUND(34007, "原料不存在"),
     STORE_ITEM_SALE_STATUS_UPDATE_FAILED(34008, "门店客制化项目在售状态更新失败"),
-    STORE_OPTION_SALE_STATUS_UPDATE_FAILED(34009, "门店客制化选项在售状态更新失败");
+    STORE_OPTION_SALE_STATUS_UPDATE_FAILED(34009, "门店客制化选项在售状态更新失败"),
+    ITEM_CREATE_FAILED(34010, "客制化项目创建失败"),
+    ITEM_UPDATE_FAILED(34011, "客制化项目更新失败"),
+    OPTION_CREATE_FAILED(34012, "客制化选项创建失败"),
+    OPTION_UPDATE_FAILED(34013, "客制化选项更新失败");
 
     private final Integer code;
     private final String msg;

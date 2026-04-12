@@ -50,7 +50,9 @@ public class CustomizationItemAdminServiceImpl implements CustomizationItemAdmin
                 .status(CustomizationStatus.ACTIVE.getValue())
                 .build();
 
-        itemMapper.insert(entity);
+        if (itemMapper.insert(entity) != 1) {
+            return fail(CustomizationErrorCode.ITEM_CREATE_FAILED);
+        }
         return ApiResponse.success(customizationConverter.toCreateItemResponse(entity));
     }
 
@@ -104,7 +106,9 @@ public class CustomizationItemAdminServiceImpl implements CustomizationItemAdmin
         entity.setName(name);
         entity.setDescription(request.getDescription());
         entity.setStatus(request.getStatus());
-        itemMapper.updateById(entity);
+        if (itemMapper.updateById(entity) != 1) {
+            return fail(CustomizationErrorCode.ITEM_UPDATE_FAILED);
+        }
 
         List<CustomizationOptionEntity> options = optionMapper.selectList(
                 new LambdaQueryWrapper<CustomizationOptionEntity>()

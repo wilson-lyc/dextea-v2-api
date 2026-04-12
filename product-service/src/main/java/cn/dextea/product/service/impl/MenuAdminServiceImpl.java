@@ -19,6 +19,7 @@ import cn.dextea.product.mapper.MenuMapper;
 import cn.dextea.product.mapper.StoreMenuRelMapper;
 import cn.dextea.product.service.MenuAdminService;
 import cn.dextea.product.service.ProductCacheEvictionService;
+import cn.dextea.store.api.feign.StoreInternalFeign;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
@@ -38,6 +39,7 @@ public class MenuAdminServiceImpl implements MenuAdminService {
     private final MenuMapper menuMapper;
     private final MenuConverter menuConverter;
     private final StoreMenuRelMapper storeMenuRelMapper;
+    private final StoreInternalFeign storeInternalFeign;
     private final ProductCacheEvictionService cacheEvictionService;
 
     @Override
@@ -138,6 +140,9 @@ public class MenuAdminServiceImpl implements MenuAdminService {
         if (menu == null) {
             return fail(MenuErrorCode.MENU_NOT_FOUND);
         }
+        if (!isStoreValid(request.getStoreId())) {
+            return fail(MenuErrorCode.STORE_NOT_FOUND);
+        }
         if (storeMenuRelMapper.exists(new LambdaQueryWrapper<StoreMenuBindingEntity>()
                 .eq(StoreMenuBindingEntity::getStoreId, request.getStoreId()))) {
             return fail(MenuErrorCode.STORE_ALREADY_HAS_MENU);
@@ -171,7 +176,6 @@ public class MenuAdminServiceImpl implements MenuAdminService {
     private boolean existsByName(String name, Long excludeId) {
         LambdaQueryWrapper<MenuEntity> queryWrapper = new LambdaQueryWrapper<MenuEntity>()
                 .eq(MenuEntity::getName, name)
-                .eq(MenuEntity::getStatus, MenuStatus.ENABLED.getValue())
                 .ne(excludeId != null, MenuEntity::getId, excludeId);
         return menuMapper.exists(queryWrapper);
     }
@@ -186,6 +190,18 @@ public class MenuAdminServiceImpl implements MenuAdminService {
                         .productIds(g.getProductIds())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    private boolean isStoreValid(Long storeId) {
+        try {
+            cn.dextea.common.web.response.ApiResponse<cn.dextea.store.api.dto.response.StoreValidityResponse> response =
+                    storeInternalFeign.checkStoreValidity(storeId);
+            return response != null
+                    && response.getData() != null
+                    && Boolean.TRUE.equals(response.getData().getValid());
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     private <T> ApiResponse<T> fail(MenuErrorCode errorCode) {

@@ -10,13 +10,9 @@ public class InventoryConverter {
 
     public InventoryDetailResponse toInventoryDetailResponse(
             StoreIngredientInventoryEntity inventory, IngredientEntity ingredient) {
-        return InventoryDetailResponse.builder()
+        InventoryDetailResponse.InventoryDetailResponseBuilder builder = InventoryDetailResponse.builder()
                 .storeId(inventory.getStoreId())
                 .ingredientId(inventory.getIngredientId())
-                .ingredientName(ingredient.getName())
-                .storageDuration(ingredient.getStorageDuration())
-                .storageDurationUnit(ingredient.getStorageDurationUnit())
-                .storageMethod(ingredient.getStorageMethod())
                 .quantity(inventory.getQuantity())
                 .unit(inventory.getUnit())
                 .warnThreshold(inventory.getWarnThreshold())
@@ -24,7 +20,15 @@ public class InventoryConverter {
                         && inventory.getQuantity().compareTo(inventory.getWarnThreshold()) <= 0)
                 .lastRestockTime(inventory.getLastRestockTime())
                 .createTime(inventory.getCreateTime())
-                .updateTime(inventory.getUpdateTime())
-                .build();
+                .updateTime(inventory.getUpdateTime());
+
+        if (ingredient != null) {
+            builder.ingredientName(ingredient.getName())
+                    .storageDuration(ingredient.getStorageDuration())
+                    .storageDurationUnit(ingredient.getStorageDurationUnit())
+                    .storageMethod(ingredient.getStorageMethod());
+        }
+
+        return builder.build();
     }
 }

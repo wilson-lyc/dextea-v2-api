@@ -56,7 +56,9 @@ public class ProductIngredientAdminServiceImpl implements ProductIngredientAdmin
                 .quantity(request.getQuantity())
                 .build();
 
-        productIngredientMapper.insert(binding);
+        if (productIngredientMapper.insert(binding) != 1) {
+            return fail(IngredientErrorCode.INVENTORY_UPDATE_FAILED);
+        }
         return ApiResponse.success();
     }
 

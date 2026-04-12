@@ -14,7 +14,8 @@ public enum MenuErrorCode {
     MENU_HAS_BOUND_STORES(35006, "菜单已绑定门店，无法删除"),
     STORE_ALREADY_HAS_MENU(35007, "该门店已绑定菜单"),
     STORE_MENU_BINDING_NOT_FOUND(35008, "门店菜单绑定关系不存在"),
-    STORE_MENU_NOT_BOUND(35009, "该门店未绑定菜单");
+    STORE_MENU_NOT_BOUND(35009, "该门店未绑定菜单"),
+    STORE_NOT_FOUND(35010, "门店不存在或无效");
 
     private final Integer code;
     private final String msg;

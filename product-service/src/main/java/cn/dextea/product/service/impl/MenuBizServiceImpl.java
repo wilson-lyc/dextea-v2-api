@@ -38,7 +38,7 @@ public class MenuBizServiceImpl implements MenuBizService {
     @Cacheable(
             cacheNames = CacheNames.MENU_BIZ,
             key = "'store:' + #request.storeId",
-            unless = "#result.code != 0"
+            unless = "!#result.success"
     )
     public ApiResponse<StoreMenuResponse> getStoreMenu(StoreMenuQueryRequest request) {
         StoreMenuBindingEntity rel = storeMenuRelMapper.selectOne(

@@ -11,8 +11,8 @@ import cn.dextea.product.entity.CustomizationItemEntity;
 import cn.dextea.product.entity.CustomizationOptionEntity;
 import cn.dextea.product.entity.ProductCustomizationItemBindingEntity;
 import cn.dextea.product.entity.ProductEntity;
-import cn.dextea.product.entity.StoreCustomizationOptionRelEntity;
-import cn.dextea.product.entity.StoreProductRelEntity;
+import cn.dextea.product.entity.StoreCustomizationOptionStatusEntity;
+import cn.dextea.product.entity.StoreProductStatusEntity;
 import cn.dextea.product.enums.CustomizationStatus;
 import cn.dextea.product.enums.ProductErrorCode;
 import cn.dextea.product.enums.ProductStatus;
@@ -28,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -50,7 +51,7 @@ public class ProductInternalServiceImpl implements ProductInternalService {
         List<Long> optionIds = request.getOptionIds();
 
         ProductEntity product = productMapper.selectById(productId);
-        if (product == null || product.getStatus() == ProductStatus.DISABLED.getValue()) {
+        if (product == null || Integer.valueOf(ProductStatus.DISABLED.getValue()).equals(product.getStatus())) {
             return fail(ProductErrorCode.PRODUCT_NOT_FOUND);
         }
 
@@ -64,13 +65,16 @@ public class ProductInternalServiceImpl implements ProductInternalService {
             return ApiResponse.success(response);
         }
 
+        // 对传入的 optionIds 去重，避免重复 ID 导致误报 CUSTOMIZATION_OPTION_NOT_FOUND
+        Set<Long> uniqueOptionIds = new HashSet<>(optionIds);
+
         // Fetch options and validate they belong to items bound to this product
         List<CustomizationOptionEntity> options = customizationOptionMapper.selectList(
                 new LambdaQueryWrapper<CustomizationOptionEntity>()
-                        .in(CustomizationOptionEntity::getId, optionIds)
+                        .in(CustomizationOptionEntity::getId, uniqueOptionIds)
                         .eq(CustomizationOptionEntity::getStatus, CustomizationStatus.ACTIVE.getValue()));
 
-        if (options.size() != optionIds.size()) {
+        if (options.size() != uniqueOptionIds.size()) {
             return fail(ProductErrorCode.CUSTOMIZATION_OPTION_NOT_FOUND);
         }
 
@@ -132,11 +136,11 @@ public class ProductInternalServiceImpl implements ProductInternalService {
 
         // Batch fetch store-level product availability
         Set<Long> storeOnSaleProductIds = storeProductRelMapper.selectList(
-                new LambdaQueryWrapper<StoreProductRelEntity>()
-                        .eq(StoreProductRelEntity::getStoreId, storeId)
-                        .in(StoreProductRelEntity::getProductId, productIds))
+                new LambdaQueryWrapper<StoreProductStatusEntity>()
+                        .eq(StoreProductStatusEntity::getStoreId, storeId)
+                        .in(StoreProductStatusEntity::getProductId, productIds))
                 .stream()
-                .map(StoreProductRelEntity::getProductId)
+                .map(StoreProductStatusEntity::getProductId)
                 .collect(Collectors.toSet());
 
         // Batch fetch all option statuses for all items in the request
@@ -158,11 +162,11 @@ public class ProductInternalServiceImpl implements ProductInternalService {
                     .collect(Collectors.toSet());
 
             storeOnSaleOptionIds = storeOptionRelMapper.selectList(
-                    new LambdaQueryWrapper<StoreCustomizationOptionRelEntity>()
-                            .eq(StoreCustomizationOptionRelEntity::getStoreId, storeId)
-                            .in(StoreCustomizationOptionRelEntity::getOptionId, allOptionIds))
+                    new LambdaQueryWrapper<StoreCustomizationOptionStatusEntity>()
+                            .eq(StoreCustomizationOptionStatusEntity::getStoreId, storeId)
+                            .in(StoreCustomizationOptionStatusEntity::getOptionId, allOptionIds))
                     .stream()
-                    .map(StoreCustomizationOptionRelEntity::getOptionId)
+                    .map(StoreCustomizationOptionStatusEntity::getOptionId)
                     .collect(Collectors.toSet());
         }
 
@@ -175,7 +179,7 @@ public class ProductInternalServiceImpl implements ProductInternalService {
             ProductEntity product = productById.get(productId);
 
             boolean productAvailable = product != null
-                    && product.getStatus() == ProductStatus.ENABLED.getValue()
+                    && Integer.valueOf(ProductStatus.ENABLED.getValue()).equals(product.getStatus())
                     && storeOnSaleProductIds.contains(productId);
 
             List<Long> unavailableOptionIds = List.of();

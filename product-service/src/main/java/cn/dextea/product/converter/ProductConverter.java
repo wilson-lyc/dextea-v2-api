@@ -30,7 +30,8 @@ public class ProductConverter {
                 .name(entity.getName())
                 .description(entity.getDescription())
                 .price(entity.getPrice())
-                .status(storeStatus)
+                .status(entity.getStatus())
+                .storeStatus(storeStatus)
                 .createTime(entity.getCreateTime())
                 .updateTime(entity.getUpdateTime())
                 .build();

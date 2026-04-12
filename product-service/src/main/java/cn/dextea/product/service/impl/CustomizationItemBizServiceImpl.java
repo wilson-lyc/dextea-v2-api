@@ -41,7 +41,7 @@ public class CustomizationItemBizServiceImpl implements CustomizationItemBizServ
     @Cacheable(
             cacheNames = CacheNames.CUSTOMIZATION_ITEM_BIZ,
             key = "'store:' + #request.storeId + ':p:' + #request.current + ':s:' + #request.size + ':n:' + (#request.name ?: '')",
-            unless = "#result.code != 0"
+            unless = "!#result.success"
     )
     public ApiResponse<IPage<CustomizationItemWithStoreStatusResponse>> page(
             CustomizationItemPageQueryWithStoreIdRequest request) {
@@ -50,7 +50,7 @@ public class CustomizationItemBizServiceImpl implements CustomizationItemBizServ
         LambdaQueryWrapper<CustomizationItemEntity> query = new LambdaQueryWrapper<CustomizationItemEntity>()
                 .eq(CustomizationItemEntity::getStatus, CustomizationStatus.ACTIVE.getValue())
                 .like(StringValueUtils.hasText(request.getName()), CustomizationItemEntity::getName,
-                        request.getName() == null ? "" : request.getName().trim())
+                        StringValueUtils.trim(request.getName()))
                 .orderByDesc(CustomizationItemEntity::getId);
 
         IPage<CustomizationItemEntity> itemPage = itemMapper.selectPage(

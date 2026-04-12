@@ -64,7 +64,9 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
                 .status(CustomizationStatus.ACTIVE.getValue())
                 .build();
 
-        optionMapper.insert(entity);
+        if (optionMapper.insert(entity) != 1) {
+            return fail(CustomizationErrorCode.OPTION_CREATE_FAILED);
+        }
 
         // New option is available under an item — invalidate options and product detail caches
         cacheEvictionService.evictCustomizationOptionsBizByItem(itemId);
@@ -116,7 +118,9 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
         entity.setIngredientId(request.getIngredientId());
         entity.setIngredientQuantity(request.getIngredientQuantity());
         entity.setStatus(request.getStatus());
-        optionMapper.updateById(entity);
+        if (optionMapper.updateById(entity) != 1) {
+            return fail(CustomizationErrorCode.OPTION_UPDATE_FAILED);
+        }
 
         cacheEvictionService.evictCustomizationOptionsBizByItem(entity.getItemId());
         cacheEvictionService.evictProductBizDetailAllClear();
@@ -133,7 +137,9 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
         }
 
         entity.setStatus(CustomizationStatus.DISABLED.getValue());
-        optionMapper.updateById(entity);
+        if (optionMapper.updateById(entity) != 1) {
+            return fail(CustomizationErrorCode.OPTION_DELETE_FAILED);
+        }
 
         cacheEvictionService.evictCustomizationOptionsBizByItem(entity.getItemId());
         cacheEvictionService.evictProductBizDetailAllClear();

@@ -123,6 +123,9 @@ public class InventoryAdminServiceImpl implements InventoryAdminService {
         }
 
         IngredientEntity ingredient = getActiveIngredient(ingredientId);
+        if (ingredient == null) {
+            return fail(InventoryErrorCode.INGREDIENT_NOT_FOUND);
+        }
         return ApiResponse.success(inventoryConverter.toInventoryDetailResponse(existing, ingredient));
     }
 
