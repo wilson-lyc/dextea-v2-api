@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mvn compile:*)",
+      "Bash(git checkout:*)",
+      "Bash(git push:*)",
+      "Bash(grep:*)",
+      "Bash(git -C /Users/wilson/Projects/dextea-v2/dextea-v2-api checkout 2.1-main)",
+      "Bash(git -C /Users/wilson/Projects/dextea-v2/dextea-v2-api checkout -b 2.1-cart)",
+      "Bash(git -C /Users/wilson/Projects/dextea-v2/dextea-v2-api branch)",
+      "Bash(xargs cat:*)",
+      "Bash(xargs ls:*)",
+      "Bash(sed -i '' -e 's/StoreProductStatus\\\\.ON_SALE/StoreProductStatus.ENABLED/g' -e 's/StoreProductStatus\\\\.SOLD_OUT/StoreProductStatus.DISABLED/g' /Users/wilson/Projects/dextea-v2/dextea-v2-api/product-service/src/main/java/cn/dextea/product/service/impl/ProductBizServiceImpl.java /Users/wilson/Projects/dextea-v2/dextea-v2-api/product-service/src/main/java/cn/dextea/product/enums/ProductSaleStatus.java)",
+      "Bash(sed -i '' -e 's/StoreCustomizationSaleStatus\\\\.ON_SALE/StoreCustomizationSaleStatus.ENABLED/g' -e 's/StoreCustomizationSaleStatus\\\\.SOLD_OUT/StoreCustomizationSaleStatus.DISABLED/g' /Users/wilson/Projects/dextea-v2/dextea-v2-api/product-service/src/main/java/cn/dextea/product/service/impl/CustomizationItemBizServiceImpl.java /Users/wilson/Projects/dextea-v2/dextea-v2-api/product-service/src/main/java/cn/dextea/product/service/impl/CustomizationOptionBizServiceImpl.java)"
+    ]
+  }
+}

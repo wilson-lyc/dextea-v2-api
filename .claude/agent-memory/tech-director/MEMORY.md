@@ -1,0 +1,1 @@
+- [Agent Team Design Decisions](project_agent_team_design.md) — rationale and boundaries for all 5 agents, finalized 2026-04-12
