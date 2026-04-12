@@ -1,9 +1,9 @@
 package cn.dextea.product.mapper;
 
-import cn.dextea.product.entity.StoreCustomizationItemRelEntity;
+import cn.dextea.product.entity.StoreCustomizationItemStatusEntity;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import org.apache.ibatis.annotations.Mapper;
 
 @Mapper
-public interface StoreCustomizationItemRelMapper extends BaseMapper<StoreCustomizationItemRelEntity> {
+public interface StoreCustomizationItemRelMapper extends BaseMapper<StoreCustomizationItemStatusEntity> {
 }

@@ -2,22 +2,25 @@ package cn.dextea.product.service.impl;
 
 import cn.dextea.common.util.StringValueUtils;
 import cn.dextea.common.web.response.ApiResponse;
+import cn.dextea.product.cache.CacheNames;
 import cn.dextea.product.converter.CustomizationConverter;
 import cn.dextea.product.dto.request.CustomizationItemPageQueryWithStoreIdRequest;
 import cn.dextea.product.dto.request.UpdateStoreCustomizationItemSaleRequest;
 import cn.dextea.product.dto.response.CustomizationItemWithStoreStatusResponse;
 import cn.dextea.product.entity.CustomizationItemEntity;
-import cn.dextea.product.entity.StoreCustomizationItemRelEntity;
+import cn.dextea.product.entity.StoreCustomizationItemStatusEntity;
 import cn.dextea.product.enums.CustomizationErrorCode;
 import cn.dextea.product.enums.CustomizationStatus;
 import cn.dextea.product.enums.StoreCustomizationSaleStatus;
 import cn.dextea.product.mapper.CustomizationItemMapper;
 import cn.dextea.product.mapper.StoreCustomizationItemRelMapper;
 import cn.dextea.product.service.CustomizationItemBizService;
+import cn.dextea.product.service.ProductCacheEvictionService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -32,8 +35,14 @@ public class CustomizationItemBizServiceImpl implements CustomizationItemBizServ
     private final CustomizationItemMapper itemMapper;
     private final StoreCustomizationItemRelMapper storeItemRelMapper;
     private final CustomizationConverter customizationConverter;
+    private final ProductCacheEvictionService cacheEvictionService;
 
     @Override
+    @Cacheable(
+            cacheNames = CacheNames.CUSTOMIZATION_ITEM_BIZ,
+            key = "'store:' + #request.storeId + ':p:' + #request.current + ':s:' + #request.size + ':n:' + (#request.name ?: '')",
+            unless = "#result.code != 0"
+    )
     public ApiResponse<IPage<CustomizationItemWithStoreStatusResponse>> page(
             CustomizationItemPageQueryWithStoreIdRequest request) {
         Long storeId = request.getStoreId();
@@ -51,22 +60,22 @@ public class CustomizationItemBizServiceImpl implements CustomizationItemBizServ
         if (items.isEmpty()) {
             return ApiResponse.success(itemPage.convert(
                     i -> customizationConverter.toItemWithStoreStatusResponse(
-                            i, StoreCustomizationSaleStatus.SOLD_OUT.getValue())));
+                            i, StoreCustomizationSaleStatus.DISABLED.getValue())));
         }
 
         List<Long> itemIds = items.stream().map(CustomizationItemEntity::getId).collect(Collectors.toList());
         Set<Long> onSaleItemIds = storeItemRelMapper.selectList(
-                new LambdaQueryWrapper<StoreCustomizationItemRelEntity>()
-                        .eq(StoreCustomizationItemRelEntity::getStoreId, storeId)
-                        .in(StoreCustomizationItemRelEntity::getItemId, itemIds))
+                new LambdaQueryWrapper<StoreCustomizationItemStatusEntity>()
+                        .eq(StoreCustomizationItemStatusEntity::getStoreId, storeId)
+                        .in(StoreCustomizationItemStatusEntity::getItemId, itemIds))
                 .stream()
-                .map(StoreCustomizationItemRelEntity::getItemId)
+                .map(StoreCustomizationItemStatusEntity::getItemId)
                 .collect(Collectors.toSet());
 
         return ApiResponse.success(itemPage.convert(entity -> {
             int storeStatus = onSaleItemIds.contains(entity.getId())
-                    ? StoreCustomizationSaleStatus.ON_SALE.getValue()
-                    : StoreCustomizationSaleStatus.SOLD_OUT.getValue();
+                    ? StoreCustomizationSaleStatus.ENABLED.getValue()
+                    : StoreCustomizationSaleStatus.DISABLED.getValue();
             return customizationConverter.toItemWithStoreStatusResponse(entity, storeStatus);
         }));
     }
@@ -82,14 +91,14 @@ public class CustomizationItemBizServiceImpl implements CustomizationItemBizServ
         }
 
         Long storeId = request.getStoreId();
-        LambdaQueryWrapper<StoreCustomizationItemRelEntity> relQuery =
-                new LambdaQueryWrapper<StoreCustomizationItemRelEntity>()
-                        .eq(StoreCustomizationItemRelEntity::getStoreId, storeId)
-                        .eq(StoreCustomizationItemRelEntity::getItemId, itemId);
+        LambdaQueryWrapper<StoreCustomizationItemStatusEntity> relQuery =
+                new LambdaQueryWrapper<StoreCustomizationItemStatusEntity>()
+                        .eq(StoreCustomizationItemStatusEntity::getStoreId, storeId)
+                        .eq(StoreCustomizationItemStatusEntity::getItemId, itemId);
 
         if (Boolean.TRUE.equals(request.getOnSale())) {
             if (!storeItemRelMapper.exists(relQuery)) {
-                StoreCustomizationItemRelEntity rel = StoreCustomizationItemRelEntity.builder()
+                StoreCustomizationItemStatusEntity rel = StoreCustomizationItemStatusEntity.builder()
                         .storeId(storeId)
                         .itemId(itemId)
                         .build();
@@ -100,6 +109,8 @@ public class CustomizationItemBizServiceImpl implements CustomizationItemBizServ
         } else {
             storeItemRelMapper.delete(relQuery);
         }
+
+        cacheEvictionService.evictCustomizationItemBizAll();
 
         return ApiResponse.success();
     }

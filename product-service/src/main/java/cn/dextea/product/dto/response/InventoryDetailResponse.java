@@ -14,13 +14,12 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class InventoryDetailResponse {
 
-    private Long id;
     private Long storeId;
     private Long ingredientId;
 
     private String ingredientName;
-    private Integer shelfLife;
-    private Integer shelfLifeUnit;
+    private Integer storageDuration;
+    private Integer storageDurationUnit;
     private Integer storageMethod;
 
     private BigDecimal quantity;

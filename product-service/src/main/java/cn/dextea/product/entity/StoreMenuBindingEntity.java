@@ -13,15 +13,12 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("store_customization_option_rel")
-public class StoreCustomizationOptionRelEntity {
+@TableName("store_menu_rel")
+public class StoreMenuBindingEntity {
 
-    @TableField("store_id")
     private Long storeId;
 
-    @TableField("option_id")
-    private Long optionId;
+    private Long menuId;
 
-    @TableField("create_time")
     private LocalDateTime createTime;
 }

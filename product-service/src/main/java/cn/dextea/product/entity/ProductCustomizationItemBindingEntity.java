@@ -21,15 +21,11 @@ public class ProductCustomizationItemBindingEntity {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @TableField("product_id")
     private Long productId;
 
-    @TableField("item_id")
     private Long itemId;
 
-    @TableField("sort_order")
     private Integer sortOrder;
 
-    @TableField("create_time")
     private LocalDateTime createTime;
 }

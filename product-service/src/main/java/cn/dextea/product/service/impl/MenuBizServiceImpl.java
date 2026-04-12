@@ -1,20 +1,22 @@
 package cn.dextea.product.service.impl;
 
 import cn.dextea.common.web.response.ApiResponse;
+import cn.dextea.product.cache.CacheNames;
 import cn.dextea.product.converter.MenuConverter;
 import cn.dextea.product.dto.request.StoreMenuQueryRequest;
 import cn.dextea.product.dto.response.StoreMenuResponse;
 import cn.dextea.product.entity.MenuEntity;
-import cn.dextea.product.entity.MenuGroupData;
 import cn.dextea.product.entity.ProductEntity;
-import cn.dextea.product.entity.StoreMenuRelEntity;
+import cn.dextea.product.entity.StoreMenuBindingEntity;
 import cn.dextea.product.enums.MenuErrorCode;
+import cn.dextea.product.enums.MenuStatus;
 import cn.dextea.product.mapper.MenuMapper;
 import cn.dextea.product.mapper.ProductMapper;
 import cn.dextea.product.mapper.StoreMenuRelMapper;
 import cn.dextea.product.service.MenuBizService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
@@ -33,16 +35,21 @@ public class MenuBizServiceImpl implements MenuBizService {
     private final MenuConverter menuConverter;
 
     @Override
+    @Cacheable(
+            cacheNames = CacheNames.MENU_BIZ,
+            key = "'store:' + #request.storeId",
+            unless = "#result.code != 0"
+    )
     public ApiResponse<StoreMenuResponse> getStoreMenu(StoreMenuQueryRequest request) {
-        StoreMenuRelEntity rel = storeMenuRelMapper.selectOne(
-                new LambdaQueryWrapper<StoreMenuRelEntity>()
-                        .eq(StoreMenuRelEntity::getStoreId, request.getStoreId()));
+        StoreMenuBindingEntity rel = storeMenuRelMapper.selectOne(
+                new LambdaQueryWrapper<StoreMenuBindingEntity>()
+                        .eq(StoreMenuBindingEntity::getStoreId, request.getStoreId()));
         if (rel == null) {
             return fail(MenuErrorCode.STORE_MENU_NOT_BOUND);
         }
 
         MenuEntity menu = menuMapper.selectById(rel.getMenuId());
-        if (menu == null) {
+        if (menu == null || MenuStatus.DISABLED.getValue().equals(menu.getStatus())) {
             return fail(MenuErrorCode.MENU_NOT_FOUND);
         }
 

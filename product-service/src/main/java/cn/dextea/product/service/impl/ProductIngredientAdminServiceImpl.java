@@ -6,7 +6,7 @@ import cn.dextea.product.dto.request.BindProductIngredientRequest;
 import cn.dextea.product.dto.response.ProductIngredientDetailResponse;
 import cn.dextea.product.entity.IngredientEntity;
 import cn.dextea.product.entity.ProductEntity;
-import cn.dextea.product.entity.ProductIngredientEntity;
+import cn.dextea.product.entity.ProductIngredientBindingEntity;
 import cn.dextea.product.enums.IngredientErrorCode;
 import cn.dextea.product.enums.IngredientStatus;
 import cn.dextea.product.enums.ProductErrorCode;
@@ -50,7 +50,7 @@ public class ProductIngredientAdminServiceImpl implements ProductIngredientAdmin
             return fail(IngredientErrorCode.INGREDIENT_ALREADY_BOUND);
         }
 
-        ProductIngredientEntity binding = ProductIngredientEntity.builder()
+        ProductIngredientBindingEntity binding = ProductIngredientBindingEntity.builder()
                 .productId(productId)
                 .ingredientId(request.getIngredientId())
                 .quantity(request.getQuantity())
@@ -68,9 +68,9 @@ public class ProductIngredientAdminServiceImpl implements ProductIngredientAdmin
             return fail(ProductErrorCode.PRODUCT_NOT_FOUND);
         }
 
-        LambdaQueryWrapper<ProductIngredientEntity> queryWrapper = new LambdaQueryWrapper<ProductIngredientEntity>()
-                .eq(ProductIngredientEntity::getProductId, productId)
-                .eq(ProductIngredientEntity::getIngredientId, ingredientId);
+        LambdaQueryWrapper<ProductIngredientBindingEntity> queryWrapper = new LambdaQueryWrapper<ProductIngredientBindingEntity>()
+                .eq(ProductIngredientBindingEntity::getProductId, productId)
+                .eq(ProductIngredientBindingEntity::getIngredientId, ingredientId);
 
         if (!productIngredientMapper.exists(queryWrapper)) {
             return fail(IngredientErrorCode.INGREDIENT_NOT_BOUND);
@@ -87,17 +87,17 @@ public class ProductIngredientAdminServiceImpl implements ProductIngredientAdmin
             return fail(ProductErrorCode.PRODUCT_NOT_FOUND);
         }
 
-        List<ProductIngredientEntity> bindings = productIngredientMapper.selectList(
-                new LambdaQueryWrapper<ProductIngredientEntity>()
-                        .eq(ProductIngredientEntity::getProductId, productId)
-                        .orderByAsc(ProductIngredientEntity::getCreateTime));
+        List<ProductIngredientBindingEntity> bindings = productIngredientMapper.selectList(
+                new LambdaQueryWrapper<ProductIngredientBindingEntity>()
+                        .eq(ProductIngredientBindingEntity::getProductId, productId)
+                        .orderByAsc(ProductIngredientBindingEntity::getCreateTime));
 
         if (bindings.isEmpty()) {
             return ApiResponse.success(List.of());
         }
 
         List<Long> ingredientIds = bindings.stream()
-                .map(ProductIngredientEntity::getIngredientId)
+                .map(ProductIngredientBindingEntity::getIngredientId)
                 .collect(Collectors.toList());
 
         Map<Long, IngredientEntity> ingredientMap = ingredientMapper.selectBatchIds(ingredientIds)
@@ -123,9 +123,9 @@ public class ProductIngredientAdminServiceImpl implements ProductIngredientAdmin
     }
 
     private boolean bindingExists(Long productId, Long ingredientId) {
-        LambdaQueryWrapper<ProductIngredientEntity> queryWrapper = new LambdaQueryWrapper<ProductIngredientEntity>()
-                .eq(ProductIngredientEntity::getProductId, productId)
-                .eq(ProductIngredientEntity::getIngredientId, ingredientId);
+        LambdaQueryWrapper<ProductIngredientBindingEntity> queryWrapper = new LambdaQueryWrapper<ProductIngredientBindingEntity>()
+                .eq(ProductIngredientBindingEntity::getProductId, productId)
+                .eq(ProductIngredientBindingEntity::getIngredientId, ingredientId);
         return productIngredientMapper.exists(queryWrapper);
     }
 

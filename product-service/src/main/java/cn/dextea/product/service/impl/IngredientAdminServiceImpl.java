@@ -39,8 +39,8 @@ public class IngredientAdminServiceImpl implements IngredientAdminService {
         IngredientEntity entity = IngredientEntity.builder()
                 .name(name)
                 .unit(request.getUnit().trim())
-                .shelfLife(request.getShelfLife())
-                .shelfLifeUnit(request.getShelfLifeUnit())
+                .storageDuration(request.getStorageDuration())
+                .storageDurationUnit(request.getStorageDurationUnit())
                 .storageMethod(request.getStorageMethod())
                 .preparedExpiry(request.getPreparedExpiry())
                 .preparedExpiryUnit(request.getPreparedExpiryUnit())
@@ -91,8 +91,8 @@ public class IngredientAdminServiceImpl implements IngredientAdminService {
 
         entity.setName(name);
         entity.setUnit(request.getUnit().trim());
-        entity.setShelfLife(request.getShelfLife());
-        entity.setShelfLifeUnit(request.getShelfLifeUnit());
+        entity.setStorageDuration(request.getStorageDuration());
+        entity.setStorageDurationUnit(request.getStorageDurationUnit());
         entity.setStorageMethod(request.getStorageMethod());
         entity.setPreparedExpiry(request.getPreparedExpiry());
         entity.setPreparedExpiryUnit(request.getPreparedExpiryUnit());

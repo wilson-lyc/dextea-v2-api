@@ -15,6 +15,7 @@ import cn.dextea.product.enums.CustomizationStatus;
 import cn.dextea.product.mapper.CustomizationItemMapper;
 import cn.dextea.product.mapper.CustomizationOptionMapper;
 import cn.dextea.product.service.CustomizationItemAdminService;
+import cn.dextea.product.service.ProductCacheEvictionService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -33,6 +34,7 @@ public class CustomizationItemAdminServiceImpl implements CustomizationItemAdmin
     private final CustomizationItemMapper itemMapper;
     private final CustomizationOptionMapper optionMapper;
     private final CustomizationConverter customizationConverter;
+    private final ProductCacheEvictionService cacheEvictionService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -114,6 +116,12 @@ public class CustomizationItemAdminServiceImpl implements CustomizationItemAdmin
                 .map(customizationConverter::toOptionDetailResponse)
                 .collect(Collectors.toList());
 
+        // Customization item data changed — invalidate all biz caches that embed it
+        cacheEvictionService.evictCustomizationItemBizAll();
+        cacheEvictionService.evictCustomizationOptionsBizByItem(id);
+        // Product detail caches embed customization items — affected productIds unknown, clear all
+        cacheEvictionService.evictProductBizDetailAllClear();
+
         return ApiResponse.success(customizationConverter.toItemDetailResponse(entity, optionResponses));
     }
 
@@ -125,7 +133,6 @@ public class CustomizationItemAdminServiceImpl implements CustomizationItemAdmin
             return fail(CustomizationErrorCode.ITEM_NOT_FOUND);
         }
 
-        // Soft-delete all active options under this item
         optionMapper.update(new LambdaUpdateWrapper<CustomizationOptionEntity>()
                 .eq(CustomizationOptionEntity::getItemId, id)
                 .ne(CustomizationOptionEntity::getStatus, CustomizationStatus.DISABLED.getValue())
@@ -133,6 +140,11 @@ public class CustomizationItemAdminServiceImpl implements CustomizationItemAdmin
 
         entity.setStatus(CustomizationStatus.DISABLED.getValue());
         itemMapper.updateById(entity);
+
+        cacheEvictionService.evictCustomizationItemBizAll();
+        cacheEvictionService.evictCustomizationOptionsBizByItem(id);
+        cacheEvictionService.evictProductBizDetailAllClear();
+
         return ApiResponse.success();
     }
 

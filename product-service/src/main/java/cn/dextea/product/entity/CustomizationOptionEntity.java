@@ -22,24 +22,19 @@ public class CustomizationOptionEntity {
     @TableId(value = "id", type = IdType.AUTO)
     private Long id;
 
-    @TableField("item_id")
     private Long itemId;
 
     private String name;
 
     private BigDecimal price;
 
-    @TableField("ingredient_id")
     private Long ingredientId;
 
-    @TableField("ingredient_quantity")
     private BigDecimal ingredientQuantity;
 
     private Integer status;
 
-    @TableField("create_time")
     private LocalDateTime createTime;
 
-    @TableField("update_time")
     private LocalDateTime updateTime;
 }

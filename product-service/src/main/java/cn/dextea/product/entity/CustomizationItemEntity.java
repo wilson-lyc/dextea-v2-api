@@ -27,9 +27,7 @@ public class CustomizationItemEntity {
 
     private Integer status;
 
-    @TableField("create_time")
     private LocalDateTime createTime;
 
-    @TableField("update_time")
     private LocalDateTime updateTime;
 }

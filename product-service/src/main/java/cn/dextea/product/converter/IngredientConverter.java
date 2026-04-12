@@ -4,7 +4,7 @@ import cn.dextea.product.dto.response.CreateIngredientResponse;
 import cn.dextea.product.dto.response.IngredientDetailResponse;
 import cn.dextea.product.dto.response.ProductIngredientDetailResponse;
 import cn.dextea.product.entity.IngredientEntity;
-import cn.dextea.product.entity.ProductIngredientEntity;
+import cn.dextea.product.entity.ProductIngredientBindingEntity;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -15,8 +15,8 @@ public class IngredientConverter {
                 .id(entity.getId())
                 .name(entity.getName())
                 .unit(entity.getUnit())
-                .shelfLife(entity.getShelfLife())
-                .shelfLifeUnit(entity.getShelfLifeUnit())
+                .storageDuration(entity.getStorageDuration())
+                .storageDurationUnit(entity.getStorageDurationUnit())
                 .storageMethod(entity.getStorageMethod())
                 .preparedExpiry(entity.getPreparedExpiry())
                 .preparedExpiryUnit(entity.getPreparedExpiryUnit())
@@ -30,8 +30,8 @@ public class IngredientConverter {
                 .id(entity.getId())
                 .name(entity.getName())
                 .unit(entity.getUnit())
-                .shelfLife(entity.getShelfLife())
-                .shelfLifeUnit(entity.getShelfLifeUnit())
+                .storageDuration(entity.getStorageDuration())
+                .storageDurationUnit(entity.getStorageDurationUnit())
                 .storageMethod(entity.getStorageMethod())
                 .preparedExpiry(entity.getPreparedExpiry())
                 .preparedExpiryUnit(entity.getPreparedExpiryUnit())
@@ -42,13 +42,13 @@ public class IngredientConverter {
     }
 
     public ProductIngredientDetailResponse toProductIngredientDetailResponse(
-            ProductIngredientEntity binding, IngredientEntity ingredient) {
+            ProductIngredientBindingEntity binding, IngredientEntity ingredient) {
         return ProductIngredientDetailResponse.builder()
                 .ingredientId(ingredient.getId())
                 .ingredientName(ingredient.getName())
                 .unit(ingredient.getUnit())
-                .shelfLife(ingredient.getShelfLife())
-                .shelfLifeUnit(ingredient.getShelfLifeUnit())
+                .storageDuration(ingredient.getStorageDuration())
+                .storageDurationUnit(ingredient.getStorageDurationUnit())
                 .storageMethod(ingredient.getStorageMethod())
                 .quantity(binding.getQuantity())
                 .createTime(binding.getCreateTime())

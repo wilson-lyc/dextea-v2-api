@@ -25,26 +25,19 @@ public class IngredientEntity {
 
     private String unit;
 
-    @TableField("shelf_life")
-    private Integer shelfLife;
+    private Integer storageDuration;
 
-    @TableField("shelf_life_unit")
-    private Integer shelfLifeUnit;
+    private Integer storageDurationUnit;
 
-    @TableField("storage_method")
     private Integer storageMethod;
 
-    @TableField("prepared_expiry")
     private Integer preparedExpiry;
 
-    @TableField("prepared_expiry_unit")
     private Integer preparedExpiryUnit;
 
     private Integer status;
 
-    @TableField("create_time")
     private LocalDateTime createTime;
 
-    @TableField("update_time")
     private LocalDateTime updateTime;
 }

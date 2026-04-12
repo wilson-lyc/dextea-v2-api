@@ -17,8 +17,8 @@ public class StoreIngredientInventoryResponse {
     private Long ingredientId;
     private String ingredientName;
     private String unit;
-    private Integer shelfLife;
-    private Integer shelfLifeUnit;
+    private Integer storageDuration;
+    private Integer storageDurationUnit;
     private Integer storageMethod;
     private Integer preparedExpiry;
     private Integer preparedExpiryUnit;
