@@ -4,7 +4,7 @@ import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.converter.CustomizationConverter;
 import cn.dextea.product.dto.request.CustomizationOptionListWithStoreIdRequest;
 import cn.dextea.product.dto.request.UpdateStoreCustomizationOptionStatusRequest;
-import cn.dextea.product.dto.response.CustomizationOptionWithStoreStatusResponse;
+import cn.dextea.product.dto.response.CustomizationOptionDetailResponse;
 import cn.dextea.product.entity.CustomizationOptionEntity;
 import cn.dextea.product.entity.StoreCustomizationOptionStatusEntity;
 import cn.dextea.product.enums.CustomizationErrorCode;
@@ -37,7 +37,7 @@ public class CustomizationOptionBizServiceImpl implements CustomizationOptionBiz
     private final CustomizationOptionStoreStatusSyncSupport customizationOptionStoreStatusSyncSupport;
 
     @Override
-    public ApiResponse<List<CustomizationOptionWithStoreStatusResponse>> listOptions(Long itemId,
+    public ApiResponse<List<CustomizationOptionDetailResponse>> listOptions(Long itemId,
             CustomizationOptionListWithStoreIdRequest request) {
         if (itemMapper.selectById(itemId) == null) {
             return fail(CustomizationErrorCode.ITEM_NOT_FOUND);
@@ -60,7 +60,7 @@ public class CustomizationOptionBizServiceImpl implements CustomizationOptionBiz
     /**
      * 按指定门店状态筛选
      */
-    private ApiResponse<List<CustomizationOptionWithStoreStatusResponse>> listOptionsFilteredByStoreStatus(
+    private ApiResponse<List<CustomizationOptionDetailResponse>> listOptionsFilteredByStoreStatus(
             Long storeId, Integer requestedStatus,
             LambdaQueryWrapper<CustomizationOptionEntity> optionQuery) {
         if (Objects.equals(StoreCustomizationStatus.DISABLED.getValue(), requestedStatus)) {
@@ -97,7 +97,7 @@ public class CustomizationOptionBizServiceImpl implements CustomizationOptionBiz
     /**
      * 不按门店状态筛选
      */
-    private ApiResponse<List<CustomizationOptionWithStoreStatusResponse>> listOptionsDirectly(
+    private ApiResponse<List<CustomizationOptionDetailResponse>> listOptionsDirectly(
             Long storeId, LambdaQueryWrapper<CustomizationOptionEntity> optionQuery) {
         List<CustomizationOptionEntity> options = optionMapper.selectList(optionQuery);
         return ApiResponse.success(fillOptionStoreStatuses(storeId, options));
@@ -106,7 +106,7 @@ public class CustomizationOptionBizServiceImpl implements CustomizationOptionBiz
     /**
      * 填入门店状态
      */
-    private List<CustomizationOptionWithStoreStatusResponse> fillOptionStoreStatuses(
+    private List<CustomizationOptionDetailResponse> fillOptionStoreStatuses(
             Long storeId, List<CustomizationOptionEntity> options) {
         if (options.isEmpty()) {
             return List.of();
@@ -115,7 +115,7 @@ public class CustomizationOptionBizServiceImpl implements CustomizationOptionBiz
         return options.stream()
                 .map(entity -> {
                     int storeStatus = optionStatusMap.getOrDefault(entity.getId(), StoreCustomizationStatus.DISABLED.getValue());
-                    return customizationConverter.toOptionWithStoreStatusResponse(entity, storeStatus);
+                    return customizationConverter.toOptionDetailResponse(entity, storeStatus);
                 })
                 .collect(Collectors.toList());
     }

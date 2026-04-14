@@ -4,7 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.dto.request.CustomizationOptionListWithStoreIdRequest;
 import cn.dextea.product.dto.request.UpdateStoreCustomizationOptionStatusRequest;
-import cn.dextea.product.dto.response.CustomizationOptionWithStoreStatusResponse;
+import cn.dextea.product.dto.response.CustomizationOptionDetailResponse;
 import cn.dextea.product.service.CustomizationOptionBizService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -34,7 +34,7 @@ public class CustomizationOptionBizController {
      */
     @Operation(summary = "查询客制化项目下的选项列表（门店端）", description = "仅返回全局激活的选项，并附带该选项在当前门店的在售状态")
     @GetMapping("/v1/biz/customization-items/{itemId}/options")
-    public ApiResponse<List<CustomizationOptionWithStoreStatusResponse>> listOptions(
+    public ApiResponse<List<CustomizationOptionDetailResponse>> listOptions(
             @Parameter(description = "客制化项目ID") @PathVariable("itemId") @Min(value = 1, message = "客制化项目ID不合法") Long itemId,
             @Valid CustomizationOptionListWithStoreIdRequest request) {
         return customizationOptionBizService.listOptions(itemId, request);

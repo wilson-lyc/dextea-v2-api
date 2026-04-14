@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
-@Tag(name = "客制化选项管理（Admin）", description = "管理端客制化选项 CRUD 接口，如「去冰」「全糖」等")
+@Tag(name = "客制化选项管理接口", description = "适用于公司端")
 @RestController
 @RequiredArgsConstructor
 @SaCheckLogin
@@ -36,10 +36,10 @@ public class CustomizationOptionAdminController {
      */
     @Operation(summary = "创建客制化选项")
     @PostMapping("/v1/admin/customization-items/{itemId}/options")
-    public ApiResponse<CreateCustomizationOptionResponse> createOption(
+    public ApiResponse<CreateCustomizationOptionResponse> create(
             @Parameter(description = "客制化项目ID") @PathVariable("itemId") @Min(value = 1, message = "客制化项目ID不合法") Long itemId,
             @Valid @RequestBody CreateCustomizationOptionRequest request) {
-        return customizationOptionAdminService.createOption(itemId, request);
+        return customizationOptionAdminService.create(itemId, request);
     }
 
     /**

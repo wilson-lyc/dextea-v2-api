@@ -9,18 +9,10 @@ import org.springframework.stereotype.Component;
 public class ProductConverter {
 
     public ProductDetailResponse toProductDetailResponse(ProductEntity entity) {
-        return ProductDetailResponse.builder()
-                .id(entity.getId())
-                .name(entity.getName())
-                .description(entity.getDescription())
-                .price(entity.getPrice())
-                .globalStatus(entity.getStatus())
-                .createTime(entity.getCreateTime())
-                .updateTime(entity.getUpdateTime())
-                .build();
+        return toProductDetailResponse(entity,null);
     }
 
-    public ProductDetailResponse toProductDetailResponse(ProductEntity entity, int status) {
+    public ProductDetailResponse toProductDetailResponse(ProductEntity entity, Integer status) {
         return ProductDetailResponse.builder()
                 .id(entity.getId())
                 .name(entity.getName())

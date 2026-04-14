@@ -11,7 +11,7 @@ import java.util.List;
 
 public interface CustomizationOptionAdminService {
 
-    ApiResponse<CreateCustomizationOptionResponse> createOption(Long itemId, CreateCustomizationOptionRequest request);
+    ApiResponse<CreateCustomizationOptionResponse> create(Long itemId, CreateCustomizationOptionRequest request);
 
     ApiResponse<List<CustomizationOptionDetailResponse>> listOptions(Long itemId);
 

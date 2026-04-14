@@ -20,7 +20,8 @@ public class CustomizationOptionDetailResponse {
     private BigDecimal price;
     private Long ingredientId;
     private BigDecimal ingredientQuantity;
-    private Integer status;
+    private Integer globalStatus;
+    private Integer storeStatus;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

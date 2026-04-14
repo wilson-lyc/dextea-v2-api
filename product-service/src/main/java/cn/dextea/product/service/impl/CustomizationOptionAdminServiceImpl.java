@@ -36,9 +36,9 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<CreateCustomizationOptionResponse> createOption(Long itemId,
-            CreateCustomizationOptionRequest request) {
-        CustomizationItemEntity item = getActiveItemById(itemId);
+    public ApiResponse<CreateCustomizationOptionResponse> create(Long itemId,
+                                                                 CreateCustomizationOptionRequest request) {
+        CustomizationItemEntity item = getItemById(itemId);
         if (item == null) {
             return fail(CustomizationErrorCode.ITEM_NOT_FOUND);
         }
@@ -60,7 +60,7 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
                 .price(request.getPrice())
                 .ingredientId(request.getIngredientId())
                 .ingredientQuantity(request.getIngredientQuantity())
-                .status(CustomizationStatus.ACTIVE.getValue())
+                .status(CustomizationStatus.DISABLED.getValue())
                 .build();
 
         if (optionMapper.insert(entity) != 1) {
@@ -152,6 +152,10 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
     }
 
     // ---- Helpers ----
+
+    private CustomizationItemEntity getItemById(Long itemId) {
+        return itemMapper.selectById(itemId);
+    }
 
     private CustomizationItemEntity getActiveItemById(Long itemId) {
         return itemMapper.selectOne(new LambdaQueryWrapper<CustomizationItemEntity>()
