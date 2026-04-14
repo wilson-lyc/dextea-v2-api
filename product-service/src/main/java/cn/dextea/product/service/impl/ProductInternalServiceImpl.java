@@ -12,17 +12,17 @@ import cn.dextea.product.entity.CustomizationOptionEntity;
 import cn.dextea.product.entity.ProductCustomizationItemBindingEntity;
 import cn.dextea.product.entity.ProductEntity;
 import cn.dextea.product.entity.StoreCustomizationOptionStatusEntity;
-import cn.dextea.product.entity.StoreProductStatusEntity;
 import cn.dextea.product.enums.CustomizationStatus;
 import cn.dextea.product.enums.ProductErrorCode;
 import cn.dextea.product.enums.ProductStatus;
+import cn.dextea.product.enums.StoreCustomizationStatus;
 import cn.dextea.product.mapper.CustomizationItemMapper;
 import cn.dextea.product.mapper.CustomizationOptionMapper;
 import cn.dextea.product.mapper.ProductCustomizationItemBindingMapper;
 import cn.dextea.product.mapper.ProductMapper;
 import cn.dextea.product.mapper.StoreCustomizationOptionRelMapper;
-import cn.dextea.product.mapper.StoreProductRelMapper;
 import cn.dextea.product.service.ProductInternalService;
+import cn.dextea.product.service.support.ProductStoreStatusSyncSupport;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -42,8 +42,8 @@ public class ProductInternalServiceImpl implements ProductInternalService {
     private final CustomizationItemMapper customizationItemMapper;
     private final CustomizationOptionMapper customizationOptionMapper;
     private final ProductCustomizationItemBindingMapper bindingMapper;
-    private final StoreProductRelMapper storeProductRelMapper;
     private final StoreCustomizationOptionRelMapper storeOptionRelMapper;
+    private final ProductStoreStatusSyncSupport productStoreStatusSyncSupport;
 
     @Override
     public ApiResponse<CartSnapshotResponse> getCartSnapshot(CartSnapshotRequest request) {
@@ -134,14 +134,9 @@ public class ProductInternalServiceImpl implements ProductInternalService {
                 .stream()
                 .collect(Collectors.toMap(ProductEntity::getId, p -> p));
 
-        // Batch fetch store-level product availability
-        Set<Long> storeOnSaleProductIds = storeProductRelMapper.selectList(
-                new LambdaQueryWrapper<StoreProductStatusEntity>()
-                        .eq(StoreProductStatusEntity::getStoreId, storeId)
-                        .in(StoreProductStatusEntity::getProductId, productIds))
-                .stream()
-                .map(StoreProductStatusEntity::getProductId)
-                .collect(Collectors.toSet());
+        Set<Long> storeOnSaleProductIds = productStoreStatusSyncSupport.buildEffectiveEnabledProductIds(
+                storeId,
+                new ArrayList<>(productById.values()));
 
         // Batch fetch all option statuses for all items in the request
         List<Long> allOptionIds = items.stream()
@@ -164,7 +159,8 @@ public class ProductInternalServiceImpl implements ProductInternalService {
             storeOnSaleOptionIds = storeOptionRelMapper.selectList(
                     new LambdaQueryWrapper<StoreCustomizationOptionStatusEntity>()
                             .eq(StoreCustomizationOptionStatusEntity::getStoreId, storeId)
-                            .in(StoreCustomizationOptionStatusEntity::getOptionId, allOptionIds))
+                            .in(StoreCustomizationOptionStatusEntity::getOptionId, allOptionIds)
+                            .eq(StoreCustomizationOptionStatusEntity::getStatus, StoreCustomizationStatus.ENABLED.getValue()))
                     .stream()
                     .map(StoreCustomizationOptionStatusEntity::getOptionId)
                     .collect(Collectors.toSet());

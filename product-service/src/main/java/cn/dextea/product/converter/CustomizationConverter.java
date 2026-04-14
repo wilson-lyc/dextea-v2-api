@@ -4,7 +4,6 @@ import cn.dextea.product.dto.response.CreateCustomizationItemResponse;
 import cn.dextea.product.dto.response.CreateCustomizationOptionResponse;
 import cn.dextea.product.dto.response.CustomizationItemBizDetailResponse;
 import cn.dextea.product.dto.response.CustomizationItemDetailResponse;
-import cn.dextea.product.dto.response.CustomizationItemWithStoreStatusResponse;
 import cn.dextea.product.dto.response.CustomizationOptionBizDetailResponse;
 import cn.dextea.product.dto.response.CustomizationOptionDetailResponse;
 import cn.dextea.product.dto.response.CustomizationOptionWithStoreStatusResponse;
@@ -27,29 +26,23 @@ public class CustomizationConverter {
                 .build();
     }
 
-    public CustomizationItemDetailResponse toItemDetailResponse(CustomizationItemEntity entity,
-            List<CustomizationOptionDetailResponse> options) {
+    public CustomizationItemDetailResponse toItemDetailResponse(CustomizationItemEntity entity) {
         return CustomizationItemDetailResponse.builder()
                 .id(entity.getId())
                 .name(entity.getName())
                 .description(entity.getDescription())
-                .status(entity.getStatus())
+                .globalStatus(entity.getStatus())
                 .createTime(entity.getCreateTime())
                 .updateTime(entity.getUpdateTime())
-                .options(options)
                 .build();
     }
 
-    public CustomizationItemDetailResponse toItemDetailResponse(CustomizationItemEntity entity) {
-        return toItemDetailResponse(entity, null);
-    }
-
-    public CustomizationItemWithStoreStatusResponse toItemWithStoreStatusResponse(CustomizationItemEntity entity,
-            int storeStatus) {
-        return CustomizationItemWithStoreStatusResponse.builder()
+    public CustomizationItemDetailResponse toItemDetailResponse(CustomizationItemEntity entity, int storeStatus) {
+        return CustomizationItemDetailResponse.builder()
                 .id(entity.getId())
                 .name(entity.getName())
                 .description(entity.getDescription())
+                .globalStatus(entity.getStatus())
                 .storeStatus(storeStatus)
                 .createTime(entity.getCreateTime())
                 .updateTime(entity.getUpdateTime())
@@ -114,6 +107,7 @@ public class CustomizationConverter {
                 .price(entity.getPrice())
                 .ingredientId(entity.getIngredientId())
                 .ingredientQuantity(entity.getIngredientQuantity())
+                .globalStatus(entity.getStatus())
                 .storeStatus(storeStatus)
                 .createTime(entity.getCreateTime())
                 .updateTime(entity.getUpdateTime())

@@ -1,7 +1,6 @@
 package cn.dextea.product.service.impl;
 
 import cn.dextea.common.web.response.ApiResponse;
-import cn.dextea.product.cache.CacheNames;
 import cn.dextea.product.converter.MenuConverter;
 import cn.dextea.product.dto.request.StoreMenuQueryRequest;
 import cn.dextea.product.dto.response.StoreMenuResponse;
@@ -14,15 +13,16 @@ import cn.dextea.product.mapper.MenuMapper;
 import cn.dextea.product.mapper.ProductMapper;
 import cn.dextea.product.mapper.StoreMenuRelMapper;
 import cn.dextea.product.service.MenuBizService;
+import cn.dextea.product.service.support.ProductStoreStatusSyncSupport;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,13 +33,9 @@ public class MenuBizServiceImpl implements MenuBizService {
     private final MenuMapper menuMapper;
     private final ProductMapper productMapper;
     private final MenuConverter menuConverter;
+    private final ProductStoreStatusSyncSupport productStoreStatusSyncSupport;
 
     @Override
-    @Cacheable(
-            cacheNames = CacheNames.MENU_BIZ,
-            key = "'store:' + #request.storeId",
-            unless = "!#result.success"
-    )
     public ApiResponse<StoreMenuResponse> getStoreMenu(StoreMenuQueryRequest request) {
         StoreMenuBindingEntity rel = storeMenuRelMapper.selectOne(
                 new LambdaQueryWrapper<StoreMenuBindingEntity>()
@@ -53,11 +49,11 @@ public class MenuBizServiceImpl implements MenuBizService {
             return fail(MenuErrorCode.MENU_NOT_FOUND);
         }
 
-        Map<Long, ProductEntity> productMap = loadProductMap(menu);
+        Map<Long, ProductEntity> productMap = loadProductMap(menu, request.getStoreId());
         return ApiResponse.success(menuConverter.toStoreMenuResponse(menu, productMap));
     }
 
-    private Map<Long, ProductEntity> loadProductMap(MenuEntity menu) {
+    private Map<Long, ProductEntity> loadProductMap(MenuEntity menu, Long storeId) {
         if (CollectionUtils.isEmpty(menu.getGroups())) {
             return Collections.emptyMap();
         }
@@ -69,7 +65,11 @@ public class MenuBizServiceImpl implements MenuBizService {
         if (productIds.isEmpty()) {
             return Collections.emptyMap();
         }
-        return productMapper.selectBatchIds(productIds).stream()
+        List<ProductEntity> products = productMapper.selectBatchIds(productIds).stream()
+                .toList();
+        Set<Long> enabledProductIds = productStoreStatusSyncSupport.buildEffectiveEnabledProductIds(storeId, products);
+        return products.stream()
+                .filter(product -> enabledProductIds.contains(product.getId()))
                 .collect(Collectors.toMap(ProductEntity::getId, p -> p));
     }
 

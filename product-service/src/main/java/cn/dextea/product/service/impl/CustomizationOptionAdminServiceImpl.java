@@ -3,7 +3,8 @@ package cn.dextea.product.service.impl;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.converter.CustomizationConverter;
 import cn.dextea.product.dto.request.CreateCustomizationOptionRequest;
-import cn.dextea.product.dto.request.UpdateCustomizationOptionRequest;
+import cn.dextea.product.dto.request.UpdateCustomizationOptionGlobalStatusRequest;
+import cn.dextea.product.dto.request.UpdateCustomizationOptionInfoRequest;
 import cn.dextea.product.dto.response.CreateCustomizationOptionResponse;
 import cn.dextea.product.dto.response.CustomizationOptionDetailResponse;
 import cn.dextea.product.entity.CustomizationItemEntity;
@@ -16,7 +17,6 @@ import cn.dextea.product.mapper.CustomizationItemMapper;
 import cn.dextea.product.mapper.CustomizationOptionMapper;
 import cn.dextea.product.mapper.IngredientMapper;
 import cn.dextea.product.service.CustomizationOptionAdminService;
-import cn.dextea.product.service.ProductCacheEvictionService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,7 +33,6 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
     private final CustomizationOptionMapper optionMapper;
     private final IngredientMapper ingredientMapper;
     private final CustomizationConverter customizationConverter;
-    private final ProductCacheEvictionService cacheEvictionService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -68,10 +67,6 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
             return fail(CustomizationErrorCode.OPTION_CREATE_FAILED);
         }
 
-        // New option is available under an item — invalidate options and product detail caches
-        cacheEvictionService.evictCustomizationOptionsBizByItem(itemId);
-        cacheEvictionService.evictProductBizDetailAllClear();
-
         return ApiResponse.success(customizationConverter.toCreateOptionResponse(entity));
     }
 
@@ -95,8 +90,8 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<CustomizationOptionDetailResponse> updateOption(Long id,
-            UpdateCustomizationOptionRequest request) {
+    public ApiResponse<CustomizationOptionDetailResponse> updateOptionInfo(Long id,
+            UpdateCustomizationOptionInfoRequest request) {
         CustomizationOptionEntity entity = getActiveOptionById(id);
         if (entity == null) {
             return fail(CustomizationErrorCode.OPTION_NOT_FOUND);
@@ -117,15 +112,27 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
         entity.setPrice(request.getPrice());
         entity.setIngredientId(request.getIngredientId());
         entity.setIngredientQuantity(request.getIngredientQuantity());
+        if (optionMapper.updateById(entity) != 1) {
+            return fail(CustomizationErrorCode.OPTION_UPDATE_FAILED);
+        }
+
+        return ApiResponse.success(customizationConverter.toOptionDetailResponse(entity));
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResponse<Void> updateOptionStatus(Long id, UpdateCustomizationOptionGlobalStatusRequest request) {
+        CustomizationOptionEntity entity = optionMapper.selectById(id);
+        if (entity == null || CustomizationStatus.DISABLED.getValue().equals(entity.getStatus())) {
+            return fail(CustomizationErrorCode.OPTION_NOT_FOUND);
+        }
+
         entity.setStatus(request.getStatus());
         if (optionMapper.updateById(entity) != 1) {
             return fail(CustomizationErrorCode.OPTION_UPDATE_FAILED);
         }
 
-        cacheEvictionService.evictCustomizationOptionsBizByItem(entity.getItemId());
-        cacheEvictionService.evictProductBizDetailAllClear();
-
-        return ApiResponse.success(customizationConverter.toOptionDetailResponse(entity));
+        return ApiResponse.success();
     }
 
     @Override
@@ -140,9 +147,6 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
         if (optionMapper.updateById(entity) != 1) {
             return fail(CustomizationErrorCode.OPTION_DELETE_FAILED);
         }
-
-        cacheEvictionService.evictCustomizationOptionsBizByItem(entity.getItemId());
-        cacheEvictionService.evictProductBizDetailAllClear();
 
         return ApiResponse.success();
     }

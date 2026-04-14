@@ -17,9 +17,7 @@ public class ProductDetailResponse {
     private String name;
     private String description;
     private BigDecimal price;
-    /** 商品全局状态（ProductStatus） */
-    private Integer status;
-    /** 商品在当前门店的在售状态（StoreProductStatus），仅在门店上下文下返回 */
+    private Integer globalStatus;
     private Integer storeStatus;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;

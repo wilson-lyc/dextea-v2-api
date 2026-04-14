@@ -18,7 +18,6 @@ import cn.dextea.product.enums.MenuStatus;
 import cn.dextea.product.mapper.MenuMapper;
 import cn.dextea.product.mapper.StoreMenuRelMapper;
 import cn.dextea.product.service.MenuAdminService;
-import cn.dextea.product.service.ProductCacheEvictionService;
 import cn.dextea.store.api.feign.StoreInternalFeign;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -40,7 +39,6 @@ public class MenuAdminServiceImpl implements MenuAdminService {
     private final MenuConverter menuConverter;
     private final StoreMenuRelMapper storeMenuRelMapper;
     private final StoreInternalFeign storeInternalFeign;
-    private final ProductCacheEvictionService cacheEvictionService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -109,9 +107,6 @@ public class MenuAdminServiceImpl implements MenuAdminService {
             return fail(MenuErrorCode.UPDATE_FAILED);
         }
 
-        // Menu structure changed — evict all biz menu caches (which stores are affected is unknown without querying)
-        cacheEvictionService.evictMenuBizAll();
-
         return ApiResponse.success(menuConverter.toMenuDetailResponse(entity));
     }
 
@@ -153,8 +148,6 @@ public class MenuAdminServiceImpl implements MenuAdminService {
                 .build();
         storeMenuRelMapper.insert(rel);
 
-        cacheEvictionService.evictMenuBizByStore(request.getStoreId());
-
         return ApiResponse.success();
     }
 
@@ -167,8 +160,6 @@ public class MenuAdminServiceImpl implements MenuAdminService {
         if (deleted == 0) {
             return fail(MenuErrorCode.STORE_MENU_BINDING_NOT_FOUND);
         }
-
-        cacheEvictionService.evictMenuBizByStore(storeId);
 
         return ApiResponse.success();
     }

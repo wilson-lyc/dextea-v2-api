@@ -5,6 +5,7 @@ CREATE TABLE `product`
     `description` VARCHAR(500)            DEFAULT NULL COMMENT '商品简介',
     `price`       DECIMAL(10, 2) NOT NULL COMMENT '售价',
     `status`      TINYINT        NOT NULL COMMENT '商品状态：0=下架，1=上架',
+    `version`     BIGINT         NOT NULL DEFAULT 0 COMMENT '商品状态版本号',
     `create_time` DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     `update_time` DATETIME       NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     PRIMARY KEY (`id`),

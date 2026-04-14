@@ -2,7 +2,8 @@ package cn.dextea.product.service;
 
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.dto.request.CreateCustomizationOptionRequest;
-import cn.dextea.product.dto.request.UpdateCustomizationOptionRequest;
+import cn.dextea.product.dto.request.UpdateCustomizationOptionGlobalStatusRequest;
+import cn.dextea.product.dto.request.UpdateCustomizationOptionInfoRequest;
 import cn.dextea.product.dto.response.CreateCustomizationOptionResponse;
 import cn.dextea.product.dto.response.CustomizationOptionDetailResponse;
 
@@ -14,7 +15,9 @@ public interface CustomizationOptionAdminService {
 
     ApiResponse<List<CustomizationOptionDetailResponse>> listOptions(Long itemId);
 
-    ApiResponse<CustomizationOptionDetailResponse> updateOption(Long id, UpdateCustomizationOptionRequest request);
+    ApiResponse<CustomizationOptionDetailResponse> updateOptionInfo(Long id, UpdateCustomizationOptionInfoRequest request);
+
+    ApiResponse<Void> updateOptionStatus(Long id, UpdateCustomizationOptionGlobalStatusRequest request);
 
     ApiResponse<Void> deleteOption(Long id);
 }

@@ -3,7 +3,7 @@ package cn.dextea.product.controller;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.dto.request.CustomizationOptionListWithStoreIdRequest;
-import cn.dextea.product.dto.request.UpdateStoreCustomizationOptionSaleRequest;
+import cn.dextea.product.dto.request.UpdateStoreCustomizationOptionStatusRequest;
 import cn.dextea.product.dto.response.CustomizationOptionWithStoreStatusResponse;
 import cn.dextea.product.service.CustomizationOptionBizService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -41,16 +41,16 @@ public class CustomizationOptionBizController {
     }
 
     /**
-     * 门店端更新客制化选项在售状态
+     * 门店端更新客制化选项门店状态
      * @param id 客制化选项ID
-     * @param request 更新在售状态请求参数（含门店ID）
+     * @param request 门店ID与门店状态
      * @return 操作结果
      */
-    @Operation(summary = "更新客制化选项的门店在售状态")
-    @PutMapping("/v1/biz/customization-options/{id}/sale-status")
-    public ApiResponse<Void> updateSaleStatus(
+    @Operation(summary = "更新客制化选项的门店状态")
+    @PutMapping("/v1/biz/customization-options/{id}/status")
+    public ApiResponse<Void> updateStatus(
             @Parameter(description = "客制化选项ID") @PathVariable("id") @Min(value = 1, message = "客制化选项ID不合法") Long id,
-            @Valid @RequestBody UpdateStoreCustomizationOptionSaleRequest request) {
-        return customizationOptionBizService.updateSaleStatus(id, request);
+            @Valid @RequestBody UpdateStoreCustomizationOptionStatusRequest request) {
+        return customizationOptionBizService.updateStatus(id, request);
     }
 }

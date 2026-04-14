@@ -1,7 +1,5 @@
 package cn.dextea.product.dto.request;
 
-import cn.dextea.common.validation.annotation.EnumValue;
-import cn.dextea.product.enums.ProductStatus;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -29,8 +27,4 @@ public class CreateProductRequest {
     @NotNull(message = "售价不能为空")
     @DecimalMin(value = "0.01", message = "售价不能小于0.01")
     private BigDecimal price;
-
-    @NotNull(message = "商品状态不能为空")
-    @EnumValue(enumClass = ProductStatus.class, fieldName = "商品状态")
-    private Integer status;
 }

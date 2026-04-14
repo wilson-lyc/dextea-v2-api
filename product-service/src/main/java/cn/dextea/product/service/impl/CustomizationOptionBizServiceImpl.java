@@ -1,30 +1,29 @@
 package cn.dextea.product.service.impl;
 
 import cn.dextea.common.web.response.ApiResponse;
-import cn.dextea.product.cache.CacheNames;
 import cn.dextea.product.converter.CustomizationConverter;
 import cn.dextea.product.dto.request.CustomizationOptionListWithStoreIdRequest;
-import cn.dextea.product.dto.request.UpdateStoreCustomizationOptionSaleRequest;
+import cn.dextea.product.dto.request.UpdateStoreCustomizationOptionStatusRequest;
 import cn.dextea.product.dto.response.CustomizationOptionWithStoreStatusResponse;
-import cn.dextea.product.entity.CustomizationItemEntity;
 import cn.dextea.product.entity.CustomizationOptionEntity;
 import cn.dextea.product.entity.StoreCustomizationOptionStatusEntity;
 import cn.dextea.product.enums.CustomizationErrorCode;
 import cn.dextea.product.enums.CustomizationStatus;
-import cn.dextea.product.enums.StoreCustomizationSaleStatus;
+import cn.dextea.product.enums.StoreCustomizationStatus;
 import cn.dextea.product.mapper.CustomizationItemMapper;
 import cn.dextea.product.mapper.CustomizationOptionMapper;
 import cn.dextea.product.mapper.StoreCustomizationOptionRelMapper;
 import cn.dextea.product.service.CustomizationOptionBizService;
-import cn.dextea.product.service.ProductCacheEvictionService;
+import cn.dextea.product.service.support.CustomizationOptionStoreStatusSyncSupport;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -35,86 +34,123 @@ public class CustomizationOptionBizServiceImpl implements CustomizationOptionBiz
     private final CustomizationOptionMapper optionMapper;
     private final StoreCustomizationOptionRelMapper storeOptionRelMapper;
     private final CustomizationConverter customizationConverter;
-    private final ProductCacheEvictionService cacheEvictionService;
+    private final CustomizationOptionStoreStatusSyncSupport customizationOptionStoreStatusSyncSupport;
 
     @Override
-    @Cacheable(
-            cacheNames = CacheNames.CUSTOMIZATION_OPTIONS_BIZ,
-            key = "'item:' + #itemId + ':store:' + #request.storeId",
-            unless = "!#result.success"
-    )
     public ApiResponse<List<CustomizationOptionWithStoreStatusResponse>> listOptions(Long itemId,
             CustomizationOptionListWithStoreIdRequest request) {
-        CustomizationItemEntity item = itemMapper.selectOne(new LambdaQueryWrapper<CustomizationItemEntity>()
-                .eq(CustomizationItemEntity::getId, itemId)
-                .eq(CustomizationItemEntity::getStatus, CustomizationStatus.ACTIVE.getValue()));
-        if (item == null) {
+        if (itemMapper.selectById(itemId) == null) {
             return fail(CustomizationErrorCode.ITEM_NOT_FOUND);
         }
 
-        List<CustomizationOptionEntity> options = optionMapper.selectList(
-                new LambdaQueryWrapper<CustomizationOptionEntity>()
-                        .eq(CustomizationOptionEntity::getItemId, itemId)
-                        .eq(CustomizationOptionEntity::getStatus, CustomizationStatus.ACTIVE.getValue())
-                        .orderByAsc(CustomizationOptionEntity::getId));
+        Long storeId = request.getStoreId();
+        Integer storeStatus = request.getStoreStatus();
 
-        if (options.isEmpty()) {
-            return ApiResponse.success(List.of());
+        LambdaQueryWrapper<CustomizationOptionEntity> optionQuery = new LambdaQueryWrapper<CustomizationOptionEntity>()
+                .eq(CustomizationOptionEntity::getItemId, itemId)
+                .eq(CustomizationOptionEntity::getStatus, CustomizationStatus.ACTIVE.getValue())
+                .orderByAsc(CustomizationOptionEntity::getId);
+
+        if (storeStatus != null) {
+            return listOptionsFilteredByStoreStatus(storeId, storeStatus, optionQuery);
+        }
+        return listOptionsDirectly(storeId, optionQuery);
+    }
+
+    /**
+     * 按指定门店状态筛选
+     */
+    private ApiResponse<List<CustomizationOptionWithStoreStatusResponse>> listOptionsFilteredByStoreStatus(
+            Long storeId, Integer requestedStatus,
+            LambdaQueryWrapper<CustomizationOptionEntity> optionQuery) {
+        if (Objects.equals(StoreCustomizationStatus.DISABLED.getValue(), requestedStatus)) {
+            // 售罄是兜底状态，排除有明确非售罄记录的选项
+            List<Long> nonDefaultOptionIds = storeOptionRelMapper.selectList(
+                    new LambdaQueryWrapper<StoreCustomizationOptionStatusEntity>()
+                            .eq(StoreCustomizationOptionStatusEntity::getStoreId, storeId)
+                            .ne(StoreCustomizationOptionStatusEntity::getStatus, StoreCustomizationStatus.DISABLED.getValue()))
+                    .stream()
+                    .map(StoreCustomizationOptionStatusEntity::getOptionId)
+                    .toList();
+            if (!nonDefaultOptionIds.isEmpty()) {
+                optionQuery.notIn(CustomizationOptionEntity::getId, nonDefaultOptionIds);
+            }
+        } else {
+            // 非兜底状态必须有明确的状态记录
+            List<Long> matchingOptionIds = storeOptionRelMapper.selectList(
+                    new LambdaQueryWrapper<StoreCustomizationOptionStatusEntity>()
+                            .eq(StoreCustomizationOptionStatusEntity::getStoreId, storeId)
+                            .eq(StoreCustomizationOptionStatusEntity::getStatus, requestedStatus))
+                    .stream()
+                    .map(StoreCustomizationOptionStatusEntity::getOptionId)
+                    .toList();
+            if (matchingOptionIds.isEmpty()) {
+                return ApiResponse.success(List.of());
+            }
+            optionQuery.in(CustomizationOptionEntity::getId, matchingOptionIds);
         }
 
-        Long storeId = request.getStoreId();
-        List<Long> optionIds = options.stream().map(CustomizationOptionEntity::getId).collect(Collectors.toList());
-        Set<Long> onSaleOptionIds = storeOptionRelMapper.selectList(
-                new LambdaQueryWrapper<StoreCustomizationOptionStatusEntity>()
-                        .eq(StoreCustomizationOptionStatusEntity::getStoreId, storeId)
-                        .in(StoreCustomizationOptionStatusEntity::getOptionId, optionIds))
-                .stream()
-                .map(StoreCustomizationOptionStatusEntity::getOptionId)
-                .collect(Collectors.toSet());
+        List<CustomizationOptionEntity> options = optionMapper.selectList(optionQuery);
+        return ApiResponse.success(fillOptionStoreStatuses(storeId, options));
+    }
 
-        List<CustomizationOptionWithStoreStatusResponse> result = options.stream()
+    /**
+     * 不按门店状态筛选
+     */
+    private ApiResponse<List<CustomizationOptionWithStoreStatusResponse>> listOptionsDirectly(
+            Long storeId, LambdaQueryWrapper<CustomizationOptionEntity> optionQuery) {
+        List<CustomizationOptionEntity> options = optionMapper.selectList(optionQuery);
+        return ApiResponse.success(fillOptionStoreStatuses(storeId, options));
+    }
+
+    /**
+     * 填入门店状态
+     */
+    private List<CustomizationOptionWithStoreStatusResponse> fillOptionStoreStatuses(
+            Long storeId, List<CustomizationOptionEntity> options) {
+        if (options.isEmpty()) {
+            return List.of();
+        }
+        Map<Long, Integer> optionStatusMap = customizationOptionStoreStatusSyncSupport.buildEffectiveStatusMap(storeId, options);
+        return options.stream()
                 .map(entity -> {
-                    int storeStatus = onSaleOptionIds.contains(entity.getId())
-                            ? StoreCustomizationSaleStatus.ENABLED.getValue()
-                            : StoreCustomizationSaleStatus.DISABLED.getValue();
+                    int storeStatus = optionStatusMap.getOrDefault(entity.getId(), StoreCustomizationStatus.DISABLED.getValue());
                     return customizationConverter.toOptionWithStoreStatusResponse(entity, storeStatus);
                 })
                 .collect(Collectors.toList());
-
-        return ApiResponse.success(result);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<Void> updateSaleStatus(Long optionId, UpdateStoreCustomizationOptionSaleRequest request) {
-        CustomizationOptionEntity option = optionMapper.selectOne(new LambdaQueryWrapper<CustomizationOptionEntity>()
-                .eq(CustomizationOptionEntity::getId, optionId)
-                .eq(CustomizationOptionEntity::getStatus, CustomizationStatus.ACTIVE.getValue()));
-        if (option == null) {
+    public ApiResponse<Void> updateStatus(Long optionId, UpdateStoreCustomizationOptionStatusRequest request) {
+        if (optionMapper.selectById(optionId) == null) {
             return fail(CustomizationErrorCode.OPTION_NOT_FOUND);
         }
 
         Long storeId = request.getStoreId();
-        LambdaQueryWrapper<StoreCustomizationOptionStatusEntity> relQuery =
+        StoreCustomizationOptionStatusEntity existing = storeOptionRelMapper.selectOne(
                 new LambdaQueryWrapper<StoreCustomizationOptionStatusEntity>()
                         .eq(StoreCustomizationOptionStatusEntity::getStoreId, storeId)
-                        .eq(StoreCustomizationOptionStatusEntity::getOptionId, optionId);
-
-        if (Boolean.TRUE.equals(request.getOnSale())) {
-            if (!storeOptionRelMapper.exists(relQuery)) {
-                StoreCustomizationOptionStatusEntity rel = StoreCustomizationOptionStatusEntity.builder()
-                        .storeId(storeId)
-                        .optionId(optionId)
-                        .build();
-                if (storeOptionRelMapper.insert(rel) != 1) {
-                    return fail(CustomizationErrorCode.STORE_OPTION_SALE_STATUS_UPDATE_FAILED);
-                }
+                        .eq(StoreCustomizationOptionStatusEntity::getOptionId, optionId));
+        if (existing == null) {
+            StoreCustomizationOptionStatusEntity statusEntity = StoreCustomizationOptionStatusEntity.builder()
+                    .storeId(storeId)
+                    .optionId(optionId)
+                    .status(request.getStatus())
+                    .build();
+            if (storeOptionRelMapper.insert(statusEntity) != 1) {
+                return fail(CustomizationErrorCode.STORE_OPTION_SALE_STATUS_UPDATE_FAILED);
             }
         } else {
-            storeOptionRelMapper.delete(relQuery);
+            int rows = storeOptionRelMapper.update(null,
+                    new LambdaUpdateWrapper<StoreCustomizationOptionStatusEntity>()
+                            .eq(StoreCustomizationOptionStatusEntity::getStoreId, storeId)
+                            .eq(StoreCustomizationOptionStatusEntity::getOptionId, optionId)
+                            .set(StoreCustomizationOptionStatusEntity::getStatus, request.getStatus()));
+            if (rows != 1) {
+                return fail(CustomizationErrorCode.STORE_OPTION_SALE_STATUS_UPDATE_FAILED);
+            }
         }
-
-        cacheEvictionService.evictCustomizationOptionsBizByItem(option.getItemId());
 
         return ApiResponse.success();
     }

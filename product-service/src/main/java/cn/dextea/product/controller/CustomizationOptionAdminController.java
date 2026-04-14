@@ -3,7 +3,8 @@ package cn.dextea.product.controller;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.dto.request.CreateCustomizationOptionRequest;
-import cn.dextea.product.dto.request.UpdateCustomizationOptionRequest;
+import cn.dextea.product.dto.request.UpdateCustomizationOptionGlobalStatusRequest;
+import cn.dextea.product.dto.request.UpdateCustomizationOptionInfoRequest;
 import cn.dextea.product.dto.response.CreateCustomizationOptionResponse;
 import cn.dextea.product.dto.response.CustomizationOptionDetailResponse;
 import cn.dextea.product.service.CustomizationOptionAdminService;
@@ -54,17 +55,31 @@ public class CustomizationOptionAdminController {
     }
 
     /**
-     * 更新客制化选项
+     * 更新客制化选项信息
      * @param id 客制化选项ID
-     * @param request 更新客制化选项请求参数
+     * @param request 更新客制化选项信息请求参数
      * @return 更新后的客制化选项详情
      */
-    @Operation(summary = "更新客制化选项")
-    @PutMapping("/v1/admin/customization-options/{id}")
-    public ApiResponse<CustomizationOptionDetailResponse> updateOption(
+    @Operation(summary = "更新客制化选项信息")
+    @PutMapping("/v1/admin/customization-options/{id}/info")
+    public ApiResponse<CustomizationOptionDetailResponse> updateOptionInfo(
             @Parameter(description = "客制化选项ID") @PathVariable("id") @Min(value = 1, message = "客制化选项ID不合法") Long id,
-            @Valid @RequestBody UpdateCustomizationOptionRequest request) {
-        return customizationOptionAdminService.updateOption(id, request);
+            @Valid @RequestBody UpdateCustomizationOptionInfoRequest request) {
+        return customizationOptionAdminService.updateOptionInfo(id, request);
+    }
+
+    /**
+     * 更新客制化选项全局状态
+     * @param id 客制化选项ID
+     * @param request 选项新全局状态
+     * @return 操作结果
+     */
+    @Operation(summary = "更新客制化选项全局状态")
+    @PutMapping("/v1/admin/customization-options/{id}/status")
+    public ApiResponse<Void> updateOptionStatus(
+            @Parameter(description = "客制化选项ID") @PathVariable("id") @Min(value = 1, message = "客制化选项ID不合法") Long id,
+            @Valid @RequestBody UpdateCustomizationOptionGlobalStatusRequest request) {
+        return customizationOptionAdminService.updateOptionStatus(id, request);
     }
 
     /**

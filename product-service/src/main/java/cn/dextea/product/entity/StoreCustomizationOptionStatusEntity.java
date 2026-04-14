@@ -1,6 +1,5 @@
 package cn.dextea.product.entity;
 
-import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableName;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,6 +18,8 @@ public class StoreCustomizationOptionStatusEntity {
     private Long storeId;
 
     private Long optionId;
+
+    private Integer status;
 
     private LocalDateTime createTime;
 }

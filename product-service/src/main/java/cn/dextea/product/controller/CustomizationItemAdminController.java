@@ -3,8 +3,9 @@ package cn.dextea.product.controller;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.dto.request.CreateCustomizationItemRequest;
-import cn.dextea.product.dto.request.CustomizationItemPageQueryRequest;
+import cn.dextea.product.dto.request.CustomizationItemPageRequest;
 import cn.dextea.product.dto.request.UpdateCustomizationItemRequest;
+import cn.dextea.product.dto.request.UpdateCustomizationItemStatusRequest;
 import cn.dextea.product.dto.response.CreateCustomizationItemResponse;
 import cn.dextea.product.dto.response.CustomizationItemDetailResponse;
 import cn.dextea.product.service.CustomizationItemAdminService;
@@ -18,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "客制化项目管理（Admin）", description = "管理端客制化项目 CRUD 接口，如「温度」「糖度」等")
+@Tag(name = "客制化项目管理接口", description = "适用于公司端")
 @RestController
 @RequestMapping("/v1/admin/customization-items")
 @RequiredArgsConstructor
@@ -41,52 +42,55 @@ public class CustomizationItemAdminController {
     }
 
     /**
-     * 分页查询客制化项目列表
+     * 分页查询客制化项目列表（公司端）
      * @param request 分页查询请求参数
      * @return 客制化项目分页数据
      */
-    @Operation(summary = "分页查询客制化项目列表")
+    @Operation(summary = "分页查询客制化项目列表（公司端）")
     @GetMapping
-    public ApiResponse<IPage<CustomizationItemDetailResponse>> page(
-            @Valid CustomizationItemPageQueryRequest request) {
-        return customizationItemAdminService.page(request);
+    public ApiResponse<IPage<CustomizationItemDetailResponse>> getPage(
+            @Valid CustomizationItemPageRequest request) {
+        return customizationItemAdminService.getPage(request);
     }
 
     /**
-     * 查询客制化项目详情
+     * 获取客制化项目详情
      * @param id 客制化项目ID
-     * @return 客制化项目详情（含选项列表）
+     * @return 客制化项目详情
      */
-    @Operation(summary = "查询客制化项目详情", description = "返回客制化项目详情，包含该项目下的所有选项列表")
+    @Operation(summary = "获取客制化项目详情", description = "返回客制化项目详情")
     @GetMapping("/{id}")
-    public ApiResponse<CustomizationItemDetailResponse> detail(
+    public ApiResponse<CustomizationItemDetailResponse> getDetail(
             @Parameter(description = "客制化项目ID") @PathVariable("id") @Min(value = 1, message = "客制化项目ID不合法") Long id) {
-        return customizationItemAdminService.detail(id);
+        return customizationItemAdminService.getDetail(id);
     }
 
     /**
-     * 更新客制化项目
+     * 更新客制化项目信息
      * @param id 客制化项目ID
      * @param request 更新客制化项目请求参数
      * @return 更新后的客制化项目详情
      */
-    @Operation(summary = "更新客制化项目")
-    @PutMapping("/{id}")
-    public ApiResponse<CustomizationItemDetailResponse> update(
+    @Operation(summary = "更新客制化项目信息")
+    @PutMapping("/{id}/info")
+    public ApiResponse<CustomizationItemDetailResponse> updateInfo(
             @Parameter(description = "客制化项目ID") @PathVariable("id") @Min(value = 1, message = "客制化项目ID不合法") Long id,
             @Valid @RequestBody UpdateCustomizationItemRequest request) {
-        return customizationItemAdminService.update(id, request);
+        return customizationItemAdminService.updateInfo(id, request);
     }
 
     /**
-     * 删除客制化项目
+     * 更新客制化项目全局状态
      * @param id 客制化项目ID
+     * @param request 客制化项目状态更新请求参数
      * @return 操作结果
      */
-    @Operation(summary = "删除客制化项目")
-    @DeleteMapping("/{id}")
-    public ApiResponse<Void> delete(
-            @Parameter(description = "客制化项目ID") @PathVariable("id") @Min(value = 1, message = "客制化项目ID不合法") Long id) {
-        return customizationItemAdminService.delete(id);
+    @Operation(summary = "更新客制化项目全局状态")
+    @PutMapping("/{id}/status")
+    public ApiResponse<Void> updateStatus(
+            @Parameter(description = "客制化项目ID") @PathVariable("id") @Min(value = 1, message = "客制化项目ID不合法") Long id,
+            @Valid @RequestBody UpdateCustomizationItemStatusRequest request) {
+        return customizationItemAdminService.updateStatus(id, request);
     }
+
 }

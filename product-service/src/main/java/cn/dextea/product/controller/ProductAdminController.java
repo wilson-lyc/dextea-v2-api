@@ -3,8 +3,9 @@ package cn.dextea.product.controller;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.dto.request.CreateProductRequest;
-import cn.dextea.product.dto.request.ProductPageQueryRequest;
-import cn.dextea.product.dto.request.UpdateProductRequest;
+import cn.dextea.product.dto.request.ProductPageRequest;
+import cn.dextea.product.dto.request.UpdateProductInfoRequest;
+import cn.dextea.product.dto.request.UpdateProductGlobalStatusRequest;
 import cn.dextea.product.dto.response.CreateProductResponse;
 import cn.dextea.product.dto.response.ProductDetailResponse;
 import cn.dextea.product.service.ProductAdminService;
@@ -35,33 +36,33 @@ public class ProductAdminController {
      */
     @Operation(summary = "创建商品")
     @PostMapping
-    public ApiResponse<CreateProductResponse> createProduct(
+    public ApiResponse<CreateProductResponse> create(
             @Valid @RequestBody CreateProductRequest request) {
-        return productAdminService.createProduct(request);
+        return productAdminService.create(request);
     }
 
     /**
-     * 分页查询商品列表
+     * 分页查询商品列表（公司端）
      * @param request 商品名、全局状态、分页参数
      * @return 商品分页列表
      */
-    @Operation(summary = "分页查询商品列表")
+    @Operation(summary = "分页查询商品列表（公司端）")
     @GetMapping
-    public ApiResponse<IPage<ProductDetailResponse>> getProductPage(
-            @Valid ProductPageQueryRequest request) {
-        return productAdminService.getProductPage(request);
+    public ApiResponse<IPage<ProductDetailResponse>> getPage(
+            @Valid ProductPageRequest request) {
+        return productAdminService.getPage(request);
     }
 
     /**
-     * 获取商品详情
+     * 获取商品详情（公司端）
      * @param id 商品ID
      * @return 商品详情信息
      */
-    @Operation(summary = "获取商品详情")
+    @Operation(summary = "获取商品详情（公司端）")
     @GetMapping("/{id}")
-    public ApiResponse<ProductDetailResponse> getProductDetail(
+    public ApiResponse<ProductDetailResponse> getDetailById(
             @Parameter(description = "商品ID") @PathVariable("id") @Min(value = 1, message = "ID不能为空") Long id) {
-        return productAdminService.getProductDetail(id);
+        return productAdminService.getDetailById(id);
     }
 
     /**
@@ -71,22 +72,24 @@ public class ProductAdminController {
      * @return 更新后的商品详情
      */
     @Operation(summary = "更新商品信息")
-    @PutMapping("/{id}")
-    public ApiResponse<ProductDetailResponse> updateProduct(
+    @PutMapping("/{id}/info")
+    public ApiResponse<ProductDetailResponse> updateInfo(
             @Parameter(description = "商品ID") @PathVariable("id") @Min(value = 1, message = "ID不能为空") Long id,
-            @Valid @RequestBody UpdateProductRequest request) {
-        return productAdminService.updateProduct(id, request);
+            @Valid @RequestBody UpdateProductInfoRequest request) {
+        return productAdminService.updateInfo(id, request);
     }
 
     /**
-     * 下架商品
+     * 更新商品全局状态
      * @param id 商品ID
+     * @param request 商品新状态
      * @return 操作结果
      */
-    @Operation(summary = "下架商品")
-    @DeleteMapping("/{id}")
-    public ApiResponse<Void> deleteProduct(
-            @Parameter(description = "商品ID") @PathVariable("id") @Min(value = 1, message = "ID不能为空") Long id) {
-        return productAdminService.deleteProduct(id);
+    @Operation(summary = "更新商品全局状态")
+    @PutMapping("/{id}/status")
+    public ApiResponse<Void> updateStatus(
+            @Parameter(description = "商品ID") @PathVariable("id") @Min(value = 1, message = "ID不能为空") Long id,
+            @Valid @RequestBody UpdateProductGlobalStatusRequest request) {
+        return productAdminService.updateStatus(id, request);
     }
 }

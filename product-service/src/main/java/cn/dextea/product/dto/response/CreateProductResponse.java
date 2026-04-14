@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CreateProductResponse {
-
     private Long id;
     private String name;
     private BigDecimal price;
