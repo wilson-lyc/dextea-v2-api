@@ -4,7 +4,6 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.dto.request.StoreProductPageRequest;
 import cn.dextea.product.dto.request.UpdateStoreProductStatusRequest;
-import cn.dextea.product.dto.response.ProductBizDetailResponse;
 import cn.dextea.product.dto.response.ProductDetailResponse;
 import cn.dextea.product.service.ProductBizService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -29,14 +28,14 @@ public class ProductBizController {
 
     /**
      * 分页查询商品列表（门店端）
-     * @param request 门店ID、商品名、门店在售状态（status: 0=售罄，1=在售）、分页参数
-     * @return 商品分页列表，status 为该商品在门店内的在售状态（0售罄，1在售）
+     * @param request 门店ID、商品名、商品门店状态、分页参数
+     * @return 商品分页列表
      */
-    @Operation(summary = "分页查询商品列表（门店端）", description = "status 字段为该商品在当前门店的在售状态：0=售罄，1=在售。可传 saleStatus 按门店在售状态筛选，不传则返回全部")
+    @Operation(summary = "分页查询商品列表（门店端）", description = "适用于门店端分页查询商品数据")
     @GetMapping
-    public ApiResponse<IPage<ProductDetailResponse>> getProductPage(
+    public ApiResponse<IPage<ProductDetailResponse>> getPage(
             @Valid StoreProductPageRequest request) {
-        return productBizService.getProductPage(request);
+        return productBizService.getPage(request);
     }
 
     /**
@@ -51,19 +50,5 @@ public class ProductBizController {
             @Parameter(description = "商品ID") @PathVariable("id") @Min(value = 1, message = "商品ID不能为空") Long id,
             @Valid @RequestBody UpdateStoreProductStatusRequest request) {
         return productBizService.updateStatus(id, request);
-    }
-
-    /**
-     * 查询商品详情（顾客端）
-     * @param id 商品ID
-     * @param storeId 门店ID
-     * @return 商品详情及客制化数据，商品全局下架时返回错误
-     */
-    @Operation(summary = "查询商品详情（顾客端）", description = "返回商品详情及客制化项目/选项，商品全局下架时返回业务错误")
-    @GetMapping("/{id}")
-    public ApiResponse<ProductBizDetailResponse> getProductDetail(
-            @Parameter(description = "商品ID") @PathVariable("id") @Min(value = 1, message = "商品ID不能为空") Long id,
-            @Parameter(description = "门店ID") @RequestParam("storeId") @Min(value = 1, message = "门店ID不能为空") Long storeId) {
-        return productBizService.getProductDetail(id, storeId);
     }
 }

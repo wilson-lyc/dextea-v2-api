@@ -1,6 +1,7 @@
 package cn.dextea.product.dto.request;
 
 import cn.dextea.common.validation.annotation.EnumValue;
+import cn.dextea.product.enums.ProductStatus;
 import cn.dextea.product.enums.StoreProductStatus;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -33,6 +34,9 @@ public class StoreProductPageRequest {
     @Size(max = 100, message = "商品名称长度不能超过100位")
     private String name;
 
-    @EnumValue(enumClass = StoreProductStatus.class, fieldName = "门店在售状态")
-    private Integer status;
+    @EnumValue(enumClass = ProductStatus.class, fieldName = "商品全局状态")
+    private Integer globalStatus;
+
+    @EnumValue(enumClass = StoreProductStatus.class, fieldName = "门店商品状态")
+    private Integer storeStatus;
 }

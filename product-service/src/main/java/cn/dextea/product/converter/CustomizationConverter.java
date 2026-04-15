@@ -2,17 +2,11 @@ package cn.dextea.product.converter;
 
 import cn.dextea.product.dto.response.CreateCustomizationItemResponse;
 import cn.dextea.product.dto.response.CreateCustomizationOptionResponse;
-import cn.dextea.product.dto.response.CustomizationItemBizDetailResponse;
 import cn.dextea.product.dto.response.CustomizationItemDetailResponse;
-import cn.dextea.product.dto.response.CustomizationItemWithStoreStatusResponse;
-import cn.dextea.product.dto.response.CustomizationOptionBizDetailResponse;
-import cn.dextea.product.dto.response.CustomizationOptionDetailResponse;
-import cn.dextea.product.dto.response.CustomizationOptionWithStoreStatusResponse;
+import cn.dextea.product.dto.response.OptionDetailResponse;
 import cn.dextea.product.entity.CustomizationItemEntity;
 import cn.dextea.product.entity.CustomizationOptionEntity;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class CustomizationConverter {
@@ -27,54 +21,26 @@ public class CustomizationConverter {
                 .build();
     }
 
-    public CustomizationItemDetailResponse toItemDetailResponse(CustomizationItemEntity entity,
-            List<CustomizationOptionDetailResponse> options) {
+    public CustomizationItemDetailResponse toItemDetailResponse(CustomizationItemEntity entity) {
         return CustomizationItemDetailResponse.builder()
                 .id(entity.getId())
                 .name(entity.getName())
                 .description(entity.getDescription())
-                .status(entity.getStatus())
-                .createTime(entity.getCreateTime())
-                .updateTime(entity.getUpdateTime())
-                .options(options)
-                .build();
-    }
-
-    public CustomizationItemDetailResponse toItemDetailResponse(CustomizationItemEntity entity) {
-        return toItemDetailResponse(entity, null);
-    }
-
-    public CustomizationItemWithStoreStatusResponse toItemWithStoreStatusResponse(CustomizationItemEntity entity,
-            int storeStatus) {
-        return CustomizationItemWithStoreStatusResponse.builder()
-                .id(entity.getId())
-                .name(entity.getName())
-                .description(entity.getDescription())
-                .storeStatus(storeStatus)
+                .globalStatus(entity.getStatus())
                 .createTime(entity.getCreateTime())
                 .updateTime(entity.getUpdateTime())
                 .build();
     }
 
-    public CustomizationOptionBizDetailResponse toOptionBizDetailResponse(CustomizationOptionEntity entity,
-            int storeStatus) {
-        return CustomizationOptionBizDetailResponse.builder()
-                .id(entity.getId())
-                .itemId(entity.getItemId())
-                .name(entity.getName())
-                .price(entity.getPrice())
-                .storeStatus(storeStatus)
-                .build();
-    }
-
-    public CustomizationItemBizDetailResponse toItemBizDetailResponse(CustomizationItemEntity entity,
-            int storeStatus, List<CustomizationOptionBizDetailResponse> options) {
-        return CustomizationItemBizDetailResponse.builder()
+    public CustomizationItemDetailResponse toItemDetailResponse(CustomizationItemEntity entity, int storeStatus) {
+        return CustomizationItemDetailResponse.builder()
                 .id(entity.getId())
                 .name(entity.getName())
                 .description(entity.getDescription())
+                .globalStatus(entity.getStatus())
                 .storeStatus(storeStatus)
-                .options(options)
+                .createTime(entity.getCreateTime())
+                .updateTime(entity.getUpdateTime())
                 .build();
     }
 
@@ -91,29 +57,19 @@ public class CustomizationConverter {
                 .build();
     }
 
-    public CustomizationOptionDetailResponse toOptionDetailResponse(CustomizationOptionEntity entity) {
-        return CustomizationOptionDetailResponse.builder()
-                .id(entity.getId())
-                .itemId(entity.getItemId())
-                .name(entity.getName())
-                .price(entity.getPrice())
-                .ingredientId(entity.getIngredientId())
-                .ingredientQuantity(entity.getIngredientQuantity())
-                .status(entity.getStatus())
-                .createTime(entity.getCreateTime())
-                .updateTime(entity.getUpdateTime())
-                .build();
+    public OptionDetailResponse toOptionDetailResponse(CustomizationOptionEntity entity) {
+        return toOptionDetailResponse(entity, null);
     }
 
-    public CustomizationOptionWithStoreStatusResponse toOptionWithStoreStatusResponse(CustomizationOptionEntity entity,
-            int storeStatus) {
-        return CustomizationOptionWithStoreStatusResponse.builder()
+    public OptionDetailResponse toOptionDetailResponse(CustomizationOptionEntity entity, Integer storeStatus) {
+        return OptionDetailResponse.builder()
                 .id(entity.getId())
                 .itemId(entity.getItemId())
                 .name(entity.getName())
                 .price(entity.getPrice())
                 .ingredientId(entity.getIngredientId())
                 .ingredientQuantity(entity.getIngredientQuantity())
+                .globalStatus(entity.getStatus())
                 .storeStatus(storeStatus)
                 .createTime(entity.getCreateTime())
                 .updateTime(entity.getUpdateTime())

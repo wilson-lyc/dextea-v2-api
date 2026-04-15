@@ -9,6 +9,7 @@ import cn.dextea.product.dto.response.StoreMenuResponse;
 import cn.dextea.product.entity.MenuEntity;
 import cn.dextea.product.entity.MenuGroupEntity;
 import cn.dextea.product.entity.ProductEntity;
+import cn.dextea.product.enums.ProductStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
@@ -65,7 +66,8 @@ public class MenuConverter {
         }
         return productIds.stream()
                 .map(productMap::get)
-                .filter(p -> p != null)
+                .filter(p -> p != null
+                        && Integer.valueOf(ProductStatus.ENABLED.getValue()).equals(p.getStatus()))
                 .map(p -> MenuProductItemResponse.builder()
                         .id(p.getId())
                         .name(p.getName())

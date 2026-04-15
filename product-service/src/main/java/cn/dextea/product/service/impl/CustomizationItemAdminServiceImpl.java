@@ -1,45 +1,38 @@
 package cn.dextea.product.service.impl;
 
+import cn.dextea.common.util.StringValueUtils;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.converter.CustomizationConverter;
 import cn.dextea.product.dto.request.CreateCustomizationItemRequest;
-import cn.dextea.product.dto.request.CustomizationItemPageQueryRequest;
+import cn.dextea.product.dto.request.CustomizationItemPageRequest;
 import cn.dextea.product.dto.request.UpdateCustomizationItemRequest;
+import cn.dextea.product.dto.request.UpdateCustomizationItemStatusRequest;
 import cn.dextea.product.dto.response.CreateCustomizationItemResponse;
 import cn.dextea.product.dto.response.CustomizationItemDetailResponse;
-import cn.dextea.product.dto.response.CustomizationOptionDetailResponse;
 import cn.dextea.product.entity.CustomizationItemEntity;
-import cn.dextea.product.entity.CustomizationOptionEntity;
 import cn.dextea.product.enums.CustomizationErrorCode;
 import cn.dextea.product.enums.CustomizationStatus;
 import cn.dextea.product.mapper.CustomizationItemMapper;
-import cn.dextea.product.mapper.CustomizationOptionMapper;
 import cn.dextea.product.service.CustomizationItemAdminService;
-import cn.dextea.product.service.ProductCacheEvictionService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
-import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @Service
 @RequiredArgsConstructor
 public class CustomizationItemAdminServiceImpl implements CustomizationItemAdminService {
 
     private final CustomizationItemMapper itemMapper;
-    private final CustomizationOptionMapper optionMapper;
     private final CustomizationConverter customizationConverter;
-    private final ProductCacheEvictionService cacheEvictionService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ApiResponse<CreateCustomizationItemResponse> create(CreateCustomizationItemRequest request) {
         String name = request.getName().trim();
+
         if (nameExists(name, null)) {
             return fail(CustomizationErrorCode.ITEM_NAME_DUPLICATE);
         }
@@ -47,19 +40,22 @@ public class CustomizationItemAdminServiceImpl implements CustomizationItemAdmin
         CustomizationItemEntity entity = CustomizationItemEntity.builder()
                 .name(name)
                 .description(request.getDescription())
-                .status(CustomizationStatus.ACTIVE.getValue())
+                .status(CustomizationStatus.DISABLED.getValue())
                 .build();
 
-        itemMapper.insert(entity);
+        if (itemMapper.insert(entity) != 1) {
+            return fail(CustomizationErrorCode.ITEM_CREATE_FAILED);
+        }
         return ApiResponse.success(customizationConverter.toCreateItemResponse(entity));
     }
 
     @Override
-    public ApiResponse<IPage<CustomizationItemDetailResponse>> page(CustomizationItemPageQueryRequest request) {
+    public ApiResponse<IPage<CustomizationItemDetailResponse>> getPage(CustomizationItemPageRequest request) {
         LambdaQueryWrapper<CustomizationItemEntity> query = new LambdaQueryWrapper<CustomizationItemEntity>()
-                .like(request.getName() != null && !request.getName().isBlank(),
+                .like(StringValueUtils.hasText(request.getName()),
                         CustomizationItemEntity::getName, request.getName())
-                .eq(request.getStatus() != null, CustomizationItemEntity::getStatus, request.getStatus())
+                .eq(request.getStatus() != null,
+                        CustomizationItemEntity::getStatus, request.getStatus())
                 .orderByDesc(CustomizationItemEntity::getId);
 
         IPage<CustomizationItemEntity> entityPage = itemMapper.selectPage(
@@ -69,30 +65,19 @@ public class CustomizationItemAdminServiceImpl implements CustomizationItemAdmin
     }
 
     @Override
-    public ApiResponse<CustomizationItemDetailResponse> detail(Long id) {
+    public ApiResponse<CustomizationItemDetailResponse> getDetail(Long id) {
         CustomizationItemEntity entity = itemMapper.selectById(id);
-        if (entity == null || CustomizationStatus.DISABLED.getValue().equals(entity.getStatus())) {
+        if (entity == null) {
             return fail(CustomizationErrorCode.ITEM_NOT_FOUND);
         }
-
-        List<CustomizationOptionEntity> options = optionMapper.selectList(
-                new LambdaQueryWrapper<CustomizationOptionEntity>()
-                        .eq(CustomizationOptionEntity::getItemId, id)
-                        .ne(CustomizationOptionEntity::getStatus, CustomizationStatus.DISABLED.getValue())
-                        .orderByAsc(CustomizationOptionEntity::getId));
-
-        List<CustomizationOptionDetailResponse> optionResponses = options.stream()
-                .map(customizationConverter::toOptionDetailResponse)
-                .collect(Collectors.toList());
-
-        return ApiResponse.success(customizationConverter.toItemDetailResponse(entity, optionResponses));
+        return ApiResponse.success(customizationConverter.toItemDetailResponse(entity));
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<CustomizationItemDetailResponse> update(Long id, UpdateCustomizationItemRequest request) {
+    public ApiResponse<CustomizationItemDetailResponse> updateInfo(Long id, UpdateCustomizationItemRequest request) {
         CustomizationItemEntity entity = itemMapper.selectById(id);
-        if (entity == null || CustomizationStatus.DISABLED.getValue().equals(entity.getStatus())) {
+        if (entity == null) {
             return fail(CustomizationErrorCode.ITEM_NOT_FOUND);
         }
 
@@ -103,52 +88,28 @@ public class CustomizationItemAdminServiceImpl implements CustomizationItemAdmin
 
         entity.setName(name);
         entity.setDescription(request.getDescription());
-        entity.setStatus(request.getStatus());
-        itemMapper.updateById(entity);
+        if (itemMapper.updateById(entity) != 1) {
+            return fail(CustomizationErrorCode.ITEM_UPDATE_FAILED);
+        }
 
-        List<CustomizationOptionEntity> options = optionMapper.selectList(
-                new LambdaQueryWrapper<CustomizationOptionEntity>()
-                        .eq(CustomizationOptionEntity::getItemId, id)
-                        .ne(CustomizationOptionEntity::getStatus, CustomizationStatus.DISABLED.getValue())
-                        .orderByAsc(CustomizationOptionEntity::getId));
-
-        List<CustomizationOptionDetailResponse> optionResponses = options.stream()
-                .map(customizationConverter::toOptionDetailResponse)
-                .collect(Collectors.toList());
-
-        // Customization item data changed — invalidate all biz caches that embed it
-        cacheEvictionService.evictCustomizationItemBizAll();
-        cacheEvictionService.evictCustomizationOptionsBizByItem(id);
-        // Product detail caches embed customization items — affected productIds unknown, clear all
-        cacheEvictionService.evictProductBizDetailAllClear();
-
-        return ApiResponse.success(customizationConverter.toItemDetailResponse(entity, optionResponses));
+        return ApiResponse.success(customizationConverter.toItemDetailResponse(entity));
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<Void> delete(Long id) {
+    public ApiResponse<Void> updateStatus(Long id, UpdateCustomizationItemStatusRequest request) {
         CustomizationItemEntity entity = itemMapper.selectById(id);
-        if (entity == null || CustomizationStatus.DISABLED.getValue().equals(entity.getStatus())) {
+        if (entity == null) {
             return fail(CustomizationErrorCode.ITEM_NOT_FOUND);
         }
 
-        optionMapper.update(new LambdaUpdateWrapper<CustomizationOptionEntity>()
-                .eq(CustomizationOptionEntity::getItemId, id)
-                .ne(CustomizationOptionEntity::getStatus, CustomizationStatus.DISABLED.getValue())
-                .set(CustomizationOptionEntity::getStatus, CustomizationStatus.DISABLED.getValue()));
-
-        entity.setStatus(CustomizationStatus.DISABLED.getValue());
-        itemMapper.updateById(entity);
-
-        cacheEvictionService.evictCustomizationItemBizAll();
-        cacheEvictionService.evictCustomizationOptionsBizByItem(id);
-        cacheEvictionService.evictProductBizDetailAllClear();
+        entity.setStatus(request.getStatus());
+        if (itemMapper.updateById(entity) != 1) {
+            return fail(CustomizationErrorCode.ITEM_UPDATE_FAILED);
+        }
 
         return ApiResponse.success();
     }
-
-    // ---- Helpers ----
 
     private boolean nameExists(String name, Long excludeId) {
         return itemMapper.exists(new LambdaQueryWrapper<CustomizationItemEntity>()

@@ -39,6 +39,14 @@ public class ApiResponse<T> {
     }
 
     /**
+     * 判断响应是否成功（code == ResponseCode.SUCCESS.getCode()）。
+     * 可在 @Cacheable unless 表达式中使用：unless = "!#result.success"
+     */
+    public boolean isSuccess() {
+        return ResponseCode.SUCCESS.getCode().equals(this.code);
+    }
+
+    /**
      * 构建失败响应。
      */
     public static <T> ApiResponse<T> fail(Integer code, String msg) {

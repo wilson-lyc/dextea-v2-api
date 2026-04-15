@@ -12,12 +12,10 @@ import java.time.LocalDateTime;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@TableName("store_product_rel")
+@TableName("store_product_status")
 public class StoreProductStatusEntity {
-
     private Long storeId;
-
     private Long productId;
-
+    private Integer status;
     private LocalDateTime createTime;
 }

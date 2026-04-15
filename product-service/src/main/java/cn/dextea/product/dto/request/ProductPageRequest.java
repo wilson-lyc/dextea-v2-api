@@ -1,8 +1,9 @@
 package cn.dextea.product.dto.request;
 
+import cn.dextea.common.validation.annotation.EnumValue;
+import cn.dextea.product.enums.ProductStatus;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -13,11 +14,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CustomizationItemPageQueryWithStoreIdRequest {
-
-    @NotNull(message = "门店ID不能为空")
-    @Min(value = 1, message = "门店ID无效")
-    private Long storeId;
+public class ProductPageRequest {
 
     @Min(value = 1, message = "当前页码不能小于1")
     @Builder.Default
@@ -28,6 +25,9 @@ public class CustomizationItemPageQueryWithStoreIdRequest {
     @Builder.Default
     private Long size = 10L;
 
-    @Size(max = 64, message = "项目名称长度不能超过64位")
+    @Size(max = 100, message = "商品名称长度不能超过100位")
     private String name;
+
+    @EnumValue(enumClass = ProductStatus.class, fieldName = "商品全局状态")
+    private Integer status;
 }

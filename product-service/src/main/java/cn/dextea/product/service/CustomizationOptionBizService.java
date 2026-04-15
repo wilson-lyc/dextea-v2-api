@@ -1,16 +1,16 @@
 package cn.dextea.product.service;
 
 import cn.dextea.common.web.response.ApiResponse;
-import cn.dextea.product.dto.request.CustomizationOptionListWithStoreIdRequest;
-import cn.dextea.product.dto.request.UpdateStoreCustomizationOptionSaleRequest;
-import cn.dextea.product.dto.response.CustomizationOptionWithStoreStatusResponse;
+import cn.dextea.product.dto.request.ItemOptionsListInStore;
+import cn.dextea.product.dto.request.UpdateOptionStoreStatusRequest;
+import cn.dextea.product.dto.response.OptionDetailResponse;
 
 import java.util.List;
 
 public interface CustomizationOptionBizService {
 
-    ApiResponse<List<CustomizationOptionWithStoreStatusResponse>> listOptions(Long itemId,
-            CustomizationOptionListWithStoreIdRequest request);
+    ApiResponse<List<OptionDetailResponse>> getItemOptionsList(Long itemId,
+                                                               ItemOptionsListInStore request);
 
-    ApiResponse<Void> updateSaleStatus(Long optionId, UpdateStoreCustomizationOptionSaleRequest request);
+    ApiResponse<Void> updateOptionStoreStatus(Long optionId, UpdateOptionStoreStatusRequest request);
 }

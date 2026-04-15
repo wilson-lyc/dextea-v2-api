@@ -113,7 +113,9 @@ public class IngredientAdminServiceImpl implements IngredientAdminService {
         }
 
         entity.setStatus(IngredientStatus.DELETED.getValue());
-        ingredientMapper.updateById(entity);
+        if (ingredientMapper.updateById(entity) != 1) {
+            return fail(IngredientErrorCode.UPDATE_FAILED);
+        }
         return ApiResponse.success();
     }
 

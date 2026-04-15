@@ -2,9 +2,9 @@ package cn.dextea.product.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
-import cn.dextea.product.dto.request.CustomizationItemPageQueryWithStoreIdRequest;
-import cn.dextea.product.dto.request.UpdateStoreCustomizationItemSaleRequest;
-import cn.dextea.product.dto.response.CustomizationItemWithStoreStatusResponse;
+import cn.dextea.product.dto.request.StorePageQueryCustomizationItemRequest;
+import cn.dextea.product.dto.request.UpdateStoreCustomizationItemStatusRequest;
+import cn.dextea.product.dto.response.CustomizationItemDetailResponse;
 import cn.dextea.product.service.CustomizationItemBizService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import io.swagger.v3.oas.annotations.Operation;
@@ -16,7 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "客制化项目（Biz）", description = "门店端客制化项目查询与在售状态管理接口")
+@Tag(name = "客制化项目业务接口", description = "适用于门店端")
 @RestController
 @RequestMapping("/v1/biz/customization-items")
 @RequiredArgsConstructor
@@ -27,28 +27,28 @@ public class CustomizationItemBizController {
     private final CustomizationItemBizService customizationItemBizService;
 
     /**
-     * 门店端分页查询客制化项目列表（含门店在售状态，仅返回全局激活项目）
-     * @param request 分页查询请求参数（含门店ID）
-     * @return 客制化项目分页数据（含门店状态）
+     * 分页查询客制化项目列表（门店端）
+     * @param request 分页、项目名、全局状态、门店状态
+     * @return 客制化项目分页数据
      */
-    @Operation(summary = "分页查询客制化项目列表（门店端）", description = "仅返回全局激活的客制化项目，并附带该项目在当前门店的在售状态")
+    @Operation(summary = "分页查询客制化项目列表（门店端）", description = "支持项目名模糊查询，支持按全局状态和门店状态分别筛选")
     @GetMapping
-    public ApiResponse<IPage<CustomizationItemWithStoreStatusResponse>> page(
-            @Valid CustomizationItemPageQueryWithStoreIdRequest request) {
-        return customizationItemBizService.page(request);
+    public ApiResponse<IPage<CustomizationItemDetailResponse>> getPage(
+            @Valid StorePageQueryCustomizationItemRequest request) {
+        return customizationItemBizService.getPage(request);
     }
 
     /**
-     * 门店端更新客制化项目在售状态
+     * 门店端更新客制化项目门店状态
      * @param id 客制化项目ID
-     * @param request 更新在售状态请求参数（含门店ID）
+     * @param request 门店ID与门店状态
      * @return 操作结果
      */
-    @Operation(summary = "更新客制化项目的门店在售状态")
-    @PutMapping("/{id}/sale-status")
-    public ApiResponse<Void> updateSaleStatus(
+    @Operation(summary = "更新客制化项目的门店状态")
+    @PutMapping("/{id}/status")
+    public ApiResponse<Void> updateStatus(
             @Parameter(description = "客制化项目ID") @PathVariable("id") @Min(value = 1, message = "客制化项目ID不合法") Long id,
-            @Valid @RequestBody UpdateStoreCustomizationItemSaleRequest request) {
-        return customizationItemBizService.updateSaleStatus(id, request);
+            @Valid @RequestBody UpdateStoreCustomizationItemStatusRequest request) {
+        return customizationItemBizService.updateStatus(id, request);
     }
 }

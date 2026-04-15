@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CustomizationOptionListWithStoreIdRequest {
+public class ItemOptionsListInStore {
 
     @NotNull(message = "门店ID不能为空")
     @Min(value = 1, message = "门店ID无效")

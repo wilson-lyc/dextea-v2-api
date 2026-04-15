@@ -1,7 +1,5 @@
 package cn.dextea.product.dto.request;
 
-import cn.dextea.common.validation.annotation.EnumValue;
-import cn.dextea.product.enums.CustomizationStatus;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -18,7 +16,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateCustomizationOptionRequest {
+public class CreateOptionRequest {
 
     @NotBlank(message = "选项名称不能为空")
     @Size(max = 64, message = "选项名称长度不能超过64位")
@@ -33,8 +31,4 @@ public class UpdateCustomizationOptionRequest {
 
     @DecimalMin(value = "0.00", inclusive = false, message = "原料用量必须大于0")
     private BigDecimal ingredientQuantity;
-
-    @NotNull(message = "全局状态不能为空")
-    @EnumValue(enumClass = CustomizationStatus.class, fieldName = "全局状态")
-    private Integer status;
 }

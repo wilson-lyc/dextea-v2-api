@@ -17,7 +17,8 @@ public class ProductDetailResponse {
     private String name;
     private String description;
     private BigDecimal price;
-    private Integer status;
+    private Integer globalStatus;
+    private Integer storeStatus;
     private LocalDateTime createTime;
     private LocalDateTime updateTime;
 }

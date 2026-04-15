@@ -6,18 +6,22 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductBizDetailResponse {
+public class OptionDetailResponse {
 
     private Long id;
+    private Long itemId;
     private String name;
-    private String description;
     private BigDecimal price;
+    private Long ingredientId;
+    private BigDecimal ingredientQuantity;
+    private Integer globalStatus;
     private Integer storeStatus;
-    private List<CustomizationItemBizDetailResponse> items;
+    private LocalDateTime createTime;
+    private LocalDateTime updateTime;
 }
