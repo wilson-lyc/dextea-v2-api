@@ -3,8 +3,8 @@ package cn.dextea.product.service.impl;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.converter.CustomizationConverter;
 import cn.dextea.product.dto.request.ItemOptionsListInStore;
-import cn.dextea.product.dto.request.UpdateOptionStoreStatusRequest;
-import cn.dextea.product.dto.response.OptionDetailResponse;
+import cn.dextea.product.dto.request.UpdateStoreCustomizationOptionStatusRequest;
+import cn.dextea.product.dto.response.CustomizationOptionDetailResponse;
 import cn.dextea.product.entity.CustomizationOptionEntity;
 import cn.dextea.product.entity.StoreCustomizationOptionStatusEntity;
 import cn.dextea.product.enums.CustomizationErrorCode;
@@ -33,8 +33,8 @@ public class CustomizationOptionBizServiceImpl implements CustomizationOptionBiz
     private final CustomizationConverter customizationConverter;
 
     @Override
-    public ApiResponse<List<OptionDetailResponse>> getItemOptionsList(Long itemId,
-                                                                      ItemOptionsListInStore request) {
+    public ApiResponse<List<CustomizationOptionDetailResponse>> getItemOptionsList(Long itemId,
+                                                                                   ItemOptionsListInStore request) {
         if (itemMapper.selectById(itemId) == null) {
             return fail(CustomizationErrorCode.ITEM_NOT_FOUND);
         }
@@ -60,7 +60,7 @@ public class CustomizationOptionBizServiceImpl implements CustomizationOptionBiz
                         StoreCustomizationOptionStatusEntity::getOptionId,
                         StoreCustomizationOptionStatusEntity::getStatus,
                         (left, right) -> right));
-        List<OptionDetailResponse> result = options.stream()
+        List<CustomizationOptionDetailResponse> result = options.stream()
                 .map(entity -> {
                     int storeStatus = optionStatusMap.getOrDefault(entity.getId(), StoreCustomizationStatus.DISABLED.getValue());
                     return customizationConverter.toOptionDetailResponse(entity, storeStatus);
@@ -72,7 +72,7 @@ public class CustomizationOptionBizServiceImpl implements CustomizationOptionBiz
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<Void> updateOptionStoreStatus(Long optionId, UpdateOptionStoreStatusRequest request) {
+    public ApiResponse<Void> updateOptionStoreStatus(Long optionId, UpdateStoreCustomizationOptionStatusRequest request) {
         if (optionMapper.selectById(optionId) == null) {
             return fail(CustomizationErrorCode.OPTION_NOT_FOUND);
         }

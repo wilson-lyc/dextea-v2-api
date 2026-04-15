@@ -3,7 +3,7 @@ package cn.dextea.product.converter;
 import cn.dextea.product.dto.response.CreateCustomizationItemResponse;
 import cn.dextea.product.dto.response.CreateCustomizationOptionResponse;
 import cn.dextea.product.dto.response.CustomizationItemDetailResponse;
-import cn.dextea.product.dto.response.OptionDetailResponse;
+import cn.dextea.product.dto.response.CustomizationOptionDetailResponse;
 import cn.dextea.product.entity.CustomizationItemEntity;
 import cn.dextea.product.entity.CustomizationOptionEntity;
 import org.springframework.stereotype.Component;
@@ -57,12 +57,12 @@ public class CustomizationConverter {
                 .build();
     }
 
-    public OptionDetailResponse toOptionDetailResponse(CustomizationOptionEntity entity) {
+    public CustomizationOptionDetailResponse toOptionDetailResponse(CustomizationOptionEntity entity) {
         return toOptionDetailResponse(entity, null);
     }
 
-    public OptionDetailResponse toOptionDetailResponse(CustomizationOptionEntity entity, Integer storeStatus) {
-        return OptionDetailResponse.builder()
+    public CustomizationOptionDetailResponse toOptionDetailResponse(CustomizationOptionEntity entity, Integer storeStatus) {
+        return CustomizationOptionDetailResponse.builder()
                 .id(entity.getId())
                 .itemId(entity.getItemId())
                 .name(entity.getName())

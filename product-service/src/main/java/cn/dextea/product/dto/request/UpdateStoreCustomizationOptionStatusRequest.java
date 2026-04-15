@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateOptionStoreStatusRequest {
+public class UpdateStoreCustomizationOptionStatusRequest {
 
     @NotNull(message = "门店ID不能为空")
     @Min(value = 1, message = "门店ID无效")

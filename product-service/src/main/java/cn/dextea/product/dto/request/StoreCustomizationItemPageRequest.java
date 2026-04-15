@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class StorePageQueryCustomizationItemRequest {
+public class StoreCustomizationItemPageRequest {
 
     @NotNull(message = "门店ID不能为空")
     @Min(value = 1, message = "门店ID无效")

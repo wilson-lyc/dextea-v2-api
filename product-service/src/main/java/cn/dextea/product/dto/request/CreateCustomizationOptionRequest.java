@@ -16,7 +16,7 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateOptionInfoRequest {
+public class CreateCustomizationOptionRequest {
 
     @NotBlank(message = "选项名称不能为空")
     @Size(max = 64, message = "选项名称长度不能超过64位")

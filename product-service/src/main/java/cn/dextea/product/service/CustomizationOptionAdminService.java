@@ -1,23 +1,23 @@
 package cn.dextea.product.service;
 
 import cn.dextea.common.web.response.ApiResponse;
-import cn.dextea.product.dto.request.CreateOptionRequest;
-import cn.dextea.product.dto.request.UpdateOptionStatusRequest;
-import cn.dextea.product.dto.request.UpdateOptionInfoRequest;
+import cn.dextea.product.dto.request.CreateCustomizationOptionRequest;
+import cn.dextea.product.dto.request.UpdateCustomizationOptionStatusRequest;
+import cn.dextea.product.dto.request.UpdateCustomizationOptionInfoRequest;
 import cn.dextea.product.dto.response.CreateCustomizationOptionResponse;
-import cn.dextea.product.dto.response.OptionDetailResponse;
+import cn.dextea.product.dto.response.CustomizationOptionDetailResponse;
 
 import java.util.List;
 
 public interface CustomizationOptionAdminService {
 
-    ApiResponse<CreateCustomizationOptionResponse> createOption(Long itemId, CreateOptionRequest request);
+    ApiResponse<CreateCustomizationOptionResponse> createOption(Long itemId, CreateCustomizationOptionRequest request);
 
-    ApiResponse<List<OptionDetailResponse>> getItemOptionsList(Long itemId);
+    ApiResponse<List<CustomizationOptionDetailResponse>> getItemOptionsList(Long itemId);
 
-    ApiResponse<OptionDetailResponse> updateOptionInfo(Long id, UpdateOptionInfoRequest request);
+    ApiResponse<CustomizationOptionDetailResponse> updateOptionInfo(Long id, UpdateCustomizationOptionInfoRequest request);
 
-    ApiResponse<Void> updateOptionStatus(Long id, UpdateOptionStatusRequest request);
+    ApiResponse<Void> updateOptionStatus(Long id, UpdateCustomizationOptionStatusRequest request);
 
-    ApiResponse<OptionDetailResponse> getOptionDetail(Long id);
+    ApiResponse<CustomizationOptionDetailResponse> getOptionDetail(Long id);
 }

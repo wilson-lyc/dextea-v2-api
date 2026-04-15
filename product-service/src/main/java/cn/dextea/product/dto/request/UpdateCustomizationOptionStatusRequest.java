@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UpdateOptionStatusRequest {
+public class UpdateCustomizationOptionStatusRequest {
 
     @NotNull(message = "全局状态不能为空")
     @EnumValue(enumClass = CustomizationStatus.class, fieldName = "全局状态")

@@ -3,7 +3,7 @@ package cn.dextea.product.service.impl;
 import cn.dextea.common.util.StringValueUtils;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.converter.CustomizationConverter;
-import cn.dextea.product.dto.request.StorePageQueryCustomizationItemRequest;
+import cn.dextea.product.dto.request.StoreCustomizationItemPageRequest;
 import cn.dextea.product.dto.request.UpdateStoreCustomizationItemStatusRequest;
 import cn.dextea.product.dto.response.CustomizationItemDetailResponse;
 import cn.dextea.product.entity.CustomizationItemEntity;
@@ -38,7 +38,7 @@ public class CustomizationItemBizServiceImpl implements CustomizationItemBizServ
      * 分页查询网关
      */
     @Override
-    public ApiResponse<IPage<CustomizationItemDetailResponse>> getPage(StorePageQueryCustomizationItemRequest request) {
+    public ApiResponse<IPage<CustomizationItemDetailResponse>> getPage(StoreCustomizationItemPageRequest request) {
         Long storeId = request.getStoreId();
         Integer storeStatus = request.getStoreStatus();
 
@@ -59,7 +59,7 @@ public class CustomizationItemBizServiceImpl implements CustomizationItemBizServ
      * 过滤门店状态
      */
     private ApiResponse<IPage<CustomizationItemDetailResponse>> getPage(
-            StorePageQueryCustomizationItemRequest request, Long storeId, Integer targetStatus,
+            StoreCustomizationItemPageRequest request, Long storeId, Integer targetStatus,
             LambdaQueryWrapper<CustomizationItemEntity> query) {
         if (Objects.equals(StoreCustomizationStatus.DISABLED.getValue(), targetStatus)) {
             // 排除非禁用记录的项目
@@ -97,7 +97,7 @@ public class CustomizationItemBizServiceImpl implements CustomizationItemBizServ
      * 不过滤门店状态
      */
     private ApiResponse<IPage<CustomizationItemDetailResponse>> getPage(
-            StorePageQueryCustomizationItemRequest request, Long storeId,
+            StoreCustomizationItemPageRequest request, Long storeId,
             LambdaQueryWrapper<CustomizationItemEntity> itemQuery) {
         IPage<CustomizationItemEntity> itemPage = itemMapper.selectPage(
                 new Page<>(request.getCurrent(), request.getSize()), itemQuery);
