@@ -70,11 +70,11 @@ public class MenuBizServiceImpl implements MenuBizService {
         }
         List<ProductEntity> products = productMapper.selectBatchIds(productIds).stream()
                 .toList();
-        List<Long> productIds = products.stream().map(ProductEntity::getId).toList();
+        List<Long> fetchedProductIds = products.stream().map(ProductEntity::getId).toList();
         Set<Long> enabledProductIds = storeProductStatusMapper.selectList(
                 new LambdaQueryWrapper<StoreProductStatusEntity>()
                         .eq(StoreProductStatusEntity::getStoreId, storeId)
-                        .in(StoreProductStatusEntity::getProductId, productIds))
+                        .in(StoreProductStatusEntity::getProductId, fetchedProductIds))
                 .stream()
                 .filter(e -> Objects.equals(e.getStatus(), StoreProductStatus.ENABLED.getValue()))
                 .map(StoreProductStatusEntity::getProductId)

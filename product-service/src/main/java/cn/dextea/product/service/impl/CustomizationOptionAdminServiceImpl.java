@@ -2,11 +2,11 @@ package cn.dextea.product.service.impl;
 
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.converter.CustomizationConverter;
-import cn.dextea.product.dto.request.CreateOptionRequest;
-import cn.dextea.product.dto.request.UpdateOptionStatusRequest;
-import cn.dextea.product.dto.request.UpdateOptionInfoRequest;
+import cn.dextea.product.dto.request.CreateCustomizationOptionRequest;
+import cn.dextea.product.dto.request.UpdateCustomizationOptionStatusRequest;
+import cn.dextea.product.dto.request.UpdateCustomizationOptionInfoRequest;
 import cn.dextea.product.dto.response.CreateCustomizationOptionResponse;
-import cn.dextea.product.dto.response.OptionDetailResponse;
+import cn.dextea.product.dto.response.CustomizationOptionDetailResponse;
 import cn.dextea.product.entity.CustomizationItemEntity;
 import cn.dextea.product.entity.CustomizationOptionEntity;
 import cn.dextea.product.entity.IngredientEntity;
@@ -37,7 +37,7 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
     @Override
     @Transactional(rollbackFor = Exception.class)
     public ApiResponse<CreateCustomizationOptionResponse> createOption(Long itemId,
-                                                                       CreateOptionRequest request) {
+                                                                       CreateCustomizationOptionRequest request) {
         CustomizationItemEntity item = itemMapper.selectById(itemId);
         if (item == null) {
             return fail(CustomizationErrorCode.ITEM_NOT_FOUND);
@@ -71,7 +71,7 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
     }
 
     @Override
-    public ApiResponse<List<OptionDetailResponse>> getItemOptionsList(Long itemId) {
+    public ApiResponse<List<CustomizationOptionDetailResponse>> getItemOptionsList(Long itemId) {
         CustomizationItemEntity item = itemMapper.selectById(itemId);
         if (item == null) {
             return fail(CustomizationErrorCode.ITEM_NOT_FOUND);
@@ -89,8 +89,8 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<OptionDetailResponse> updateOptionInfo(Long id,
-                                                              UpdateOptionInfoRequest request) {
+    public ApiResponse<CustomizationOptionDetailResponse> updateOptionInfo(Long id,
+                                                                           UpdateCustomizationOptionInfoRequest request) {
         CustomizationOptionEntity entity = optionMapper.selectById(id);
         if (entity == null) {
             return fail(CustomizationErrorCode.OPTION_NOT_FOUND);
@@ -120,7 +120,7 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<Void> updateOptionStatus(Long id, UpdateOptionStatusRequest request) {
+    public ApiResponse<Void> updateOptionStatus(Long id, UpdateCustomizationOptionStatusRequest request) {
         CustomizationOptionEntity entity = optionMapper.selectById(id);
         if (entity == null) {
             return fail(CustomizationErrorCode.OPTION_NOT_FOUND);
@@ -135,7 +135,7 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
     }
 
     @Override
-    public ApiResponse<OptionDetailResponse> getOptionDetail(Long id) {
+    public ApiResponse<CustomizationOptionDetailResponse> getOptionDetail(Long id) {
         CustomizationOptionEntity entity = optionMapper.selectById(id);
         if (entity == null) {
             return fail(CustomizationErrorCode.OPTION_NOT_FOUND);

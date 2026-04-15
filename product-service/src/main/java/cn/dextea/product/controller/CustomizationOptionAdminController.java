@@ -2,11 +2,11 @@ package cn.dextea.product.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
-import cn.dextea.product.dto.request.CreateOptionRequest;
-import cn.dextea.product.dto.request.UpdateOptionStatusRequest;
-import cn.dextea.product.dto.request.UpdateOptionInfoRequest;
+import cn.dextea.product.dto.request.CreateCustomizationOptionRequest;
+import cn.dextea.product.dto.request.UpdateCustomizationOptionStatusRequest;
+import cn.dextea.product.dto.request.UpdateCustomizationOptionInfoRequest;
 import cn.dextea.product.dto.response.CreateCustomizationOptionResponse;
-import cn.dextea.product.dto.response.OptionDetailResponse;
+import cn.dextea.product.dto.response.CustomizationOptionDetailResponse;
 import cn.dextea.product.service.CustomizationOptionAdminService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -38,7 +38,7 @@ public class CustomizationOptionAdminController {
     @PostMapping("/v1/admin/customization-items/{itemId}/options")
     public ApiResponse<CreateCustomizationOptionResponse> createOption(
             @Parameter(description = "客制化项目ID") @PathVariable("itemId") @Min(value = 1, message = "客制化项目ID错误") Long itemId,
-            @Valid @RequestBody CreateOptionRequest request) {
+            @Valid @RequestBody CreateCustomizationOptionRequest request) {
         return customizationOptionAdminService.createOption(itemId, request);
     }
 
@@ -49,7 +49,7 @@ public class CustomizationOptionAdminController {
      */
     @Operation(summary = "查询客制化项目下的选项列表")
     @GetMapping("/v1/admin/customization-items/{itemId}/options")
-    public ApiResponse<List<OptionDetailResponse>> getItemOptionsList(
+    public ApiResponse<List<CustomizationOptionDetailResponse>> getItemOptionsList(
             @Parameter(description = "客制化项目ID") @PathVariable("itemId") @Min(value = 1, message = "客制化项目ID错误") Long itemId) {
         return customizationOptionAdminService.getItemOptionsList(itemId);
     }
@@ -61,7 +61,7 @@ public class CustomizationOptionAdminController {
      */
     @Operation(summary = "查询客制化选项详情")
     @GetMapping("/v1/admin/customization-options/{id}")
-    public ApiResponse<OptionDetailResponse> getOptionDetail(
+    public ApiResponse<CustomizationOptionDetailResponse> getOptionDetail(
             @Parameter(description = "客制化选项ID") @PathVariable("id") @Min(value = 1, message = "客制化选项ID错误") Long id) {
         return customizationOptionAdminService.getOptionDetail(id);
     }
@@ -74,9 +74,9 @@ public class CustomizationOptionAdminController {
      */
     @Operation(summary = "更新客制化选项信息")
     @PutMapping("/v1/admin/customization-options/{id}/info")
-    public ApiResponse<OptionDetailResponse> updateOptionInfo(
+    public ApiResponse<CustomizationOptionDetailResponse> updateOptionInfo(
             @Parameter(description = "客制化选项ID") @PathVariable("id") @Min(value = 1, message = "客制化选项ID错误") Long id,
-            @Valid @RequestBody UpdateOptionInfoRequest request) {
+            @Valid @RequestBody UpdateCustomizationOptionInfoRequest request) {
         return customizationOptionAdminService.updateOptionInfo(id, request);
     }
 
@@ -90,7 +90,7 @@ public class CustomizationOptionAdminController {
     @PutMapping("/v1/admin/customization-options/{id}/status")
     public ApiResponse<Void> updateOptionStatus(
             @Parameter(description = "客制化选项ID") @PathVariable("id") @Min(value = 1, message = "客制化选项ID错误") Long id,
-            @Valid @RequestBody UpdateOptionStatusRequest request) {
+            @Valid @RequestBody UpdateCustomizationOptionStatusRequest request) {
         return customizationOptionAdminService.updateOptionStatus(id, request);
     }
 }
