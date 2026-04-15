@@ -137,7 +137,6 @@ public class ProductInternalServiceImpl implements ProductInternalService {
                 .stream()
                 .collect(Collectors.toMap(ProductEntity::getId, p -> p));
 
-        List<Long> productIds = items.stream().map(ProductAvailabilityItem::getProductId).toList();
         Set<Long> storeOnSaleProductIds = storeProductStatusMapper.selectList(
                 new LambdaQueryWrapper<StoreProductStatusEntity>()
                         .eq(StoreProductStatusEntity::getStoreId, storeId)
