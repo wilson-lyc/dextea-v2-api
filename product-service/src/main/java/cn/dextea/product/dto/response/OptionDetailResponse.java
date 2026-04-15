@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CustomizationOptionDetailResponse {
+public class OptionDetailResponse {
 
     private Long id;
     private Long itemId;

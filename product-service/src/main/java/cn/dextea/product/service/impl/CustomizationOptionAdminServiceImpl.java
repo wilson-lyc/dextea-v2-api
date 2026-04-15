@@ -2,11 +2,11 @@ package cn.dextea.product.service.impl;
 
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.converter.CustomizationConverter;
-import cn.dextea.product.dto.request.CreateCustomizationOptionRequest;
-import cn.dextea.product.dto.request.UpdateCustomizationOptionGlobalStatusRequest;
-import cn.dextea.product.dto.request.UpdateCustomizationOptionInfoRequest;
+import cn.dextea.product.dto.request.CreateOptionRequest;
+import cn.dextea.product.dto.request.UpdateOptionStatusRequest;
+import cn.dextea.product.dto.request.UpdateOptionInfoRequest;
 import cn.dextea.product.dto.response.CreateCustomizationOptionResponse;
-import cn.dextea.product.dto.response.CustomizationOptionDetailResponse;
+import cn.dextea.product.dto.response.OptionDetailResponse;
 import cn.dextea.product.entity.CustomizationItemEntity;
 import cn.dextea.product.entity.CustomizationOptionEntity;
 import cn.dextea.product.entity.IngredientEntity;
@@ -36,9 +36,9 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<CreateCustomizationOptionResponse> create(Long itemId,
-                                                                 CreateCustomizationOptionRequest request) {
-        CustomizationItemEntity item = getItemById(itemId);
+    public ApiResponse<CreateCustomizationOptionResponse> createOption(Long itemId,
+                                                                       CreateOptionRequest request) {
+        CustomizationItemEntity item = itemMapper.selectById(itemId);
         if (item == null) {
             return fail(CustomizationErrorCode.ITEM_NOT_FOUND);
         }
@@ -71,8 +71,8 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
     }
 
     @Override
-    public ApiResponse<List<CustomizationOptionDetailResponse>> listOptions(Long itemId) {
-        CustomizationItemEntity item = getActiveItemById(itemId);
+    public ApiResponse<List<OptionDetailResponse>> getItemOptionsList(Long itemId) {
+        CustomizationItemEntity item = itemMapper.selectById(itemId);
         if (item == null) {
             return fail(CustomizationErrorCode.ITEM_NOT_FOUND);
         }
@@ -80,7 +80,6 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
         List<CustomizationOptionEntity> options = optionMapper.selectList(
                 new LambdaQueryWrapper<CustomizationOptionEntity>()
                         .eq(CustomizationOptionEntity::getItemId, itemId)
-                        .ne(CustomizationOptionEntity::getStatus, CustomizationStatus.DISABLED.getValue())
                         .orderByAsc(CustomizationOptionEntity::getId));
 
         return ApiResponse.success(options.stream()
@@ -90,9 +89,9 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<CustomizationOptionDetailResponse> updateOptionInfo(Long id,
-            UpdateCustomizationOptionInfoRequest request) {
-        CustomizationOptionEntity entity = getActiveOptionById(id);
+    public ApiResponse<OptionDetailResponse> updateOptionInfo(Long id,
+                                                              UpdateOptionInfoRequest request) {
+        CustomizationOptionEntity entity = optionMapper.selectById(id);
         if (entity == null) {
             return fail(CustomizationErrorCode.OPTION_NOT_FOUND);
         }
@@ -121,9 +120,9 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<Void> updateOptionStatus(Long id, UpdateCustomizationOptionGlobalStatusRequest request) {
+    public ApiResponse<Void> updateOptionStatus(Long id, UpdateOptionStatusRequest request) {
         CustomizationOptionEntity entity = optionMapper.selectById(id);
-        if (entity == null || CustomizationStatus.DISABLED.getValue().equals(entity.getStatus())) {
+        if (entity == null) {
             return fail(CustomizationErrorCode.OPTION_NOT_FOUND);
         }
 
@@ -136,37 +135,12 @@ public class CustomizationOptionAdminServiceImpl implements CustomizationOptionA
     }
 
     @Override
-    @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<Void> deleteOption(Long id) {
-        CustomizationOptionEntity entity = getActiveOptionById(id);
+    public ApiResponse<OptionDetailResponse> getOptionDetail(Long id) {
+        CustomizationOptionEntity entity = optionMapper.selectById(id);
         if (entity == null) {
             return fail(CustomizationErrorCode.OPTION_NOT_FOUND);
         }
-
-        entity.setStatus(CustomizationStatus.DISABLED.getValue());
-        if (optionMapper.updateById(entity) != 1) {
-            return fail(CustomizationErrorCode.OPTION_DELETE_FAILED);
-        }
-
-        return ApiResponse.success();
-    }
-
-    // ---- Helpers ----
-
-    private CustomizationItemEntity getItemById(Long itemId) {
-        return itemMapper.selectById(itemId);
-    }
-
-    private CustomizationItemEntity getActiveItemById(Long itemId) {
-        return itemMapper.selectOne(new LambdaQueryWrapper<CustomizationItemEntity>()
-                .eq(CustomizationItemEntity::getId, itemId)
-                .ne(CustomizationItemEntity::getStatus, CustomizationStatus.DISABLED.getValue()));
-    }
-
-    private CustomizationOptionEntity getActiveOptionById(Long optionId) {
-        return optionMapper.selectOne(new LambdaQueryWrapper<CustomizationOptionEntity>()
-                .eq(CustomizationOptionEntity::getId, optionId)
-                .ne(CustomizationOptionEntity::getStatus, CustomizationStatus.DISABLED.getValue()));
+        return ApiResponse.success(customizationConverter.toOptionDetailResponse(entity));
     }
 
     private boolean optionNameExistsInItem(Long itemId, String name, Long excludeId) {

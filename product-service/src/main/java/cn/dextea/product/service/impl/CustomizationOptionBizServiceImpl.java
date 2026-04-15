@@ -4,7 +4,7 @@ import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.converter.CustomizationConverter;
 import cn.dextea.product.dto.request.CustomizationOptionListWithStoreIdRequest;
 import cn.dextea.product.dto.request.UpdateStoreCustomizationOptionStatusRequest;
-import cn.dextea.product.dto.response.CustomizationOptionDetailResponse;
+import cn.dextea.product.dto.response.OptionDetailResponse;
 import cn.dextea.product.entity.CustomizationOptionEntity;
 import cn.dextea.product.entity.StoreCustomizationOptionStatusEntity;
 import cn.dextea.product.enums.CustomizationErrorCode;
@@ -23,7 +23,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -37,76 +36,27 @@ public class CustomizationOptionBizServiceImpl implements CustomizationOptionBiz
     private final CustomizationOptionStoreStatusSyncSupport customizationOptionStoreStatusSyncSupport;
 
     @Override
-    public ApiResponse<List<CustomizationOptionDetailResponse>> listOptions(Long itemId,
-            CustomizationOptionListWithStoreIdRequest request) {
+    public ApiResponse<List<OptionDetailResponse>> getItemOptionsList(Long itemId,
+                                                                      CustomizationOptionListWithStoreIdRequest request) {
         if (itemMapper.selectById(itemId) == null) {
             return fail(CustomizationErrorCode.ITEM_NOT_FOUND);
         }
 
         Long storeId = request.getStoreId();
-        Integer storeStatus = request.getStoreStatus();
 
-        LambdaQueryWrapper<CustomizationOptionEntity> optionQuery = new LambdaQueryWrapper<CustomizationOptionEntity>()
-                .eq(CustomizationOptionEntity::getItemId, itemId)
-                .eq(CustomizationOptionEntity::getStatus, CustomizationStatus.ACTIVE.getValue())
-                .orderByAsc(CustomizationOptionEntity::getId);
+        List<CustomizationOptionEntity> options = optionMapper.selectList(
+                new LambdaQueryWrapper<CustomizationOptionEntity>()
+                        .eq(CustomizationOptionEntity::getItemId, itemId)
+                        .eq(CustomizationOptionEntity::getStatus, CustomizationStatus.ACTIVE.getValue())
+                        .orderByAsc(CustomizationOptionEntity::getId));
 
-        if (storeStatus != null) {
-            return listOptionsFilteredByStoreStatus(storeId, storeStatus, optionQuery);
-        }
-        return listOptionsDirectly(storeId, optionQuery);
-    }
-
-    /**
-     * 按指定门店状态筛选
-     */
-    private ApiResponse<List<CustomizationOptionDetailResponse>> listOptionsFilteredByStoreStatus(
-            Long storeId, Integer requestedStatus,
-            LambdaQueryWrapper<CustomizationOptionEntity> optionQuery) {
-        if (Objects.equals(StoreCustomizationStatus.DISABLED.getValue(), requestedStatus)) {
-            // 售罄是兜底状态，排除有明确非售罄记录的选项
-            List<Long> nonDefaultOptionIds = storeOptionRelMapper.selectList(
-                    new LambdaQueryWrapper<StoreCustomizationOptionStatusEntity>()
-                            .eq(StoreCustomizationOptionStatusEntity::getStoreId, storeId)
-                            .ne(StoreCustomizationOptionStatusEntity::getStatus, StoreCustomizationStatus.DISABLED.getValue()))
-                    .stream()
-                    .map(StoreCustomizationOptionStatusEntity::getOptionId)
-                    .toList();
-            if (!nonDefaultOptionIds.isEmpty()) {
-                optionQuery.notIn(CustomizationOptionEntity::getId, nonDefaultOptionIds);
-            }
-        } else {
-            // 非兜底状态必须有明确的状态记录
-            List<Long> matchingOptionIds = storeOptionRelMapper.selectList(
-                    new LambdaQueryWrapper<StoreCustomizationOptionStatusEntity>()
-                            .eq(StoreCustomizationOptionStatusEntity::getStoreId, storeId)
-                            .eq(StoreCustomizationOptionStatusEntity::getStatus, requestedStatus))
-                    .stream()
-                    .map(StoreCustomizationOptionStatusEntity::getOptionId)
-                    .toList();
-            if (matchingOptionIds.isEmpty()) {
-                return ApiResponse.success(List.of());
-            }
-            optionQuery.in(CustomizationOptionEntity::getId, matchingOptionIds);
-        }
-
-        List<CustomizationOptionEntity> options = optionMapper.selectList(optionQuery);
-        return ApiResponse.success(fillOptionStoreStatuses(storeId, options));
-    }
-
-    /**
-     * 不按门店状态筛选
-     */
-    private ApiResponse<List<CustomizationOptionDetailResponse>> listOptionsDirectly(
-            Long storeId, LambdaQueryWrapper<CustomizationOptionEntity> optionQuery) {
-        List<CustomizationOptionEntity> options = optionMapper.selectList(optionQuery);
         return ApiResponse.success(fillOptionStoreStatuses(storeId, options));
     }
 
     /**
      * 填入门店状态
      */
-    private List<CustomizationOptionDetailResponse> fillOptionStoreStatuses(
+    private List<OptionDetailResponse> fillOptionStoreStatuses(
             Long storeId, List<CustomizationOptionEntity> options) {
         if (options.isEmpty()) {
             return List.of();
