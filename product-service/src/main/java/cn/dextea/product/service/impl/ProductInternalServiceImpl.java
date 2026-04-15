@@ -12,17 +12,19 @@ import cn.dextea.product.entity.CustomizationOptionEntity;
 import cn.dextea.product.entity.ProductCustomizationItemBindingEntity;
 import cn.dextea.product.entity.ProductEntity;
 import cn.dextea.product.entity.StoreCustomizationOptionStatusEntity;
+import cn.dextea.product.entity.StoreProductStatusEntity;
 import cn.dextea.product.enums.CustomizationStatus;
 import cn.dextea.product.enums.ProductErrorCode;
 import cn.dextea.product.enums.ProductStatus;
 import cn.dextea.product.enums.StoreCustomizationStatus;
+import cn.dextea.product.enums.StoreProductStatus;
 import cn.dextea.product.mapper.CustomizationItemMapper;
 import cn.dextea.product.mapper.CustomizationOptionMapper;
 import cn.dextea.product.mapper.ProductCustomizationItemBindingMapper;
 import cn.dextea.product.mapper.ProductMapper;
 import cn.dextea.product.mapper.StoreCustomizationOptionStatusMapper;
+import cn.dextea.product.mapper.StoreProductStatusMapper;
 import cn.dextea.product.service.ProductInternalService;
-import cn.dextea.product.service.support.ProductStoreStatusSyncSupport;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -31,6 +33,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -43,7 +46,7 @@ public class ProductInternalServiceImpl implements ProductInternalService {
     private final CustomizationOptionMapper customizationOptionMapper;
     private final ProductCustomizationItemBindingMapper bindingMapper;
     private final StoreCustomizationOptionStatusMapper storeOptionRelMapper;
-    private final ProductStoreStatusSyncSupport productStoreStatusSyncSupport;
+    private final StoreProductStatusMapper storeProductStatusMapper;
 
     @Override
     public ApiResponse<CartSnapshotResponse> getCartSnapshot(CartSnapshotRequest request) {
@@ -134,9 +137,15 @@ public class ProductInternalServiceImpl implements ProductInternalService {
                 .stream()
                 .collect(Collectors.toMap(ProductEntity::getId, p -> p));
 
-        Set<Long> storeOnSaleProductIds = productStoreStatusSyncSupport.buildEffectiveEnabledProductIds(
-                storeId,
-                new ArrayList<>(productById.values()));
+        List<Long> productIds = items.stream().map(ProductAvailabilityItem::getProductId).toList();
+        Set<Long> storeOnSaleProductIds = storeProductStatusMapper.selectList(
+                new LambdaQueryWrapper<StoreProductStatusEntity>()
+                        .eq(StoreProductStatusEntity::getStoreId, storeId)
+                        .in(StoreProductStatusEntity::getProductId, productIds))
+                .stream()
+                .filter(e -> Objects.equals(e.getStatus(), StoreProductStatus.ENABLED.getValue()))
+                .map(StoreProductStatusEntity::getProductId)
+                .collect(Collectors.toSet());
 
         // Batch fetch all option statuses for all items in the request
         List<Long> allOptionIds = items.stream()

@@ -13,7 +13,6 @@ import cn.dextea.product.enums.StoreProductStatus;
 import cn.dextea.product.mapper.ProductMapper;
 import cn.dextea.product.mapper.StoreProductStatusMapper;
 import cn.dextea.product.service.ProductBizService;
-import cn.dextea.product.service.support.ProductStoreStatusSyncSupport;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -23,6 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -31,8 +31,10 @@ public class ProductBizServiceImpl implements ProductBizService {
     private final ProductMapper productMapper;
     private final StoreProductStatusMapper storeProductStatusMapper;
     private final ProductConverter productConverter;
-    private final ProductStoreStatusSyncSupport productStoreStatusSyncSupport;
 
+    /**
+     * 获取分页数据网关
+     */
     @Override
     public ApiResponse<IPage<ProductDetailResponse>> getPage(StoreProductPageRequest request) {
         Long storeId = request.getStoreId();
@@ -46,42 +48,42 @@ public class ProductBizServiceImpl implements ProductBizService {
 
         // 指定门店状态，走门店状态过滤逻辑
         if (storeStatus != null) {
-            return getPageFilteredByStoreStatus(request, storeId, storeStatus, productQuery);
+            return getPage(request, storeId, storeStatus, productQuery);
         }
-        return getPageDirectly(request, storeId, productQuery);
+        return getPage(request, storeId, productQuery);
     }
 
     /**
      * 按指定商品门店状态筛选
      */
-    private ApiResponse<IPage<ProductDetailResponse>> getPageFilteredByStoreStatus(
+    private ApiResponse<IPage<ProductDetailResponse>> getPage(
             StoreProductPageRequest request, Long storeId, Integer requestedStatus,
             LambdaQueryWrapper<ProductEntity> productQuery) {
         if (Objects.equals(StoreProductStatus.DISABLED.getValue(), requestedStatus)) {
-            // 售罄是兜底状态（无记录即售罄），需排除有明确非售罄记录的商品
-            List<Long> nonDefaultProductIds = storeProductStatusMapper.selectList(
+            // 排除非售罄商品
+            List<Long> excludedId = storeProductStatusMapper.selectList(
                     new LambdaQueryWrapper<StoreProductStatusEntity>()
                             .eq(StoreProductStatusEntity::getStoreId, storeId)
                             .ne(StoreProductStatusEntity::getStatus, StoreProductStatus.DISABLED.getValue()))
                     .stream()
                     .map(StoreProductStatusEntity::getProductId)
                     .toList();
-            if (!nonDefaultProductIds.isEmpty()) {
-                productQuery.notIn(ProductEntity::getId, nonDefaultProductIds);
+            if (!excludedId.isEmpty()) {
+                productQuery.notIn(ProductEntity::getId, excludedId);
             }
         } else {
-            // 非兜底状态必须有明确的状态记录
-            List<Long> matchingProductIds = storeProductStatusMapper.selectList(
+            // 获取指定门店状态的商品
+            List<Long> matchingIds = storeProductStatusMapper.selectList(
                     new LambdaQueryWrapper<StoreProductStatusEntity>()
                             .eq(StoreProductStatusEntity::getStoreId, storeId)
                             .eq(StoreProductStatusEntity::getStatus, requestedStatus))
                     .stream()
                     .map(StoreProductStatusEntity::getProductId)
                     .toList();
-            if (matchingProductIds.isEmpty()) {
+            if (matchingIds.isEmpty()) {
                 return ApiResponse.success(new Page<>(request.getCurrent(), request.getSize()));
             }
-            productQuery.in(ProductEntity::getId, matchingProductIds);
+            productQuery.in(ProductEntity::getId, matchingIds);
         }
 
         IPage<ProductEntity> productPage = productMapper.selectPage(
@@ -92,7 +94,7 @@ public class ProductBizServiceImpl implements ProductBizService {
     /**
      * 不按门店状态筛选的分页
      */
-    private ApiResponse<IPage<ProductDetailResponse>> getPageDirectly(
+    private ApiResponse<IPage<ProductDetailResponse>> getPage(
             StoreProductPageRequest request, Long storeId,
             LambdaQueryWrapper<ProductEntity> productQuery) {
 
@@ -111,7 +113,16 @@ public class ProductBizServiceImpl implements ProductBizService {
                     entity -> productConverter.toProductDetailResponse(entity, StoreProductStatus.DISABLED.getValue()));
         }
 
-        Map<Long, Integer> productStatusMap = productStoreStatusSyncSupport.buildEffectiveStatusMap(storeId, products);
+        List<Long> productIds = products.stream().map(ProductEntity::getId).toList();
+        Map<Long, Integer> productStatusMap = storeProductStatusMapper.selectList(
+                new LambdaQueryWrapper<StoreProductStatusEntity>()
+                        .eq(StoreProductStatusEntity::getStoreId, storeId)
+                        .in(StoreProductStatusEntity::getProductId, productIds))
+                .stream()
+                .collect(Collectors.toMap(
+                        StoreProductStatusEntity::getProductId,
+                        StoreProductStatusEntity::getStatus,
+                        (left, right) -> right));
 
         // 逐条回填门店状态，未读到状态记录时默认售罄
         return productPage.convert(entity -> {

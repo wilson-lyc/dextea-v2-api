@@ -7,13 +7,15 @@ import cn.dextea.product.dto.response.StoreMenuResponse;
 import cn.dextea.product.entity.MenuEntity;
 import cn.dextea.product.entity.ProductEntity;
 import cn.dextea.product.entity.StoreMenuBindingEntity;
+import cn.dextea.product.entity.StoreProductStatusEntity;
 import cn.dextea.product.enums.MenuErrorCode;
 import cn.dextea.product.enums.MenuStatus;
+import cn.dextea.product.enums.StoreProductStatus;
 import cn.dextea.product.mapper.MenuMapper;
 import cn.dextea.product.mapper.ProductMapper;
 import cn.dextea.product.mapper.StoreMenuRelMapper;
+import cn.dextea.product.mapper.StoreProductStatusMapper;
 import cn.dextea.product.service.MenuBizService;
-import cn.dextea.product.service.support.ProductStoreStatusSyncSupport;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +24,7 @@ import org.springframework.util.CollectionUtils;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -33,7 +36,7 @@ public class MenuBizServiceImpl implements MenuBizService {
     private final MenuMapper menuMapper;
     private final ProductMapper productMapper;
     private final MenuConverter menuConverter;
-    private final ProductStoreStatusSyncSupport productStoreStatusSyncSupport;
+    private final StoreProductStatusMapper storeProductStatusMapper;
 
     @Override
     public ApiResponse<StoreMenuResponse> getStoreMenu(StoreMenuQueryRequest request) {
@@ -67,7 +70,15 @@ public class MenuBizServiceImpl implements MenuBizService {
         }
         List<ProductEntity> products = productMapper.selectBatchIds(productIds).stream()
                 .toList();
-        Set<Long> enabledProductIds = productStoreStatusSyncSupport.buildEffectiveEnabledProductIds(storeId, products);
+        List<Long> productIds = products.stream().map(ProductEntity::getId).toList();
+        Set<Long> enabledProductIds = storeProductStatusMapper.selectList(
+                new LambdaQueryWrapper<StoreProductStatusEntity>()
+                        .eq(StoreProductStatusEntity::getStoreId, storeId)
+                        .in(StoreProductStatusEntity::getProductId, productIds))
+                .stream()
+                .filter(e -> Objects.equals(e.getStatus(), StoreProductStatus.ENABLED.getValue()))
+                .map(StoreProductStatusEntity::getProductId)
+                .collect(Collectors.toSet());
         return products.stream()
                 .filter(product -> enabledProductIds.contains(product.getId()))
                 .collect(Collectors.toMap(ProductEntity::getId, p -> p));
