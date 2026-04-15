@@ -20,7 +20,7 @@ import cn.dextea.product.mapper.CustomizationItemMapper;
 import cn.dextea.product.mapper.CustomizationOptionMapper;
 import cn.dextea.product.mapper.ProductCustomizationItemBindingMapper;
 import cn.dextea.product.mapper.ProductMapper;
-import cn.dextea.product.mapper.StoreCustomizationOptionRelMapper;
+import cn.dextea.product.mapper.StoreCustomizationOptionStatusMapper;
 import cn.dextea.product.service.ProductInternalService;
 import cn.dextea.product.service.support.ProductStoreStatusSyncSupport;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -42,7 +42,7 @@ public class ProductInternalServiceImpl implements ProductInternalService {
     private final CustomizationItemMapper customizationItemMapper;
     private final CustomizationOptionMapper customizationOptionMapper;
     private final ProductCustomizationItemBindingMapper bindingMapper;
-    private final StoreCustomizationOptionRelMapper storeOptionRelMapper;
+    private final StoreCustomizationOptionStatusMapper storeOptionRelMapper;
     private final ProductStoreStatusSyncSupport productStoreStatusSyncSupport;
 
     @Override

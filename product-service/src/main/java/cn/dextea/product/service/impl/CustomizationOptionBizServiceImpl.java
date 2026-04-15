@@ -2,19 +2,17 @@ package cn.dextea.product.service.impl;
 
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.converter.CustomizationConverter;
-import cn.dextea.product.dto.request.CustomizationOptionListWithStoreIdRequest;
-import cn.dextea.product.dto.request.UpdateStoreCustomizationOptionStatusRequest;
+import cn.dextea.product.dto.request.ItemOptionsListInStore;
+import cn.dextea.product.dto.request.UpdateOptionStoreStatusRequest;
 import cn.dextea.product.dto.response.OptionDetailResponse;
 import cn.dextea.product.entity.CustomizationOptionEntity;
 import cn.dextea.product.entity.StoreCustomizationOptionStatusEntity;
 import cn.dextea.product.enums.CustomizationErrorCode;
-import cn.dextea.product.enums.CustomizationStatus;
 import cn.dextea.product.enums.StoreCustomizationStatus;
 import cn.dextea.product.mapper.CustomizationItemMapper;
 import cn.dextea.product.mapper.CustomizationOptionMapper;
-import cn.dextea.product.mapper.StoreCustomizationOptionRelMapper;
+import cn.dextea.product.mapper.StoreCustomizationOptionStatusMapper;
 import cn.dextea.product.service.CustomizationOptionBizService;
-import cn.dextea.product.service.support.CustomizationOptionStoreStatusSyncSupport;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.RequiredArgsConstructor;
@@ -31,13 +29,12 @@ public class CustomizationOptionBizServiceImpl implements CustomizationOptionBiz
 
     private final CustomizationItemMapper itemMapper;
     private final CustomizationOptionMapper optionMapper;
-    private final StoreCustomizationOptionRelMapper storeOptionRelMapper;
+    private final StoreCustomizationOptionStatusMapper storeOptionStatusMapper;
     private final CustomizationConverter customizationConverter;
-    private final CustomizationOptionStoreStatusSyncSupport customizationOptionStoreStatusSyncSupport;
 
     @Override
     public ApiResponse<List<OptionDetailResponse>> getItemOptionsList(Long itemId,
-                                                                      CustomizationOptionListWithStoreIdRequest request) {
+                                                                      ItemOptionsListInStore request) {
         if (itemMapper.selectById(itemId) == null) {
             return fail(CustomizationErrorCode.ITEM_NOT_FOUND);
         }
@@ -47,38 +44,41 @@ public class CustomizationOptionBizServiceImpl implements CustomizationOptionBiz
         List<CustomizationOptionEntity> options = optionMapper.selectList(
                 new LambdaQueryWrapper<CustomizationOptionEntity>()
                         .eq(CustomizationOptionEntity::getItemId, itemId)
-                        .eq(CustomizationOptionEntity::getStatus, CustomizationStatus.ACTIVE.getValue())
                         .orderByAsc(CustomizationOptionEntity::getId));
 
-        return ApiResponse.success(fillOptionStoreStatuses(storeId, options));
-    }
-
-    /**
-     * 填入门店状态
-     */
-    private List<OptionDetailResponse> fillOptionStoreStatuses(
-            Long storeId, List<CustomizationOptionEntity> options) {
         if (options.isEmpty()) {
-            return List.of();
+            return ApiResponse.success(List.of());
         }
-        Map<Long, Integer> optionStatusMap = customizationOptionStoreStatusSyncSupport.buildEffectiveStatusMap(storeId, options);
-        return options.stream()
+
+        List<Long> optionIds = options.stream().map(CustomizationOptionEntity::getId).toList();
+        Map<Long, Integer> optionStatusMap = storeOptionStatusMapper.selectList(
+                new LambdaQueryWrapper<StoreCustomizationOptionStatusEntity>()
+                        .eq(StoreCustomizationOptionStatusEntity::getStoreId, storeId)
+                        .in(StoreCustomizationOptionStatusEntity::getOptionId, optionIds))
+                .stream()
+                .collect(Collectors.toMap(
+                        StoreCustomizationOptionStatusEntity::getOptionId,
+                        StoreCustomizationOptionStatusEntity::getStatus,
+                        (left, right) -> right));
+        List<OptionDetailResponse> result = options.stream()
                 .map(entity -> {
                     int storeStatus = optionStatusMap.getOrDefault(entity.getId(), StoreCustomizationStatus.DISABLED.getValue());
                     return customizationConverter.toOptionDetailResponse(entity, storeStatus);
                 })
                 .collect(Collectors.toList());
+
+        return ApiResponse.success(result);
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<Void> updateStatus(Long optionId, UpdateStoreCustomizationOptionStatusRequest request) {
+    public ApiResponse<Void> updateOptionStoreStatus(Long optionId, UpdateOptionStoreStatusRequest request) {
         if (optionMapper.selectById(optionId) == null) {
             return fail(CustomizationErrorCode.OPTION_NOT_FOUND);
         }
 
         Long storeId = request.getStoreId();
-        StoreCustomizationOptionStatusEntity existing = storeOptionRelMapper.selectOne(
+        StoreCustomizationOptionStatusEntity existing = storeOptionStatusMapper.selectOne(
                 new LambdaQueryWrapper<StoreCustomizationOptionStatusEntity>()
                         .eq(StoreCustomizationOptionStatusEntity::getStoreId, storeId)
                         .eq(StoreCustomizationOptionStatusEntity::getOptionId, optionId));
@@ -88,11 +88,11 @@ public class CustomizationOptionBizServiceImpl implements CustomizationOptionBiz
                     .optionId(optionId)
                     .status(request.getStatus())
                     .build();
-            if (storeOptionRelMapper.insert(statusEntity) != 1) {
+            if (storeOptionStatusMapper.insert(statusEntity) != 1) {
                 return fail(CustomizationErrorCode.STORE_OPTION_SALE_STATUS_UPDATE_FAILED);
             }
         } else {
-            int rows = storeOptionRelMapper.update(null,
+            int rows = storeOptionStatusMapper.update(null,
                     new LambdaUpdateWrapper<StoreCustomizationOptionStatusEntity>()
                             .eq(StoreCustomizationOptionStatusEntity::getStoreId, storeId)
                             .eq(StoreCustomizationOptionStatusEntity::getOptionId, optionId)

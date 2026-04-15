@@ -2,8 +2,8 @@ package cn.dextea.product.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
-import cn.dextea.product.dto.request.CustomizationOptionListWithStoreIdRequest;
-import cn.dextea.product.dto.request.UpdateStoreCustomizationOptionStatusRequest;
+import cn.dextea.product.dto.request.ItemOptionsListInStore;
+import cn.dextea.product.dto.request.UpdateOptionStoreStatusRequest;
 import cn.dextea.product.dto.response.OptionDetailResponse;
 import cn.dextea.product.service.CustomizationOptionBizService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -36,7 +36,7 @@ public class CustomizationOptionBizController {
     @GetMapping("/v1/biz/customization-items/{itemId}/options")
     public ApiResponse<List<OptionDetailResponse>> getItemOptionsList(
             @Parameter(description = "客制化项目ID") @PathVariable("itemId") @Min(value = 1, message = "客制化项目ID错误") Long itemId,
-            @Valid CustomizationOptionListWithStoreIdRequest request) {
+            @Valid ItemOptionsListInStore request) {
         return customizationOptionBizService.getItemOptionsList(itemId, request);
     }
 
@@ -48,9 +48,9 @@ public class CustomizationOptionBizController {
      */
     @Operation(summary = "更新客制化选项的门店状态")
     @PutMapping("/v1/biz/customization-options/{id}/status")
-    public ApiResponse<Void> updateStatus(
+    public ApiResponse<Void> updateOptionStoreStatus(
             @Parameter(description = "客制化选项ID") @PathVariable("id") @Min(value = 1, message = "客制化选项ID不合法") Long id,
-            @Valid @RequestBody UpdateStoreCustomizationOptionStatusRequest request) {
-        return customizationOptionBizService.updateStatus(id, request);
+            @Valid @RequestBody UpdateOptionStoreStatusRequest request) {
+        return customizationOptionBizService.updateOptionStoreStatus(id, request);
     }
 }
