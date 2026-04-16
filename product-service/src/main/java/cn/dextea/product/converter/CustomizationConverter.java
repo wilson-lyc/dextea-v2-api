@@ -2,11 +2,15 @@ package cn.dextea.product.converter;
 
 import cn.dextea.product.dto.response.CreateCustomizationItemResponse;
 import cn.dextea.product.dto.response.CreateCustomizationOptionResponse;
+import cn.dextea.product.dto.response.CustomizationItemBizDetailResponse;
 import cn.dextea.product.dto.response.CustomizationItemDetailResponse;
+import cn.dextea.product.dto.response.CustomizationOptionBizDetailResponse;
 import cn.dextea.product.dto.response.CustomizationOptionDetailResponse;
 import cn.dextea.product.entity.CustomizationItemEntity;
 import cn.dextea.product.entity.CustomizationOptionEntity;
 import org.springframework.stereotype.Component;
+
+import java.util.List;
 
 @Component
 public class CustomizationConverter {
@@ -54,6 +58,29 @@ public class CustomizationConverter {
                 .ingredientQuantity(entity.getIngredientQuantity())
                 .status(entity.getStatus())
                 .createTime(entity.getCreateTime())
+                .build();
+    }
+
+    public CustomizationOptionBizDetailResponse toOptionBizDetailResponse(
+            CustomizationOptionEntity entity, Integer storeStatus) {
+        return CustomizationOptionBizDetailResponse.builder()
+                .id(entity.getId())
+                .itemId(entity.getItemId())
+                .name(entity.getName())
+                .price(entity.getPrice())
+                .storeStatus(storeStatus)
+                .build();
+    }
+
+    public CustomizationItemBizDetailResponse toItemBizDetailResponse(
+            CustomizationItemEntity entity, Integer storeStatus,
+            List<CustomizationOptionBizDetailResponse> options) {
+        return CustomizationItemBizDetailResponse.builder()
+                .id(entity.getId())
+                .name(entity.getName())
+                .description(entity.getDescription())
+                .storeStatus(storeStatus)
+                .options(options)
                 .build();
     }
 

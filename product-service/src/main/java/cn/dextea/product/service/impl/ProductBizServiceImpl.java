@@ -2,15 +2,32 @@ package cn.dextea.product.service.impl;
 
 import cn.dextea.common.util.StringValueUtils;
 import cn.dextea.common.web.response.ApiResponse;
+import cn.dextea.product.converter.CustomizationConverter;
 import cn.dextea.product.converter.ProductConverter;
 import cn.dextea.product.dto.request.StoreProductPageRequest;
 import cn.dextea.product.dto.request.UpdateStoreProductStatusRequest;
+import cn.dextea.product.dto.response.CustomerProductDetailResponse;
+import cn.dextea.product.dto.response.CustomizationItemBizDetailResponse;
+import cn.dextea.product.dto.response.CustomizationOptionBizDetailResponse;
 import cn.dextea.product.dto.response.ProductDetailResponse;
+import cn.dextea.product.entity.CustomizationItemEntity;
+import cn.dextea.product.entity.CustomizationOptionEntity;
+import cn.dextea.product.entity.ProductCustomizationItemBindingEntity;
 import cn.dextea.product.entity.ProductEntity;
+import cn.dextea.product.entity.StoreCustomizationItemStatusEntity;
+import cn.dextea.product.entity.StoreCustomizationOptionStatusEntity;
 import cn.dextea.product.entity.StoreProductStatusEntity;
+import cn.dextea.product.enums.CustomizationStatus;
 import cn.dextea.product.enums.ProductErrorCode;
+import cn.dextea.product.enums.ProductStatus;
+import cn.dextea.product.enums.StoreCustomizationStatus;
 import cn.dextea.product.enums.StoreProductStatus;
+import cn.dextea.product.mapper.CustomizationItemMapper;
+import cn.dextea.product.mapper.CustomizationOptionMapper;
+import cn.dextea.product.mapper.ProductCustomizationItemBindingMapper;
 import cn.dextea.product.mapper.ProductMapper;
+import cn.dextea.product.mapper.StoreCustomizationItemStatusMapper;
+import cn.dextea.product.mapper.StoreCustomizationOptionStatusMapper;
 import cn.dextea.product.mapper.StoreProductStatusMapper;
 import cn.dextea.product.service.ProductBizService;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -22,6 +39,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,7 +48,13 @@ public class ProductBizServiceImpl implements ProductBizService {
 
     private final ProductMapper productMapper;
     private final StoreProductStatusMapper storeProductStatusMapper;
+    private final ProductCustomizationItemBindingMapper bindingMapper;
+    private final CustomizationItemMapper customizationItemMapper;
+    private final StoreCustomizationItemStatusMapper storeItemStatusMapper;
+    private final CustomizationOptionMapper customizationOptionMapper;
+    private final StoreCustomizationOptionStatusMapper storeOptionStatusMapper;
     private final ProductConverter productConverter;
+    private final CustomizationConverter customizationConverter;
 
     /**
      * 获取分页数据网关
@@ -164,6 +188,108 @@ public class ProductBizServiceImpl implements ProductBizService {
         }
 
         return ApiResponse.success();
+    }
+
+    @Override
+    public ApiResponse<CustomerProductDetailResponse> getCustomerDetail(Long productId, Long storeId) {
+        ProductEntity product = productMapper.selectById(productId);
+        if (product == null) {
+            return fail(ProductErrorCode.PRODUCT_NOT_FOUND);
+        }
+        if (!Objects.equals(product.getStatus(), ProductStatus.ENABLED.getValue())) {
+            return fail(ProductErrorCode.PRODUCT_DISABLED);
+        }
+
+        StoreProductStatusEntity productStoreStatus = storeProductStatusMapper.selectOne(
+                new LambdaQueryWrapper<StoreProductStatusEntity>()
+                        .eq(StoreProductStatusEntity::getStoreId, storeId)
+                        .eq(StoreProductStatusEntity::getProductId, productId));
+        int productStoreStatusValue = productStoreStatus != null
+                ? productStoreStatus.getStatus()
+                : StoreProductStatus.DISABLED.getValue();
+
+        List<CustomizationItemBizDetailResponse> customizationItems = buildCustomizationItems(productId, storeId);
+
+        return ApiResponse.success(productConverter.toCustomerProductDetailResponse(
+                product, productStoreStatusValue, customizationItems));
+    }
+
+    private List<CustomizationItemBizDetailResponse> buildCustomizationItems(Long productId, Long storeId) {
+        List<ProductCustomizationItemBindingEntity> bindings = bindingMapper.selectList(
+                new LambdaQueryWrapper<ProductCustomizationItemBindingEntity>()
+                        .eq(ProductCustomizationItemBindingEntity::getProductId, productId)
+                        .orderByAsc(ProductCustomizationItemBindingEntity::getSortOrder));
+
+        if (bindings.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> itemIds = bindings.stream()
+                .map(ProductCustomizationItemBindingEntity::getItemId)
+                .toList();
+
+        List<CustomizationItemEntity> activeItems = customizationItemMapper.selectList(
+                new LambdaQueryWrapper<CustomizationItemEntity>()
+                        .in(CustomizationItemEntity::getId, itemIds)
+                        .eq(CustomizationItemEntity::getStatus, CustomizationStatus.ACTIVE.getValue()));
+
+        if (activeItems.isEmpty()) {
+            return List.of();
+        }
+
+        List<Long> activeItemIds = activeItems.stream()
+                .map(CustomizationItemEntity::getId)
+                .toList();
+
+        Map<Long, Integer> itemStoreStatusMap = toStatusMap(
+                storeItemStatusMapper.selectList(
+                        new LambdaQueryWrapper<StoreCustomizationItemStatusEntity>()
+                                .eq(StoreCustomizationItemStatusEntity::getStoreId, storeId)
+                                .in(StoreCustomizationItemStatusEntity::getItemId, activeItemIds)),
+                StoreCustomizationItemStatusEntity::getItemId,
+                StoreCustomizationItemStatusEntity::getStatus);
+
+        List<CustomizationOptionEntity> activeOptions = customizationOptionMapper.selectList(
+                new LambdaQueryWrapper<CustomizationOptionEntity>()
+                        .in(CustomizationOptionEntity::getItemId, activeItemIds)
+                        .eq(CustomizationOptionEntity::getStatus, CustomizationStatus.ACTIVE.getValue())
+                        .orderByAsc(CustomizationOptionEntity::getId));
+
+        Map<Long, Integer> optionStoreStatusMap = activeOptions.isEmpty() ? Map.of() : toStatusMap(
+                storeOptionStatusMapper.selectList(
+                        new LambdaQueryWrapper<StoreCustomizationOptionStatusEntity>()
+                                .eq(StoreCustomizationOptionStatusEntity::getStoreId, storeId)
+                                .in(StoreCustomizationOptionStatusEntity::getOptionId,
+                                        activeOptions.stream().map(CustomizationOptionEntity::getId).toList())),
+                StoreCustomizationOptionStatusEntity::getOptionId,
+                StoreCustomizationOptionStatusEntity::getStatus);
+
+        Map<Long, List<CustomizationOptionBizDetailResponse>> optionsByItemId = activeOptions.stream()
+                .collect(Collectors.groupingBy(
+                        CustomizationOptionEntity::getItemId,
+                        Collectors.mapping(
+                                option -> customizationConverter.toOptionBizDetailResponse(option,
+                                        optionStoreStatusMap.getOrDefault(
+                                                option.getId(), StoreCustomizationStatus.DISABLED.getValue())),
+                                Collectors.toList())));
+
+        Map<Long, Integer> bindingSortMap = bindings.stream()
+                .collect(Collectors.toMap(
+                        ProductCustomizationItemBindingEntity::getItemId,
+                        ProductCustomizationItemBindingEntity::getSortOrder,
+                        (left, right) -> left));
+
+        return activeItems.stream()
+                .sorted(Comparator.comparingInt(i -> bindingSortMap.getOrDefault(i.getId(), Integer.MAX_VALUE)))
+                .map(item -> customizationConverter.toItemBizDetailResponse(item,
+                        itemStoreStatusMap.getOrDefault(item.getId(), StoreCustomizationStatus.DISABLED.getValue()),
+                        optionsByItemId.getOrDefault(item.getId(), List.of())))
+                .toList();
+    }
+
+    private <E> Map<Long, Integer> toStatusMap(
+            List<E> rows, Function<E, Long> idKey, Function<E, Integer> statusKey) {
+        return rows.stream().collect(Collectors.toMap(idKey, statusKey, (left, right) -> right));
     }
 
     private <T> ApiResponse<T> fail(ProductErrorCode errorCode) {
