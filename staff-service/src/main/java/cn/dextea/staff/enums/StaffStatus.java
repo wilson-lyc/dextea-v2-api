@@ -10,7 +10,8 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum StaffStatus {
     DISABLED(0,"禁用"),
-    AVAILABLE(1, "可用");
+    ACTIVE(1, "启用"),
+    INACTIVE(2, "未激活");
 
     private final int value;
     private final String label;

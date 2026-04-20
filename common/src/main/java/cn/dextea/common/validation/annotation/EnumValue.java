@@ -29,7 +29,7 @@ public @interface EnumValue {
     /**
      * 错误消息
      */
-    String message() default "";
+    String message() default "{EnumValue.message}";
 
     /**
      * 字段中文名称，用于错误消息

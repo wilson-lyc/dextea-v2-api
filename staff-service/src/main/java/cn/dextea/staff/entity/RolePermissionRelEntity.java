@@ -18,8 +18,8 @@ public class RolePermissionRelEntity {
     @TableField("role_id")
     private Long roleId;
 
-    @TableField("permission_name")
-    private String permissionName;
+    @TableField("permission_id")
+    private Long permissionId;
 
     @TableField("create_time")
     private LocalDateTime createTime;

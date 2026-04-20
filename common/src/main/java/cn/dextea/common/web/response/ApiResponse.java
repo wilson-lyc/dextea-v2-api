@@ -1,6 +1,7 @@
 package cn.dextea.common.web.response;
 
 import cn.dextea.common.code.ResponseCode;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -42,6 +43,7 @@ public class ApiResponse<T> {
      * 判断响应是否成功（code == ResponseCode.SUCCESS.getCode()）。
      * 可在 @Cacheable unless 表达式中使用：unless = "!#result.success"
      */
+    @JsonIgnore
     public boolean isSuccess() {
         return ResponseCode.SUCCESS.getCode().equals(this.code);
     }

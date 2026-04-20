@@ -64,7 +64,7 @@ public class StaffAdminServiceImpl implements StaffAdminService {
                 .username(username)
                 .realName(realName)
                 .userType(request.getUserType())
-                .status(StaffStatus.AVAILABLE.getValue())
+                .status(StaffStatus.INACTIVE.getValue())
                 .password(passwordUtil.encode(initialPassword))
                 .build();
 
@@ -85,7 +85,7 @@ public class StaffAdminServiceImpl implements StaffAdminService {
                 .like(StringValueUtils.hasText(request.getRealName()), StaffEntity::getRealName, StringValueUtils.trim(request.getRealName()))
                 .eq(request.getUserType() != null, StaffEntity::getUserType, request.getUserType())
                 .eq(request.getStatus() != null, StaffEntity::getStatus, request.getStatus())
-                .orderByDesc(StaffEntity::getId);
+                .orderByAsc(StaffEntity::getId);
 
         if (request.getStoreId() != null) {
             if (!isStoreValid(request.getStoreId())) {
@@ -171,7 +171,7 @@ public class StaffAdminServiceImpl implements StaffAdminService {
             return fail(StaffErrorCode.STAFF_NOT_FOUND);
         }
 
-        staffEntity.setStatus(StaffStatus.AVAILABLE.getValue());
+        staffEntity.setStatus(StaffStatus.ACTIVE.getValue());
         if (staffMapper.updateById(staffEntity) != 1) {
             return fail(StaffErrorCode.UPDATE_FAILED);
         }

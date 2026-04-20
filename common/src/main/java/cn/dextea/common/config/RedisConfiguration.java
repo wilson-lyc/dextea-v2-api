@@ -1,6 +1,5 @@
 package cn.dextea.common.config;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.context.annotation.Bean;
@@ -16,15 +15,14 @@ public class RedisConfiguration {
 
     @Bean
     @ConditionalOnMissingBean(name = "redisTemplate")
-    public RedisTemplate<String, Object> redisTemplate(
-            RedisConnectionFactory connectionFactory,
-            ObjectMapper objectMapper) {
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
 
         StringRedisSerializer keySerializer = new StringRedisSerializer();
-        GenericJackson2JsonRedisSerializer valueSerializer =
-                new GenericJackson2JsonRedisSerializer(objectMapper);
+        // 使用默认构造函数，内部 ObjectMapper 自动开启 activateDefaultTyping，
+        // 写入 @class 类型信息，保证 Sa-Token SaSession 等多态对象能正确反序列化。
+        GenericJackson2JsonRedisSerializer valueSerializer = new GenericJackson2JsonRedisSerializer();
 
         template.setKeySerializer(keySerializer);
         template.setValueSerializer(valueSerializer);

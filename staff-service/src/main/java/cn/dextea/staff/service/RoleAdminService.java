@@ -68,8 +68,8 @@ public interface RoleAdminService {
      * 解除角色的权限
      *
      * @param id 角色ID
-     * @param permissionName 权限名称
+     * @param permissionId 权限ID
      * @return 返回解除结果
      */
-    ApiResponse<Void> unbindPermission(Long id, String permissionName);
+    ApiResponse<Void> unbindPermission(Long id, Long permissionId);
 }

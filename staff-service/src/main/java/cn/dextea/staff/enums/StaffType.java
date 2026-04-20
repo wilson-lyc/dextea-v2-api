@@ -12,7 +12,7 @@ public enum StaffType {
     COMPANY(0, "公司员工"),
     STORE(1, "门店员工");
 
-    private final int value;
+    private final Integer value;
     private final String label;
 
     public static boolean isValid(Integer value) {

@@ -96,7 +96,7 @@ public class StaffAdminController {
      * @param id 员工ID
      * @return 激活结果
      */
-    @PutMapping("/{id}/enable")
+    @PutMapping("/{id}/active")
     public ApiResponse<Void> enableStaff(
             @PathVariable("id") @Min(value = 1, message = "员工ID不能为空") Long id) {
         return staffAdminService.enableStaff(id);

@@ -55,7 +55,7 @@ public class StaffAuthServiceImpl implements StaffAuthService {
             return fail(StaffErrorCode.LOGIN_FAILED);
         }
         // 只有可用状态的员工才允许登录后台系统。
-        if (staffEntity.getStatus() == null || staffEntity.getStatus() != StaffStatus.AVAILABLE.getValue()) {
+        if (staffEntity.getStatus() == null || staffEntity.getStatus() != StaffStatus.ACTIVE.getValue()) {
             return fail(StaffErrorCode.ACCOUNT_DISABLED);
         }
 

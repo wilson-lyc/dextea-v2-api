@@ -1,7 +1,7 @@
 package cn.dextea.staff.dto.request;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Size;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BindRolePermissionRequest {
-    @NotBlank(message = "权限名称不能为空")
-    @Size(max = 255, message = "权限名称长度不能超过255位")
-    private String permissionName;
+    @NotNull(message = "权限ID不能为空")
+    @Min(value = 1, message = "权限ID不能为空")
+    private Long permissionId;
 }

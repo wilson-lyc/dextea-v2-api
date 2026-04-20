@@ -12,7 +12,6 @@ import cn.dextea.staff.service.RoleAdminService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
-import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -106,13 +105,13 @@ public class RoleAdminController {
     /**
      * 解除角色的权限
      * @param id 角色ID
-     * @param permissionName 权限名称
+     * @param permissionId 权限ID
      * @return 解除结果
      */
-    @DeleteMapping("/{id}/permissions/{permissionName}")
+    @DeleteMapping("/{id}/permissions/{permissionId}")
     public ApiResponse<Void> unbindPermission(
             @PathVariable("id") @Min(value = 1, message = "角色ID不能为空") Long id,
-            @PathVariable("permissionName") @NotBlank(message = "权限名称不能为空") String permissionName) {
-        return roleAdminService.unbindPermission(id, permissionName);
+            @PathVariable("permissionId") @Min(value = 1, message = "权限ID不能为空") Long permissionId) {
+        return roleAdminService.unbindPermission(id, permissionId);
     }
 }

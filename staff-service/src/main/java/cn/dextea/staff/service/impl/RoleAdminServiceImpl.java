@@ -146,11 +146,9 @@ public class RoleAdminServiceImpl implements RoleAdminService {
             return fail(RoleErrorCode.ROLE_NOT_FOUND);
         }
 
-        // 按权限名称查询权限定义，绑定关系必须指向真实存在的权限。
-        String permissionName = request.getPermissionName().trim();
-        PermissionEntity permissionEntity = permissionMapper.selectOne(
-                new LambdaQueryWrapper<PermissionEntity>().eq(PermissionEntity::getName, permissionName)
-        );
+        // 按权限ID查询权限定义，绑定关系必须指向真实存在的权限。
+        Long permissionId = request.getPermissionId();
+        PermissionEntity permissionEntity = permissionMapper.selectById(permissionId);
         if (permissionEntity == null) {
             return fail(RoleErrorCode.PERMISSION_NOT_FOUND);
         }
@@ -158,7 +156,7 @@ public class RoleAdminServiceImpl implements RoleAdminService {
         // 避免重复插入同一角色与权限的关联关系。
         LambdaQueryWrapper<RolePermissionRelEntity> queryWrapper = new LambdaQueryWrapper<RolePermissionRelEntity>()
                 .eq(RolePermissionRelEntity::getRoleId, id)
-                .eq(RolePermissionRelEntity::getPermissionName, permissionName);
+                .eq(RolePermissionRelEntity::getPermissionId, permissionId);
         if (rolePermissionRelMapper.exists(queryWrapper)) {
             return fail(RoleErrorCode.ROLE_PERMISSION_ALREADY_BOUND);
         }
@@ -166,7 +164,7 @@ public class RoleAdminServiceImpl implements RoleAdminService {
         // 创建角色-权限关系记录。
         RolePermissionRelEntity relation = RolePermissionRelEntity.builder()
                 .roleId(id)
-                .permissionName(permissionName)
+                .permissionId(permissionId)
                 .build();
         if (rolePermissionRelMapper.insert(relation) != 1) {
             return fail(RoleErrorCode.BIND_PERMISSION_FAILED);
@@ -177,18 +175,15 @@ public class RoleAdminServiceImpl implements RoleAdminService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<Void> unbindPermission(Long id, String permissionName) {
+    public ApiResponse<Void> unbindPermission(Long id, Long permissionId) {
         // 先确认角色存在，再处理角色权限解绑。
         RoleEntity roleEntity = roleMapper.selectById(id);
         if (roleEntity == null) {
             return fail(RoleErrorCode.ROLE_NOT_FOUND);
         }
 
-        // 根据权限名称确认目标权限存在，避免传入脏数据。
-        String trimmedPermissionName = permissionName.trim();
-        PermissionEntity permissionEntity = permissionMapper.selectOne(
-                new LambdaQueryWrapper<PermissionEntity>().eq(PermissionEntity::getName, trimmedPermissionName)
-        );
+        // 按权限ID确认目标权限存在，避免传入脏数据。
+        PermissionEntity permissionEntity = permissionMapper.selectById(permissionId);
         if (permissionEntity == null) {
             return fail(RoleErrorCode.PERMISSION_NOT_FOUND);
         }
@@ -196,7 +191,7 @@ public class RoleAdminServiceImpl implements RoleAdminService {
         // 先判断关系是否存在，避免删除不存在的绑定记录。
         LambdaQueryWrapper<RolePermissionRelEntity> queryWrapper = new LambdaQueryWrapper<RolePermissionRelEntity>()
                 .eq(RolePermissionRelEntity::getRoleId, id)
-                .eq(RolePermissionRelEntity::getPermissionName, trimmedPermissionName);
+                .eq(RolePermissionRelEntity::getPermissionId, permissionId);
         if (!rolePermissionRelMapper.exists(queryWrapper)) {
             return fail(RoleErrorCode.ROLE_PERMISSION_REL_NOT_FOUND);
         }
