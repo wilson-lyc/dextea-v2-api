@@ -4,6 +4,7 @@ import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.dto.request.StoreProductPageRequest;
 import cn.dextea.product.dto.request.UpdateStoreProductStatusRequest;
+import cn.dextea.product.dto.response.CustomerProductDetailResponse;
 import cn.dextea.product.dto.response.ProductDetailResponse;
 import cn.dextea.product.service.ProductBizService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -36,6 +37,14 @@ public class ProductBizController {
     public ApiResponse<IPage<ProductDetailResponse>> getPage(
             @Valid StoreProductPageRequest request) {
         return productBizService.getPage(request);
+    }
+
+    @Operation(summary = "顾客端获取商品详情", description = "返回商品信息及其绑定的客制化项目和选项，仅返回全局上架的商品和激活的客制化内容")
+    @GetMapping("/{id}")
+    public ApiResponse<CustomerProductDetailResponse> getCustomerDetail(
+            @Parameter(description = "商品ID") @PathVariable("id") @Min(value = 1, message = "商品ID不能为空") Long id,
+            @Parameter(description = "门店ID") @RequestParam("storeId") @Min(value = 1, message = "门店ID不能为空") Long storeId) {
+        return productBizService.getCustomerDetail(id, storeId);
     }
 
     /**

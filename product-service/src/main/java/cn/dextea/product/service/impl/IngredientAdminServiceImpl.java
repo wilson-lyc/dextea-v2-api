@@ -6,6 +6,7 @@ import cn.dextea.product.converter.IngredientConverter;
 import cn.dextea.product.dto.request.CreateIngredientRequest;
 import cn.dextea.product.dto.request.IngredientPageQueryRequest;
 import cn.dextea.product.dto.request.UpdateIngredientRequest;
+import cn.dextea.product.dto.request.UpdateIngredientStatusRequest;
 import cn.dextea.product.dto.response.CreateIngredientResponse;
 import cn.dextea.product.dto.response.IngredientDetailResponse;
 import cn.dextea.product.entity.IngredientEntity;
@@ -29,7 +30,7 @@ public class IngredientAdminServiceImpl implements IngredientAdminService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<CreateIngredientResponse> createIngredient(CreateIngredientRequest request) {
+    public ApiResponse<CreateIngredientResponse> create(CreateIngredientRequest request) {
         String name = request.getName().trim();
 
         if (existsByName(name, null)) {
@@ -44,7 +45,7 @@ public class IngredientAdminServiceImpl implements IngredientAdminService {
                 .storageMethod(request.getStorageMethod())
                 .preparedExpiry(request.getPreparedExpiry())
                 .preparedExpiryUnit(request.getPreparedExpiryUnit())
-                .status(IngredientStatus.ACTIVE.getValue())
+                .status(IngredientStatus.DISABLED.getValue())
                 .build();
 
         if (ingredientMapper.insert(entity) != 1) {
@@ -55,9 +56,8 @@ public class IngredientAdminServiceImpl implements IngredientAdminService {
     }
 
     @Override
-    public ApiResponse<IPage<IngredientDetailResponse>> getIngredientPage(IngredientPageQueryRequest request) {
+    public ApiResponse<IPage<IngredientDetailResponse>> getPage(IngredientPageQueryRequest request) {
         LambdaQueryWrapper<IngredientEntity> queryWrapper = new LambdaQueryWrapper<IngredientEntity>()
-                .eq(IngredientEntity::getStatus, IngredientStatus.ACTIVE.getValue())
                 .like(StringValueUtils.hasText(request.getName()), IngredientEntity::getName, StringValueUtils.trim(request.getName()))
                 .orderByDesc(IngredientEntity::getId);
 
@@ -68,7 +68,7 @@ public class IngredientAdminServiceImpl implements IngredientAdminService {
     }
 
     @Override
-    public ApiResponse<IngredientDetailResponse> getIngredientDetail(Long id) {
+    public ApiResponse<IngredientDetailResponse> getDetail(Long id) {
         IngredientEntity entity = getActiveById(id);
         if (entity == null) {
             return fail(IngredientErrorCode.INGREDIENT_NOT_FOUND);
@@ -78,7 +78,7 @@ public class IngredientAdminServiceImpl implements IngredientAdminService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<IngredientDetailResponse> updateIngredient(Long id, UpdateIngredientRequest request) {
+    public ApiResponse<IngredientDetailResponse> updateInfo(Long id, UpdateIngredientRequest request) {
         IngredientEntity entity = getActiveById(id);
         if (entity == null) {
             return fail(IngredientErrorCode.INGREDIENT_NOT_FOUND);
@@ -106,13 +106,13 @@ public class IngredientAdminServiceImpl implements IngredientAdminService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<Void> deleteIngredient(Long id) {
-        IngredientEntity entity = getActiveById(id);
+    public ApiResponse<Void> updateStatus(Long id, UpdateIngredientStatusRequest request) {
+        IngredientEntity entity = ingredientMapper.selectById(id);
         if (entity == null) {
             return fail(IngredientErrorCode.INGREDIENT_NOT_FOUND);
         }
 
-        entity.setStatus(IngredientStatus.DELETED.getValue());
+        entity.setStatus(request.getStatus());
         if (ingredientMapper.updateById(entity) != 1) {
             return fail(IngredientErrorCode.UPDATE_FAILED);
         }

@@ -18,7 +18,10 @@ public enum CustomizationErrorCode {
     ITEM_CREATE_FAILED(34010, "客制化项目创建失败"),
     ITEM_UPDATE_FAILED(34011, "客制化项目更新失败"),
     OPTION_CREATE_FAILED(34012, "客制化选项创建失败"),
-    OPTION_UPDATE_FAILED(34013, "客制化选项更新失败");
+    OPTION_UPDATE_FAILED(34013, "客制化选项更新失败"),
+    ITEM_ALREADY_BOUND(34014, "该客制化项目已绑定至商品"),
+    ITEM_NOT_BOUND(34015, "该客制化项目未绑定至商品"),
+    ITEM_BIND_FAILED(34016, "客制化项目绑定失败");
 
     private final Integer code;
     private final String msg;

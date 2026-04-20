@@ -5,6 +5,7 @@ import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.dto.request.CreateIngredientRequest;
 import cn.dextea.product.dto.request.IngredientPageQueryRequest;
 import cn.dextea.product.dto.request.UpdateIngredientRequest;
+import cn.dextea.product.dto.request.UpdateIngredientStatusRequest;
 import cn.dextea.product.dto.response.CreateIngredientResponse;
 import cn.dextea.product.dto.response.IngredientDetailResponse;
 import cn.dextea.product.service.IngredientAdminService;
@@ -35,9 +36,9 @@ public class IngredientAdminController {
      */
     @Operation(summary = "创建原料")
     @PostMapping
-    public ApiResponse<CreateIngredientResponse> createIngredient(
+    public ApiResponse<CreateIngredientResponse> create(
             @Valid @RequestBody CreateIngredientRequest request) {
-        return ingredientAdminService.createIngredient(request);
+        return ingredientAdminService.create(request);
     }
 
     /**
@@ -47,9 +48,9 @@ public class IngredientAdminController {
      */
     @Operation(summary = "分页查询原料列表", description = "支持按原料名称模糊搜索")
     @GetMapping
-    public ApiResponse<IPage<IngredientDetailResponse>> getIngredientPage(
+    public ApiResponse<IPage<IngredientDetailResponse>> getPage(
             @Valid IngredientPageQueryRequest request) {
-        return ingredientAdminService.getIngredientPage(request);
+        return ingredientAdminService.getPage(request);
     }
 
     /**
@@ -59,9 +60,9 @@ public class IngredientAdminController {
      */
     @Operation(summary = "获取原料详情")
     @GetMapping("/{id}")
-    public ApiResponse<IngredientDetailResponse> getIngredientDetail(
+    public ApiResponse<IngredientDetailResponse> getDetail(
             @Parameter(description = "原料ID") @PathVariable("id") @Min(value = 1, message = "ID不能为空") Long id) {
-        return ingredientAdminService.getIngredientDetail(id);
+        return ingredientAdminService.getDetail(id);
     }
 
     /**
@@ -71,22 +72,24 @@ public class IngredientAdminController {
      * @return 更新后的原料详情
      */
     @Operation(summary = "更新原料信息")
-    @PutMapping("/{id}")
-    public ApiResponse<IngredientDetailResponse> updateIngredient(
+    @PutMapping("/{id}/info")
+    public ApiResponse<IngredientDetailResponse> updateInfo(
             @Parameter(description = "原料ID") @PathVariable("id") @Min(value = 1, message = "ID不能为空") Long id,
             @Valid @RequestBody UpdateIngredientRequest request) {
-        return ingredientAdminService.updateIngredient(id, request);
+        return ingredientAdminService.updateInfo(id, request);
     }
 
     /**
-     * 删除原料（禁用）
+     * 更新原料状态
      * @param id 原料ID
+     * @param request 更新状态请求参数
      * @return 操作结果
      */
-    @Operation(summary = "删除原料（禁用）")
-    @DeleteMapping("/{id}")
-    public ApiResponse<Void> deleteIngredient(
-            @Parameter(description = "原料ID") @PathVariable("id") @Min(value = 1, message = "ID不能为空") Long id) {
-        return ingredientAdminService.deleteIngredient(id);
+    @Operation(summary = "更新原料状态")
+    @PutMapping("/{id}/status")
+    public ApiResponse<Void> updateStatus(
+            @Parameter(description = "原料ID") @PathVariable("id") @Min(value = 1, message = "ID不能为空") Long id,
+            @Valid @RequestBody UpdateIngredientStatusRequest request) {
+        return ingredientAdminService.updateStatus(id, request);
     }
 }
