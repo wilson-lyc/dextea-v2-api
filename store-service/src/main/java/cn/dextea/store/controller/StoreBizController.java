@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 /**
- * 门店业务接口
+ * 门店业务
  */
 @RestController
 @RequestMapping("/v1/biz/stores")

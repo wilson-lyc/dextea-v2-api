@@ -4,6 +4,8 @@ import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.store.dto.request.CreateStoreRequest;
 import cn.dextea.store.dto.request.StorePageQueryRequest;
 import cn.dextea.store.dto.request.UpdateStoreRequest;
+import cn.dextea.store.dto.request.UpdateStoreLocationRequest;
+import cn.dextea.store.dto.request.UpdateStoreStatusRequest;
 import cn.dextea.store.dto.response.CreateStoreResponse;
 import cn.dextea.store.dto.response.StoreDetailResponse;
 import cn.dextea.store.service.StoreAdminService;
@@ -12,7 +14,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.Min;
 import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -64,26 +65,42 @@ public class StoreAdminController {
     }
 
     /**
-     * 更新门店
+     * 更新门店信息
      * @param id 门店ID
      * @param request 更新门店请求参数
      * @return 更新后的门店详情
      */
-    @PutMapping("/{id}")
-    public ApiResponse<StoreDetailResponse> updateStore(
+    @PutMapping("/{id}/info")
+    public ApiResponse<StoreDetailResponse> updateStoreInfo(
             @PathVariable("id") @Min(value = 1, message = "门店ID不能为空") Long id,
             @Valid @RequestBody UpdateStoreRequest request) {
         return storeAdminService.update(id, request);
     }
 
     /**
-     * 删除门店
+     * 更新门店状态
      * @param id 门店ID
-     * @return 删除结果
+     * @param request 状态更新请求参数
+     * @return 更新结果
      */
-    @DeleteMapping("/{id}")
-    public ApiResponse<Void> deleteStore(
-            @PathVariable("id") @Min(value = 1, message = "门店ID不能为空") Long id) {
-        return storeAdminService.delete(id);
+    @PutMapping("/{id}/status")
+    public ApiResponse<Void> updateStoreStatus(
+            @PathVariable("id") @Min(value = 1, message = "门店ID不能为空") Long id,
+            @Valid @RequestBody UpdateStoreStatusRequest request) {
+        return storeAdminService.updateStatus(id, request);
     }
+
+    /**
+     * 更新门店经纬度
+     * @param id 门店ID
+     * @param request 经纬度更新请求参数
+     * @return 更新结果
+     */
+    @PutMapping("/{id}/location")
+    public ApiResponse<Void> updateStoreLocation(
+            @PathVariable("id") @Min(value = 1, message = "门店ID不能为空") Long id,
+            @Valid @RequestBody UpdateStoreLocationRequest request) {
+        return storeAdminService.updateLocation(id, request);
+    }
+
 }

@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import jakarta.validation.constraints.Min;
 
+/**
+ * 门店服务内部接口
+ */
 @RestController
 @RequestMapping("/v1/internal/stores")
 @RequiredArgsConstructor

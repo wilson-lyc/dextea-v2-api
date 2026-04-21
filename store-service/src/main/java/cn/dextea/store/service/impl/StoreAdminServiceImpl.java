@@ -6,6 +6,8 @@ import cn.dextea.store.converter.StoreConverter;
 import cn.dextea.store.dto.request.CreateStoreRequest;
 import cn.dextea.store.dto.request.StorePageQueryRequest;
 import cn.dextea.store.dto.request.UpdateStoreRequest;
+import cn.dextea.store.dto.request.UpdateStoreLocationRequest;
+import cn.dextea.store.dto.request.UpdateStoreStatusRequest;
 import cn.dextea.store.dto.response.CreateStoreResponse;
 import cn.dextea.store.dto.response.StoreDetailResponse;
 import cn.dextea.store.entity.StoreEntity;
@@ -72,7 +74,7 @@ public class StoreAdminServiceImpl implements StoreAdminService {
                 .city(StringValueUtils.trim(request.getCity()))
                 .district(StringValueUtils.trim(request.getDistrict()))
                 .address(StringValueUtils.trim(request.getAddress()))
-                .status(request.getStatus())
+                .status(StoreStatus.PLANNED.getValue())
                 .longitude(coordinates[0])
                 .latitude(coordinates[1])
                 .phone(StringValueUtils.trim(request.getPhone()))
@@ -135,9 +137,6 @@ public class StoreAdminServiceImpl implements StoreAdminService {
         storeEntity.setCity(StringValueUtils.trim(request.getCity()));
         storeEntity.setDistrict(StringValueUtils.trim(request.getDistrict()));
         storeEntity.setAddress(StringValueUtils.trim(request.getAddress()));
-        storeEntity.setStatus(request.getStatus());
-        storeEntity.setLongitude(request.getLongitude());
-        storeEntity.setLatitude(request.getLatitude());
         storeEntity.setPhone(StringValueUtils.trim(request.getPhone()));
         storeEntity.setOpenTime(StringValueUtils.trim(request.getOpenTime()));
 
@@ -156,21 +155,37 @@ public class StoreAdminServiceImpl implements StoreAdminService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<Void> delete(Long id) {
-        // 删除门店采用软删除策略：先确认门店存在。
+    public ApiResponse<Void> updateStatus(Long id, UpdateStoreStatusRequest request) {
         StoreEntity storeEntity = storeMapper.selectById(id);
         if (storeEntity == null) {
             return fail(StoreErrorCode.STORE_NOT_FOUND);
         }
 
-        // 将门店状态改为关店，并同步从 Redis GEO 索引中移除。
-        storeEntity.setStatus(StoreStatus.CLOSED.getValue());
-        if (storeMapper.updateById(storeEntity) != 1) {
-            return fail(StoreErrorCode.DELETE_FAILED);
-        }
-        storeGeoSyncService.removeStoreLocation(id);
+        storeEntity.setStatus(request.getStatus());
 
-        // 删除 L1 + L2 缓存，下游服务（如订单服务）可尽快感知门店关闭。
+        if (storeMapper.updateById(storeEntity) != 1) {
+            return fail(StoreErrorCode.UPDATE_FAILED);
+        }
+        storeCacheService.evictStore(id);
+
+        return ApiResponse.success();
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public ApiResponse<Void> updateLocation(Long id, UpdateStoreLocationRequest request) {
+        StoreEntity storeEntity = storeMapper.selectById(id);
+        if (storeEntity == null) {
+            return fail(StoreErrorCode.STORE_NOT_FOUND);
+        }
+
+        storeEntity.setLongitude(request.getLongitude());
+        storeEntity.setLatitude(request.getLatitude());
+
+        if (storeMapper.updateById(storeEntity) != 1) {
+            return fail(StoreErrorCode.UPDATE_FAILED);
+        }
+        storeGeoSyncService.syncStoreLocation(storeEntity);
         storeCacheService.evictStore(id);
 
         return ApiResponse.success();

@@ -8,6 +8,9 @@ import lombok.NoArgsConstructor;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+/**
+ * 门店详情响应。
+ */
 @Data
 @Builder
 @NoArgsConstructor

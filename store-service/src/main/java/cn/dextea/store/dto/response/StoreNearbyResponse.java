@@ -6,6 +6,9 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * 附近门店响应。
+ */
 @Data
 @Builder
 @NoArgsConstructor

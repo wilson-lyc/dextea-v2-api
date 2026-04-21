@@ -1,16 +1,16 @@
 package cn.dextea.store.dto.request;
 
-import cn.dextea.common.validation.annotation.EnumValue;
 import cn.dextea.common.validation.annotation.PhoneNumber;
-import cn.dextea.store.enums.StoreStatus;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * 创建门店请求。
+ */
 @Data
 @Builder
 @NoArgsConstructor
@@ -35,10 +35,6 @@ public class CreateStoreRequest {
     @NotBlank(message = "详细地址不能为空")
     @Size(max = 255, message = "详细地址长度不能超过255位")
     private String address;
-
-    @NotNull(message = "门店状态不能为空")
-    @EnumValue(enumClass = StoreStatus.class, fieldName = "门店状态")
-    private Integer status;
 
     @NotBlank(message = "联系电话不能为空")
     @PhoneNumber(fieldName = "联系电话")

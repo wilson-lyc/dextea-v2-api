@@ -9,8 +9,10 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import org.hibernate.validator.constraints.Range;
 
+/**
+ * 查询附近门店请求。
+ */
 @Data
 @Builder
 @NoArgsConstructor
@@ -37,8 +39,9 @@ public class QueryNearbyStoreRequest {
      * 搜索半径，单位：米，默认 3000 米
      */
     @NotNull(message = "搜索半径不能为空")
+    @Min(value = 500, message = "搜索半径不能小于500米")
+    @Max(value = 10000, message = "搜索半径不能大于10000米")
     @Builder.Default
-    @Range(min = 500, max = 10000, message = "搜索半径建议在 500-10000 米之间")
     private Integer radius = 3000;
 
     /**

@@ -13,11 +13,24 @@ public class PhoneNumberValidator implements ConstraintValidator<PhoneNumber, St
     // 中国手机号正则: 1[3-9]开头的11位数字
     private static final String PHONE_REGEX = "^1[3-9]\\d{9}$";
 
+    private String fieldName;
+
+    @Override
+    public void initialize(PhoneNumber annotation) {
+        this.fieldName = annotation.fieldName();
+    }
+
     @Override
     public boolean isValid(String value, ConstraintValidatorContext context) {
         if (value == null || value.isEmpty()) {
-            return true; // null 值由 @NotBlank/@NotNull 控制
+            return true;
         }
-        return value.matches(PHONE_REGEX);
+        if (!value.matches(PHONE_REGEX)) {
+            context.disableDefaultConstraintViolation();
+            context.buildConstraintViolationWithTemplate(fieldName + "格式不正确，请输入1[3-9]开头的11位手机号")
+                    .addConstraintViolation();
+            return false;
+        }
+        return true;
     }
 }

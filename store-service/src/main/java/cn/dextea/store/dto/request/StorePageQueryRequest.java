@@ -4,24 +4,30 @@ import cn.dextea.common.validation.annotation.EnumValue;
 import cn.dextea.store.enums.StoreStatus;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+/**
+ * 门店分页查询请求。
+ */
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class StorePageQueryRequest {
+    @NotNull(message = "页码不能为空")
+    @Min(value = 1, message = "当前页码不能小于1")
     @Builder.Default
-    @Min(value = 1, message = "页码不能小于1")
     private Long current = 1L;
 
-    @Builder.Default
-    @Min(value = 1, message = "分页大小不能小于1")
+    @NotNull(message = "分页大小不能为空")
+    @Min(value = 1, message = "每页条数不能小于1")
     @Max(value = 100, message = "每页条数不能大于100")
+    @Builder.Default
     private Long size = 10L;
 
     @Size(max = 64, message = "门店名称长度不能超过64位")
