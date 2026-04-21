@@ -4,8 +4,8 @@ import cn.dev33.satoken.stp.SaTokenInfo;
 import cn.dev33.satoken.stp.StpUtil;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.staff.converter.StaffConverter;
-import cn.dextea.staff.dto.request.StaffLoginRequest;
-import cn.dextea.staff.dto.request.StaffUpdatePasswordRequest;
+import cn.dextea.staff.dto.request.LoginStaffRequest;
+import cn.dextea.staff.dto.request.UpdateStaffPasswordRequest;
 import cn.dextea.staff.dto.response.StaffLoginResponse;
 import cn.dextea.staff.entity.StaffEntity;
 import cn.dextea.staff.enums.StaffErrorCode;
@@ -33,7 +33,7 @@ public class StaffAuthServiceImpl implements StaffAuthService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<StaffLoginResponse> login(StaffLoginRequest request, HttpServletRequest httpServletRequest) {
+    public ApiResponse<StaffLoginResponse> login(LoginStaffRequest request, HttpServletRequest httpServletRequest) {
         // 先规整登录账号，避免账号首尾空格影响查询结果。
         String username = request.getUsername().trim();
 
@@ -72,7 +72,7 @@ public class StaffAuthServiceImpl implements StaffAuthService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<Void> updatePassword(StaffUpdatePasswordRequest request) {
+    public ApiResponse<Void> updatePassword(UpdateStaffPasswordRequest request) {
         // 先从登录态里拿到当前员工 ID，只允许本人修改自己的密码。
         Long staffId = StpUtil.getLoginIdAsLong();
         StaffEntity staffEntity = staffMapper.selectOne(new LambdaQueryWrapper<StaffEntity>()

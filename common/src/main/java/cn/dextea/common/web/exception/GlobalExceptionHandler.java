@@ -3,6 +3,7 @@ package cn.dextea.common.web.exception;
 import cn.dextea.common.code.GlobalErrorCode;
 import cn.dextea.common.code.ResponseCode;
 import cn.dextea.common.web.response.ApiResponse;
+import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataAccessException;
 import org.springframework.dao.DuplicateKeyException;
@@ -112,6 +113,7 @@ public class GlobalExceptionHandler {
         fieldNameMap.put("oldPassword", "原密码");
         fieldNameMap.put("newPassword", "新密码");
         fieldNameMap.put("roleId", "角色ID");
+        fieldNameMap.put("permissionId", "权限ID");
         fieldNameMap.put("permissionName", "权限名称");
 
         return fieldNameMap.getOrDefault(field, field);
@@ -128,12 +130,28 @@ public class GlobalExceptionHandler {
     }
 
     /**
-     * 处理表单绑定阶段的参数校验异常。
+     * 处理表单绑定阶段的参数校验异常（GET 请求 Query 参数）。
      */
     @ExceptionHandler(BindException.class)
     public ApiResponse<Void> handleBindException(BindException e) {
-        String msg = Objects.requireNonNull(e.getBindingResult().getFieldError()).getDefaultMessage();
+        String msg = e.getBindingResult().getFieldErrors().stream()
+                .map(this::buildFriendlyMessage)
+                .findFirst()
+                .orElse("参数验证失败");
         log.warn("Bind failed: {}", msg);
+        return ApiResponse.fail(ResponseCode.FAIL.getCode(), msg);
+    }
+
+    /**
+     * 处理路径变量、方法参数上的约束校验异常（@Validated + @Min 等触发）。
+     */
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ApiResponse<Void> handleConstraintViolationException(ConstraintViolationException e) {
+        String msg = e.getConstraintViolations().stream()
+                .map(v -> v.getMessage())
+                .findFirst()
+                .orElse("参数验证失败");
+        log.warn("Constraint violation: {}", msg);
         return ApiResponse.fail(ResponseCode.FAIL.getCode(), msg);
     }
 

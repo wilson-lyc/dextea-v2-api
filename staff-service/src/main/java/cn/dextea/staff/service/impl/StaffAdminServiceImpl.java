@@ -10,7 +10,7 @@ import cn.dextea.staff.dto.request.CreateStaffRequest;
 import cn.dextea.staff.dto.request.StaffPageQueryRequest;
 import cn.dextea.staff.dto.request.UpdateStaffRequest;
 import cn.dextea.staff.dto.response.CreateStaffResponse;
-import cn.dextea.staff.dto.response.ResetStaffPasswordResponse;
+import cn.dextea.staff.dto.response.StaffResetPasswordResponse;
 import cn.dextea.staff.dto.response.StaffDetailResponse;
 import cn.dextea.staff.entity.RoleEntity;
 import cn.dextea.staff.entity.StaffEntity;
@@ -180,7 +180,7 @@ public class StaffAdminServiceImpl implements StaffAdminService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<ResetStaffPasswordResponse> resetPassword(Long id) {
+    public ApiResponse<StaffResetPasswordResponse> resetPassword(Long id) {
         // 先确认目标员工存在。
         StaffEntity staffEntity = staffMapper.selectById(id);
         if (staffEntity == null) {

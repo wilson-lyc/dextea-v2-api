@@ -6,7 +6,7 @@ import cn.dextea.staff.dto.request.CreateStaffRequest;
 import cn.dextea.staff.dto.request.StaffPageQueryRequest;
 import cn.dextea.staff.dto.request.UpdateStaffRequest;
 import cn.dextea.staff.dto.response.CreateStaffResponse;
-import cn.dextea.staff.dto.response.ResetStaffPasswordResponse;
+import cn.dextea.staff.dto.response.StaffResetPasswordResponse;
 import cn.dextea.staff.dto.response.StaffDetailResponse;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 
@@ -70,7 +70,7 @@ public interface StaffAdminService {
      * @param id 员工ID
      * @return 返回系统生成的新密码
      */
-    ApiResponse<ResetStaffPasswordResponse> resetPassword(Long id);
+    ApiResponse<StaffResetPasswordResponse> resetPassword(Long id);
 
     /**
      * 为员工分配角色

@@ -7,7 +7,7 @@ import cn.dextea.staff.dto.request.CreateStaffRequest;
 import cn.dextea.staff.dto.request.StaffPageQueryRequest;
 import cn.dextea.staff.dto.request.UpdateStaffRequest;
 import cn.dextea.staff.dto.response.CreateStaffResponse;
-import cn.dextea.staff.dto.response.ResetStaffPasswordResponse;
+import cn.dextea.staff.dto.response.StaffResetPasswordResponse;
 import cn.dextea.staff.dto.response.StaffDetailResponse;
 import cn.dextea.staff.service.StaffAdminService;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -107,7 +107,7 @@ public class StaffAdminController {
      * @return 重置后的密码信息
      */
     @PutMapping("/{id}/password")
-    public ApiResponse<ResetStaffPasswordResponse> resetPassword(
+    public ApiResponse<StaffResetPasswordResponse> resetPassword(
             @PathVariable("id") @Min(value = 1, message = "员工ID不能为空") Long id) {
         return staffAdminService.resetPassword(id);
     }

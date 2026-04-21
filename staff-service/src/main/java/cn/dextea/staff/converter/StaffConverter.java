@@ -1,7 +1,7 @@
 package cn.dextea.staff.converter;
 
 import cn.dextea.staff.dto.response.CreateStaffResponse;
-import cn.dextea.staff.dto.response.ResetStaffPasswordResponse;
+import cn.dextea.staff.dto.response.StaffResetPasswordResponse;
 import cn.dextea.staff.dto.response.StaffDetailResponse;
 import cn.dextea.staff.dto.response.StaffLoginResponse;
 import cn.dextea.staff.entity.StaffEntity;
@@ -46,8 +46,8 @@ public class StaffConverter {
     /**
      * 组装后台重置密码响应。
      */
-    public ResetStaffPasswordResponse toResetPasswordResponse(StaffEntity staffEntity, String resetPassword) {
-        return ResetStaffPasswordResponse.builder()
+    public StaffResetPasswordResponse toResetPasswordResponse(StaffEntity staffEntity, String resetPassword) {
+        return StaffResetPasswordResponse.builder()
                 .id(staffEntity.getId())
                 .username(staffEntity.getUsername())
                 .resetPassword(resetPassword)

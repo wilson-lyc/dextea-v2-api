@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class BindStaffStoreRequest {
-    @NotNull(message = "门店ID是必填的")
+    @NotNull(message = "门店ID不能为空")
     @Min(value = 1, message = "门店ID不能小于1")
     private Long storeId;
 }
