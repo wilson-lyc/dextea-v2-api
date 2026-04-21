@@ -2,7 +2,6 @@ package cn.dextea.staff.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
-import cn.dextea.staff.dto.request.AssignStaffRoleRequest;
 import cn.dextea.staff.dto.request.BindStaffStoreRequest;
 import cn.dextea.staff.dto.request.CreateStaffRequest;
 import cn.dextea.staff.dto.request.StaffPageQueryRequest;
@@ -107,7 +106,7 @@ public class StaffAdminController {
      * @param id 员工ID
      * @return 重置后的密码信息
      */
-    @PutMapping("/{id}/password/reset")
+    @PutMapping("/{id}/password")
     public ApiResponse<ResetStaffPasswordResponse> resetPassword(
             @PathVariable("id") @Min(value = 1, message = "员工ID不能为空") Long id) {
         return staffAdminService.resetPassword(id);
@@ -116,14 +115,14 @@ public class StaffAdminController {
     /**
      * 为员工分配角色
      * @param id 员工ID
-     * @param request 员工分配角色请求参数
+     * @param roleId 角色ID
      * @return 分配结果
      */
-    @PostMapping("/{id}/roles")
+    @PostMapping("/{id}/roles/{roleId}")
     public ApiResponse<Void> assignRole(
             @PathVariable("id") @Min(value = 1, message = "员工ID不能为空") Long id,
-            @Valid @RequestBody AssignStaffRoleRequest request) {
-        return staffAdminService.assignRole(id, request);
+            @PathVariable("roleId") @Min(value = 1, message = "角色ID不能为空") Long roleId) {
+        return staffAdminService.assignRole(id, roleId);
     }
 
     /**

@@ -10,7 +10,7 @@ import lombok.RequiredArgsConstructor;
 @RequiredArgsConstructor
 public enum RoleStatus {
     DISABLED(0,"禁用"),
-    AVAILABLE(1, "可用");
+    ACTIVE(1, "启用");
 
     private final int value;
     private final String label;

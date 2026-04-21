@@ -1,7 +1,6 @@
 package cn.dextea.staff.service;
 
 import cn.dextea.common.web.response.ApiResponse;
-import cn.dextea.staff.dto.request.AssignStaffRoleRequest;
 import cn.dextea.staff.dto.request.BindStaffStoreRequest;
 import cn.dextea.staff.dto.request.CreateStaffRequest;
 import cn.dextea.staff.dto.request.StaffPageQueryRequest;
@@ -77,10 +76,10 @@ public interface StaffAdminService {
      * 为员工分配角色
      *
      * @param id 员工ID
-     * @param request 角色分配请求，包含角色ID列表
+     * @param roleId 角色ID
      * @return 返回分配结果
      */
-    ApiResponse<Void> assignRole(Long id, AssignStaffRoleRequest request);
+    ApiResponse<Void> assignRole(Long id, Long roleId);
 
     /**
      * 移除员工的角色

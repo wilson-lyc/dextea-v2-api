@@ -50,7 +50,7 @@ public class RoleAdminServiceImpl implements RoleAdminService {
                 .name(name)
                 .remark(remark)
                 .dataScope(request.getDataScope())
-                .status(RoleStatus.AVAILABLE.getValue())
+                .status(RoleStatus.ACTIVE.getValue())
                 .build();
 
         // 写入角色主表，失败则回滚整个事务。

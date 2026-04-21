@@ -5,7 +5,6 @@ import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.store.api.dto.response.StoreValidityResponse;
 import cn.dextea.store.api.feign.StoreInternalFeign;
 import cn.dextea.staff.converter.StaffConverter;
-import cn.dextea.staff.dto.request.AssignStaffRoleRequest;
 import cn.dextea.staff.dto.request.BindStaffStoreRequest;
 import cn.dextea.staff.dto.request.CreateStaffRequest;
 import cn.dextea.staff.dto.request.StaffPageQueryRequest;
@@ -202,14 +201,14 @@ public class StaffAdminServiceImpl implements StaffAdminService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public ApiResponse<Void> assignRole(Long id, AssignStaffRoleRequest request) {
+    public ApiResponse<Void> assignRole(Long id, Long roleId) {
         // 先确认员工和角色都真实存在，避免产生脏关联数据。
         StaffEntity staffEntity = staffMapper.selectById(id);
         if (staffEntity == null) {
             return fail(StaffErrorCode.STAFF_NOT_FOUND);
         }
 
-        RoleEntity roleEntity = roleMapper.selectById(request.getRoleId());
+        RoleEntity roleEntity = roleMapper.selectById(roleId);
         if (roleEntity == null) {
             return fail(StaffErrorCode.ROLE_NOT_FOUND);
         }
@@ -217,7 +216,7 @@ public class StaffAdminServiceImpl implements StaffAdminService {
         // 如果该员工已经绑定过这个角色，则直接返回重复绑定错误。
         LambdaQueryWrapper<StaffRoleRelEntity> queryWrapper = new LambdaQueryWrapper<StaffRoleRelEntity>()
                 .eq(StaffRoleRelEntity::getStaffId, id)
-                .eq(StaffRoleRelEntity::getRoleId, request.getRoleId());
+                .eq(StaffRoleRelEntity::getRoleId, roleId);
         if (staffRoleRelMapper.exists(queryWrapper)) {
             return fail(StaffErrorCode.STAFF_ROLE_ALREADY_BOUND);
         }
@@ -225,7 +224,7 @@ public class StaffAdminServiceImpl implements StaffAdminService {
         // 写入员工-角色关联表。
         StaffRoleRelEntity relation = StaffRoleRelEntity.builder()
                 .staffId(id)
-                .roleId(request.getRoleId())
+                .roleId(roleId)
                 .build();
         if (staffRoleRelMapper.insert(relation) != 1) {
             return fail(StaffErrorCode.ASSIGN_ROLE_FAILED);
