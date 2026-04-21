@@ -10,7 +10,7 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class NearbyStoreResponse {
+public class StoreNearbyResponse {
 
     private Long id;
 

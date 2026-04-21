@@ -1,8 +1,8 @@
 package cn.dextea.store.service;
 
 import cn.dextea.common.web.response.ApiResponse;
-import cn.dextea.store.dto.request.NearbyStoreRequest;
-import cn.dextea.store.dto.response.NearbyStoreResponse;
+import cn.dextea.store.dto.request.QueryNearbyStoreRequest;
+import cn.dextea.store.dto.response.StoreNearbyResponse;
 
 import java.util.List;
 
@@ -14,5 +14,5 @@ public interface StoreBizService {
      * @param request 包含用户经纬度和搜索参数的请求
      * @return 按距离排序的附近门店列表
      */
-    ApiResponse<List<NearbyStoreResponse>> getNearbyStores(NearbyStoreRequest request);
+    ApiResponse<List<StoreNearbyResponse>> getNearbyStores(QueryNearbyStoreRequest request);
 }

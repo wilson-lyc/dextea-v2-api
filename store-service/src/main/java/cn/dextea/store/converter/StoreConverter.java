@@ -2,7 +2,7 @@ package cn.dextea.store.converter;
 
 import cn.dextea.store.api.dto.response.StoreValidityResponse;
 import cn.dextea.store.dto.response.CreateStoreResponse;
-import cn.dextea.store.dto.response.NearbyStoreResponse;
+import cn.dextea.store.dto.response.StoreNearbyResponse;
 import cn.dextea.store.dto.response.StoreDetailResponse;
 import cn.dextea.store.entity.StoreEntity;
 import org.springframework.stereotype.Component;
@@ -39,8 +39,8 @@ public class StoreConverter {
                 .build();
     }
 
-    public NearbyStoreResponse toNearbyStoreResponse(StoreEntity storeEntity, Double distance) {
-        return NearbyStoreResponse.builder()
+    public StoreNearbyResponse toStoreNearbyResponse(StoreEntity storeEntity, Double distance) {
+        return StoreNearbyResponse.builder()
                 .id(storeEntity.getId())
                 .name(storeEntity.getName())
                 .province(storeEntity.getProvince())

@@ -2,8 +2,8 @@ package cn.dextea.store.service.impl;
 
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.store.converter.StoreConverter;
-import cn.dextea.store.dto.request.NearbyStoreRequest;
-import cn.dextea.store.dto.response.NearbyStoreResponse;
+import cn.dextea.store.dto.request.QueryNearbyStoreRequest;
+import cn.dextea.store.dto.response.StoreNearbyResponse;
 import cn.dextea.store.entity.StoreEntity;
 import cn.dextea.store.mapper.StoreMapper;
 import cn.dextea.store.service.StoreBizService;
@@ -25,7 +25,7 @@ public class StoreBizServiceImpl implements StoreBizService {
     private final StoreGeoSyncService storeGeoSyncService;
 
     @Override
-    public ApiResponse<List<NearbyStoreResponse>> getNearbyStores(NearbyStoreRequest request) {
+    public ApiResponse<List<StoreNearbyResponse>> getNearbyStores(QueryNearbyStoreRequest request) {
         // 1. 使用 StoreGeoSyncService 查询附近门店
         List<StoreGeoSyncService.StoreGeoInfo> nearbyStores = storeGeoSyncService.getNearbyStores(
                 request.getLongitude(),
@@ -49,11 +49,11 @@ public class StoreBizServiceImpl implements StoreBizService {
                 .collect(Collectors.toMap(StoreEntity::getId, entity -> entity));
 
         // 5. 组装响应结果，保持 Redis 返回的顺序
-        List<NearbyStoreResponse> responseList = new ArrayList<>();
+        List<StoreNearbyResponse> responseList = new ArrayList<>();
         for (StoreGeoSyncService.StoreGeoInfo storeGeoInfo : nearbyStores) {
             StoreEntity storeEntity = storeEntityMap.get(storeGeoInfo.getStoreId());
             if (storeEntity != null) {
-                NearbyStoreResponse nearbyStoreResponse = storeConverter.toNearbyStoreResponse(
+                StoreNearbyResponse nearbyStoreResponse = storeConverter.toStoreNearbyResponse(
                         storeEntity, storeGeoInfo.getDistance());
                 responseList.add(nearbyStoreResponse);
             }

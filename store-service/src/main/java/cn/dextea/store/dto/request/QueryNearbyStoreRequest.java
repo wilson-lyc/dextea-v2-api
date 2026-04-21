@@ -15,7 +15,7 @@ import org.hibernate.validator.constraints.Range;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class NearbyStoreRequest {
+public class QueryNearbyStoreRequest {
 
     /**
      * 用户经度

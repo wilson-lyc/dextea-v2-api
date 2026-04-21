@@ -1,8 +1,8 @@
 package cn.dextea.store.controller;
 
 import cn.dextea.common.web.response.ApiResponse;
-import cn.dextea.store.dto.request.NearbyStoreRequest;
-import cn.dextea.store.dto.response.NearbyStoreResponse;
+import cn.dextea.store.dto.request.QueryNearbyStoreRequest;
+import cn.dextea.store.dto.response.StoreNearbyResponse;
 import cn.dextea.store.service.StoreBizService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -30,8 +30,8 @@ public class StoreBizController {
      * @return 按距离排序的附近门店列表
      */
     @GetMapping("/nearby")
-    public ApiResponse<List<NearbyStoreResponse>> getNearbyStores(
-            @Valid NearbyStoreRequest request) {
+    public ApiResponse<List<StoreNearbyResponse>> getNearbyStores(
+            @Valid QueryNearbyStoreRequest request) {
         return storeBizService.getNearbyStores(request);
     }
 }
