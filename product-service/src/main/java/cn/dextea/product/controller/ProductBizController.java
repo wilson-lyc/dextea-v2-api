@@ -2,7 +2,7 @@ package cn.dextea.product.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
-import cn.dextea.product.dto.request.StoreProductPageRequest;
+import cn.dextea.product.dto.request.StoreProductPageQueryRequest;
 import cn.dextea.product.dto.request.UpdateStoreProductStatusRequest;
 import cn.dextea.product.dto.response.CustomerProductDetailResponse;
 import cn.dextea.product.dto.response.ProductDetailResponse;
@@ -35,7 +35,7 @@ public class ProductBizController {
     @Operation(summary = "分页查询商品列表（门店端）", description = "适用于门店端分页查询商品数据")
     @GetMapping
     public ApiResponse<IPage<ProductDetailResponse>> getPage(
-            @Valid StoreProductPageRequest request) {
+            @Valid StoreProductPageQueryRequest request) {
         return productBizService.getPage(request);
     }
 

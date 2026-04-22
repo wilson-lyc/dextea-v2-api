@@ -2,7 +2,7 @@ package cn.dextea.product.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
-import cn.dextea.product.dto.request.StoreCustomizationItemPageRequest;
+import cn.dextea.product.dto.request.StoreCustomizationItemPageQueryRequest;
 import cn.dextea.product.dto.request.UpdateStoreCustomizationItemStatusRequest;
 import cn.dextea.product.dto.response.CustomizationItemDetailResponse;
 import cn.dextea.product.service.CustomizationItemBizService;
@@ -34,7 +34,7 @@ public class CustomizationItemBizController {
     @Operation(summary = "分页查询客制化项目列表（门店端）", description = "支持项目名模糊查询，支持按全局状态和门店状态分别筛选")
     @GetMapping
     public ApiResponse<IPage<CustomizationItemDetailResponse>> getPage(
-            @Valid StoreCustomizationItemPageRequest request) {
+            @Valid StoreCustomizationItemPageQueryRequest request) {
         return customizationItemBizService.getPage(request);
     }
 

@@ -2,7 +2,7 @@ package cn.dextea.product.service.impl;
 
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.converter.MenuConverter;
-import cn.dextea.product.dto.request.StoreMenuQueryRequest;
+import cn.dextea.product.dto.request.QueryStoreMenuRequest;
 import cn.dextea.product.dto.response.StoreMenuResponse;
 import cn.dextea.product.entity.MenuEntity;
 import cn.dextea.product.entity.ProductEntity;
@@ -39,7 +39,7 @@ public class MenuBizServiceImpl implements MenuBizService {
     private final StoreProductStatusMapper storeProductStatusMapper;
 
     @Override
-    public ApiResponse<StoreMenuResponse> getStoreMenu(StoreMenuQueryRequest request) {
+    public ApiResponse<StoreMenuResponse> getStoreMenu(QueryStoreMenuRequest request) {
         StoreMenuBindingEntity rel = storeMenuRelMapper.selectOne(
                 new LambdaQueryWrapper<StoreMenuBindingEntity>()
                         .eq(StoreMenuBindingEntity::getStoreId, request.getStoreId()));

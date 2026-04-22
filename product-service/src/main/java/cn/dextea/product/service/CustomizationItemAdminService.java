@@ -2,7 +2,7 @@ package cn.dextea.product.service;
 
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.dto.request.CreateCustomizationItemRequest;
-import cn.dextea.product.dto.request.CustomizationItemPageRequest;
+import cn.dextea.product.dto.request.CustomizationItemPageQueryRequest;
 import cn.dextea.product.dto.request.UpdateCustomizationItemRequest;
 import cn.dextea.product.dto.request.UpdateCustomizationItemStatusRequest;
 import cn.dextea.product.dto.response.CreateCustomizationItemResponse;
@@ -13,7 +13,7 @@ public interface CustomizationItemAdminService {
 
     ApiResponse<CreateCustomizationItemResponse> create(CreateCustomizationItemRequest request);
 
-    ApiResponse<IPage<CustomizationItemDetailResponse>> getPage(CustomizationItemPageRequest request);
+    ApiResponse<IPage<CustomizationItemDetailResponse>> getPage(CustomizationItemPageQueryRequest request);
 
     ApiResponse<CustomizationItemDetailResponse> getDetail(Long id);
 

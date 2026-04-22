@@ -2,7 +2,7 @@ package cn.dextea.product.service.impl;
 
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.converter.CustomizationConverter;
-import cn.dextea.product.dto.request.ItemOptionsListInStore;
+import cn.dextea.product.dto.request.QueryStoreItemOptionsRequest;
 import cn.dextea.product.dto.request.UpdateStoreCustomizationOptionStatusRequest;
 import cn.dextea.product.dto.response.CustomizationOptionDetailResponse;
 import cn.dextea.product.entity.CustomizationOptionEntity;
@@ -34,7 +34,7 @@ public class CustomizationOptionBizServiceImpl implements CustomizationOptionBiz
 
     @Override
     public ApiResponse<List<CustomizationOptionDetailResponse>> getItemOptionsList(Long itemId,
-                                                                                   ItemOptionsListInStore request) {
+                                                                                   QueryStoreItemOptionsRequest request) {
         if (itemMapper.selectById(itemId) == null) {
             return fail(CustomizationErrorCode.ITEM_NOT_FOUND);
         }

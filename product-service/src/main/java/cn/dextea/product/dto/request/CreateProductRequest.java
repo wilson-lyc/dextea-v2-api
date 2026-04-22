@@ -25,6 +25,6 @@ public class CreateProductRequest {
     private String description;
 
     @NotNull(message = "售价不能为空")
-    @DecimalMin(value = "0.01", message = "售价不能小于0.01")
+    @DecimalMin(value = "0.00", message = "售价不能为负数")
     private BigDecimal price;
 }

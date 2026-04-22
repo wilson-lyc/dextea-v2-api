@@ -2,7 +2,7 @@ package cn.dextea.product.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
-import cn.dextea.product.dto.request.StoreMenuQueryRequest;
+import cn.dextea.product.dto.request.QueryStoreMenuRequest;
 import cn.dextea.product.dto.response.StoreMenuResponse;
 import cn.dextea.product.service.MenuBizService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,7 +31,7 @@ public class MenuBizController {
      */
     @Operation(summary = "查询门店菜单", description = "按分组结构返回菜单，每条商品包含名称、简介、价格及在售状态")
     @GetMapping
-    public ApiResponse<StoreMenuResponse> getStoreMenu(@Valid StoreMenuQueryRequest request) {
+    public ApiResponse<StoreMenuResponse> getStoreMenu(@Valid QueryStoreMenuRequest request) {
         return menuBizService.getStoreMenu(request);
     }
 }

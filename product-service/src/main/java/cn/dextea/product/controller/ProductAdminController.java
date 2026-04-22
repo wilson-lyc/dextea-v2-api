@@ -3,7 +3,7 @@ package cn.dextea.product.controller;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.dto.request.CreateProductRequest;
-import cn.dextea.product.dto.request.ProductPageRequest;
+import cn.dextea.product.dto.request.ProductPageQueryRequest;
 import cn.dextea.product.dto.request.UpdateProductInfoRequest;
 import cn.dextea.product.dto.request.UpdateProductGlobalStatusRequest;
 import cn.dextea.product.dto.response.CreateProductResponse;
@@ -19,7 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-@Tag(name = "商品管理接口", description = "适用于公司端管理商品数据")
+@Tag(name = "商品管理", description = "适用于公司端管理商品数据")
 @RestController
 @RequestMapping("/v1/admin/products")
 @RequiredArgsConstructor
@@ -49,7 +49,7 @@ public class ProductAdminController {
     @Operation(summary = "分页查询商品列表（公司端）")
     @GetMapping
     public ApiResponse<IPage<ProductDetailResponse>> getPage(
-            @Valid ProductPageRequest request) {
+            @Valid ProductPageQueryRequest request) {
         return productAdminService.getPage(request);
     }
 

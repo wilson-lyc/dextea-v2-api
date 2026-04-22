@@ -1,9 +1,9 @@
 package cn.dextea.product.service.impl;
 
 import cn.dextea.common.web.response.ApiResponse;
-import cn.dextea.product.dto.request.BatchStoreAvailabilityRequest;
-import cn.dextea.product.dto.request.BatchStoreAvailabilityRequest.ProductAvailabilityItem;
-import cn.dextea.product.dto.request.CartSnapshotRequest;
+import cn.dextea.product.dto.request.CheckStoreAvailabilityRequest;
+import cn.dextea.product.dto.request.CheckStoreAvailabilityRequest.ProductAvailabilityItem;
+import cn.dextea.product.dto.request.QueryCartSnapshotRequest;
 import cn.dextea.product.dto.response.CartOptionSnapshotResponse;
 import cn.dextea.product.dto.response.CartSnapshotResponse;
 import cn.dextea.product.dto.response.ProductStoreAvailabilityResponse;
@@ -49,7 +49,7 @@ public class ProductInternalServiceImpl implements ProductInternalService {
     private final StoreProductStatusMapper storeProductStatusMapper;
 
     @Override
-    public ApiResponse<CartSnapshotResponse> getCartSnapshot(CartSnapshotRequest request) {
+    public ApiResponse<CartSnapshotResponse> getCartSnapshot(QueryCartSnapshotRequest request) {
         Long productId = request.getProductId();
         List<Long> optionIds = request.getOptionIds();
 
@@ -125,7 +125,7 @@ public class ProductInternalServiceImpl implements ProductInternalService {
     }
 
     @Override
-    public ApiResponse<List<ProductStoreAvailabilityResponse>> checkStoreAvailability(BatchStoreAvailabilityRequest request) {
+    public ApiResponse<List<ProductStoreAvailabilityResponse>> checkStoreAvailability(CheckStoreAvailabilityRequest request) {
         Long storeId = request.getStoreId();
         List<ProductAvailabilityItem> items = request.getItems();
 

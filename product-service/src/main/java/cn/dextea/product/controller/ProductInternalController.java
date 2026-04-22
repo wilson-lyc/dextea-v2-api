@@ -1,8 +1,8 @@
 package cn.dextea.product.controller;
 
 import cn.dextea.common.web.response.ApiResponse;
-import cn.dextea.product.dto.request.BatchStoreAvailabilityRequest;
-import cn.dextea.product.dto.request.CartSnapshotRequest;
+import cn.dextea.product.dto.request.CheckStoreAvailabilityRequest;
+import cn.dextea.product.dto.request.QueryCartSnapshotRequest;
 import cn.dextea.product.dto.response.CartSnapshotResponse;
 import cn.dextea.product.dto.response.ProductStoreAvailabilityResponse;
 import cn.dextea.product.service.ProductInternalService;
@@ -31,7 +31,7 @@ public class ProductInternalController {
      */
     @PostMapping("/cart-snapshot")
     public ApiResponse<CartSnapshotResponse> getCartSnapshot(
-            @Valid @RequestBody CartSnapshotRequest request) {
+            @Valid @RequestBody QueryCartSnapshotRequest request) {
         return productInternalService.getCartSnapshot(request);
     }
 
@@ -42,7 +42,7 @@ public class ProductInternalController {
      */
     @PostMapping("/store-availability")
     public ApiResponse<List<ProductStoreAvailabilityResponse>> checkStoreAvailability(
-            @Valid @RequestBody BatchStoreAvailabilityRequest request) {
+            @Valid @RequestBody CheckStoreAvailabilityRequest request) {
         return productInternalService.checkStoreAvailability(request);
     }
 }

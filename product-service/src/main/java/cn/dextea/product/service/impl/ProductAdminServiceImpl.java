@@ -4,7 +4,7 @@ import cn.dextea.common.util.StringValueUtils;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.converter.ProductConverter;
 import cn.dextea.product.dto.request.CreateProductRequest;
-import cn.dextea.product.dto.request.ProductPageRequest;
+import cn.dextea.product.dto.request.ProductPageQueryRequest;
 import cn.dextea.product.dto.request.UpdateProductInfoRequest;
 import cn.dextea.product.dto.request.UpdateProductGlobalStatusRequest;
 import cn.dextea.product.dto.response.CreateProductResponse;
@@ -53,11 +53,11 @@ public class ProductAdminServiceImpl implements ProductAdminService {
     }
 
     @Override
-    public ApiResponse<IPage<ProductDetailResponse>> getPage(ProductPageRequest request) {
+    public ApiResponse<IPage<ProductDetailResponse>> getPage(ProductPageQueryRequest request) {
         LambdaQueryWrapper<ProductEntity> queryWrapper = new LambdaQueryWrapper<ProductEntity>()
                 .like(StringValueUtils.hasText(request.getName()), ProductEntity::getName, StringValueUtils.trim(request.getName()))
                 .eq(request.getStatus() != null, ProductEntity::getStatus, request.getStatus())
-                .orderByDesc(ProductEntity::getId);
+                .orderByAsc(ProductEntity::getId);
 
         IPage<ProductEntity> entityPage = productMapper.selectPage(
                 new Page<>(request.getCurrent(), request.getSize()), queryWrapper);

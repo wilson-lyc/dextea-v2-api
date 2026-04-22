@@ -155,13 +155,21 @@ public class GlobalExceptionHandler {
         return ApiResponse.fail(ResponseCode.FAIL.getCode(), msg);
     }
 
+    /**
+     * 处理请求体 JSON 解析失败的异常（格式错误、多余逗号等）。
+     */
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ApiResponse<Void> handleHttpMessageNotReadableException(HttpMessageNotReadableException e) {
+        log.warn("Unreadable request body: {}", e.getMessage());
+        return ApiResponse.fail(ResponseCode.FAIL.getCode(), GlobalErrorCode.INVALID_REQUEST_BODY.getMsg());
+    }
+
     @ExceptionHandler({
             MissingServletRequestParameterException.class,
             MethodArgumentTypeMismatchException.class,
-            HttpMessageNotReadableException.class
     })
     /**
-     * 处理缺少参数、参数类型不匹配和请求体不可读等 bad request 场景。
+     * 处理缺少参数、参数类型不匹配等 bad request 场景。
      */
     public ApiResponse<Void> handleBadRequestException(Exception e) {
         log.warn("Bad request: {}", e.getMessage());

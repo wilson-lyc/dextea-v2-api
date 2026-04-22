@@ -36,7 +36,7 @@ public class IngredientBizServiceImpl implements IngredientBizService {
         LambdaQueryWrapper<IngredientEntity> query = new LambdaQueryWrapper<IngredientEntity>()
                 .eq(IngredientEntity::getStatus, IngredientStatus.ACTIVE.getValue())
                 .like(StringValueUtils.hasText(request.getName()), IngredientEntity::getName, StringValueUtils.trim(request.getName()))
-                .orderByDesc(IngredientEntity::getId);
+                .orderByAsc(IngredientEntity::getId);
         IPage<IngredientEntity> ingredientPage = ingredientMapper.selectPage(
                 new Page<>(request.getCurrent(), request.getSize()), query);
 

@@ -156,7 +156,7 @@ public class InventoryAdminServiceImpl implements InventoryAdminService {
                                 StoreIngredientInventoryEntity::getIngredientId, filteredIngredientIds)
                         .apply(Boolean.TRUE.equals(request.getLowStock()),
                                 "quantity <= warn_threshold")
-                        .orderByDesc(StoreIngredientInventoryEntity::getCreateTime);
+                        .orderByAsc(StoreIngredientInventoryEntity::getIngredientId);
 
         IPage<StoreIngredientInventoryEntity> entityPage = inventoryMapper.selectPage(
                 new Page<>(request.getCurrent(), request.getSize()), wrapper);

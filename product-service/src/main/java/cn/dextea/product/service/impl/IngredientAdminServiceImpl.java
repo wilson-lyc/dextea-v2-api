@@ -59,7 +59,7 @@ public class IngredientAdminServiceImpl implements IngredientAdminService {
     public ApiResponse<IPage<IngredientDetailResponse>> getPage(IngredientPageQueryRequest request) {
         LambdaQueryWrapper<IngredientEntity> queryWrapper = new LambdaQueryWrapper<IngredientEntity>()
                 .like(StringValueUtils.hasText(request.getName()), IngredientEntity::getName, StringValueUtils.trim(request.getName()))
-                .orderByDesc(IngredientEntity::getId);
+                .orderByAsc(IngredientEntity::getId);
 
         IPage<IngredientEntity> entityPage = ingredientMapper.selectPage(
                 new Page<>(request.getCurrent(), request.getSize()), queryWrapper);

@@ -3,7 +3,7 @@ package cn.dextea.product.controller;
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.dto.request.CreateCustomizationItemRequest;
-import cn.dextea.product.dto.request.CustomizationItemPageRequest;
+import cn.dextea.product.dto.request.CustomizationItemPageQueryRequest;
 import cn.dextea.product.dto.request.UpdateCustomizationItemRequest;
 import cn.dextea.product.dto.request.UpdateCustomizationItemStatusRequest;
 import cn.dextea.product.dto.response.CreateCustomizationItemResponse;
@@ -49,7 +49,7 @@ public class CustomizationItemAdminController {
     @Operation(summary = "分页查询客制化项目列表（公司端）")
     @GetMapping
     public ApiResponse<IPage<CustomizationItemDetailResponse>> getPage(
-            @Valid CustomizationItemPageRequest request) {
+            @Valid CustomizationItemPageQueryRequest request) {
         return customizationItemAdminService.getPage(request);
     }
 

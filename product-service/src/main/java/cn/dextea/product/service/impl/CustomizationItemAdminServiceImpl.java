@@ -4,7 +4,7 @@ import cn.dextea.common.util.StringValueUtils;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.converter.CustomizationConverter;
 import cn.dextea.product.dto.request.CreateCustomizationItemRequest;
-import cn.dextea.product.dto.request.CustomizationItemPageRequest;
+import cn.dextea.product.dto.request.CustomizationItemPageQueryRequest;
 import cn.dextea.product.dto.request.UpdateCustomizationItemRequest;
 import cn.dextea.product.dto.request.UpdateCustomizationItemStatusRequest;
 import cn.dextea.product.dto.response.CreateCustomizationItemResponse;
@@ -50,13 +50,13 @@ public class CustomizationItemAdminServiceImpl implements CustomizationItemAdmin
     }
 
     @Override
-    public ApiResponse<IPage<CustomizationItemDetailResponse>> getPage(CustomizationItemPageRequest request) {
+    public ApiResponse<IPage<CustomizationItemDetailResponse>> getPage(CustomizationItemPageQueryRequest request) {
         LambdaQueryWrapper<CustomizationItemEntity> query = new LambdaQueryWrapper<CustomizationItemEntity>()
                 .like(StringValueUtils.hasText(request.getName()),
                         CustomizationItemEntity::getName, request.getName())
                 .eq(request.getStatus() != null,
                         CustomizationItemEntity::getStatus, request.getStatus())
-                .orderByDesc(CustomizationItemEntity::getId);
+                .orderByAsc(CustomizationItemEntity::getId);
 
         IPage<CustomizationItemEntity> entityPage = itemMapper.selectPage(
                 new Page<>(request.getCurrent(), request.getSize()), query);

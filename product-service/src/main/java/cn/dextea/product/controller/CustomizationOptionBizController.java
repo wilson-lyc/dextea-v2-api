@@ -2,7 +2,7 @@ package cn.dextea.product.controller;
 
 import cn.dev33.satoken.annotation.SaCheckLogin;
 import cn.dextea.common.web.response.ApiResponse;
-import cn.dextea.product.dto.request.ItemOptionsListInStore;
+import cn.dextea.product.dto.request.QueryStoreItemOptionsRequest;
 import cn.dextea.product.dto.request.UpdateStoreCustomizationOptionStatusRequest;
 import cn.dextea.product.dto.response.CustomizationOptionDetailResponse;
 import cn.dextea.product.service.CustomizationOptionBizService;
@@ -36,7 +36,7 @@ public class CustomizationOptionBizController {
     @GetMapping("/v1/biz/customization-items/{itemId}/options")
     public ApiResponse<List<CustomizationOptionDetailResponse>> getItemOptionsList(
             @Parameter(description = "客制化项目ID") @PathVariable("itemId") @Min(value = 1, message = "客制化项目ID错误") Long itemId,
-            @Valid ItemOptionsListInStore request) {
+            @Valid QueryStoreItemOptionsRequest request) {
         return customizationOptionBizService.getItemOptionsList(itemId, request);
     }
 

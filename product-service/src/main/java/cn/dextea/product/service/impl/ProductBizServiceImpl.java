@@ -4,7 +4,7 @@ import cn.dextea.common.util.StringValueUtils;
 import cn.dextea.common.web.response.ApiResponse;
 import cn.dextea.product.converter.CustomizationConverter;
 import cn.dextea.product.converter.ProductConverter;
-import cn.dextea.product.dto.request.StoreProductPageRequest;
+import cn.dextea.product.dto.request.StoreProductPageQueryRequest;
 import cn.dextea.product.dto.request.UpdateStoreProductStatusRequest;
 import cn.dextea.product.dto.response.CustomerProductDetailResponse;
 import cn.dextea.product.dto.response.CustomizationItemBizDetailResponse;
@@ -60,7 +60,7 @@ public class ProductBizServiceImpl implements ProductBizService {
      * 获取分页数据网关
      */
     @Override
-    public ApiResponse<IPage<ProductDetailResponse>> getPage(StoreProductPageRequest request) {
+    public ApiResponse<IPage<ProductDetailResponse>> getPage(StoreProductPageQueryRequest request) {
         Long storeId = request.getStoreId();
         Integer storeStatus = request.getStoreStatus();
 
@@ -68,7 +68,7 @@ public class ProductBizServiceImpl implements ProductBizService {
         LambdaQueryWrapper<ProductEntity> productQuery = new LambdaQueryWrapper<ProductEntity>()
                 .like(StringValueUtils.hasText(request.getName()), ProductEntity::getName, request.getName().trim())
                 .eq(request.getGlobalStatus() != null, ProductEntity::getStatus, request.getGlobalStatus())
-                .orderByDesc(ProductEntity::getId);
+                .orderByAsc(ProductEntity::getId);
 
         // 指定门店状态，走门店状态过滤逻辑
         if (storeStatus != null) {
@@ -81,7 +81,7 @@ public class ProductBizServiceImpl implements ProductBizService {
      * 按指定商品门店状态筛选
      */
     private ApiResponse<IPage<ProductDetailResponse>> getPage(
-            StoreProductPageRequest request, Long storeId, Integer requestedStatus,
+            StoreProductPageQueryRequest request, Long storeId, Integer requestedStatus,
             LambdaQueryWrapper<ProductEntity> productQuery) {
         if (Objects.equals(StoreProductStatus.DISABLED.getValue(), requestedStatus)) {
             // 排除非售罄商品
@@ -119,7 +119,7 @@ public class ProductBizServiceImpl implements ProductBizService {
      * 不按门店状态筛选的分页
      */
     private ApiResponse<IPage<ProductDetailResponse>> getPage(
-            StoreProductPageRequest request, Long storeId,
+            StoreProductPageQueryRequest request, Long storeId,
             LambdaQueryWrapper<ProductEntity> productQuery) {
 
         IPage<ProductEntity> productPage = productMapper.selectPage(

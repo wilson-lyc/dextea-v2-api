@@ -68,7 +68,7 @@ public class MenuAdminServiceImpl implements MenuAdminService {
         LambdaQueryWrapper<MenuEntity> queryWrapper = new LambdaQueryWrapper<MenuEntity>()
                 .like(StringValueUtils.hasText(request.getName()), MenuEntity::getName, StringValueUtils.trim(request.getName()))
                 .eq(request.getStatus() != null, MenuEntity::getStatus, request.getStatus())
-                .orderByDesc(MenuEntity::getId);
+                .orderByAsc(MenuEntity::getId);
 
         IPage<MenuEntity> entityPage = menuMapper.selectPage(
                 new Page<>(request.getCurrent(), request.getSize()), queryWrapper);
